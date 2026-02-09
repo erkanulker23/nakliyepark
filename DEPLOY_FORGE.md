@@ -4,7 +4,7 @@ Bu doküman, projeyi GitHub'dan Laravel Forge ile deploy etmek için gerekli ad�
 
 ## 1. Forge'da Site Oluşturma
 
-- **Repository:** GitHub'dan `nakliyepark` repo'sunu seçin (veya URL: `https://github.com/KULLANICI_ADI/nakliyepark.git`)
+- **Repository:** GitHub'dan `nakliyepark` repo'sunu seçin (URL: `https://github.com/erkanulker23/nakliyepark.git`)
 - **Branch:** `main`
 - **Web Directory:** Boş bırakın (Laravel `public` kullanır)
 - **PHP Version:** 8.2 veya üzeri
