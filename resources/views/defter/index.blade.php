@@ -14,11 +14,14 @@
                     <p class="text-zinc-600 dark:text-zinc-400 mt-1 text-sm sm:text-base">Firmaların paylaştığı yük ilanları. Günde 200'den fazla ilan ekleniyor.</p>
                 </div>
                 @auth
-                    @if(auth()->user()->isNakliyeci() && auth()->user()->company?->isApproved())
+                    @if(auth()->user()->isNakliyeci())
                         <a href="{{ route('nakliyeci.ledger.create') }}" class="btn-primary shrink-0 inline-flex gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                             Deftere yaz
                         </a>
+                        @if(!auth()->user()->company?->isApproved())
+                            <p class="w-full sm:w-auto mt-1 text-xs text-amber-600 dark:text-amber-400">Deftere yazmak için firmanızın onaylı olması gerekir. <a href="{{ route('nakliyeci.company.edit') }}" class="font-medium underline">Firma bilgilerinizi tamamlayın</a>.</p>
+                        @endif
                     @else
                         <span class="btn-secondary shrink-0 opacity-75 cursor-not-allowed inline-flex gap-2" title="Deftere yazabilmeniz için nakliyeci girişi yapmanız gerekmektedir.">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>

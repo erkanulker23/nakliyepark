@@ -24,8 +24,13 @@ class LedgerController extends Controller
     public function create(Request $request)
     {
         $company = $request->user()->company;
-        if (!$company || !$company->isApproved()) {
-            return redirect()->route('nakliyeci.dashboard')->with('error', 'Önce onaylı bir firma oluşturmalısınız.');
+        if (! $company) {
+            return redirect()->route('nakliyeci.company.create')
+                ->with('error', 'Deftere yazmak için önce firma bilgilerinizi oluşturmalısınız.');
+        }
+        if (! $company->isApproved()) {
+            return redirect()->route('nakliyeci.company.edit')
+                ->with('error', 'Deftere yazmak için firmanızın admin tarafından onaylanmış olması gerekir. Firma bilgilerinizi tamamlayıp onay bekleyin.');
         }
         $aktifSayisi = $company->yukIlanlari()->where('status', 'active')->count();
         if ($aktifSayisi >= self::MAX_AKTIF_ILAN) {
@@ -37,8 +42,13 @@ class LedgerController extends Controller
     public function store(Request $request)
     {
         $company = $request->user()->company;
-        if (!$company || !$company->isApproved()) {
-            return redirect()->route('nakliyeci.dashboard')->with('error', 'Önce onaylı bir firma oluşturmalısınız.');
+        if (! $company) {
+            return redirect()->route('nakliyeci.company.create')
+                ->with('error', 'Deftere yazmak için önce firma bilgilerinizi oluşturmalısınız.');
+        }
+        if (! $company->isApproved()) {
+            return redirect()->route('nakliyeci.company.edit')
+                ->with('error', 'Deftere yazmak için firmanızın onaylanmış olması gerekir.');
         }
         $aktifSayisi = $company->yukIlanlari()->where('status', 'active')->count();
         if ($aktifSayisi >= self::MAX_AKTIF_ILAN) {

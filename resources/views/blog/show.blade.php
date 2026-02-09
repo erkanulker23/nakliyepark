@@ -58,11 +58,11 @@
                 <div class="overflow-hidden rounded-3xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 shadow-sm">
                     {{-- Hero görsel: gradient overlay --}}
                     @if($post->image)
-                        <figure class="relative aspect-[16/9] sm:aspect-[21/9] overflow-hidden">
+                        <figure class="relative aspect-[2/1] sm:aspect-[21/10] max-h-[320px] overflow-hidden">
                             <img
                                 src="{{ asset('storage/'.$post->image) }}"
                                 alt="{{ $post->title }} - NakliyePark Blog"
-                                class="w-full h-full object-cover"
+                                class="w-full h-full object-cover object-center"
                                 itemprop="image"
                                 loading="eager"
                                 fetchpriority="high"
@@ -135,19 +135,19 @@
                         </div>
                         <div class="divide-y divide-zinc-100 dark:divide-zinc-800">
                             @forelse($otherPosts as $other)
-                                <a href="{{ route('blog.show', $other->slug) }}" class="blog-reveal flex gap-4 p-5 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors group">
+                                <a href="{{ route('blog.show', $other->slug) }}" class="blog-reveal flex gap-3 p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors group">
                                     @if($other->image)
-                                        <div class="w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800 ring-1 ring-zinc-200/50 dark:ring-zinc-700">
+                                        <div class="w-14 h-14 shrink-0 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800 ring-1 ring-zinc-200/50 dark:ring-zinc-700">
                                             <img src="{{ asset('storage/'.$other->image) }}" alt="{{ $other->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
                                         </div>
                                     @else
-                                        <div class="w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-xl bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/40 dark:to-teal-900/30 flex items-center justify-center">
-                                            <svg class="w-8 h-8 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+                                        <div class="w-14 h-14 shrink-0 rounded-lg bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/40 dark:to-teal-900/30 flex items-center justify-center">
+                                            <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
                                         </div>
                                     @endif
                                     <div class="min-w-0 flex-1">
-                                        <h3 class="font-semibold text-zinc-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 line-clamp-2 transition-colors">{{ $other->title }}</h3>
-                                        <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">{{ $other->published_at?->format('d.m.Y') }}</p>
+                                        <h3 class="text-sm font-semibold text-zinc-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 line-clamp-2 transition-colors">{{ $other->title }}</h3>
+                                        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{{ $other->published_at?->format('d.m.Y') }}</p>
                                     </div>
                                     <span class="shrink-0 self-center text-zinc-400 group-hover:text-emerald-500 transition-colors">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>

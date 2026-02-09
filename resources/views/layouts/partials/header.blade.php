@@ -32,9 +32,7 @@
                         <a href="{{ route('admin.dashboard') }}" class="btn-ghost rounded-lg hidden sm:inline-flex">Admin</a>
                     @endif
                     @if(auth()->user()->isNakliyeci())
-                        <a href="{{ route('nakliyeci.dashboard') }}" class="btn-ghost rounded-lg hidden sm:inline-flex">Panel</a>
                         <a href="{{ route('nakliyeci.company.edit') }}" class="btn-ghost rounded-lg hidden sm:inline-flex">Firmam</a>
-                        <a href="{{ route('nakliyeci.ledger') }}" class="btn-ghost rounded-lg hidden sm:inline-flex">Defter</a>
                     @endif
                     @if(auth()->user()->isMusteri())
                         <a href="{{ route('musteri.dashboard') }}" class="btn-ghost rounded-lg hidden sm:inline-flex">İhalelerim</a>

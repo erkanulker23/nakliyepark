@@ -58,6 +58,7 @@ Route::get('/nakliye-firmalari', [FirmaController::class, 'index'])->name('firma
 Route::get('/nakliye-firmalari/{company}', [FirmaController::class, 'show'])->name('firmalar.show');
 Route::get('/defter', [DefterController::class, 'index'])->name('defter.index');
 Route::get('/pazaryeri', [PazaryeriController::class, 'index'])->name('pazaryeri.index');
+Route::get('/pazaryeri/ilan/{listing}', [PazaryeriController::class, 'show'])->name('pazaryeri.show');
 
 Route::get('/ihale/olustur', [GuestWizardController::class, 'index'])->name('ihale.create');
 Route::post('/ihale/olustur', [GuestWizardController::class, 'store'])->middleware('throttle:10,1')->name('ihale.store');

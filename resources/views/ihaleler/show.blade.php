@@ -109,6 +109,39 @@
                         </a>
                     @endauth
                 </div>
+
+                {{-- Özet bilgiler (üye altı) --}}
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4">
+                    <div class="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/50 px-4 py-3">
+                        <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Hacim</p>
+                        <p class="text-lg font-bold text-zinc-900 dark:text-white mt-0.5">{{ $ihale->volume_m3 }} m³</p>
+                    </div>
+                    @if($ihale->distance_km)
+                        <div class="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/50 px-4 py-3">
+                            <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Mesafe</p>
+                            <p class="text-lg font-bold text-zinc-900 dark:text-white mt-0.5">{{ number_format((float)$ihale->distance_km, 0, ',', '.') }} km</p>
+                        </div>
+                    @endif
+                    @if($ihale->room_type)
+                        <div class="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/50 px-4 py-3">
+                            <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Büyüklük</p>
+                            <p class="text-lg font-bold text-zinc-900 dark:text-white mt-0.5">{{ $ihale->room_type }}</p>
+                        </div>
+                    @endif
+                    <div class="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/50 px-4 py-3">
+                        <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Hizmet</p>
+                        <p class="text-sm font-bold text-zinc-900 dark:text-white mt-0.5 leading-tight">
+                            @switch($ihale->service_type ?? '')
+                                @case('evden_eve_nakliyat') Evden eve @break
+                                @case('sehirlerarasi_nakliyat') Şehirler arası @break
+                                @case('parca_esya_tasimaciligi') Parça eşya @break
+                                @case('esya_depolama') Depolama @break
+                                @case('ofis_tasima') Ofis taşıma @break
+                                @default —
+                            @endswitch
+                        </p>
+                    </div>
+                </div>
             </div>
 
             {{-- Sağ: Detay kartları (Çıkış, Varış, Genel, Yol) --}}
