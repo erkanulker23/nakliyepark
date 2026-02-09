@@ -1,0 +1,108 @@
+<?php
+
+namespace App\Http\Controllers\Nakliyeci;
+
+use App\Http\Controllers\Controller;
+use App\Models\Company;
+use App\Services\AdminNotifier;
+use Illuminate\Http\Request;
+
+class CompanyController extends Controller
+{
+    public function create(Request $request)
+    {
+        if ($request->user()->company) {
+            return redirect()->route('nakliyeci.company.edit');
+        }
+        return view('nakliyeci.company.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'tax_number' => 'nullable|string|max:20',
+            'tax_office' => 'nullable|string|max:100',
+            'address' => 'nullable|string',
+            'city' => 'nullable|string|max:100',
+            'district' => 'nullable|string|max:100',
+            'phone' => 'nullable|string|max:20',
+            'phone_2' => 'nullable|string|max:20',
+            'whatsapp' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:100',
+            'description' => 'nullable|string',
+        ]);
+
+        $company = Company::create([
+            'user_id' => $request->user()->id,
+            'name' => $request->name,
+            'tax_number' => $request->tax_number,
+            'tax_office' => $request->tax_office,
+            'address' => $request->address,
+            'city' => $request->city,
+            'district' => $request->district,
+            'phone' => $request->phone,
+            'phone_2' => $request->phone_2,
+            'whatsapp' => $request->whatsapp,
+            'email' => $request->email,
+            'description' => $request->description,
+        ]);
+        AdminNotifier::notify('company_created', "Yeni firma: {$company->name} ({$request->user()->email})", 'Yeni firma kaydı', ['url' => route('admin.companies.edit', $company)]);
+
+        return redirect()->route('nakliyeci.dashboard')->with('success', 'Firma bilgileriniz kaydedildi. Admin onayından sonra yayına alınacaktır.');
+    }
+
+    public function edit(Request $request)
+    {
+        $company = $request->user()->company;
+        if (! $company) {
+            return redirect()->route('nakliyeci.company.create');
+        }
+        return view('nakliyeci.company.edit', compact('company'));
+    }
+
+    public function update(Request $request)
+    {
+        $company = $request->user()->company;
+        if (! $company) {
+            return redirect()->route('nakliyeci.company.create');
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'tax_number' => 'nullable|string|max:50',
+            'tax_office' => 'nullable|string|max:100',
+            'address' => 'nullable|string',
+            'city' => 'nullable|string|max:100',
+            'district' => 'nullable|string|max:100',
+            'phone' => 'nullable|string|max:20',
+            'phone_2' => 'nullable|string|max:20',
+            'whatsapp' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:100',
+            'description' => 'nullable|string',
+            'seo_meta_title' => 'nullable|string|max:255',
+            'seo_meta_description' => 'nullable|string|max:500',
+            'seo_meta_keywords' => 'nullable|string|max:500',
+        ]);
+
+        $company->update([
+            'name' => $request->name,
+            'tax_number' => $request->tax_number,
+            'tax_office' => $request->tax_office,
+            'address' => $request->address,
+            'city' => $request->city,
+            'district' => $request->district,
+            'phone' => $request->phone,
+            'phone_2' => $request->phone_2,
+            'whatsapp' => $request->whatsapp,
+            'email' => $request->email,
+            'description' => $request->description,
+            'seo_meta_title' => $request->seo_meta_title,
+            'seo_meta_description' => $request->seo_meta_description,
+            'seo_meta_keywords' => $request->seo_meta_keywords,
+            'approved_at' => null, // Güncelleme sonrası admin onayı gerekir
+        ]);
+
+        return redirect()->route('nakliyeci.company.edit')->with('success', 'Firma bilgileriniz güncellendi. Değişiklikler admin onayından sonra yayına alınacaktır.');
+    }
+}

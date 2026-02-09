@@ -1,0 +1,95 @@
+@extends('layouts.admin')
+
+@section('title', 'İhaleler')
+@section('page_heading', 'İhaleler')
+
+@section('content')
+@php
+    $pendingCount = \App\Models\Ihale::where('status', 'pending')->count();
+@endphp
+@if($pendingCount > 0)
+    <div class="mb-4 px-4 py-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm">
+        <strong>{{ $pendingCount }}</strong> ihale onay bekliyor. <a href="{{ route('admin.ihaleler.index', ['status' => 'pending']) }}" class="underline font-medium">Görüntüle</a>
+    </div>
+@endif
+<div class="flex flex-wrap items-end justify-between gap-4 mb-6">
+    <form method="get" action="{{ route('admin.ihaleler.index') }}" class="flex flex-wrap items-end gap-2">
+        <input type="text" name="from_city" value="{{ $filters['from_city'] ?? '' }}" placeholder="Nereden" class="admin-input py-2 w-32 text-sm">
+        <input type="text" name="to_city" value="{{ $filters['to_city'] ?? '' }}" placeholder="Nereye" class="admin-input py-2 w-32 text-sm">
+        <select name="service_type" class="admin-input py-2 w-44 text-sm">
+            <option value="">Hizmet tipi</option>
+            @foreach(\App\Models\Ihale::serviceTypeLabels() as $key => $label)
+                <option value="{{ $key }}" {{ ($filters['service_type'] ?? '') === $key ? 'selected' : '' }}>{{ $label }}</option>
+            @endforeach
+        </select>
+        <select name="status" class="admin-input py-2 w-36 text-sm">
+            <option value="">Tüm durumlar</option>
+            <option value="pending" {{ ($filters['status'] ?? '') === 'pending' ? 'selected' : '' }}>Onay bekliyor</option>
+            <option value="draft" {{ ($filters['status'] ?? '') === 'draft' ? 'selected' : '' }}>Taslak</option>
+            <option value="published" {{ ($filters['status'] ?? '') === 'published' ? 'selected' : '' }}>Yayında</option>
+            <option value="closed" {{ ($filters['status'] ?? '') === 'closed' ? 'selected' : '' }}>Kapalı</option>
+            <option value="cancelled" {{ ($filters['status'] ?? '') === 'cancelled' ? 'selected' : '' }}>İptal</option>
+        </select>
+        <button type="submit" class="admin-btn-secondary text-sm py-2">Filtrele</button>
+    </form>
+    <a href="{{ route('admin.ihaleler.create') }}" class="admin-btn-primary">Yeni ihale</a>
+</div>
+<div class="admin-card overflow-hidden">
+    <table class="w-full admin-table">
+        <thead>
+            <tr>
+                <th>Güzergah</th>
+                <th>Talep sahibi</th>
+                <th>Tarih / Hacim</th>
+                <th>Durum</th>
+                <th class="text-right">İşlem</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($ihaleler as $i)
+                <tr>
+                    <td class="font-medium">{{ $i->from_city }} → {{ $i->to_city }}</td>
+                    <td>{{ $i->user?->name ?? $i->guest_contact_name ?? 'Misafir' }}</td>
+                    <td class="text-slate-600">
+                        @if($i->move_date || $i->move_date_end)
+                            @if($i->move_date_end && $i->move_date != $i->move_date_end)
+                                {{ $i->move_date?->format('d.m.Y') }} – {{ $i->move_date_end?->format('d.m.Y') }}
+                            @else
+                                {{ $i->move_date?->format('d.m.Y') ?? '-' }}
+                            @endif
+                        @else
+                            Fiyat bakıyorum
+                        @endif
+                        · {{ $i->volume_m3 }} m³
+                    </td>
+                    <td>
+                        @php $statusLabels = ['pending' => 'Onay bekliyor', 'draft' => 'Taslak', 'published' => 'Yayında', 'closed' => 'Kapalı', 'cancelled' => 'İptal']; @endphp
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                            @if($i->status === 'pending') bg-amber-100 text-amber-800
+                            @elseif($i->status === 'published') bg-emerald-100 text-emerald-800
+                            @elseif($i->status === 'closed') bg-slate-100 text-slate-700
+                            @elseif($i->status === 'cancelled') bg-red-100 text-red-800
+                            @else bg-slate-100 text-slate-700 @endif">
+                            {{ $statusLabels[$i->status] ?? $i->status }}
+                        </span>
+                    </td>
+                    <td class="text-right">
+                        <a href="{{ route('admin.ihaleler.show', $i) }}" class="text-indigo-600 hover:underline text-sm font-medium">Detay</a>
+                        <a href="{{ route('admin.ihaleler.edit', $i) }}" class="ml-2 text-indigo-600 hover:underline text-sm font-medium">Düzenle</a>
+                        <form method="POST" action="{{ route('admin.ihaleler.destroy', $i) }}" class="inline ml-2" onsubmit="return confirm('Bu ihaleyi silmek istediğinize emin misiniz?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-red-600 hover:underline text-sm font-medium">Sil</button>
+                        </form>
+                    </td>
+                </tr>
+            @empty
+                <tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">İhale yok.</td></tr>
+            @endforelse
+        </tbody>
+    </table>
+    @if($ihaleler->hasPages())
+        <div class="px-4 py-3 border-t border-slate-200">{{ $ihaleler->links() }}</div>
+    @endif
+</div>
+@endsection

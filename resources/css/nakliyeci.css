@@ -1,0 +1,44 @@
+/* Nakliyeci panel - açık modda okunabilirlik */
+
+/* Açık mod: sidebar logo ve linkler koyu renk */
+html:not(.admin-dark) .admin-sidebar .admin-sidebar-logo {
+  color: #065f46 !important;
+}
+html:not(.admin-dark) .admin-sidebar .admin-sidebar-logo span:first-child {
+  background: #059669 !important;
+  color: #fff !important;
+}
+
+/* Ana alan açık modda net metin renkleri */
+html:not(.admin-dark) .admin-main-wrap .admin-page-title {
+  color: #0f172a;
+}
+html:not(.admin-dark) .admin-main-wrap .admin-page-subtitle {
+  color: #475569;
+}
+html:not(.admin-dark) .admin-main-wrap .admin-card,
+html:not(.admin-dark) .admin-main-wrap .admin-card p,
+html:not(.admin-dark) .admin-main-wrap .admin-card li {
+  color: #334155;
+}
+html:not(.admin-dark) .admin-main-wrap .admin-card .font-semibold,
+html:not(.admin-dark) .admin-main-wrap .admin-card .font-medium,
+html:not(.admin-dark) .admin-main-wrap .admin-card strong {
+  color: #0f172a;
+}
+html:not(.admin-dark) .admin-main-wrap .admin-label {
+  color: #475569;
+}
+html:not(.admin-dark) .admin-main-wrap .admin-table th {
+  color: #475569;
+  background: #f8fafc;
+}
+html:not(.admin-dark) .admin-main-wrap .admin-table td {
+  color: #334155;
+}
+html:not(.admin-dark) .admin-header .admin-page-title {
+  color: #0f172a;
+}
+html:not(.admin-dark) .admin-header .admin-page-subtitle {
+  color: #64748b;
+}
