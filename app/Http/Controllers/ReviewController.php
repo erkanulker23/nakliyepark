@@ -32,7 +32,7 @@ class ReviewController extends Controller
             'company_id' => 'required|exists:companies,id',
             'rating' => 'required|integer|min:1|max:5',
             'comment' => 'nullable|string|max:1000',
-            'video' => 'nullable|file|mimes:mp4,mov|max:51200', // 50MB
+            'video' => 'nullable|file|mimes:mp4,webm|max:51200', // 50MB, sadece mp4/webm (MIME spoofing riski azaltılır)
         ]);
 
         $ihale = Ihale::findOrFail($request->ihale_id);
@@ -54,6 +54,7 @@ class ReviewController extends Controller
             'video_path' => $videoPath,
         ]);
         $company = \App\Models\Company::find($request->company_id);
+        \App\Models\AuditLog::log('review_created', Review::class, (int) $review->id, null, ['company_id' => $company->id, 'ihale_id' => $ihale->id]);
         AdminNotifier::notify('review_submitted', "Yeni değerlendirme: {$request->user()->name} - {$company->name} ({$request->rating}/5)", 'Yeni değerlendirme', ['url' => route('admin.reviews.index')]);
 
         return redirect()->route('musteri.dashboard')->with('success', 'Değerlendirmeniz kaydedildi. Teşekkürler!');

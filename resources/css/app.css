@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 
+/* Koyu mod: .dark sınıfı ile tetiklenir (manuel geçiş için) */
+@custom-variant dark (&&:where(.dark, .dark *));
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
@@ -31,6 +34,26 @@ html {
 body {
   @apply antialiased text-zinc-900 font-sans;
   background-color: #fafafa;
+}
+
+/* Site tasarımı: tek yerden müdahale için sınıflar */
+.site-selection::selection {
+  @apply bg-emerald-500/30 text-zinc-900;
+}
+.site-brand { }
+.site-brand-logo { }
+.site-brand-text { }
+.site-heading {
+  @apply font-semibold text-zinc-900 dark:text-white tracking-tight;
+}
+.site-muted {
+  @apply text-zinc-500 dark:text-zinc-400;
+}
+.site-border {
+  @apply border-zinc-200 dark:border-zinc-700;
+}
+.site-card {
+  @apply bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/80 dark:border-zinc-800;
 }
 
 .dark body {

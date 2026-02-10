@@ -3,17 +3,46 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AuditLog;
 use App\Models\Ihale;
+use App\Models\Teklif;
 use App\Models\User;
 use App\Models\UserNotification;
+use App\Notifications\IhalePreferredCompanyPublishedNotification;
+use App\Notifications\IhalePublishedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 
 class IhaleController extends Controller
 {
     public function index(Request $request)
     {
         $query = Ihale::with('user')->latest();
+        if (! $request->filled('date_from') && ! $request->filled('date_to') && ! $request->filled('q') && ! $request->filled('status') && ! $request->filled('from_city') && ! $request->filled('to_city') && ! $request->filled('service_type')) {
+            $query->where('created_at', '>=', now()->subDays(30));
+        }
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+        if ($request->filled('q')) {
+            $q = $request->q;
+            $query->where(function ($qry) use ($q) {
+                $qry->where('from_city', 'like', '%' . $q . '%')
+                    ->orWhere('to_city', 'like', '%' . $q . '%')
+                    ->orWhere('from_address', 'like', '%' . $q . '%')
+                    ->orWhere('to_address', 'like', '%' . $q . '%')
+                    ->orWhere('description', 'like', '%' . $q . '%')
+                    ->orWhereHas('user', function ($u) use ($q) {
+                        $u->where('name', 'like', '%' . $q . '%')->orWhere('email', 'like', '%' . $q . '%');
+                    })
+                    ->orWhere('guest_contact_name', 'like', '%' . $q . '%')
+                    ->orWhere('guest_contact_email', 'like', '%' . $q . '%');
+            });
+        }
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
@@ -27,7 +56,7 @@ class IhaleController extends Controller
             $query->where('service_type', $request->service_type);
         }
         $ihaleler = $query->paginate(20)->withQueryString();
-        $filters = $request->only(['status', 'from_city', 'to_city', 'service_type']);
+        $filters = $request->only(['q', 'status', 'from_city', 'to_city', 'service_type', 'date_from', 'date_to']);
         return view('admin.ihaleler.index', compact('ihaleler', 'filters'));
     }
 
@@ -66,30 +95,68 @@ class IhaleController extends Controller
         return redirect()->route('admin.ihaleler.show', $ihale)->with('success', 'İhale güncellendi.');
     }
 
-    public function destroy(Ihale $ihale)
+    public function destroy(Request $request, Ihale $ihale)
     {
-        Log::info('Admin ihale deleted', ['admin_id' => auth()->id(), 'ihale_id' => $ihale->id, 'guzergah' => $ihale->from_city . ' → ' . $ihale->to_city]);
+        $request->validate(['action_reason' => 'nullable|string|max:1000']);
+        $before = $ihale->only(['id', 'user_id', 'status', 'from_city', 'to_city', 'created_at']);
         $ihale->delete();
-        return redirect()->route('admin.ihaleler.index')->with('success', 'İhale silindi.');
+        AuditLog::adminAction('admin_ihale_deleted', Ihale::class, (int) $ihale->id, $before, ['deleted_at' => now()->toIso8601String()], $request->input('action_reason'));
+        Log::channel('admin_actions')->info('Admin ihale deleted', ['admin_id' => auth()->id(), 'ihale_id' => $ihale->id, 'guzergah' => $ihale->from_city . ' → ' . $ihale->to_city]);
+        return redirect()->route('admin.ihaleler.index')->with('success', 'İhale silindi. Geri almak için destek ile iletişime geçin.');
     }
 
     public function updateStatus(Request $request, Ihale $ihale)
     {
         $request->validate(['status' => 'required|in:pending,draft,published,closed,cancelled']);
         $ihale->update(['status' => $request->status]);
-        Log::info('Admin ihale status updated', ['admin_id' => auth()->id(), 'ihale_id' => $ihale->id, 'status' => $request->status]);
-        if ($request->status === 'published' && $ihale->user_id) {
-            $ihale->load('user');
-            UserNotification::notify(
-                $ihale->user,
-                'ihale_published',
-                "{$ihale->from_city} → {$ihale->to_city} ihale talebiniz onaylandı ve yayına alındı. Firmalardan teklif almaya başlayabilirsiniz.",
-                'İhaleniz yayında',
-                ['url' => route('musteri.ihaleler.show', $ihale)]
-            );
+        Log::channel('admin_actions')->info('Admin ihale status updated', ['admin_id' => auth()->id(), 'ihale_id' => $ihale->id, 'status' => $request->status]);
+        if ($request->status === 'published') {
+            if ($ihale->user_id) {
+                $ihale->load('user');
+                UserNotification::notify(
+                    $ihale->user,
+                    'ihale_published',
+                    "{$ihale->from_city} → {$ihale->to_city} ihale talebiniz onaylandı ve yayına alındı. Firmalardan teklif almaya başlayabilirsiniz.",
+                    'İhaleniz yayında',
+                    ['url' => route('musteri.ihaleler.show', $ihale)]
+                );
+                $ihale->user->notify(new IhalePublishedNotification($ihale));
+            } elseif ($ihale->guest_contact_email) {
+                Notification::route('mail', $ihale->guest_contact_email)
+                    ->notify(new IhalePublishedNotification($ihale, true));
+            }
+            if ($ihale->preferred_company_id) {
+                $ihale->load('preferredCompany.user');
+                if ($ihale->preferredCompany && $ihale->preferredCompany->user) {
+                    UserNotification::notify(
+                        $ihale->preferredCompany->user,
+                        'ihale_preferred_published',
+                        "Sizi tercih eden bir ihale yayına alındı: {$ihale->from_city} → {$ihale->to_city}. Hemen teklif verebilirsiniz.",
+                        'Sizi tercih eden ihale yayında',
+                        ['url' => route('nakliyeci.ihaleler.show', $ihale)]
+                    );
+                    $ihale->preferredCompany->user->notify(new IhalePreferredCompanyPublishedNotification($ihale));
+                }
+            }
         }
         $message = $request->status === 'published' ? 'İhale onaylandı ve yayına alındı.' : 'İhale durumu güncellendi.';
         return back()->with('success', $message);
+    }
+
+    /** Nakliyeci teklifini iptal et (rejected) */
+    public function rejectTeklif(Ihale $ihale, Teklif $teklif)
+    {
+        if ($teklif->ihale_id != $ihale->id) {
+            abort(404);
+        }
+        $teklif->update(['status' => 'rejected', 'pending_amount' => null, 'pending_message' => null]);
+        Log::channel('admin_actions')->info('Admin teklif rejected', [
+            'admin_id' => auth()->id(),
+            'ihale_id' => $ihale->id,
+            'teklif_id' => $teklif->id,
+            'company_id' => $teklif->company_id,
+        ]);
+        return redirect()->route('admin.ihaleler.show', $ihale)->with('success', 'Teklif iptal edildi.');
     }
 
     private function validateIhale(Request $request, ?Ihale $ihale = null): array

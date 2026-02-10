@@ -4,7 +4,22 @@
 @section('page_heading', 'Yük İlanları')
 
 @section('content')
-<div class="flex justify-end mb-6">
+<div class="flex flex-col sm:flex-row sm:flex-nowrap sm:items-center sm:justify-between gap-4 mb-6">
+    <form method="get" action="{{ route('admin.yuk-ilanlari.index') }}" class="flex flex-wrap items-center gap-2 sm:flex-nowrap">
+        <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Güzergah, firma veya açıklama ara..." class="admin-input py-2 w-52 text-sm">
+        <input type="text" name="from_city" value="{{ $filters['from_city'] ?? '' }}" placeholder="Nereden" class="admin-input py-2 w-28 text-sm">
+        <input type="text" name="to_city" value="{{ $filters['to_city'] ?? '' }}" placeholder="Nereye" class="admin-input py-2 w-28 text-sm">
+        <select name="status" class="admin-input py-2 w-32 text-sm">
+            <option value="">Tüm durumlar</option>
+            <option value="active" {{ ($filters['status'] ?? '') === 'active' ? 'selected' : '' }}>Aktif</option>
+            <option value="inactive" {{ ($filters['status'] ?? '') === 'inactive' ? 'selected' : '' }}>Pasif</option>
+            <option value="draft" {{ ($filters['status'] ?? '') === 'draft' ? 'selected' : '' }}>Taslak</option>
+        </select>
+        <button type="submit" class="admin-btn-secondary text-sm py-2">Filtrele / Ara</button>
+        @if(array_filter($filters ?? []))
+            <a href="{{ route('admin.yuk-ilanlari.index') }}" class="text-slate-500 hover:underline text-sm py-2">Temizle</a>
+        @endif
+    </form>
     <a href="{{ route('admin.yuk-ilanlari.create') }}" class="admin-btn-primary">Yeni yük ilanı</a>
 </div>
 <div class="admin-card overflow-hidden">

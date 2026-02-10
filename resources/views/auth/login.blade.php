@@ -1,6 +1,7 @@
 @extends('layouts.guest')
 
 @section('title', 'Giriş - NakliyePark')
+@section('meta_description', 'NakliyePark hesabınıza giriş yapın. İhalelerinizi yönetin, teklif verin veya nakliye firması olarak kayıt olun.')
 
 @section('content')
 <div class="w-full max-w-sm">
@@ -9,6 +10,9 @@
         <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Hesabınızla devam edin</p>
         @if(session('error'))
             <div class="mb-4 rounded-xl bg-red-50 text-red-800 px-4 py-3 text-sm border border-red-200 dark:bg-red-900/20 dark:border-red-800 dark:text-red-200">{{ session('error') }}</div>
+        @endif
+        @if(session('status'))
+            <div class="mb-4 rounded-xl bg-emerald-50 text-emerald-800 px-4 py-3 text-sm border border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-200">{{ session('status') }}</div>
         @endif
         <form method="POST" action="{{ route('login') }}" class="space-y-4">
             @csrf
@@ -28,6 +32,9 @@
                 @error('password')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
+                <p class="mt-1.5 text-sm">
+                    <a href="{{ route('password.request') }}" class="link-muted">Şifremi unuttum</a>
+                </p>
             </div>
             <label class="flex items-center gap-2 min-h-[44px] cursor-pointer">
                 <input type="checkbox" name="remember" class="rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4">

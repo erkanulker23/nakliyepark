@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Pazaryeri - Nakliye Araç İlanları')
+@section('meta_description', 'Nakliye araç kiralama ve satılık ilanları. Kamyon, kamyonet, tır ve nakliye araçları. NakliyePark pazaryerinde ilan verin veya arayın.')
 
 @section('content')
 <div class="min-h-screen bg-[#fafafa] dark:bg-zinc-900/50">

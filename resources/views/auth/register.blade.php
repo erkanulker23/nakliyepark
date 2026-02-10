@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Hesap Oluştur - NakliyePark')
+@section('meta_description', 'NakliyePark hesabı oluşturun. Müşteri olarak ihale açın veya nakliye firması olarak teklif verin. Ücretsiz kayıt.')
 
 @section('content')
 <div class="page-container py-8 max-w-lg mx-auto">

@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Nakliye İhalesi - NakliyePark')
+@section('meta_description', 'Nakliye ihalesi adımları: Rota, hacim, detay ve fotoğraf. NakliyePark ile ihale oluşturup firmalardan teklif alın.')
 
 @section('content')
 <div class="px-4 py-6 max-w-lg mx-auto">

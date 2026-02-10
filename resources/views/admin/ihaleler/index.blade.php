@@ -12,8 +12,11 @@
         <strong>{{ $pendingCount }}</strong> ihale onay bekliyor. <a href="{{ route('admin.ihaleler.index', ['status' => 'pending']) }}" class="underline font-medium">Görüntüle</a>
     </div>
 @endif
-<div class="flex flex-wrap items-end justify-between gap-4 mb-6">
-    <form method="get" action="{{ route('admin.ihaleler.index') }}" class="flex flex-wrap items-end gap-2">
+<div class="flex flex-col sm:flex-row sm:flex-nowrap sm:items-center sm:justify-between gap-4 mb-6">
+    <form method="get" action="{{ route('admin.ihaleler.index') }}" class="flex flex-wrap items-center gap-2 sm:flex-nowrap">
+        <input type="date" name="date_from" value="{{ $filters['date_from'] ?? '' }}" placeholder="Başlangıç" class="admin-input py-2 w-36 text-sm" title="Varsayılan: son 30 gün">
+        <input type="date" name="date_to" value="{{ $filters['date_to'] ?? '' }}" placeholder="Bitiş" class="admin-input py-2 w-36 text-sm">
+        <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Genel ara (güzergah, açıklama, kişi)..." class="admin-input py-2 w-52 text-sm">
         <input type="text" name="from_city" value="{{ $filters['from_city'] ?? '' }}" placeholder="Nereden" class="admin-input py-2 w-32 text-sm">
         <input type="text" name="to_city" value="{{ $filters['to_city'] ?? '' }}" placeholder="Nereye" class="admin-input py-2 w-32 text-sm">
         <select name="service_type" class="admin-input py-2 w-44 text-sm">
@@ -30,7 +33,10 @@
             <option value="closed" {{ ($filters['status'] ?? '') === 'closed' ? 'selected' : '' }}>Kapalı</option>
             <option value="cancelled" {{ ($filters['status'] ?? '') === 'cancelled' ? 'selected' : '' }}>İptal</option>
         </select>
-        <button type="submit" class="admin-btn-secondary text-sm py-2">Filtrele</button>
+        <button type="submit" class="admin-btn-secondary text-sm py-2">Filtrele / Ara</button>
+        @if(array_filter($filters ?? []))
+            <a href="{{ route('admin.ihaleler.index') }}" class="text-slate-500 hover:underline text-sm py-2">Temizle</a>
+        @endif
     </form>
     <a href="{{ route('admin.ihaleler.create') }}" class="admin-btn-primary">Yeni ihale</a>
 </div>

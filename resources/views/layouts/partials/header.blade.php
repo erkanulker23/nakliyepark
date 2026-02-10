@@ -1,13 +1,20 @@
 <header class="sticky top-0 z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border-b border-zinc-200/80 dark:border-zinc-800 safe-top">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-            <a href="{{ url('/') }}" class="flex items-center gap-2.5 shrink-0">
-                @if(!empty($site_logo_url))
-                    <img src="{{ $site_logo_url }}" alt="{{ $site_meta_title ?? 'NakliyePark' }}" class="h-9 w-auto max-w-[140px] object-contain">
+        <div class="flex items-center justify-between min-h-[72px] py-2">
+            <a href="{{ url('/') }}" class="site-brand flex items-center gap-2.5 shrink-0">
+                @if(!empty($site_logo_url) || !empty($site_logo_dark_url ?? null))
+                    @if(!empty($site_logo_url))
+                        <img src="{{ $site_logo_url }}" alt="{{ $site_meta_title ?? 'NakliyePark' }}" class="site-brand-logo h-11 w-auto max-w-[200px] object-contain dark:hidden">
+                    @endif
+                    @if(!empty($site_logo_dark_url ?? null))
+                        <img src="{{ $site_logo_dark_url }}" alt="{{ $site_meta_title ?? 'NakliyePark' }}" class="site-brand-logo h-11 w-auto max-w-[200px] object-contain hidden dark:block">
+                    @elseif(!empty($site_logo_url))
+                        <img src="{{ $site_logo_url }}" alt="{{ $site_meta_title ?? 'NakliyePark' }}" class="site-brand-logo h-11 w-auto max-w-[200px] object-contain hidden dark:block">
+                    @endif
                 @else
-                    <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 text-white font-bold text-sm shadow-sm">N</span>
+                    <span class="site-brand-fallback flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-600 text-white font-bold text-base shadow-sm">N</span>
+                    <span class="site-brand-text font-semibold text-zinc-900 dark:text-white text-lg tracking-tight">NakliyePark</span>
                 @endif
-                <span class="font-semibold text-zinc-900 dark:text-white text-lg tracking-tight">NakliyePark</span>
             </a>
             <nav class="hidden lg:flex items-center gap-0.5">
                 <a href="{{ route('ihaleler.index') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400">İhaleler</a>
@@ -22,11 +29,18 @@
                     <div id="tools-dropdown-menu" class="absolute left-0 top-full mt-1 w-56 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-lg py-1 z-50 tools-dropdown-panel" role="menu" aria-labelledby="tools-menu-btn" hidden>
                         <a href="{{ route('tools.volume') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Hacim hesaplama</a>
                         <a href="{{ route('tools.distance') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Mesafe hesaplama</a>
+                        <a href="{{ route('tools.road-distance') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Karayolu mesafe</a>
                         <a href="{{ route('tools.cost') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Tahmini maliyet</a>
+                        <a href="{{ route('tools.checklist') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Taşınma kontrol listesi</a>
+                        <a href="{{ route('tools.moving-calendar') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Taşınma takvimi</a>
                     </div>
                 </div>
             </nav>
             <div class="flex items-center gap-2">
+                <button type="button" id="theme-toggle" class="btn-ghost rounded-lg p-2.5 text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400" aria-label="Açık/Koyu mod" title="Açık/Koyu mod">
+                    <svg id="theme-icon-light" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                    <svg id="theme-icon-dark" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+                </button>
                 @auth
                     @if(auth()->user()->isAdmin())
                         <a href="{{ route('admin.dashboard') }}" class="btn-ghost rounded-lg hidden sm:inline-flex">Admin</a>
@@ -59,7 +73,10 @@
             <a href="{{ route('pazaryeri.index') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Pazaryeri</a>
             <a href="{{ route('tools.volume') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Hacim</a>
             <a href="{{ route('tools.distance') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Mesafe</a>
+            <a href="{{ route('tools.road-distance') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Karayolu</a>
             <a href="{{ route('tools.cost') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Maliyet</a>
+            <a href="{{ route('tools.checklist') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Kontrol listesi</a>
+            <a href="{{ route('tools.moving-calendar') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Takvim</a>
         </div>
     </div>
 </header>

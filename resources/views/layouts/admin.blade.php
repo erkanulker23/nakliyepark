@@ -4,6 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#ffffff" id="admin-theme-color">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="googlebot" content="noindex, nofollow">
+    <meta name="yandex" content="noindex, nofollow">
     <title>@yield('title', 'Admin') - NakliyePark</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,7 +14,7 @@
     @vite(['resources/css/app.css', 'resources/css/admin.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
-<body class="admin-body min-h-screen bg-slate-50 text-slate-800 antialiased font-sans">
+<body class="admin-body min-h-screen antialiased font-sans">
     <div class="flex">
         {{-- Sol menü --}}
         <aside id="admin-sidebar" class="admin-sidebar fixed lg:sticky top-0 left-0 z-40 w-64 border-r border-slate-700/50 shadow-xl lg:shadow-none transition-transform duration-200 ease-out">
@@ -27,11 +30,7 @@
             <nav class="p-3 space-y-0.5 overflow-y-auto" style="max-height: calc(100vh - 4rem);">
                 <a href="{{ route('admin.dashboard') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                     <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-                    Dashboard
-                </a>
-                <a href="{{ route('admin.users.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                    Kullanıcılar
+                    Kontrol Paneli
                 </a>
                 <a href="{{ route('admin.musteriler.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('admin.musteriler.*') ? 'active' : '' }}">
                     <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
@@ -39,7 +38,7 @@
                 </a>
                 <a href="{{ route('admin.companies.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('admin.companies.*') ? 'active' : '' }}">
                     <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                    Firmalar
+                    Nakliyeciler
                 </a>
                 <a href="{{ route('admin.ihaleler.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('admin.ihaleler.*') ? 'active' : '' }}">
                     <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
@@ -53,13 +52,17 @@
                     <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
                     Yük İlanları
                 </a>
-                <a href="{{ route('admin.defter-reklamlari.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('admin.defter-reklamlari.*') ? 'active' : '' }}">
+                <a href="{{ route('admin.reklam-alanlari.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('admin.reklam-alanlari.*') ? 'active' : '' }}">
                     <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
-                    Defter Reklamları
+                    Reklam Alanları
                 </a>
                 <a href="{{ route('admin.reviews.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}">
                     <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
                     Değerlendirmeler
+                </a>
+                <a href="{{ route('admin.disputes.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('admin.disputes.*') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    Uyuşmazlıklar
                 </a>
                 <div class="admin-sidebar-label pt-4 pb-1 px-3 text-xs font-semibold uppercase tracking-wider">İçerik</div>
                 <a href="{{ route('admin.blog.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('admin.blog.*') ? 'active' : '' }}">
@@ -79,6 +82,10 @@
                     Oda Şablonları
                 </a>
                 <div class="admin-sidebar-label pt-4 pb-1 px-3 text-xs font-semibold uppercase tracking-wider">Sistem</div>
+                <a href="{{ route('admin.consent-logs.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('admin.consent-logs.*') ? 'active' : '' }}">
+                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    KVKK Rıza Logları
+                </a>
                 <a href="{{ route('admin.blocklist.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('admin.blocklist.*') ? 'active' : '' }}">
                     <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
                     Engellemeler
@@ -110,28 +117,42 @@
                     <h1 class="admin-page-title text-lg">@yield('page_heading', 'Admin')</h1>
                     @hasSection('page_subtitle')<p class="admin-page-subtitle">@yield('page_subtitle')</p>@endif
                 </div>
-                <div class="flex items-center gap-3">
-                    <button type="button" id="admin-dark-toggle" class="admin-header-btn p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700" aria-label="Açık/Koyu mod" title="Açık/Koyu mod">
+                <div class="flex items-center gap-2 sm:gap-3">
+                    {{-- Bildirimler (header) --}}
+                    <a href="{{ route('admin.notifications.index') }}" class="admin-header-btn relative p-2.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-emerald-400" aria-label="Bildirimler" title="Bildirimler">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-6-6 6 6 0 00-6 6v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                        @php $headerUnread = \App\Models\AdminNotification::whereNull('read_at')->count(); @endphp
+                        @if($headerUnread > 0)
+                            <span class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-emerald-500 text-white text-xs font-semibold px-1">{{ $headerUnread > 99 ? '99+' : $headerUnread }}</span>
+                        @endif
+                    </a>
+                    <button type="button" id="admin-dark-toggle" class="admin-header-btn p-2.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-emerald-400" aria-label="Açık/Koyu mod" title="Açık/Koyu mod">
                         <svg id="admin-icon-sun" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                         <svg id="admin-icon-moon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
                     </button>
-                    <a href="{{ url('/') }}" target="_blank" class="text-sm text-slate-500 hover:text-emerald-600 font-medium">Siteyi aç →</a>
-                    <a href="{{ route('admin.profile.edit') }}" class="text-sm text-slate-500 hover:text-emerald-600 font-medium">Profil</a>
+                    <a href="{{ url('/') }}" target="_blank" class="hidden sm:inline text-sm text-slate-500 hover:text-slate-800 dark:hover:text-emerald-400 font-medium">Siteyi aç →</a>
+                    <a href="{{ route('admin.profile.edit') }}" class="text-sm text-slate-500 hover:text-slate-800 dark:hover:text-emerald-400 font-medium">Profil</a>
                     <form method="POST" action="{{ route('logout') }}" class="inline">
                         @csrf
-                        <button type="submit" class="text-sm text-slate-500 hover:text-slate-700 font-medium">Çıkış</button>
+                        <button type="submit" class="text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-400 font-medium">Çıkış</button>
                     </form>
                 </div>
             </header>
             <div class="flex-1 p-6 lg:p-8">
                 @if(session('success'))
-                    <div class="admin-alert-success mb-6 rounded-lg border px-4 py-3 text-sm font-medium">
-                        {{ session('success') }}
+                    <div class="admin-alert admin-alert-success mb-6" role="alert">
+                        <span class="admin-alert-icon" aria-hidden="true">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                        </span>
+                        <span class="admin-alert-text">{{ session('success') }}</span>
                     </div>
                 @endif
                 @if(session('error'))
-                    <div class="admin-alert-error mb-6 rounded-lg border px-4 py-3 text-sm font-medium">
-                        {{ session('error') }}
+                    <div class="admin-alert admin-alert-error mb-6" role="alert">
+                        <span class="admin-alert-icon" aria-hidden="true">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                        </span>
+                        <span class="admin-alert-text">{{ session('error') }}</span>
                     </div>
                 @endif
                 @yield('content')

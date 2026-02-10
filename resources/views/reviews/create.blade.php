@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Değerlendirme - NakliyePark')
+@section('meta_description', $company->name . ' nakliye firması için taşıma değerlendirmesi bırakın. NakliyePark müşteri deneyimleri.')
 
 @section('content')
 <div class="px-4 py-6 max-w-lg mx-auto">

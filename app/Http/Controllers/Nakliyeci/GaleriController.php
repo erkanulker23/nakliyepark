@@ -34,17 +34,28 @@ class GaleriController extends Controller
             return redirect()->route('nakliyeci.company.create')->with('error', 'Önce firma bilgilerinizi girin.');
         }
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'images' => 'required|array|min:1',
+            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:5120',
             'caption' => 'nullable|string|max:255',
+        ], [
+            'images.required' => 'En az bir fotoğraf seçin.',
+            'images.*.image' => 'Seçilen dosyalar resim olmalıdır.',
+            'images.*.max' => 'Her fotoğraf en fazla 5 MB olabilir.',
         ]);
-        $path = $request->file('image')->store('company-gallery/' . $company->id, 'public');
-        $maxOrder = $company->vehicleImages()->max('sort_order') ?? 0;
-        $company->vehicleImages()->create([
-            'path' => $path,
-            'caption' => $request->caption,
-            'sort_order' => $maxOrder + 1,
-        ]);
-        return redirect()->route('nakliyeci.galeri.index')->with('success', 'Fotoğraf eklendi.');
+        $caption = $request->filled('caption') ? $request->caption : null;
+        $maxOrder = (int) $company->vehicleImages()->max('sort_order');
+        $uploaded = 0;
+        foreach ($request->file('images') as $file) {
+            $path = $file->store('company-gallery/' . $company->id, 'public');
+            $company->vehicleImages()->create([
+                'path' => $path,
+                'caption' => $caption,
+                'sort_order' => ++$maxOrder,
+            ]);
+            $uploaded++;
+        }
+        $message = $uploaded === 1 ? 'Fotoğraf eklendi.' : "{$uploaded} fotoğraf eklendi.";
+        return redirect()->route('nakliyeci.galeri.index')->with('success', $message);
     }
 
     public function destroy(Request $request, $id)

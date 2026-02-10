@@ -8,6 +8,7 @@
     <header class="mb-6 sm:mb-8">
         <h1 class="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">Hacim Hesaplama</h1>
         <p class="mt-1.5 text-sm text-zinc-500 dark:text-zinc-400">Kayıtlı odalara göre taşınacak hacmi hesaplayın; tahmini araç ihtiyacını görün.</p>
+        <p class="mt-3 text-zinc-600 dark:text-zinc-400 text-base max-w-3xl">Nakliye hacim hesaplama aracı ile evinizdeki oda türlerine göre taşınacak toplam m³ değerini hesaplayın. Salon, yatak odası, mutfak vb. için ortalama hacimler kullanılır; toplam hacme göre kamyon, kamyonet, tır veya panelvan ihtiyacı otomatik gösterilir. Nakliye ihalesi açarken bu değeri kullanabilirsiniz.</p>
     </header>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
@@ -46,29 +47,19 @@
             </div>
         </section>
 
-        {{-- Sağ: Tahmini araç ihtiyacı --}}
+        {{-- Sağ: Hangi araç(lar)a ihtiyacınız var? --}}
         <section class="card rounded-2xl border-0 shadow-lg shadow-zinc-200/60 dark:shadow-none dark:bg-zinc-900/80 dark:border dark:border-zinc-800 overflow-hidden" aria-labelledby="arac-baslik">
             <div class="p-5 sm:p-6 bg-gradient-to-br from-sky-50/80 to-white dark:from-sky-950/20 dark:to-zinc-900 border-b border-zinc-100 dark:border-zinc-800">
                 <h2 id="arac-baslik" class="text-lg font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
                     <span class="w-8 h-8 rounded-lg bg-sky-500/15 dark:bg-sky-500/20 flex items-center justify-center text-sky-600 dark:text-sky-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h8m-8 4h8m-3 5l3-3m0 0l3 3m-3-3v-6"/></svg>
                     </span>
-                    Tahmini araç ihtiyacı
+                    Hangi araç(lar)a ihtiyacınız var?
                 </h2>
-                <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Hacme göre araçlar küçükten büyüğe (kamyonet → kamyon → tır) doldurulur.</p>
+                <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Hacme göre önce kamyon, sonra kamyonet, sonra tır, en son panelvan doldurulur.</p>
             </div>
             <div class="p-5 sm:p-6 space-y-3">
-                <div class="flex items-center justify-between py-4 px-5 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-700/50">
-                    <div class="flex items-center gap-3">
-                        <span class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center text-amber-600 dark:text-amber-400 text-lg" aria-hidden="true">🚐</span>
-                        <div>
-                            <span class="text-sm font-medium text-zinc-800 dark:text-zinc-200 block">Kamyonet</span>
-                            <span class="text-xs text-zinc-500 dark:text-zinc-400">~18 m³</span>
-                        </div>
-                    </div>
-                    <span id="vol-kamyonet" class="text-base font-semibold text-zinc-900 dark:text-white tabular-nums">0 adet</span>
-                </div>
-                <div class="flex items-center justify-between py-4 px-5 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-700/50">
+                <div class="flex items-center justify-between py-4 px-5 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-700/50" data-vehicle="kamyon">
                     <div class="flex items-center gap-3">
                         <span class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center text-blue-600 dark:text-blue-400 text-lg" aria-hidden="true">🚛</span>
                         <div>
@@ -76,9 +67,19 @@
                             <span class="text-xs text-zinc-500 dark:text-zinc-400">~50 m³</span>
                         </div>
                     </div>
-                    <span id="vol-kamyon" class="text-base font-semibold text-zinc-900 dark:text-white tabular-nums">0 adet</span>
+                    <span id="vol-kamyon" class="text-base font-semibold text-zinc-900 dark:text-white tabular-nums">—</span>
                 </div>
-                <div class="flex items-center justify-between py-4 px-5 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-700/50">
+                <div class="flex items-center justify-between py-4 px-5 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-700/50" data-vehicle="kamyonet">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center text-amber-600 dark:text-amber-400 text-lg" aria-hidden="true">🚐</span>
+                        <div>
+                            <span class="text-sm font-medium text-zinc-800 dark:text-zinc-200 block">Kamyonet</span>
+                            <span class="text-xs text-zinc-500 dark:text-zinc-400">~18 m³</span>
+                        </div>
+                    </div>
+                    <span id="vol-kamyonet" class="text-base font-semibold text-zinc-900 dark:text-white tabular-nums">—</span>
+                </div>
+                <div class="flex items-center justify-between py-4 px-5 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-700/50" data-vehicle="tir">
                     <div class="flex items-center gap-3">
                         <span class="w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center text-violet-600 dark:text-violet-400 text-lg" aria-hidden="true">🚚</span>
                         <div>
@@ -86,7 +87,17 @@
                             <span class="text-xs text-zinc-500 dark:text-zinc-400">~90 m³</span>
                         </div>
                     </div>
-                    <span id="vol-tir" class="text-base font-semibold text-zinc-900 dark:text-white tabular-nums">0 adet</span>
+                    <span id="vol-tir" class="text-base font-semibold text-zinc-900 dark:text-white tabular-nums">—</span>
+                </div>
+                <div class="flex items-center justify-between py-4 px-5 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-700/50" data-vehicle="panelvan">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-400 text-lg" aria-hidden="true">🚐</span>
+                        <div>
+                            <span class="text-sm font-medium text-zinc-800 dark:text-zinc-200 block">Panelvan</span>
+                            <span class="text-xs text-zinc-500 dark:text-zinc-400">~12 m³</span>
+                        </div>
+                    </div>
+                    <span id="vol-panelvan" class="text-base font-semibold text-zinc-900 dark:text-white tabular-nums">—</span>
                 </div>
             </div>
             <div class="px-5 sm:px-6 pb-5 sm:pb-6">
@@ -99,29 +110,35 @@
 
     <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-6">Bu değeri nakliye ihalesi oluştururken kullanabilirsiniz.</p>
 
-    @if(!empty($toolContent))
     <section class="mt-8 pt-6 border-t border-zinc-200 dark:border-zinc-800" aria-labelledby="nasil-calisir-vol">
         <h2 id="nasil-calisir-vol" class="text-lg font-semibold text-zinc-900 dark:text-white mb-3">Hacim hesaplama nasıl çalışır?</h2>
         <div class="prose prose-sm prose-zinc dark:prose-invert max-w-none text-zinc-600 dark:text-zinc-400">
-            {!! $toolContent !!}
+            @if(!empty($toolContent))
+                {!! $toolContent !!}
+            @else
+                <p>Hacim hesaplama aracı, evinizdeki oda türlerine (salon, yatak odası, mutfak, banyo vb.) göre her biri için ortalama metreküp (m³) değerleri kullanarak toplam taşınacak hacmi hesaplar.</p>
+                <p><strong>Kullanım:</strong> Her oda türü için &ldquo;+&rdquo; ve &ldquo;−&rdquo; butonlarıyla oda sayısını girin. Toplam hacim otomatik güncellenir. Sağ tarafta bu hacme göre tahmini araç ihtiyacı (kamyon ~50 m³, kamyonet ~18 m³, tır ~90 m³, panelvan ~12 m³) gösterilir. Nakliye ihalesi oluştururken &ldquo;Toplam hacim&rdquo; değerini kullanabilirsiniz; nakliye firmaları bu bilgiyle size uygun teklif sunar.</p>
+            @endif
         </div>
     </section>
-    @endif
 </div>
 @endsection
 
 @push('scripts')
 <script>
 (function() {
-    const KAMYONET_M3 = 18;
+    // Doldurma sırası: önce kamyon, sonra kamyonet, sonra tır, en son panelvan
     const KAMYON_M3 = 50;
+    const KAMYONET_M3 = 18;
     const TIR_M3 = 90;
+    const PANELVAN_M3 = 12;
 
     const totalEl = document.getElementById('total-volume');
     const displays = document.querySelectorAll('.vol-display');
-    const volKamyonet = document.getElementById('vol-kamyonet');
     const volKamyon = document.getElementById('vol-kamyon');
+    const volKamyonet = document.getElementById('vol-kamyonet');
     const volTir = document.getElementById('vol-tir');
+    const volPanelvan = document.getElementById('vol-panelvan');
     const remainderEl = document.getElementById('vehicle-remainder');
     const remainderM3 = document.getElementById('remainder-m3');
 
@@ -129,20 +146,26 @@
 
     function updateVehicleBreakdown() {
         let remaining = total;
-        const nKamyonet = Math.floor(remaining / KAMYONET_M3);
-        remaining -= nKamyonet * KAMYONET_M3;
         const nKamyon = Math.floor(remaining / KAMYON_M3);
         remaining -= nKamyon * KAMYON_M3;
+        const nKamyonet = Math.floor(remaining / KAMYONET_M3);
+        remaining -= nKamyonet * KAMYONET_M3;
         const nTirFull = Math.floor(remaining / TIR_M3);
-        const lastTirM3 = remaining - nTirFull * TIR_M3;
-        const nTir = nTirFull + (lastTirM3 > 0 ? 1 : 0);
+        remaining -= nTirFull * TIR_M3;
+        const nPanelvanFull = Math.floor(remaining / PANELVAN_M3);
+        const lastPanelvanM3 = remaining - nPanelvanFull * PANELVAN_M3;
+        const nPanelvan = nPanelvanFull + (lastPanelvanM3 > 0 ? 1 : 0);
 
-        volKamyonet.textContent = nKamyonet + ' adet';
-        volKamyon.textContent = nKamyon + ' adet';
-        volTir.textContent = nTir + ' adet';
+        function showCount(n, el) {
+            el.textContent = n > 0 ? (n === 1 ? '1 araç' : n + ' araç') : '—';
+        }
+        showCount(nKamyon, volKamyon);
+        showCount(nKamyonet, volKamyonet);
+        showCount(nTirFull, volTir);
+        showCount(nPanelvan, volPanelvan);
 
-        if (nTir > 0 && lastTirM3 > 0) {
-            remainderM3.textContent = lastTirM3.toFixed(1);
+        if (nPanelvan > 0 && lastPanelvanM3 > 0) {
+            remainderM3.textContent = lastPanelvanM3.toFixed(1);
             remainderEl.classList.remove('hidden');
         } else {
             remainderEl.classList.add('hidden');

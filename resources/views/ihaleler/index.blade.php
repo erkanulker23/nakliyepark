@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Açık İhaleler - NakliyePark')
+@section('meta_description', 'Açık nakliye ihaleleri listesi. Evden eve nakliyat ve yük taşıma talepleri. Şehir, tarih ve hizmet tipine göre filtreleyin, teklif verin veya kendi ihale talebinizi oluşturun.')
 
 @section('content')
 <div class="min-h-screen bg-zinc-50 dark:bg-zinc-900/50">
@@ -22,9 +23,29 @@
         </div>
     </section>
 
+    @php $ihaleListUst = \App\Models\AdZone::getForPagePosition('ihale_list', 'ust', 2); @endphp
+    @if($ihaleListUst->isNotEmpty())
+        <div class="page-container mb-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                @foreach($ihaleListUst as $reklam)
+                    <div class="rounded-2xl border border-zinc-200 dark:border-zinc-700 overflow-hidden bg-white dark:bg-zinc-800 p-4">
+                        @if($reklam->isCode()){!! $reklam->kod !!}@else
+                            @if($reklam->link)<a href="{{ $reklam->link }}" target="_blank" rel="noopener noreferrer nofollow" class="block">@endif
+                            @if($reklam->resim)<img src="{{ $reklam->resim }}" alt="{{ $reklam->baslik ?? 'Reklam' }}" class="w-full h-24 object-cover rounded-lg mb-2" loading="lazy">@endif
+                            @if($reklam->baslik)<p class="font-medium text-zinc-900 dark:text-white">{{ $reklam->baslik }}</p>@endif
+                            @if($reklam->link)</a>@endif
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
     <div class="page-container pb-16 sm:pb-24">
         {{-- Filtreler --}}
         <div class="mb-8 sm:mb-10">
+            <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-2">Filtreler</h2>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mb-3">Şehir, tarih, hizmet tipi veya hacme göre arayın; sıralamayı değiştirin.</p>
             <form method="get" action="{{ route('ihaleler.index') }}" class="card p-4 sm:p-5 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm">
                 <div class="flex flex-wrap items-end gap-3 sm:gap-4">
                     <div class="flex-1 min-w-[140px]">
@@ -146,6 +167,21 @@
             </div>
             @if($ihaleler->hasPages())
                 <div class="mt-10">{{ $ihaleler->links() }}</div>
+            @endif
+            @php $ihaleListAlt = \App\Models\AdZone::getForPagePosition('ihale_list', 'alt', 2); @endphp
+            @if($ihaleListAlt->isNotEmpty())
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-10 pt-8 border-t border-zinc-200 dark:border-zinc-700">
+                    @foreach($ihaleListAlt as $reklam)
+                        <div class="rounded-2xl border border-zinc-200 dark:border-zinc-700 overflow-hidden bg-white dark:bg-zinc-800 p-4">
+                            @if($reklam->isCode()){!! $reklam->kod !!}@else
+                                @if($reklam->link)<a href="{{ $reklam->link }}" target="_blank" rel="noopener noreferrer nofollow" class="block">@endif
+                                @if($reklam->resim)<img src="{{ $reklam->resim }}" alt="{{ $reklam->baslik ?? 'Reklam' }}" class="w-full h-20 object-cover rounded-lg mb-2" loading="lazy">@endif
+                                @if($reklam->baslik)<p class="font-medium text-zinc-900 dark:text-white">{{ $reklam->baslik }}</p>@endif
+                                @if($reklam->link)</a>@endif
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
             @endif
         @else
             <div class="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-12 sm:p-16 text-center max-w-lg mx-auto shadow-sm">

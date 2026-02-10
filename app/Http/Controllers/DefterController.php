@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DefterReklami;
 use App\Models\Ihale;
 use App\Models\YukIlani;
 use Illuminate\Http\Request;
@@ -39,23 +38,22 @@ class DefterController extends Controller
 
         $ilanlar = $query->paginate(20)->withQueryString();
 
+        $todayCount = YukIlani::where('status', 'active')->whereDate('created_at', today())->count();
+        $weekCount = YukIlani::where('status', 'active')->where('created_at', '>=', now()->startOfWeek())->count();
+        $totalCount = YukIlani::where('status', 'active')->count();
+
         $sonIhaleler = Ihale::where('status', 'published')
             ->latest()
             ->take(3)
-            ->get(['id', 'from_city', 'to_city', 'move_date', 'volume_m3']);
-
-        // Sayfa her yüklendiğinde rastgele reklamlar
-        $reklamSidebar = DefterReklami::rastgeleKonumdan('sidebar', 5);
-        $reklamUst = DefterReklami::rastgeleKonumdan('ust', 2);
-        $reklamAlt = DefterReklami::rastgeleKonumdan('alt', 2);
+            ->get(['id', 'slug', 'from_city', 'to_city', 'move_date', 'volume_m3']);
 
         return view('defter.index', [
             'ilanlar' => $ilanlar,
             'sonIhaleler' => $sonIhaleler,
             'popularCities' => self::POPULAR_CITIES,
-            'reklamSidebar' => $reklamSidebar,
-            'reklamUst' => $reklamUst,
-            'reklamAlt' => $reklamAlt,
+            'todayCount' => $todayCount,
+            'weekCount' => $weekCount,
+            'totalCount' => $totalCount,
         ]);
     }
 }

@@ -46,6 +46,7 @@ class DemoSeeder extends Seeder
             [
                 'user_id' => $nakliyeci1->id,
                 'name' => 'Demir Nakliyat',
+                'package' => 'profesyonel',
                 'tax_number' => '1234567890',
                 'tax_office' => 'Kadıköy Vergi Dairesi',
                 'address' => 'Organize Sanayi Bölgesi 5. Cadde No:12',
@@ -61,6 +62,7 @@ class DemoSeeder extends Seeder
             [
                 'user_id' => $nakliyeci2->id,
                 'name' => 'Çelik Taşımacılık',
+                'package' => 'baslangic',
                 'tax_number' => '9876543210',
                 'tax_office' => 'Çankaya VD',
                 'address' => 'Atatürk Mah. 100. Yıl Bulvarı No:45',
@@ -75,6 +77,7 @@ class DemoSeeder extends Seeder
             [
                 'user_id' => $nakliyeci3->id,
                 'name' => 'Özkan Evden Eve',
+                'package' => 'kurumsal',
                 'tax_number' => '5555555555',
                 'tax_office' => 'Konak VD',
                 'address' => 'Kordon Boyu No:78',

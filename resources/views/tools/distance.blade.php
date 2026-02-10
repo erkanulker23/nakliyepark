@@ -5,47 +5,70 @@
 
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+#map-container { border-radius: 1rem; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,.08); }
+#map-container .leaflet-control-zoom { border: none !important; }
+#map-container .leaflet-control-zoom a { width: 36px; height: 36px; line-height: 36px; font-size: 18px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+.distance-marker-start .leaflet-marker-icon { border-radius: 50%; box-shadow: 0 3px 12px rgba(220,38,38,.4); }
+.distance-marker-end .leaflet-marker-icon { border-radius: 50%; box-shadow: 0 3px 12px rgba(5,150,105,.4); }
+#map-legend { background: rgba(255,255,255,.95); backdrop-filter: blur(8px); border-radius: 12px; padding: 10px 14px; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+.dark #map-legend { background: rgba(24,24,27,.95); }
+</style>
 @endpush
 
 @section('content')
-<div class="px-4 py-6 max-w-2xl mx-auto">
-    <h1 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Mesafe Hesaplama</h1>
-    <p class="text-sm text-slate-500 mb-4">Başlangıç ve varış ili seçin; haritada görüntüleyin ve tahmini mesafeyi hesaplayın.</p>
+<div class="page-container py-6 sm:py-8">
+    <header class="mb-6 sm:mb-8">
+        <h1 class="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">Mesafe Hesaplama</h1>
+        <p class="mt-1.5 text-sm text-zinc-500 dark:text-zinc-400">Başlangıç ve varış ili seçin; haritada güzergahı görün ve tahmini mesafeyi hesaplayın.</p>
+        <p class="mt-3 text-zinc-600 dark:text-zinc-400 text-base max-w-3xl">Nakliye mesafesi hesaplama aracı ile Türkiye illeri arasında kuş uçuşu mesafeyi anında öğrenin. İl seçerek nakliye km tahmini alın, harita üzerinde güzergahı görün. Nakliye fiyatı ve planlaması için mesafe bilgisi edinin.</p>
+    </header>
 
-    <div class="space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">Başlangıç ili *</label>
-                <select id="from-province" class="input-touch w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-800 rounded-xl">
-                    <option value="">İl seçin</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">Varış ili *</label>
-                <select id="to-province" class="input-touch w-full border border-slate-300 dark:border-slate-600 dark:bg-slate-800 rounded-xl">
-                    <option value="">İl seçin</option>
-                </select>
+    <div class="max-w-3xl mx-auto space-y-6">
+        <div class="card rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm p-5 sm:p-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Başlangıç ili *</label>
+                    <select id="from-province" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl">
+                        <option value="">İl seçin</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Varış ili *</label>
+                    <select id="to-province" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl">
+                        <option value="">İl seçin</option>
+                    </select>
+                </div>
             </div>
         </div>
 
-        <div id="map-container" class="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-600 bg-slate-100 dark:bg-slate-800 hidden" style="height: 320px;">
-            <div id="map" class="w-full h-full"></div>
+        <div id="map-wrapper" class="relative rounded-2xl overflow-hidden border border-zinc-200/80 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800/50 hidden shadow-lg">
+            <div id="map-container" class="w-full" style="height: 380px;">
+                <div id="map" class="w-full h-full"></div>
+            </div>
+            <div id="map-legend" class="absolute bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-auto flex items-center justify-center gap-4 text-sm">
+                <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-500"></span> Başlangıç</span>
+                <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-500"></span> Varış</span>
+            </div>
         </div>
 
-        <div id="result" class="card-touch bg-slate-50 dark:bg-slate-800/50 hidden">
-            <p class="text-sm text-slate-500">Tahmini mesafe (kuş uçuşu)</p>
-            <p class="text-2xl font-bold text-sky-600 dark:text-sky-400 mt-1"><span id="result-km">0</span> km</p>
+        <div id="result" class="rounded-2xl border border-emerald-200/80 dark:border-emerald-800/80 bg-emerald-50/80 dark:bg-emerald-950/30 p-5 sm:p-6 hidden">
+            <p class="text-sm text-zinc-600 dark:text-zinc-400">Tahmini mesafe (kuş uçuşu)</p>
+            <p class="text-2xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-1"><span id="result-km">0</span> km</p>
         </div>
     </div>
 
-    @if(!empty($toolContent))
-    <section class="mt-6 pt-4 border-t border-slate-200 dark:border-slate-600" aria-labelledby="nasil-calisir-dist">
-        <h2 id="nasil-calisir-dist" class="text-base font-semibold text-slate-800 dark:text-slate-100 mb-3">Mesafe hesaplama nasıl çalışır?</h2>
-        <div class="prose prose-sm prose-slate dark:prose-invert max-w-none text-slate-600 dark:text-slate-400">
-            {!! $toolContent !!}
+    <section class="mt-8 pt-6 border-t border-zinc-200 dark:border-zinc-800" aria-labelledby="nasil-calisir-dist">
+        <h2 id="nasil-calisir-dist" class="text-lg font-semibold text-zinc-900 dark:text-white mb-3">Mesafe hesaplama nasıl çalışır?</h2>
+        <div class="prose prose-sm prose-zinc dark:prose-invert max-w-none text-zinc-600 dark:text-zinc-400">
+            @if(!empty($toolContent))
+                {!! $toolContent !!}
+            @else
+                <p>Mesafe hesaplama aracı, başlangıç ve varış olarak seçtiğiniz iki il arasındaki tahmini mesafeyi (kuş uçuşu) hesaplar ve harita üzerinde gösterir.</p>
+                <p><strong>Kullanım:</strong> &ldquo;Başlangıç ili&rdquo; ve &ldquo;Varış ili&rdquo; açılır listesinden illeri seçin. Harita otomatik güncellenir; kırmızı işaret başlangıç, yeşil işaret varış noktasıdır. Yeşil çizgi iki noktayı birleştirir. Sonuç kutusunda tahmini mesafe (km) görüntülenir. Bu mesafe kuş uçuşu olduğu için karayolu km&apos;den biraz daha kısa olabilir; nakliye planlaması ve maliyet tahmini için referans olarak kullanabilirsiniz.</p>
+            @endif
         </div>
     </section>
-    @endif
 </div>
 
 @push('scripts')
@@ -54,6 +77,7 @@
 (function() {
     const fromSelect = document.getElementById('from-province');
     const toSelect = document.getElementById('to-province');
+    const mapWrapper = document.getElementById('map-wrapper');
     const mapContainer = document.getElementById('map-container');
     const resultBox = document.getElementById('result');
     const resultKm = document.getElementById('result-km');
@@ -102,13 +126,13 @@
         const to = getSelectedCoords(toSelect);
 
         if (!from && !to) {
-            mapContainer.classList.add('hidden');
+            mapWrapper.classList.add('hidden');
             resultBox.classList.add('hidden');
             return;
         }
 
         if (!map) {
-            mapContainer.classList.remove('hidden');
+            mapWrapper.classList.remove('hidden');
             const center = from || to;
             map = L.map('map').setView([center.lat, center.lng], 6);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -126,19 +150,19 @@
         const bounds = [];
 
         if (from) {
-            fromMarker = L.marker([from.lat, from.lng])
+            fromMarker = L.marker([from.lat, from.lng], { className: 'distance-marker-start' })
                 .addTo(map)
                 .bindPopup('<b>Başlangıç</b><br>' + from.name);
             bounds.push([from.lat, from.lng]);
         }
         if (to) {
-            toMarker = L.marker([to.lat, to.lng])
+            toMarker = L.marker([to.lat, to.lng], { className: 'distance-marker-end' })
                 .addTo(map)
                 .bindPopup('<b>Varış</b><br>' + to.name);
             bounds.push([to.lat, to.lng]);
         }
         if (from && to) {
-            line = L.polyline([[from.lat, from.lng], [to.lat, to.lng]], { color: '#0ea5e9', weight: 3 }).addTo(map);
+            line = L.polyline([[from.lat, from.lng], [to.lat, to.lng]], { color: '#059669', weight: 4, opacity: 0.9 }).addTo(map);
             const km = Math.round(haversine(from.lat, from.lng, to.lat, to.lng));
             resultKm.textContent = km;
             resultBox.classList.remove('hidden');

@@ -1,14 +1,12 @@
-@extends('layouts.app')
+@extends('layouts.musteri')
 
 @section('title', 'İhale detay - ' . $ihale->from_city . ' → ' . $ihale->to_city)
+@section('page_heading', 'İhale detayı')
+@section('page_subtitle', $ihale->from_city . ' → ' . $ihale->to_city)
 
 @section('content')
-<div class="px-4 py-6 max-w-3xl mx-auto">
-    <nav class="mb-6">
-        <a href="{{ route('musteri.dashboard') }}" class="text-sm text-sky-600 dark:text-sky-400 hover:underline">← İhalelerime dön</a>
-    </nav>
-
-    <div class="card-touch bg-white dark:bg-slate-800 p-6 mb-6">
+<div class="max-w-3xl">
+    <div class="admin-card p-6 mb-6">
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
                 <h1 class="text-xl font-bold text-slate-800 dark:text-slate-100">{{ $ihale->from_city }} → {{ $ihale->to_city }}</h1>
@@ -39,7 +37,7 @@
         @endif
     </div>
 
-    <div class="card-touch bg-white dark:bg-slate-800 p-6">
+    <div class="admin-card p-6">
         <h2 class="font-semibold text-slate-800 dark:text-slate-100 mb-4">Gelen teklifler ({{ $ihale->teklifler->count() }})</h2>
         @if($acceptedTeklif)
             <div class="mb-6 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
@@ -54,7 +52,35 @@
                         <p class="text-sm">WhatsApp: <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $acceptedTeklif->company->whatsapp) }}" target="_blank" rel="noopener" class="text-sky-600 dark:text-sky-400">{{ $acceptedTeklif->company->whatsapp }}</a></p>
                     @endif
                 @endif
+                @if($acceptedTeklif->canUndoAccept())
+                    <form method="POST" action="{{ route('musteri.ihaleler.undo-accept', [$ihale, $acceptedTeklif]) }}" class="mb-4 inline-block" onsubmit="return confirm('Teklif kabulünü geri almak istediğinize emin misiniz? İhale tekrar yayına döner.');">
+                        @csrf
+                        <button type="submit" class="text-sm text-amber-600 dark:text-amber-400 hover:underline">Kabulü geri al ({{ \App\Models\Teklif::ACCEPT_UNDO_MINUTES }} dk içinde)</button>
+                    </form>
+                @endif
+                <div class="mt-4 pt-4 border-t border-emerald-200/80 dark:border-emerald-800/80">
+                    <p class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Nakliyeciye soru sor</p>
+                    <form action="{{ route('musteri.ihaleler.contact-message', [$ihale, $acceptedTeklif]) }}" method="POST" class="space-y-2">
+                        @csrf
+                        <textarea name="message" rows="3" class="admin-input w-full" placeholder="Taşınma tarihi, özel istekleriniz veya sorularınızı yazın; nakliyeci e-posta ile bilgilendirilir." required maxlength="2000"></textarea>
+                        <button type="submit" class="admin-btn-primary text-sm py-2 px-4 rounded-lg">Gönder</button>
+                    </form>
+                </div>
                 <a href="{{ route('review.create', $ihale) }}" class="inline-block mt-3 text-sm text-sky-600 dark:text-sky-400 font-medium">Değerlendirme yap →</a>
+                <div class="mt-4 pt-4 border-t border-emerald-200/80 dark:border-emerald-800/80">
+                    <p class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Sorun mu yaşadınız?</p>
+                    <form action="{{ route('musteri.ihaleler.dispute.store', $ihale) }}" method="POST" class="space-y-2">
+                        @csrf
+                        <select name="reason" class="admin-input w-full max-w-xs text-sm" required>
+                            <option value="">Sebep seçin</option>
+                            @foreach(\App\Models\Dispute::reasonLabels() as $key => $label)
+                                <option value="{{ $key }}">{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        <textarea name="description" rows="2" class="admin-input w-full text-sm" placeholder="Kısa açıklama (isteğe bağlı)" maxlength="2000"></textarea>
+                        <button type="submit" class="admin-btn-secondary text-sm py-2 px-4 rounded-lg">Şikâyet / uyuşmazlık aç</button>
+                    </form>
+                </div>
             </div>
         @endif
         <ul class="space-y-4">
@@ -76,7 +102,7 @@
                         @elseif(!$acceptedTeklif && $ihale->status === 'published')
                             <form method="POST" action="{{ route('musteri.ihaleler.accept-teklif', [$ihale, $t]) }}" class="inline" onsubmit="return confirm('Bu teklifi kabul etmek istediğinize emin misiniz? Diğer teklifler reddedilir.');">
                                 @csrf
-                                <button type="submit" class="btn-primary text-sm py-2 px-4 rounded-lg">Teklifi kabul et</button>
+                                <button type="submit" class="admin-btn-primary text-sm py-2 px-4 rounded-lg">Teklifi kabul et</button>
                             </form>
                         @else
                             <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">Beklemede</span>

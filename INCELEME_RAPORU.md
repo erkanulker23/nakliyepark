@@ -1,6 +1,6 @@
 # NakliyePark Proje İnceleme Raporu
 
-**Tarih:** 9 Şubat 2026
+**Tarih:** 9 Şubat 2026 · **Son güncelleme:** 10 Şubat 2026
 
 ---
 
@@ -74,6 +74,17 @@ Yapılan düzeltmeyle admin **ihale oluştururken/düzenlerken** artık **hizmet
 - **Sorun:** “Misafir” seçildiğinde form boş string gönderiyordu; `exists:users,id` validasyonu hata verebiliyordu.
 - **Çözüm:** Store ve update’te `user_id` boşsa `null` yapılıyor (`$request->merge(['user_id' => $request->input('user_id') ?: null])`), böylece misafir ihale kaydı tutarlı çalışıyor.
 
+### 4.6 Şifre sıfırlama – PHP sınıf adı çakışması (10 Şubat 2026)
+- **Sorun:** `Auth\ResetPasswordController` içinde hem `Illuminate\Support\Facades\Password` hem de `Illuminate\Validation\Rules\Password` aynı isimle (`Password`) kullanılıyordu. PHP "Cannot use ... as Password because the name is already in use" hatası veriyordu; `php artisan route:list` ve şifre sıfırlama sayfası çalışmıyordu.
+- **Çözüm:** Validation kuralları sınıfı `PasswordRule` olarak alias’landı: `use Illuminate\Validation\Rules\Password as PasswordRule;` ve validasyonda `PasswordRule::min(8)->letters()->numbers()` kullanıldı.
+
+### 4.7 Slug ile route – Eksik alan (10 Şubat 2026)
+- **Sorun:** `Ihale` ve `Company` modelleri `getRouteKeyName()` ile `slug` kullanıyor. Defter sayfasında “son ihaleler” listesi `get(['id', 'from_city', ...])` ile çekildiği için `slug` yüklenmiyordu; `route('ihaleler.show', $ihale)` hatalı/boş URL üretiyordu. Ana sayfada haritadaki firmalar da `get(['id', 'name', 'city', ...])` ile çekildiği için `slug` yoktu; `route('firmalar.show', $c)` boş slug ile kırılıyordu.
+- **Çözüm:** `DefterController`: `sonIhaleler` sorgusuna `slug` sütunu eklendi. `HomeController`: `firmalarHaritada` sorgusuna `slug` sütunu eklendi.
+
+### 4.8 Not
+- Admin ihale **create** formunda `move_date_end` alanı zaten mevcuttur (rapor 7. maddede “create formunda da olsun” denmişti; kontrol edildi, alan create view’da var).
+
 ---
 
 ## 5. Güvenlik Değerlendirmesi
@@ -136,9 +147,8 @@ Mevcut kodda komisyon oranı `Setting::get('commission_rate', 10)` ile alınıyo
 ## 7. Geliştirme Önerileri
 
 ### Kısa vadeli
-- **Müşteri ihale detayı:** Müşteri panelinde ihale bazında gelen teklifleri görme, bir teklifi “kabul” etme (teklif status’unu `accepted` yapma) ve gerekirse iletişim bilgisi paylaşma.
+- **Müşteri ihale detayı:** Müşteri panelinde ihale bazında gelen teklifleri görme, bir teklifi “kabul” etme (teklif status’unu `accepted` yapma) ve gerekirse iletişim bilgisi paylaşma (bu akış mevcut).
 - **Bildirimler:** Yeni teklif geldiğinde müşteriye e-posta veya in-app bildirim; ihale onaylandığında müşteriye bilgi.
-- **Admin ihale create:** `move_date_end` alanı create formunda da olsun (edit’te var).
 
 ### Orta vadeli
 - **Arama / filtre:** İhale listesinde şehir, tarih, hizmet tipi, hacim; teklif listesinde ihale/firma/tarih filtreleri.
@@ -156,7 +166,7 @@ Mevcut kodda komisyon oranı `Setting::get('commission_rate', 10)` ile alınıyo
 
 - **Veri akışı ve ilişkiler doğru:** İhaleler, teklifler ve firmalar veritabanında doğru şekilde bağlı; nakliyeciden gelen teklifler doğru firmaya ve ihaleye kaydediliyor.  
 - **Admin paneli:** İhaleler, teklifler, firmalar, kullanıcılar, içerik ve ayarlar yönetilebiliyor; service_type/room_type eksikliği giderildi.  
-- **Düzeltilen hatalar:** Müşteri paneli route, engelli firma teklifi, admin ihale formları, throttle ve misafir ihale user_id davranışı.  
+- **Düzeltilen hatalar:** Müşteri paneli route, engelli firma teklifi, admin ihale formları, throttle, misafir ihale user_id; **10 Şubat 2026:** ResetPasswordController PHP sınıf çakışması, Defter/Home slug ile route URL hataları.  
 - **Güvenlik:** Temel önlemler mevcut; throttle ve engelli firma kontrolü eklendi; HTTPS ve ek rate limit önerildi.  
 - **Gelir modeli:** Komisyon altyapısı var; abonelik, reklam ve öne çıkan firma modelleri rapor içinde önerildi.
 

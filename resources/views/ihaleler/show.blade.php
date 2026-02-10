@@ -1,443 +1,538 @@
 @extends('layouts.app')
 
-@section('title', $ihale->from_city . ' - ' . $ihale->to_city . ' Arası ' . (($ihale->service_type === 'evden_eve_nakliyat') ? 'Evden Eve Nakliyat' : 'İhale'))
+@php
+    $ihaleServiceLabel = ($ihale->service_type === 'evden_eve_nakliyat') ? 'Evden Eve Nakliyat' : 'Yük Taşıma';
+    $ihaleMetaDesc = $ihale->from_city . ' - ' . $ihale->to_city . ' arası ' . $ihaleServiceLabel . ' ihalesi. NakliyePark üzerinden teklif verin veya talebinizi oluşturun.';
+@endphp
+@section('title', $ihale->from_city . ' - ' . $ihale->to_city . ' Arası ' . $ihaleServiceLabel)
+@section('meta_description', $ihaleMetaDesc)
+@section('canonical_url', route('ihaleler.show', $ihale))
+
+@php
+    $breadcrumbItems = [
+        ['name' => 'Anasayfa', 'url' => route('home')],
+        ['name' => 'Açık ihaleler', 'url' => route('ihaleler.index')],
+        ['name' => $ihale->from_city . ' - ' . $ihale->to_city, 'url' => null],
+    ];
+@endphp
+@include('partials.structured-data-breadcrumb')
 
 @push('styles')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+.ihale-detail-page .ihale-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 100%;
+}
+@media (min-width: 1024px) {
+  .ihale-detail-page .ihale-layout {
+    grid-template-columns: 1fr 360px;
+    gap: 2rem;
+    align-items: start;
+  }
+  .ihale-detail-page .ihale-sidebar-wrap {
+    display: block !important;
+  }
+}
+.ihale-detail-page .ihale-main {
+  min-width: 0;
+  overflow-wrap: break-word;
+  overflow-x: hidden;
+}
+.ihale-detail-page .ihale-sidebar-wrap {
+  min-width: 0;
+  position: relative;
+}
+@media (min-width: 1024px) {
+  .ihale-detail-page .ihale-sidebar-wrap {
+    display: block !important;
+  }
+}
+.ihale-detail-page .ihale-route-addresses {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+@media (min-width: 640px) {
+  .ihale-detail-page .ihale-route-addresses {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+</style>
 @endpush
 
 @section('content')
-<div class="min-h-screen bg-[#fafafa] dark:bg-zinc-900/50">
-    {{-- Kompakt fotoğraf galerisi --}}
-    @php
-        $photos = $ihale->photos;
-        $photoUrl = function ($path) {
-            return str_starts_with($path, 'http') ? $path : asset('storage/'.$path);
-        };
-    @endphp
+@php
+    $photos = $ihale->photos ?? collect();
+    $photoUrl = function ($path) {
+        return str_starts_with($path, 'http') ? $path : asset('storage/'.$path);
+    };
+    $serviceLabel = match($ihale->service_type ?? '') {
+        'evden_eve_nakliyat' => 'Evden eve nakliyat',
+        'sehirlerarasi_nakliyat' => 'Şehirler arası',
+        'parca_esya_tasimaciligi' => 'Parça eşya',
+        'esya_depolama' => 'Eşya depolama',
+        'ofis_tasima' => 'Ofis taşıma',
+        default => 'Nakliye',
+    };
+    $showStickyCta = !auth()->check() || (auth()->user()->isNakliyeci() && auth()->user()->company?->isApproved() && !$nakliyeciVerdiMi);
+@endphp
+
+<div class="ihale-detail-page min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/80 dark:from-zinc-950 dark:to-zinc-900 pb-20 sm:pb-8 lg:pb-8">
+    {{-- Rota çubuğu --}}
+    <div class="border-b border-slate-200/80 dark:border-zinc-800 bg-gradient-to-r from-amber-50/80 to-emerald-50/80 dark:from-amber-950/20 dark:to-emerald-950/20">
+        <div class="page-container py-4 sm:py-5">
+            <nav class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mb-3">
+                <a href="{{ route('ihaleler.index') }}" class="text-emerald-600 dark:text-emerald-400 hover:underline">Açık ihaleler</a>
+                <span class="mx-1.5">/</span>
+                <span class="text-zinc-700 dark:text-zinc-300">{{ $ihale->from_city }} → {{ $ihale->to_city }}</span>
+            </nav>
+            <div class="flex flex-wrap items-center gap-3 sm:gap-4">
+                <div class="flex items-center gap-2 min-w-0 flex-1">
+                    <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-amber-400 text-zinc-900 shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+                    </span>
+                    <div class="min-w-0">
+                        <p class="font-bold text-zinc-900 dark:text-white text-lg sm:text-xl truncate">{{ $ihale->from_city }} → {{ $ihale->to_city }}</p>
+                        <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ $serviceLabel }}</p>
+                    </div>
+                </div>
+                <span class="inline-flex items-center gap-1.5 rounded-full bg-white/80 dark:bg-zinc-800/80 px-4 py-2 text-sm font-semibold text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                    {{ $ihale->teklifler_count }} teklif
+                </span>
+            </div>
+        </div>
+    </div>
+
+    {{-- Fotoğraflar (galeri: tıklanınca lightbox açılır) --}}
     @if($photos->count() > 0)
-        <div class="w-full bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
-            <div class="page-container py-3 sm:py-4 max-w-5xl">
-                <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0">
-                    @foreach($photos as $photo)
-                        <a href="{{ $photoUrl($photo->path) }}" target="_blank" rel="noopener" class="shrink-0 w-[72%] sm:w-64 rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 h-36 sm:h-40 snap-center shadow-sm hover:ring-2 hover:ring-emerald-400/50 transition-shadow">
-                            <img src="{{ $photoUrl($photo->path) }}" alt="İhale fotoğrafı" class="w-full h-full object-cover">
-                        </a>
+        <div class="border-b border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/95">
+            <div class="page-container py-3 sm:py-4">
+                <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-hide snap-x snap-mandatory" id="ihale-photo-strip" role="list">
+                    @foreach($photos as $index => $photo)
+                        <button type="button" class="ihale-gallery-thumb shrink-0 w-[75%] max-w-[280px] sm:w-52 rounded-xl overflow-hidden ring-1 ring-slate-200/80 dark:ring-zinc-700 bg-slate-100 dark:bg-zinc-800 h-36 sm:h-32 snap-center hover:ring-2 hover:ring-emerald-400/50 transition-shadow cursor-pointer border-0 p-0 text-left" data-index="{{ $index }}" data-src="{{ $photoUrl($photo->path) }}" aria-label="Fotoğraf {{ $index + 1 }} / {{ $photos->count() }}">
+                            <img src="{{ $photoUrl($photo->path) }}" alt="İhale fotoğrafı {{ $index + 1 }}" class="w-full h-full object-cover pointer-events-none">
+                        </button>
                     @endforeach
                 </div>
             </div>
+        </div>
+        {{-- Galeri lightbox modal --}}
+        <div id="ihale-gallery-modal" class="fixed inset-0 z-50 hidden" aria-modal="true" role="dialog" aria-label="İhale fotoğrafları galerisi">
+            <div class="absolute inset-0 bg-black/90" id="ihale-gallery-backdrop"></div>
+            <button type="button" class="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors" id="ihale-gallery-close" aria-label="Kapat">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+            @if($photos->count() > 1)
+                <button type="button" class="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors" id="ihale-gallery-prev" aria-label="Önceki">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <button type="button" class="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors" id="ihale-gallery-next" aria-label="Sonraki">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </button>
+            @endif
+            <div class="absolute inset-0 flex items-center justify-center p-4 pt-16 pb-16">
+                <img id="ihale-gallery-image" src="" alt="İhale fotoğrafı" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl">
+            </div>
+            <p class="absolute bottom-4 left-0 right-0 text-center text-white/80 text-sm" id="ihale-gallery-counter"></p>
         </div>
     @endif
 
-    <div class="page-container py-6 sm:py-8 max-w-5xl">
-        {{-- Breadcrumb --}}
-        <nav class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">
-            <a href="{{ route('ihaleler.index') }}" class="text-emerald-600 dark:text-emerald-400 hover:underline">Açık ihaleler</a>
-            <span class="mx-2">/</span>
-            <span class="text-zinc-700 dark:text-zinc-300">{{ $ihale->from_city }} → {{ $ihale->to_city }}</span>
-        </nav>
+    <div class="page-container py-6 sm:py-8 max-w-5xl mx-auto w-full">
+        <div class="ihale-layout">
+            {{-- Ana içerik --}}
+            <div class="ihale-main space-y-5 sm:space-y-6">
 
-        <div class="flex flex-col lg:flex-row lg:items-start gap-8">
-            {{-- Sol: Başlık, tarih, kullanıcı, CTA --}}
-            <div class="lg:flex-1 space-y-6">
-                {{-- Başlık ve tarih --}}
-                <div class="flex flex-wrap items-start justify-between gap-4">
-                    <div class="min-w-0">
-                        <h1 class="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white tracking-tight flex items-center gap-2">
-                            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-400 text-zinc-900">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8 4-8-4m0 0l8-4 8 4m-8-4v10M12 21a9 9 0 01-9-9 9 9 0 019-9 9 9 0 019 9 9 9 0 01-9 9z"/></svg>
+                {{-- Talep sahibi (mobilde görünür, masaüstünde sidebar’da) --}}
+                <div class="lg:hidden flex items-center gap-3 rounded-xl bg-white dark:bg-zinc-900/95 p-4 border border-slate-100 dark:border-zinc-800/80">
+                    <div class="w-11 h-11 rounded-xl bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-300 font-bold">
+                        @if($ihale->user_id && $ihale->user){{ strtoupper(mb_substr($ihale->user->name, 0, 1)) }}@else M @endif
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Talep sahibi</p>
+                        <p class="font-semibold text-zinc-900 dark:text-white">@if($ihale->user_id && $ihale->user){{ $ihale->user->name }}@else{{ $ihale->guest_contact_name ?? 'Misafir' }}@endif</p>
+                    </div>
+                </div>
+
+                {{-- Çıkış / Varış (ikonlu) --}}
+                <div class="rounded-2xl bg-white dark:bg-zinc-900/95 shadow-sm overflow-hidden min-w-0" style="box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.04);">
+                    <div class="ihale-route-addresses divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-zinc-700/80">
+                        <div class="p-5 flex gap-4 min-w-0">
+                            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-500/10 text-red-600 dark:text-red-400" aria-hidden="true">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                             </span>
-                            {{ $ihale->from_city }} - {{ $ihale->to_city }} Arası
-                            @if($ihale->service_type === 'evden_eve_nakliyat')
-                                Evden Eve Nakliyat
-                            @else
-                                Nakliye İhalesi
-                            @endif
-                        </h1>
-                        @if($ihale->move_date || $ihale->move_date_end)
-                            <p class="text-zinc-600 dark:text-zinc-400 mt-2 font-medium">
-                                @if($ihale->move_date_end && $ihale->move_date != $ihale->move_date_end)
-                                    {{ $ihale->move_date->locale('tr')->translatedFormat('j F Y') }} – {{ $ihale->move_date_end->locale('tr')->translatedFormat('j F Y') }} arasında taşınacak
-                                @else
-                                    {{ $ihale->move_date->locale('tr')->translatedFormat('j F Y') }} tarihinde taşınacak
-                                @endif
-                            </p>
-                        @elseif(str_contains($ihale->description ?? '', 'Fiyat karşılaştırması'))
-                            <p class="text-zinc-600 dark:text-zinc-400 mt-2 font-medium">Fiyat bakıyorum, tarih henüz belli değil</p>
-                        @endif
+                            <div class="min-w-0 flex-1">
+                                <h3 class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Çıkış yeri</h3>
+                                <p class="font-semibold text-zinc-900 dark:text-white break-words">{{ $ihale->from_district ? $ihale->from_district . ', ' : '' }}{{ $ihale->from_city }}</p>
+                                @if($ihale->from_address)<p class="text-sm text-zinc-600 dark:text-zinc-400 mt-1 break-words">{{ $ihale->from_address }}</p>@endif
+                            </div>
+                        </div>
+                        <div class="p-5 flex gap-4 min-w-0">
+                            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" aria-hidden="true">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            </span>
+                            <div class="min-w-0 flex-1">
+                                <h3 class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Varış yeri</h3>
+                                <p class="font-semibold text-zinc-900 dark:text-white break-words">{{ $ihale->to_district ? $ihale->to_district . ', ' : '' }}{{ $ihale->to_city }}</p>
+                                @if($ihale->to_address)<p class="text-sm text-zinc-600 dark:text-zinc-400 mt-1 break-words">{{ $ihale->to_address }}</p>@endif
+                            </div>
+                        </div>
                     </div>
-                    <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 px-4 py-2 text-sm font-semibold text-emerald-700 dark:text-emerald-300 shrink-0">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-                        {{ $ihale->teklifler_count }} teklif
-                    </span>
                 </div>
 
-                {{-- Talep sahibi + Hemen teklif ver --}}
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-300 font-semibold">
-                            @if($ihale->user_id && $ihale->user)
-                                {{ strtoupper(mb_substr($ihale->user->name, 0, 1)) }}
-                            @else
-                                M
-                            @endif
-                        </div>
-                        <div>
-                            <p class="font-semibold text-zinc-900 dark:text-white">
-                                @if($ihale->user_id && $ihale->user)
-                                    {{ $ihale->user->name }}
-                                @else
-                                    {{ $ihale->guest_contact_name ?? 'Misafir' }}
-                                @endif
-                            </p>
-                            <p class="text-sm text-zinc-500 dark:text-zinc-400">
-                                {{ $ihale->user_id ? 'Üye' : 'Bireysel' }}
-                            </p>
-                        </div>
+                @if($ihale->description)
+                    <div class="rounded-2xl bg-white dark:bg-zinc-900/95 p-5 sm:p-6 border border-slate-100 dark:border-zinc-800/80">
+                        <h3 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-2">Açıklama</h3>
+                        <p class="text-zinc-600 dark:text-zinc-300 leading-relaxed whitespace-pre-line">{{ $ihale->description }}</p>
                     </div>
-                    @auth
-                        @if(auth()->user()->isNakliyeci() && auth()->user()->company?->isApproved() && !$nakliyeciVerdiMi)
-                            <a href="#teklif-form" class="btn-primary inline-flex items-center gap-2 shrink-0">
-                                Hemen teklif ver
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                            </a>
+                @endif
+
+                {{-- Teklif formu --}}
+                @auth
+                    @if(auth()->user()->isNakliyeci())
+                        @if(auth()->user()->company?->isApproved())
+                            @if(!$nakliyeciVerdiMi)
+                                <div id="teklif-form" class="rounded-2xl bg-white dark:bg-zinc-900/95 p-5 sm:p-6 border border-slate-100 dark:border-zinc-800/80 scroll-mt-24">
+                                    <h3 class="text-lg font-bold text-zinc-900 dark:text-white mb-4">Teklif ver</h3>
+                                    <form method="POST" action="{{ route('nakliyeci.ihaleler.teklif.store') }}" class="space-y-4 max-w-md">
+                                        @csrf
+                                        <input type="hidden" name="ihale_id" value="{{ $ihale->id }}">
+                                        <div>
+                                            <label for="amount" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Teklif tutarı (₺) *</label>
+                                            <input id="amount" type="number" name="amount" value="{{ old('amount') }}" required min="0" step="1" class="input-touch w-full rounded-xl" placeholder="Örn. 15000">
+                                            @error('amount')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                                        </div>
+                                        <div>
+                                            <label for="message" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Mesaj (opsiyonel)</label>
+                                            <textarea id="message" name="message" rows="3" class="input-touch w-full rounded-xl min-h-[88px]" placeholder="Not veya öneriniz">{{ old('message') }}</textarea>
+                                        </div>
+                                        <button type="submit" class="btn-primary inline-flex items-center gap-2 rounded-xl">
+                                            Teklifi gönder
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            @else
+                                <div class="rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 p-4">
+                                    <p class="text-emerald-800 dark:text-emerald-200 font-medium">Bu ihale için zaten teklif verdiniz.</p>
+                                </div>
+                            @endif
+                        @else
+                            <div class="rounded-2xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4">
+                                <p class="text-amber-800 dark:text-amber-200 font-medium mb-1">Teklif verebilmek için firma bilgilerinizin onaylanmış olması gerekir.</p>
+                                <p class="text-sm text-amber-700 dark:text-amber-300/90 mb-3">Firma kaydınızı tamamlayıp onay bekleyin veya destek ile iletişime geçin.</p>
+                                <a href="{{ route('nakliyeci.company.edit') }}" class="inline-flex items-center gap-2 text-sm font-semibold text-amber-700 dark:text-amber-200 hover:underline">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                    Firma bilgilerini güncelle
+                                </a>
+                            </div>
                         @endif
+                    @endif
+                @else
+                    <div class="rounded-2xl bg-zinc-100 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 p-4">
+                        <p class="text-zinc-600 dark:text-zinc-400">Teklif vermek için <a href="{{ route('login') }}" class="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline">giriş yapın</a> (nakliyeci hesabı gerekir).</p>
+                    </div>
+                @endauth
+
+                {{-- Verilen teklifler (tutar: sadece admin, ihale sahibi veya ilgili nakliyeci görür) --}}
+                <div class="rounded-2xl bg-white dark:bg-zinc-900/95 overflow-hidden border border-slate-100 dark:border-zinc-800/80 min-w-0">
+                    <div class="px-4 py-4 border-b border-slate-100 dark:border-zinc-700/80 flex items-center gap-3">
+                        <span class="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                        </span>
+                        <h3 class="text-lg font-bold text-zinc-900 dark:text-white">Verilen teklifler ({{ $ihale->teklifler_count }})</h3>
+                    </div>
+                    @if($ihale->teklifler->count() > 0)
+                        <ul class="divide-y divide-slate-100 dark:divide-zinc-700/80">
+                            @foreach($ihale->teklifler as $teklif)
+                                @php $canSeeAmount = $teklif->canShowAmountTo(auth()->user(), $ihale); $canEdit = $teklif->canRequestUpdateBy(auth()->user()); @endphp
+                                <li class="px-4 py-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 min-w-0">
+                                    <div class="flex items-start gap-3 min-w-0 flex-1">
+                                        <a href="{{ route('firmalar.show', $teklif->company) }}" class="flex items-center gap-3 min-w-0 flex-1 group">
+                                            <span class="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0 group-hover:bg-emerald-500/10 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors overflow-hidden">
+                                                @if($teklif->company->logo)
+                                                    <img src="{{ asset('storage/'.$teklif->company->logo) }}" alt="{{ $teklif->company->name }}" class="w-12 h-12 rounded-xl object-cover">
+                                                @else
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                                @endif
+                                            </span>
+                                            <div class="min-w-0 flex-1">
+                                                <div class="flex flex-wrap items-center gap-2 min-w-0">
+                                                    <span class="font-semibold text-zinc-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 truncate max-w-full">{{ $teklif->company->name }}</span>
+                                                    <span class="text-xs text-zinc-500 dark:text-zinc-400">Teklif: {{ $teklif->created_at->format('d.m.Y H:i') }}</span>
+                                                    @if($teklif->hasPendingUpdate())
+                                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
+                                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                            Onay bekliyor
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                                @if($canSeeAmount && $teklif->message)<p class="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 mt-0.5">{{ $teklif->message }}</p>@endif
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <div class="flex items-center gap-2 shrink-0 sm:pl-2">
+                                        @if($canSeeAmount)
+                                            <span class="inline-flex items-center gap-1.5 font-bold text-lg text-emerald-600 dark:text-emerald-400">
+                                                <svg class="w-5 h-5 text-emerald-500/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                {{ number_format($teklif->amount, 0, ',', '.') }} ₺
+                                            </span>
+                                        @else
+                                            <span class="text-zinc-400 dark:text-zinc-500 text-sm">—</span>
+                                        @endif
+                                        @if($canEdit)
+                                            <button type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-100 hover:bg-slate-200 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-zinc-700 dark:text-zinc-200" data-teklif-edit data-teklif-id="{{ $teklif->id }}" data-amount="{{ $teklif->pending_amount ?? $teklif->amount }}" data-message="{{ e($teklif->pending_message ?? $teklif->message) }}">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                                Düzenle
+                                            </button>
+                                        @endif
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ul>
                     @else
-                        <a href="{{ route('login') }}" class="btn-primary inline-flex items-center gap-2 shrink-0">
-                            Hemen teklif ver
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                        </a>
-                    @endauth
+                        <div class="px-4 py-8 flex flex-col items-center justify-center gap-2 text-center">
+                            <span class="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 dark:text-zinc-500">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                            </span>
+                            <p class="text-zinc-500 dark:text-zinc-400 text-sm">Henüz teklif verilmedi. İlk teklifi siz verin.</p>
+                        </div>
+                    @endif
                 </div>
 
-                {{-- Özet bilgiler (üye altı) --}}
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4">
-                    <div class="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/50 px-4 py-3">
-                        <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Hacim</p>
-                        <p class="text-lg font-bold text-zinc-900 dark:text-white mt-0.5">{{ $ihale->volume_m3 }} m³</p>
-                    </div>
-                    @if($ihale->distance_km)
-                        <div class="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/50 px-4 py-3">
-                            <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Mesafe</p>
-                            <p class="text-lg font-bold text-zinc-900 dark:text-white mt-0.5">{{ number_format((float)$ihale->distance_km, 0, ',', '.') }} km</p>
+                {{-- Teklif düzenleme modalı (nakliyeci kendi teklifini güncelleme talebi; admin onayı gerekir) --}}
+                @auth
+                    @if(auth()->user()->isNakliyeci() && $nakliyeciVerdiMi)
+                        @php $benimTeklif = $ihale->teklifler->firstWhere('company_id', auth()->user()->company?->id); @endphp
+                        @if($benimTeklif && $benimTeklif->canRequestUpdateBy(auth()->user()))
+                        <div id="teklif-edit-modal" class="fixed inset-0 z-50 hidden" aria-modal="true" role="dialog" aria-labelledby="teklif-edit-modal-title">
+                            <div class="fixed inset-0 bg-black/50" data-teklif-edit-close></div>
+                            <div class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl bg-white dark:bg-zinc-900 shadow-xl border border-slate-200 dark:border-zinc-700 p-6">
+                                <h2 id="teklif-edit-modal-title" class="text-lg font-bold text-zinc-900 dark:text-white mb-1">Teklifi güncelle</h2>
+                                <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">Değişiklikler admin onayından sonra yansır.</p>
+                                <form method="POST" action="{{ route('nakliyeci.ihaleler.teklif.request-update', [$ihale, $benimTeklif]) }}" class="space-y-4">
+                                    @csrf
+                                    <input type="hidden" name="from_public" value="1">
+                                    <div>
+                                        <label for="teklif-edit-amount" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Teklif tutarı (₺) *</label>
+                                        <input id="teklif-edit-amount" type="number" name="amount" value="{{ old('amount', $benimTeklif->pending_amount ?? $benimTeklif->amount) }}" required min="0" step="1" class="input-touch w-full rounded-xl">
+                                    </div>
+                                    <div>
+                                        <label for="teklif-edit-message" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Mesaj (opsiyonel)</label>
+                                        <textarea id="teklif-edit-message" name="message" rows="3" class="input-touch w-full rounded-xl min-h-[80px]">{{ old('message', $benimTeklif->pending_message ?? $benimTeklif->message) }}</textarea>
+                                    </div>
+                                    <div class="flex gap-2 pt-2">
+                                        <button type="submit" class="btn-primary rounded-xl">Güncelleme talebi gönder</button>
+                                        <button type="button" class="btn-ghost rounded-xl" data-teklif-edit-close>İptal</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
+                        @endif
                     @endif
-                    @if($ihale->room_type)
-                        <div class="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/50 px-4 py-3">
-                            <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Büyüklük</p>
-                            <p class="text-lg font-bold text-zinc-900 dark:text-white mt-0.5">{{ $ihale->room_type }}</p>
-                        </div>
-                    @endif
-                    <div class="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/50 px-4 py-3">
-                        <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Hizmet</p>
-                        <p class="text-sm font-bold text-zinc-900 dark:text-white mt-0.5 leading-tight">
-                            @switch($ihale->service_type ?? '')
-                                @case('evden_eve_nakliyat') Evden eve @break
-                                @case('sehirlerarasi_nakliyat') Şehirler arası @break
-                                @case('parca_esya_tasimaciligi') Parça eşya @break
-                                @case('esya_depolama') Depolama @break
-                                @case('ofis_tasima') Ofis taşıma @break
-                                @default —
-                            @endswitch
-                        </p>
-                    </div>
-                </div>
+                @endauth
             </div>
 
-            {{-- Sağ: Detay kartları (Çıkış, Varış, Genel, Yol) --}}
-            <div class="lg:w-[380px] shrink-0 space-y-6">
-                {{-- Çıkış yeri --}}
-                <div class="card rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-                    <div class="px-5 py-4 border-b border-zinc-200 dark:border-zinc-800">
-                        <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Çıkış yeri</h2>
-                    </div>
-                    <dl class="px-5 py-4 space-y-3">
-                        <div class="flex justify-between gap-4">
-                            <dt class="text-sm text-zinc-500 dark:text-zinc-400 shrink-0">Nereden</dt>
-                            <dd class="text-sm font-medium text-zinc-900 dark:text-white text-right">{{ $ihale->from_district ? $ihale->from_district . ', ' : '' }}{{ $ihale->from_city }}</dd>
-                        </div>
-                        @if($ihale->from_address)
-                            <div class="flex justify-between gap-4">
-                                <dt class="text-sm text-zinc-500 dark:text-zinc-400 shrink-0">Adres</dt>
-                                <dd class="text-sm text-zinc-700 dark:text-zinc-300 text-right">{{ $ihale->from_address }}</dd>
+            {{-- Sağ sidebar (masaüstünde sadece) --}}
+            <div class="ihale-sidebar-wrap">
+                <div class="space-y-5" style="position: sticky; top: 6rem;">
+                    {{-- Özet: Mesafe, Tarih, Büyüklük, Hacim --}}
+                    <div class="rounded-2xl bg-white dark:bg-zinc-900/95 border border-slate-100 dark:border-zinc-800/80 p-5">
+                        <h3 class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-3">Özet</h3>
+                        <dl class="space-y-3">
+                            <div class="flex items-center gap-3">
+                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-violet-500/10 text-violet-600 dark:text-violet-400">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6H20M4 12H20M4 18H20"/></svg>
+                                </span>
+                                <div class="min-w-0 flex-1">
+                                    <dt class="text-xs text-zinc-500 dark:text-zinc-400">Hacim</dt>
+                                    <dd class="font-semibold text-zinc-900 dark:text-white text-sm truncate">{{ $ihale->volume_m3 !== null && $ihale->volume_m3 !== '' ? $ihale->volume_m3 . ' m³' : '—' }}</dd>
+                                </div>
                             </div>
-                        @endif
-                    </dl>
-                </div>
-
-                {{-- Varış yeri --}}
-                <div class="card rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-                    <div class="px-5 py-4 border-b border-zinc-200 dark:border-zinc-800">
-                        <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Varış yeri</h2>
-                    </div>
-                    <dl class="px-5 py-4 space-y-3">
-                        <div class="flex justify-between gap-4">
-                            <dt class="text-sm text-zinc-500 dark:text-zinc-400 shrink-0">Nereye</dt>
-                            <dd class="text-sm font-medium text-zinc-900 dark:text-white text-right">{{ $ihale->to_district ? $ihale->to_district . ', ' : '' }}{{ $ihale->to_city }}</dd>
-                        </div>
-                        @if($ihale->to_address)
-                            <div class="flex justify-between gap-4">
-                                <dt class="text-sm text-zinc-500 dark:text-zinc-400 shrink-0">Adres</dt>
-                                <dd class="text-sm text-zinc-700 dark:text-zinc-300 text-right">{{ $ihale->to_address }}</dd>
-                            </div>
-                        @endif
-                    </dl>
-                </div>
-
-                {{-- Genel bilgi --}}
-                <div class="card rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-                    <div class="px-5 py-4 border-b border-zinc-200 dark:border-zinc-800">
-                        <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Genel bilgi</h2>
-                    </div>
-                    <dl class="px-5 py-4 space-y-3">
-                        @if($ihale->room_type)
-                            <div class="flex justify-between gap-4">
-                                <dt class="text-sm text-zinc-500 dark:text-zinc-400 shrink-0">Eşyanın büyüklüğü</dt>
-                                <dd class="text-sm font-medium text-zinc-900 dark:text-white text-right">{{ $ihale->room_type }}</dd>
-                            </div>
-                        @endif
-                        <div class="flex justify-between gap-4">
-                            <dt class="text-sm text-zinc-500 dark:text-zinc-400 shrink-0">Hacim</dt>
-                            <dd class="text-sm font-medium text-zinc-900 dark:text-white text-right">{{ $ihale->volume_m3 }} m³</dd>
-                        </div>
-                        @if($ihale->service_type)
-                            <div class="flex justify-between gap-4">
-                                <dt class="text-sm text-zinc-500 dark:text-zinc-400 shrink-0">Hizmet tipi</dt>
-                                <dd class="text-sm text-zinc-900 dark:text-white text-right">
-                                    @switch($ihale->service_type)
-                                        @case('evden_eve_nakliyat') Evden eve nakliyat @break
-                                        @case('sehirlerarasi_nakliyat') Şehirler arası @break
-                                        @case('parca_esya_tasimaciligi') Parça eşya @break
-                                        @case('esya_depolama') Eşya depolama @break
-                                        @case('ofis_tasima') Ofis taşıma @break
-                                        @default {{ $ihale->service_type }}
-                                    @endswitch
-                                </dd>
-                            </div>
-                        @endif
-                    </dl>
-                </div>
-
-                {{-- Yol bilgileri --}}
-                @if($ihale->distance_km)
-                    @php
-                        $km = (float) $ihale->distance_km;
-                        $avgSpeed = 80;
-                        $hours = $km / $avgSpeed;
-                        $h = (int) floor($hours);
-                        $m = (int) round(($hours - $h) * 60);
-                    @endphp
-                    <div class="card rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-                        <div class="px-5 py-4 border-b border-zinc-200 dark:border-zinc-800">
-                            <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Yol bilgileri</h2>
-                        </div>
-                        <div class="px-5 py-4 space-y-3">
-                            <p class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-                                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400">
+                            @if($ihale->distance_km)
+                            <div class="flex items-center gap-3">
+                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-sky-500/10 text-sky-600 dark:text-sky-400">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
                                 </span>
-                                {{ $ihale->from_city }} ile {{ $ihale->to_city }} arasındaki mesafe {{ number_format($km, 1, ',', '.') }} km
-                            </p>
-                            <p class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-                                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <div class="min-w-0 flex-1">
+                                    <dt class="text-xs text-zinc-500 dark:text-zinc-400">Mesafe</dt>
+                                    <dd class="font-semibold text-zinc-900 dark:text-white text-sm">{{ number_format((float)$ihale->distance_km, 0, ',', '.') }} km</dd>
+                                </div>
+                            </div>
+                            @endif
+                            <div class="flex items-center gap-3">
+                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                 </span>
-                                Tahmini yolculuk süresi {{ $h }} saat {{ $m }} dk
-                            </p>
+                                <div class="min-w-0 flex-1">
+                                    <dt class="text-xs text-zinc-500 dark:text-zinc-400">Tarih</dt>
+                                    <dd class="font-semibold text-zinc-900 dark:text-white text-sm leading-tight">
+                                        @if($ihale->move_date || $ihale->move_date_end)
+                                            @if($ihale->move_date_end && $ihale->move_date != $ihale->move_date_end)
+                                                {{ $ihale->move_date->format('d.m.Y') }} – {{ $ihale->move_date_end->format('d.m.Y') }}
+                                            @else
+                                                {{ $ihale->move_date?->format('d.m.Y') ?? $ihale->move_date_end?->format('d.m.Y') }}
+                                            @endif
+                                        @else
+                                            Belirtilmedi
+                                        @endif
+                                    </dd>
+                                </div>
+                            </div>
+                            @if($ihale->room_type)
+                            <div class="flex items-center gap-3">
+                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                                </span>
+                                <div class="min-w-0 flex-1">
+                                    <dt class="text-xs text-zinc-500 dark:text-zinc-400">Büyüklük</dt>
+                                    <dd class="font-semibold text-zinc-900 dark:text-white text-sm break-words">{{ $ihale->room_type }}</dd>
+                                </div>
+                            </div>
+                            @endif
+                        </dl>
+                    </div>
+                    <div class="rounded-2xl bg-white dark:bg-zinc-900/95 border border-emerald-100 dark:border-emerald-900/40 bg-gradient-to-br from-emerald-50/50 to-white dark:from-emerald-950/20 dark:to-zinc-900 p-6">
+                        <p class="text-sm text-zinc-600 dark:text-zinc-400 mb-4">Bu ihale için teklif verin; müşteri sizinle iletişime geçsin.</p>
+                        @auth
+                            @if(auth()->user()->isNakliyeci() && auth()->user()->company?->isApproved() && !$nakliyeciVerdiMi)
+                                <a href="#teklif-form" class="btn-primary w-full justify-center rounded-xl py-3 inline-flex items-center gap-2">
+                                    Hemen teklif ver
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                                </a>
+                            @endif
+                        @else
+                            <a href="{{ route('login') }}" class="btn-primary w-full justify-center rounded-xl py-3 inline-flex items-center gap-2">
+                                Hemen teklif ver
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            </a>
+                        @endauth
+                    </div>
+                    <div class="rounded-2xl bg-white dark:bg-zinc-900/95 border border-slate-100 dark:border-zinc-800/80 p-5">
+                        <h3 class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-3">Talep sahibi</h3>
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-xl bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-300 font-bold text-lg">
+                                @if($ihale->user_id && $ihale->user){{ strtoupper(mb_substr($ihale->user->name, 0, 1)) }}@else M @endif
+                            </div>
+                            <div>
+                                <p class="font-semibold text-zinc-900 dark:text-white">
+                                    @if($ihale->user_id && $ihale->user){{ $ihale->user->name }}@else{{ $ihale->guest_contact_name ?? 'Misafir' }}@endif
+                                </p>
+                                    <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ $ihale->user_id ? 'Üye' : 'Bireysel' }}</p>
+                            </div>
                         </div>
                     </div>
-                @endif
-            </div>
-        </div>
-
-        {{-- Harita: modern güzergah --}}
-        @if($ihale->from_city && $ihale->to_city)
-            <div class="mt-8 card rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-                <div class="px-5 py-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between gap-3">
-                    <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Güzergah</h2>
-                    <span id="route-distance" class="text-sm text-zinc-500 dark:text-zinc-400 hidden"></span>
-                </div>
-                <div id="ihale-route-map" class="w-full h-[280px] sm:h-[360px] bg-zinc-100 dark:bg-zinc-800 rounded-b-2xl" data-from="{{ $ihale->from_city }}" data-to="{{ $ihale->to_city }}"></div>
-            </div>
-        @endif
-
-        @if($ihale->description)
-            <div class="mt-8 card rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 sm:p-6">
-                <h2 class="text-lg font-bold text-zinc-900 dark:text-white mb-3">Açıklama</h2>
-                <p class="text-zinc-600 dark:text-zinc-300 leading-relaxed whitespace-pre-line">{{ $ihale->description }}</p>
-            </div>
-        @endif
-
-        {{-- Teklif formu (nakliyeci) --}}
-        @auth
-            @if(auth()->user()->isNakliyeci() && auth()->user()->company?->isApproved())
-                @if(!$nakliyeciVerdiMi)
-                    <div id="teklif-form" class="mt-8 card rounded-2xl border border-zinc-200 dark:border-zinc-800 p-5 sm:p-6 scroll-mt-6">
-                        <h2 class="text-lg font-bold text-zinc-900 dark:text-white mb-4">Teklif ver</h2>
-                        <form method="POST" action="{{ route('nakliyeci.teklif.store') }}" class="space-y-4 max-w-md">
-                            @csrf
-                            <input type="hidden" name="ihale_id" value="{{ $ihale->id }}">
-                            <div>
-                                <label for="amount" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Teklif tutarı (₺) *</label>
-                                <input id="amount" type="number" name="amount" value="{{ old('amount') }}" required min="0" step="1" class="input-touch" placeholder="Örn. 15000">
-                                @error('amount')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
-                            </div>
-                            <div>
-                                <label for="message" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Mesaj (opsiyonel)</label>
-                                <textarea id="message" name="message" rows="3" class="input-touch min-h-[88px]" placeholder="Not veya öneriniz">{{ old('message') }}</textarea>
-                            </div>
-                            <button type="submit" class="btn-primary inline-flex items-center gap-2">
-                                Teklifi gönder
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-                            </button>
-                        </form>
-                    </div>
-                @else
-                    <div class="mt-8 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800">
-                        <p class="text-emerald-800 dark:text-emerald-200 font-medium">Bu ihale için zaten teklif verdiniz.</p>
-                    </div>
-                @endif
-            @endif
-        @else
-            <div class="mt-8 p-4 rounded-2xl bg-zinc-100 dark:bg-zinc-800/50">
-                <p class="text-zinc-600 dark:text-zinc-400">Teklif vermek için <a href="{{ route('login') }}" class="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline">giriş yapın</a> (nakliyeci hesabı gerekir).</p>
-            </div>
-        @endauth
-
-        {{-- Verilen teklifler --}}
-        <div class="mt-8 card rounded-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-            <div class="px-5 py-4 border-b border-zinc-200 dark:border-zinc-800">
-                <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Verilen teklifler ({{ $ihale->teklifler_count }})</h2>
-            </div>
-            @if($ihale->teklifler->count() > 0)
-                <ul class="divide-y divide-zinc-200 dark:divide-zinc-800">
-                    @foreach($ihale->teklifler as $teklif)
-                        <li class="px-5 py-4 flex flex-col sm:flex-row sm:items-center gap-3">
-                            <div class="min-w-0 flex-1">
-                                <a href="{{ route('firmalar.show', $teklif->company) }}" class="font-semibold text-zinc-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400">{{ $teklif->company->name }}</a>
-                                @if($teklif->message)
-                                    <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">{{ $teklif->message }}</p>
+                    @php $ihaleShowSidebar = \App\Models\AdZone::getForPagePosition('ihale_show', 'sidebar', 3); @endphp
+                    @if($ihaleShowSidebar->isNotEmpty())
+                        @foreach($ihaleShowSidebar as $reklam)
+                            <div class="rounded-2xl bg-white dark:bg-zinc-900/95 border border-slate-100 dark:border-zinc-800/80 p-4">
+                                @if($reklam->isCode()){!! $reklam->kod !!}@else
+                                    @if($reklam->link)<a href="{{ $reklam->link }}" target="_blank" rel="noopener noreferrer nofollow" class="block">@endif
+                                    @if($reklam->resim)<img src="{{ $reklam->resim }}" alt="{{ $reklam->baslik ?? 'Reklam' }}" class="w-full rounded-lg mb-2 max-h-32 object-cover" loading="lazy">@endif
+                                    @if($reklam->baslik)<p class="font-medium text-zinc-900 dark:text-white text-sm">{{ $reklam->baslik }}</p>@endif
+                                    @if($reklam->link)</a>@endif
                                 @endif
                             </div>
-                            <div class="shrink-0 font-bold text-lg text-emerald-600 dark:text-emerald-400">
-                                {{ number_format($teklif->amount, 0, ',', '.') }} ₺
-                            </div>
-                        </li>
-                    @endforeach
-                </ul>
-            @else
-                <p class="px-5 py-8 text-center text-zinc-500 dark:text-zinc-400">Henüz teklif verilmedi. İlk teklifi siz verin.</p>
-            @endif
+                        @endforeach
+                    @endif
+                </div>
+            </div>
         </div>
     </div>
+
+    {{-- Mobil: sabit CTA (sadece gerekirse göster) --}}
+    @if($showStickyCta)
+    <div class="fixed bottom-0 left-0 right-0 z-40 p-3 bg-white/95 dark:bg-zinc-900/95 border-t border-slate-200 dark:border-zinc-800 backdrop-blur sm:hidden safe-bottom">
+        @auth
+            <a href="#teklif-form" class="btn-primary w-full justify-center rounded-xl py-3.5 inline-flex items-center gap-2 text-base">
+                Hemen teklif ver
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </a>
+        @else
+            <a href="{{ route('login') }}" class="btn-primary w-full justify-center rounded-xl py-3.5 inline-flex items-center gap-2 text-base">
+                Hemen teklif ver
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+            </a>
+        @endauth
+    </div>
+    @endif
 </div>
 
 @push('scripts')
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
 (function() {
-    const el = document.getElementById('ihale-route-map');
-    if (!el) return;
-    const fromName = el.dataset.from?.trim();
-    const toName = el.dataset.to?.trim();
-    if (!fromName || !toName) return;
-
-    const distanceEl = document.getElementById('route-distance');
-
-    function initMap(from, to, routeCoords) {
-        const map = L.map('ihale-route-map', { zoomControl: true }).setView([39, 35], 6);
-        map.zoomControl.setPosition('topright');
-
-        // OpenStreetMap – ücretsiz, API anahtarı gerektirmez (401 önlenir)
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-            maxZoom: 19
-        }).addTo(map);
-
-        const startIcon = L.divIcon({
-            className: 'route-marker route-marker-start',
-            html: '<div class="route-marker-inner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg><span>Çıkış</span></div>',
-            iconSize: [44, 44],
-            iconAnchor: [22, 44]
-        });
-        const endIcon = L.divIcon({
-            className: 'route-marker route-marker-end',
-            html: '<div class="route-marker-inner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg><span>Varış</span></div>',
-            iconSize: [44, 44],
-            iconAnchor: [22, 44]
-        });
-
-        L.marker([from.lat, from.lng], { icon: startIcon }).addTo(map).bindTooltip(from.name, { permanent: false, direction: 'top', className: 'route-tooltip' });
-        L.marker([to.lat, to.lng], { icon: endIcon }).addTo(map).bindTooltip(to.name, { permanent: false, direction: 'top', className: 'route-tooltip' });
-
-        if (routeCoords && routeCoords.length >= 2) {
-            const line = L.polyline(routeCoords, {
-                color: '#059669',
-                weight: 5,
-                opacity: 0.9,
-                lineJoin: 'round',
-                lineCap: 'round'
-            }).addTo(map);
-            map.fitBounds(line.getBounds(), { padding: [50, 50], maxZoom: 10 });
-        } else {
-            const fallback = [[from.lat, from.lng], [to.lat, to.lng]];
-            L.polyline(fallback, { color: '#059669', weight: 4, opacity: 0.8, dashArray: '8,8' }).addTo(map);
-            map.fitBounds([from, to].map(p => [p.lat, p.lng]), { padding: [50, 50], maxZoom: 10 });
+  var modal = document.getElementById('teklif-edit-modal');
+  if (modal) {
+    document.querySelectorAll('[data-teklif-edit]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var amount = this.getAttribute('data-amount');
+        var message = this.getAttribute('data-message') || '';
+        if (amount != null) {
+          var inp = document.getElementById('teklif-edit-amount');
+          if (inp) inp.value = amount;
         }
+        var msgEl = document.getElementById('teklif-edit-message');
+        if (msgEl) msgEl.value = message;
+        modal.classList.remove('hidden');
+      });
+    });
+    document.querySelectorAll('[data-teklif-edit-close]').forEach(function(btn) {
+      btn.addEventListener('click', function() { modal.classList.add('hidden'); });
+    });
+  }
+})();
+
+(function() {
+  var galleryModal = document.getElementById('ihale-gallery-modal');
+  if (!galleryModal) return;
+  var thumbs = document.querySelectorAll('.ihale-gallery-thumb');
+  var imgEl = document.getElementById('ihale-gallery-image');
+  var counterEl = document.getElementById('ihale-gallery-counter');
+  var closeBtn = document.getElementById('ihale-gallery-close');
+  var backdrop = document.getElementById('ihale-gallery-backdrop');
+  var prevBtn = document.getElementById('ihale-gallery-prev');
+  var nextBtn = document.getElementById('ihale-gallery-next');
+  var sources = Array.from(thumbs).map(function(t) { return t.getAttribute('data-src'); });
+  var currentIndex = 0;
+  var total = sources.length;
+
+  function showSlide(idx) {
+    currentIndex = idx;
+    if (imgEl) imgEl.src = sources[idx];
+    if (counterEl) counterEl.textContent = (idx + 1) + ' / ' + total;
+  }
+
+  function openGallery(index) {
+    currentIndex = index >= 0 && index < total ? index : 0;
+    showSlide(currentIndex);
+    galleryModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeGallery() {
+    galleryModal.classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  Array.prototype.forEach.call(thumbs, function(btn, i) {
+    btn.addEventListener('click', function() { openGallery(i); });
+  });
+  if (closeBtn) closeBtn.addEventListener('click', closeGallery);
+  if (backdrop) backdrop.addEventListener('click', closeGallery);
+  if (prevBtn) prevBtn.addEventListener('click', function() { currentIndex = (currentIndex - 1 + total) % total; showSlide(currentIndex); });
+  if (nextBtn) nextBtn.addEventListener('click', function() { currentIndex = (currentIndex + 1) % total; showSlide(currentIndex); });
+
+  document.addEventListener('keydown', function(e) {
+    if (!galleryModal.classList.contains('hidden')) {
+      if (e.key === 'Escape') closeGallery();
+      if (e.key === 'ArrowLeft' && prevBtn) { currentIndex = (currentIndex - 1 + total) % total; showSlide(currentIndex); }
+      if (e.key === 'ArrowRight' && nextBtn) { currentIndex = (currentIndex + 1) % total; showSlide(currentIndex); }
     }
-
-    function showDistance(meters) {
-        if (distanceEl && meters != null) {
-            distanceEl.textContent = (meters / 1000).toFixed(1) + ' km';
-            distanceEl.classList.remove('hidden');
-        }
-    }
-
-    fetch('{{ url("/api/turkey/provinces") }}')
-        .then(r => r.json())
-        .then(data => {
-            const provinces = (data.data || []).filter(p => p.latitude != null && p.longitude != null);
-            const from = provinces.find(p => p.name === fromName);
-            const to = provinces.find(p => p.name === toName);
-            if (!from || !to) return;
-
-            const fromCoords = { lat: parseFloat(from.latitude), lng: parseFloat(from.longitude), name: from.name };
-            const toCoords = { lat: parseFloat(to.latitude), lng: parseFloat(to.longitude), name: to.name };
-
-            // OSRM: gerçek karayolu güzergahı (lng,lat sırası)
-            const osrmUrl = 'https://router.project-osrm.org/route/v1/driving/' + fromCoords.lng + ',' + fromCoords.lat + ';' + toCoords.lng + ',' + toCoords.lat + '?overview=full&geometries=geojson';
-            fetch(osrmUrl)
-                .then(r => r.json())
-                .then(osrm => {
-                    let routeCoords = null;
-                    if (osrm.code === 'Ok' && osrm.routes && osrm.routes[0]) {
-                        const route = osrm.routes[0];
-                        if (route.geometry && route.geometry.coordinates && route.geometry.coordinates.length) {
-                            routeCoords = route.geometry.coordinates.map(c => [c[1], c[0]]);
-                            if (route.distance != null) showDistance(route.distance);
-                        }
-                    }
-                    initMap(fromCoords, toCoords, routeCoords);
-                })
-                .catch(() => initMap(fromCoords, toCoords, null));
-        })
-        .catch(() => {});
+  });
 })();
 </script>
-@endpush
-@push('styles')
-<style>
-.route-marker { background: none !important; border: none !important; }
-.route-marker-inner {
-    display: flex; flex-direction: column; align-items: center; gap: 2px;
-    width: 44px; height: 44px; padding: 6px;
-    border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,.2);
-    font-size: 10px; font-weight: 600; white-space: nowrap;
-}
-.route-marker-start .route-marker-inner { background: #dc2626; color: #fff; }
-.route-marker-end .route-marker-inner { background: #059669; color: #fff; }
-.route-marker-inner svg { width: 20px; height: 20px; }
-.route-tooltip { font-size: 12px; font-weight: 500; }
-</style>
 @endpush
 @endsection

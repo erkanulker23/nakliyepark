@@ -1,17 +1,19 @@
-@extends('layouts.app')
+@extends('layouts.musteri')
 
-@section('title', 'Panelim - NakliyePark')
+@section('title', 'İhalelerim')
+@section('page_heading', 'İhalelerim')
+@section('page_subtitle', 'Taşınma ilanlarınız')
 
 @section('content')
-<div class="px-4 py-6 max-w-2xl mx-auto">
+<div class="max-w-3xl">
     <div class="flex items-center justify-between mb-6">
-        <h1 class="text-xl font-bold text-slate-800 dark:text-slate-100">İhalelerim</h1>
-        <a href="{{ route('ihale.create') }}" class="btn-touch bg-sky-500 text-white rounded-xl">+ Yeni İhale</a>
+        <p class="text-slate-500 text-sm">İlanlarınıza gelen teklifleri görüntüleyip kabul edebilirsiniz.</p>
+        <a href="{{ route('ihale.create') }}" class="admin-btn-primary px-4 py-2 rounded-lg shrink-0">+ Yeni İhale</a>
     </div>
 
     @forelse($ihaleler as $ihale)
-        <article class="card-touch bg-white dark:bg-slate-800 mb-4">
-            <a href="{{ route('musteri.ihaleler.show', $ihale) }}" class="block">
+        <article class="admin-card mb-4">
+            <a href="{{ route('musteri.ihaleler.show', $ihale) }}" class="block p-4 sm:p-5">
             <div class="flex justify-between items-start">
                 <div>
                     <p class="font-medium text-slate-800 dark:text-slate-100">{{ $ihale->from_city }} → {{ $ihale->to_city }}</p>
@@ -43,14 +45,14 @@
             </a>
         </article>
     @empty
-        <p class="text-slate-500 text-center py-8">Henüz ihale oluşturmadınız.</p>
-        <div class="text-center">
-            <a href="{{ route('ihale.create') }}" class="btn-touch bg-sky-500 text-white rounded-xl inline-flex">İlk İhaleyi Oluştur</a>
+        <div class="admin-card p-8 text-center">
+            <p class="text-slate-500">Henüz ihale oluşturmadınız.</p>
+            <a href="{{ route('ihale.create') }}" class="inline-block mt-4 admin-btn-primary px-4 py-2 rounded-lg">İlk İhaleyi Oluştur</a>
         </div>
     @endforelse
 
     @if($ihaleler->hasPages())
-        <div class="mt-4">{{ $ihaleler->links() }}</div>
+        <div class="mt-6">{{ $ihaleler->links() }}</div>
     @endif
 </div>
 @endsection

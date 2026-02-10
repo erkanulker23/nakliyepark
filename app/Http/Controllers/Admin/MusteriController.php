@@ -8,14 +8,31 @@ use Illuminate\Http\Request;
 
 class MusteriController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $musteriler = User::where('role', 'musteri')
-            ->withCount('ihaleler')
-            ->orderBy('name')
-            ->paginate(20);
+        $query = User::where('role', 'musteri')->withCount('ihaleler');
 
-        return view('admin.musteriler.index', compact('musteriler'));
+        if ($request->filled('q')) {
+            $q = $request->q;
+            $query->where(function ($qry) use ($q) {
+                $qry->where('name', 'like', '%' . $q . '%')
+                    ->orWhere('email', 'like', '%' . $q . '%')
+                    ->orWhere('phone', 'like', '%' . $q . '%');
+            });
+        }
+
+        $sort = $request->get('sort', 'name');
+        $dir = $request->get('dir', 'asc') === 'desc' ? 'desc' : 'asc';
+        if (in_array($sort, ['name', 'email', 'created_at'])) {
+            $query->orderBy($sort, $dir);
+        } else {
+            $query->orderBy('name', 'asc');
+        }
+
+        $musteriler = $query->paginate(20)->withQueryString();
+        $filters = $request->only(['q', 'sort', 'dir']);
+
+        return view('admin.musteriler.index', compact('musteriler', 'filters'));
     }
 
     public function show(User $user)

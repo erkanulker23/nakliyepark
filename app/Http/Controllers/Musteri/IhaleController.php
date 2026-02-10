@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Musteri;
 
 use App\Http\Controllers\Controller;
+use App\Models\ContactMessage;
+use App\Models\Dispute;
 use App\Models\Ihale;
 use App\Models\Teklif;
 use App\Models\UserNotification;
+use App\Notifications\ContactMessageToCompanyNotification;
+use App\Notifications\TeklifAcceptedNotification;
 use Illuminate\Http\Request;
 
 class IhaleController extends Controller
@@ -16,7 +20,7 @@ class IhaleController extends Controller
             abort(403, 'Bu ihale size ait değil.');
         }
         $ihale->load(['teklifler.company.user', 'photos']);
-        $acceptedTeklif = $ihale->acceptedTeklif();
+        $acceptedTeklif = $ihale->acceptedTeklif;
         return view('musteri.ihaleler.show', compact('ihale', 'acceptedTeklif'));
     }
 
@@ -33,9 +37,10 @@ class IhaleController extends Controller
         }
         \DB::transaction(function () use ($ihale, $teklif) {
             $ihale->teklifler()->where('id', '!=', $teklif->id)->update(['status' => 'rejected']);
-            $teklif->update(['status' => 'accepted']);
+            $teklif->update(['status' => 'accepted', 'accepted_at' => now()]);
             $ihale->update(['status' => 'closed']);
         });
+        \App\Models\AuditLog::log('teklif_accepted', Teklif::class, (int) $teklif->id, null, ['ihale_id' => $ihale->id, 'company_id' => $teklif->company_id]);
         if ($teklif->company && $teklif->company->user) {
             UserNotification::notify(
                 $teklif->company->user,
@@ -44,7 +49,82 @@ class IhaleController extends Controller
                 'Teklifiniz kabul edildi',
                 ['url' => route('nakliyeci.teklifler.index')]
             );
+            $teklif->company->user->notify(new TeklifAcceptedNotification($ihale, $teklif));
         }
         return redirect()->route('musteri.ihaleler.show', $ihale)->with('success', 'Teklif kabul edildi. Firma ile iletişime geçebilirsiniz.');
+    }
+
+    /** Teklif kabulünü geri al (sadece kabulden sonra 10 dakika içinde) */
+    public function undoAcceptTeklif(Request $request, Ihale $ihale, Teklif $teklif)
+    {
+        if ($ihale->user_id !== $request->user()->id) {
+            abort(403, 'Bu ihale size ait değil.');
+        }
+        if ($teklif->ihale_id !== $ihale->id || $teklif->status !== 'accepted') {
+            abort(404);
+        }
+        if (! $teklif->canUndoAccept()) {
+            return back()->with('error', 'Kabul geri alınamaz. Süre (' . Teklif::ACCEPT_UNDO_MINUTES . ' dakika) doldu.');
+        }
+        \DB::transaction(function () use ($ihale, $teklif) {
+            $teklif->update(['status' => 'pending', 'accepted_at' => null]);
+            $ihale->update(['status' => 'published']);
+        });
+        return redirect()->route('musteri.ihaleler.show', $ihale)->with('success', 'Teklif kabulü geri alındı. İhaleniz tekrar yayında.');
+    }
+
+    public function storeContactMessage(Request $request, Ihale $ihale, Teklif $teklif)
+    {
+        if ($ihale->user_id !== $request->user()->id) {
+            abort(403, 'Bu ihale size ait değil.');
+        }
+        if ($teklif->ihale_id !== $ihale->id || $teklif->status !== 'accepted') {
+            abort(404);
+        }
+        $request->validate(['message' => 'required|string|max:2000']);
+
+        $contactMessage = ContactMessage::create([
+            'ihale_id' => $ihale->id,
+            'teklif_id' => $teklif->id,
+            'from_user_id' => $request->user()->id,
+            'company_id' => $teklif->company_id,
+            'message' => $request->message,
+        ]);
+
+        if ($teklif->company && $teklif->company->user) {
+            $teklif->company->user->notify(new ContactMessageToCompanyNotification($contactMessage));
+        }
+
+        return back()->with('success', 'Mesajınız firmaya iletildi. Firma sizinle iletişime geçecektir.');
+    }
+
+    /** Uyuşmazlık / şikâyet aç (kapalı ihale, kabul edilmiş teklif için) */
+    public function storeDispute(Request $request, Ihale $ihale)
+    {
+        if ($ihale->user_id !== $request->user()->id) {
+            abort(403, 'Bu ihale size ait değil.');
+        }
+        $acceptedTeklif = $ihale->acceptedTeklif;
+        if (! $acceptedTeklif || $ihale->status !== 'closed') {
+            return back()->with('error', 'Bu ihale için uyuşmazlık açılamaz.');
+        }
+        $request->validate([
+            'reason' => 'required|string|in:iptal,adres_hatasi,gelmedi,hakaret,diger',
+            'description' => 'nullable|string|max:2000',
+        ]);
+        if (Dispute::where('ihale_id', $ihale->id)->where('opened_by_user_id', $request->user()->id)->whereIn('status', ['open', 'admin_review'])->exists()) {
+            return back()->with('error', 'Bu ihale için zaten açık bir uyuşmazlık kaydınız var.');
+        }
+        Dispute::create([
+            'ihale_id' => $ihale->id,
+            'company_id' => $acceptedTeklif->company_id,
+            'opened_by_user_id' => $request->user()->id,
+            'opened_by_type' => 'musteri',
+            'reason' => $request->reason,
+            'description' => $request->description,
+            'status' => 'open',
+        ]);
+        \App\Services\AdminNotifier::notify('dispute_opened', "Uyuşmazlık açıldı: {$ihale->from_city} → {$ihale->to_city} (Müşteri)", 'Yeni uyuşmazlık', ['url' => route('admin.disputes.index')]);
+        return redirect()->route('musteri.ihaleler.show', $ihale)->with('success', 'Şikâyetiniz alındı. En kısa sürede incelenecektir.');
     }
 }

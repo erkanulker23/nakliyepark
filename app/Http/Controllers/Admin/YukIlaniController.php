@@ -9,10 +9,36 @@ use Illuminate\Http\Request;
 
 class YukIlaniController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $ilanlar = YukIlani::with('company.user')->latest()->paginate(20);
-        return view('admin.yuk-ilanlari.index', compact('ilanlar'));
+        $query = YukIlani::with('company.user');
+
+        if ($request->filled('q')) {
+            $q = $request->q;
+            $query->where(function ($qry) use ($q) {
+                $qry->where('from_city', 'like', '%' . $q . '%')
+                    ->orWhere('to_city', 'like', '%' . $q . '%')
+                    ->orWhere('load_type', 'like', '%' . $q . '%')
+                    ->orWhere('description', 'like', '%' . $q . '%')
+                    ->orWhereHas('company', function ($c) use ($q) {
+                        $c->where('name', 'like', '%' . $q . '%');
+                    });
+            });
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        if ($request->filled('from_city')) {
+            $query->where('from_city', 'like', '%' . $request->from_city . '%');
+        }
+        if ($request->filled('to_city')) {
+            $query->where('to_city', 'like', '%' . $request->to_city . '%');
+        }
+
+        $ilanlar = $query->latest()->paginate(20)->withQueryString();
+        $filters = $request->only(['q', 'status', 'from_city', 'to_city']);
+
+        return view('admin.yuk-ilanlari.index', compact('ilanlar', 'filters'));
     }
 
     public function create()

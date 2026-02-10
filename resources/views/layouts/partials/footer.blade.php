@@ -22,7 +22,10 @@
                 <ul class="space-y-2.5">
                     <li><a href="{{ route('tools.volume') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Hacim hesaplama</a></li>
                     <li><a href="{{ route('tools.distance') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Mesafe hesaplama</a></li>
+                    <li><a href="{{ route('tools.road-distance') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Karayolu mesafe</a></li>
                     <li><a href="{{ route('tools.cost') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Tahmini maliyet</a></li>
+                    <li><a href="{{ route('tools.checklist') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Taşınma kontrol listesi</a></li>
+                    <li><a href="{{ route('tools.moving-calendar') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Taşınma takvimi</a></li>
                 </ul>
             </div>
             <div>

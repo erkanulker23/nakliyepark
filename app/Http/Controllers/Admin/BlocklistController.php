@@ -9,6 +9,7 @@ use App\Models\BlockedPhone;
 use App\Models\Company;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class BlocklistController extends Controller
 {
@@ -34,6 +35,7 @@ class BlocklistController extends Controller
             return back()->with('error', 'Bu e-posta zaten engelli.');
         }
         BlockedEmail::create(['email' => $email, 'reason' => $request->reason]);
+        Log::channel('admin_actions')->info('Admin blocklist email added', ['admin_id' => auth()->id(), 'email' => $email]);
         return back()->with('success', 'E-posta engellendi.');
     }
 
@@ -48,6 +50,7 @@ class BlocklistController extends Controller
             return back()->with('error', 'Bu telefon zaten engelli.');
         }
         BlockedPhone::create(['phone' => $phone, 'reason' => $request->reason]);
+        Log::channel('admin_actions')->info('Admin blocklist phone added', ['admin_id' => auth()->id(), 'phone' => $phone]);
         return back()->with('success', 'Telefon engellendi.');
     }
 
@@ -62,6 +65,7 @@ class BlocklistController extends Controller
             return back()->with('error', 'Bu IP zaten engelli.');
         }
         BlockedIp::create(['ip' => $ip, 'reason' => $request->reason]);
+        Log::channel('admin_actions')->info('Admin blocklist IP added', ['admin_id' => auth()->id(), 'ip' => $ip]);
         return back()->with('success', 'IP engellendi.');
     }
 
@@ -89,24 +93,44 @@ class BlocklistController extends Controller
             return back()->with('error', 'Kendinizi engelleyemezsiniz.');
         }
         $user->update(['blocked_at' => now()]);
+        Log::channel('admin_actions')->info('Admin user blocked', [
+            'admin_id' => auth()->id(),
+            'user_id' => $user->id,
+            'user_email' => $user->email,
+        ]);
         return back()->with('success', 'Kullanıcı engellendi.');
     }
 
     public function unblockUser(User $user)
     {
         $user->update(['blocked_at' => null]);
+        Log::channel('admin_actions')->info('Admin user unblocked', [
+            'admin_id' => auth()->id(),
+            'user_id' => $user->id,
+            'user_email' => $user->email,
+        ]);
         return back()->with('success', 'Kullanıcı engeli kaldırıldı.');
     }
 
     public function blockCompany(Company $company)
     {
         $company->update(['blocked_at' => now()]);
+        Log::channel('admin_actions')->info('Admin company blocked', [
+            'admin_id' => auth()->id(),
+            'company_id' => $company->id,
+            'company_name' => $company->name,
+        ]);
         return back()->with('success', 'Firma engellendi.');
     }
 
     public function unblockCompany(Company $company)
     {
         $company->update(['blocked_at' => null]);
+        Log::channel('admin_actions')->info('Admin company unblocked', [
+            'admin_id' => auth()->id(),
+            'company_id' => $company->id,
+            'company_name' => $company->name,
+        ]);
         return back()->with('success', 'Firma engeli kaldırıldı.');
     }
 }

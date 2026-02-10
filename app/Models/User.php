@@ -89,4 +89,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserNotification::class);
     }
+
+    /**
+     * Şifre sıfırlama e-postası (Türkçe, özelleştirilebilir konu).
+     */
+    public function sendPasswordResetNotification(mixed $token): void
+    {
+        $this->notify(new \App\Notifications\ResetPasswordNotification($token));
+    }
 }

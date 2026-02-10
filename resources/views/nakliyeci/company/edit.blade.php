@@ -81,6 +81,21 @@
             </div>
 
             <div class="border-t border-slate-200 dark:border-slate-600 pt-6 mt-6">
+                <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">Verdiği hizmetler</h3>
+                <p class="text-sm text-slate-500 mb-3">Firmanızın sunduğu hizmetleri işaretleyin. Müşteri sayfanızda listelenecektir.</p>
+                <div class="flex flex-wrap gap-4">
+                    @foreach(\App\Models\Company::serviceLabels() as $key => $label)
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="services[]" value="{{ $key }}" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                                {{ in_array($key, old('services', $company->services ?? [])) ? 'checked' : '' }}>
+                            <span class="text-sm text-slate-700 dark:text-slate-300">{{ $label }}</span>
+                        </label>
+                    @endforeach
+                </div>
+                @error('services')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+            </div>
+
+            <div class="border-t border-slate-200 dark:border-slate-600 pt-6 mt-6">
                 <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">SEO (Arama motoru)</h3>
                 <p class="text-sm text-slate-500 mb-3">Firmanızın arama sonuçlarında nasıl görüneceğini belirleyin.</p>
                 <div class="admin-form-group">

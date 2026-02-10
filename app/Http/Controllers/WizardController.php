@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Ihale;
 use App\Models\IhalePhoto;
 use App\Models\RoomTemplate;
+use App\Models\User;
+use App\Notifications\IhalePublishedNotification;
+use App\Notifications\NewIhaleAdminNotification;
+use App\Services\AdminNotifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -39,6 +43,15 @@ class WizardController extends Controller
         unset($validated['photos']);
 
         $ihale = Ihale::create($validated);
+
+        AdminNotifier::notify('ihale_created', "Yeni ihale (yayında): {$ihale->from_city} → {$ihale->to_city} (Üye)", 'Yeni ihale', ['url' => route('admin.ihaleler.show', $ihale)]);
+
+        $ihale->user->notify(new IhalePublishedNotification($ihale));
+
+        $admins = User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new NewIhaleAdminNotification($ihale));
+        }
 
         if ($request->hasFile('photos')) {
             foreach ($request->file('photos') as $i => $file) {

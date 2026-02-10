@@ -5,8 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Ihale;
 use App\Models\IhalePhoto;
 use App\Models\RoomTemplate;
+use App\Models\User;
+use App\Notifications\IhaleCreatedNotification;
+use App\Notifications\NewIhaleAdminNotification;
+use App\Models\ConsentLog;
 use App\Services\AdminNotifier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 
 class GuestWizardController extends Controller
 {
@@ -14,7 +19,12 @@ class GuestWizardController extends Controller
     {
         $rooms = RoomTemplate::orderBy('sort_order')->get();
         $step = 1;
-        return view('ihale.wizard', compact('rooms', 'step'));
+        $forCompany = null;
+        if ($request->filled('for_company')) {
+            $forCompany = \App\Models\Company::whereNotNull('approved_at')->find($request->for_company);
+        }
+        $dataRetentionMonths = config('nakliyepark.data_retention_months', 24);
+        return view('ihale.wizard', compact('rooms', 'step', 'forCompany', 'dataRetentionMonths'));
     }
 
     public function store(Request $request)
@@ -59,14 +69,18 @@ class GuestWizardController extends Controller
             'guest_contact_name' => 'nullable|string|max:255',
             'guest_contact_email' => 'nullable|email',
             'guest_contact_phone' => 'nullable|string|max:20',
+            'preferred_company_id' => 'nullable|exists:companies,id',
             'photos' => 'nullable|array',
             'photos.*' => 'image|max:5120',
+            'kvkk_consent' => 'accepted', // KVKK açık rıza (misafir ve üye için kişisel veri işleme)
         ];
         if (! $request->user()) {
             $rules['guest_contact_name'] = 'required|string|max:255';
             $rules['guest_contact_email'] = 'required|email';
         }
-        $validated = $request->validate($rules);
+        $validated = $request->validate($rules, [
+            'kvkk_consent.accepted' => 'Kişisel verilerin işlenmesi için açık rıza vermeniz gerekmektedir.',
+        ]);
 
         $validated['service_type'] = $serviceType;
         if ($request->filled('description_items')) {
@@ -119,10 +133,34 @@ class GuestWizardController extends Controller
         } else {
             $validated['user_id'] = null;
         }
-        unset($validated['photos'], $validated['description_items'], $validated['ev_salon'], $validated['ev_yatak_odasi'], $validated['ev_mutfak'], $validated['ev_diger'], $validated['ev_koli']);
+        if ($request->filled('preferred_company_id')) {
+            $validated['preferred_company_id'] = $request->input('preferred_company_id');
+        } else {
+            $validated['preferred_company_id'] = null;
+        }
+        unset($validated['photos'], $validated['description_items'], $validated['ev_salon'], $validated['ev_yatak_odasi'], $validated['ev_mutfak'], $validated['ev_diger'], $validated['ev_koli'], $validated['kvkk_consent']);
 
         $ihale = Ihale::create($validated);
+
+        // KVKK: Açık rıza logu (IP, tarih - admin panelinde görüntülenebilir)
+        ConsentLog::log('kvkk_ihale', $request->user()?->id, $ihale->id, ['form' => 'ihale_wizard']);
+
         AdminNotifier::notify('ihale_created', "Yeni ihale: {$ihale->from_city} → {$ihale->to_city}" . ($ihale->user_id ? " (Üye)" : " (Misafir)"), 'Yeni ihale', ['url' => route('admin.ihaleler.show', $ihale)]);
+
+        // Müşteriye / misafire e-posta: talebiniz alındı
+        if ($ihale->user_id) {
+            $ihale->load('user');
+            $ihale->user->notify(new IhaleCreatedNotification($ihale));
+        } elseif ($ihale->guest_contact_email) {
+            Notification::route('mail', $ihale->guest_contact_email)
+                ->notify(new IhaleCreatedNotification($ihale));
+        }
+
+        // Admin kullanıcılarına e-posta: yeni ihale talebi
+        $admins = User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            $admin->notify(new NewIhaleAdminNotification($ihale));
+        }
 
         if ($request->hasFile('photos')) {
             foreach ($request->file('photos') as $i => $file) {

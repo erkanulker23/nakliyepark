@@ -74,6 +74,9 @@
             <h2 class="font-semibold text-slate-800 dark:text-slate-200 mb-2">Sizin teklifiniz</h2>
             <p class="text-lg font-bold text-emerald-600 dark:text-emerald-400">{{ number_format($benimTeklif->amount, 0, ',', '.') }} ₺</p>
             <p class="text-sm text-slate-500 mt-1">Durum: {{ $benimTeklif->status === 'accepted' ? 'Onaylandı' : ($benimTeklif->status === 'rejected' ? 'Reddedildi' : 'Beklemede') }}</p>
+            @if($benimTeklif->reject_reason)
+                <p class="text-sm text-amber-700 dark:text-amber-300 mt-2 bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-2">Red gerekçesi (admin): {{ $benimTeklif->reject_reason }}</p>
+            @endif
             @if($benimTeklif->message)
                 <p class="text-sm text-slate-600 dark:text-slate-400 mt-2">{{ $benimTeklif->message }}</p>
             @endif

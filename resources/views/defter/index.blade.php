@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Nakliyat Defteri - NakliyePark')
+@section('meta_description', 'Nakliyat defteri: Yük ilanları ve boş dönüş ilanları. Nakliye firmaları yük ve dönüş ilanlarını burada paylaşır. Ücretsiz ilan verin.')
 
 @section('content')
 <div class="min-h-screen bg-zinc-50 dark:bg-zinc-900/50">
@@ -8,65 +9,82 @@
     <section class="relative py-8 sm:py-12 overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-b from-amber-500/5 to-transparent dark:from-amber-500/5"></div>
         <div class="page-container relative">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div class="max-w-2xl">
-                    <h1 class="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">Nakliyat defteri</h1>
-                    <p class="text-zinc-600 dark:text-zinc-400 mt-1 text-sm sm:text-base">Firmaların paylaştığı yük ilanları. Günde 200'den fazla ilan ekleniyor.</p>
-                </div>
+            {{-- Başlık + Deftere yaz --}}
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <h1 class="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">Nakliyat defteri</h1>
                 @auth
                     @if(auth()->user()->isNakliyeci())
                         <a href="{{ route('nakliyeci.ledger.create') }}" class="btn-primary shrink-0 inline-flex gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                             Deftere yaz
                         </a>
-                        @if(!auth()->user()->company?->isApproved())
-                            <p class="w-full sm:w-auto mt-1 text-xs text-amber-600 dark:text-amber-400">Deftere yazmak için firmanızın onaylı olması gerekir. <a href="{{ route('nakliyeci.company.edit') }}" class="font-medium underline">Firma bilgilerinizi tamamlayın</a>.</p>
-                        @endif
                     @else
                         <span class="btn-secondary shrink-0 opacity-75 cursor-not-allowed inline-flex gap-2" title="Deftere yazabilmeniz için nakliyeci girişi yapmanız gerekmektedir.">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                             Deftere yaz
                         </span>
-                        <p class="w-full sm:w-auto mt-1 text-xs text-zinc-500 dark:text-zinc-400">Deftere yazabilmeniz için nakliyeci girişi yapmanız gerekmektedir.</p>
                     @endif
                 @else
-                    <div class="shrink-0 flex flex-col items-start sm:items-end">
-                        <span class="btn-secondary opacity-75 cursor-not-allowed inline-flex gap-2 pointer-events-none" title="Deftere yazabilmeniz için nakliyeci girişi yapmanız gerekmektedir.">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                            Deftere yaz
-                        </span>
-                        <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Deftere yazabilmeniz için nakliyeci girişi yapmanız gerekmektedir.</p>
-                        <p class="mt-1 text-xs">
-                            <a href="{{ route('login') }}" class="text-amber-600 dark:text-amber-400 hover:underline">Giriş yap</a>
-                            <span class="text-zinc-400 mx-1">/</span>
-                            <a href="{{ route('register') }}" class="text-amber-600 dark:text-amber-400 hover:underline">Kayıt ol</a>
-                        </p>
-                    </div>
+                    <span class="btn-secondary shrink-0 opacity-75 cursor-not-allowed inline-flex gap-2 pointer-events-none" title="Deftere yazabilmeniz için nakliyeci girişi yapmanız gerekmektedir.">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        Deftere yaz
+                    </span>
                 @endauth
             </div>
+
+            {{-- İstatistikler --}}
+            <div class="flex flex-wrap gap-3 sm:gap-4 mb-4">
+                <div class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200/80 dark:border-amber-800/50">
+                    <span class="text-2xl font-bold text-amber-600 dark:text-amber-400 tabular-nums">{{ number_format($todayCount) }}</span>
+                    <span class="text-sm text-zinc-600 dark:text-zinc-400">bugün</span>
+                </div>
+                <div class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700">
+                    <span class="text-2xl font-bold text-zinc-800 dark:text-zinc-200 tabular-nums">{{ number_format($weekCount) }}</span>
+                    <span class="text-sm text-zinc-600 dark:text-zinc-400">bu hafta</span>
+                </div>
+                <div class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700">
+                    <span class="text-2xl font-bold text-zinc-800 dark:text-zinc-200 tabular-nums">{{ number_format($totalCount) }}</span>
+                    <span class="text-sm text-zinc-600 dark:text-zinc-400">toplam</span>
+                </div>
+            </div>
+
+            {{-- Bilgi metni --}}
+            <p class="text-zinc-600 dark:text-zinc-400 text-sm">
+                Firmaların paylaştığı yük ilanları.
+                @guest
+                    <a href="{{ route('login') }}" class="text-amber-600 dark:text-amber-400 hover:underline">Giriş yap</a>
+                    <span class="text-zinc-400 mx-1">/</span>
+                    <a href="{{ route('register') }}" class="text-amber-600 dark:text-amber-400 hover:underline">Kayıt ol</a>
+                    ile deftere yazabilirsiniz.
+                @else
+                    @if(auth()->user()->isNakliyeci())
+                        @if(!auth()->user()->company?->isApproved())
+                            <span class="text-amber-600 dark:text-amber-400">Firmanız onaylı değilse deftere yazamazsınız. <a href="{{ route('nakliyeci.company.edit') }}" class="font-medium underline">Firma bilgilerinizi tamamlayın</a>.</span>
+                        @else
+                            Yukarıdaki buton ile hemen ilan ekleyebilirsiniz.
+                        @endif
+                    @else
+                        Deftere yazabilmeniz için nakliyeci girişi yapmanız gerekmektedir.
+                    @endif
+                @endguest
+            </p>
         </div>
     </section>
 
     <div class="page-container pb-16 sm:pb-24">
-        {{-- Üst reklam alanı (rastgele) --}}
+        {{-- Üst reklam alanı --}}
+        @php $reklamUst = \App\Models\AdZone::getForPagePosition('defter', 'ust', 2); @endphp
         @if($reklamUst->isNotEmpty())
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 @foreach($reklamUst as $reklam)
                     <div class="defter-reklam rounded-2xl border border-zinc-200 dark:border-zinc-700 overflow-hidden bg-white dark:bg-zinc-800 p-4">
-                        @if($reklam->link)
-                            <a href="{{ $reklam->link }}" target="_blank" rel="noopener noreferrer" class="block">
-                        @endif
-                        @if($reklam->resim)
-                            <img src="{{ $reklam->resim }}" alt="{{ $reklam->baslik ?? 'Reklam' }}" class="w-full h-24 object-cover rounded-lg mb-2">
-                        @endif
-                        @if($reklam->baslik)
-                            <p class="font-medium text-zinc-900 dark:text-white">{{ $reklam->baslik }}</p>
-                        @endif
-                        @if($reklam->icerik)
-                            <div class="text-sm text-zinc-600 dark:text-zinc-400 mt-1">{!! $reklam->icerik !!}</div>
-                        @endif
-                        @if($reklam->link)
-                            </a>
+                        @if($reklam->isCode())
+                            {!! $reklam->kod !!}
+                        @else
+                            @if($reklam->link)<a href="{{ $reklam->link }}" target="_blank" rel="noopener noreferrer nofollow" class="block">@endif
+                            @if($reklam->resim)<img src="{{ $reklam->resim }}" alt="{{ $reklam->baslik ?? 'Reklam' }}" class="w-full h-24 object-cover rounded-lg mb-2" loading="lazy">@endif
+                            @if($reklam->baslik)<p class="font-medium text-zinc-900 dark:text-white">{{ $reklam->baslik }}</p>@endif
+                            @if($reklam->link)</a>@endif
                         @endif
                     </div>
                 @endforeach
@@ -218,26 +236,20 @@
                 @endif
             </div>
 
-            {{-- Sağ sütun: Reklamlar (rastgele) --}}
+            {{-- Sağ sütun: Reklamlar --}}
+            @php $reklamSidebar = \App\Models\AdZone::getForPagePosition('defter', 'sidebar', 5); @endphp
             @if($reklamSidebar->isNotEmpty())
                 <aside class="lg:w-72 shrink-0 mt-8 lg:mt-0 space-y-4">
                     <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Reklamlar</p>
                     @foreach($reklamSidebar as $reklam)
                         <div class="defter-reklam card-premium-flat p-4 overflow-hidden">
-                            @if($reklam->link)
-                                <a href="{{ $reklam->link }}" target="_blank" rel="noopener noreferrer" class="block">
-                            @endif
-                            @if($reklam->resim)
-                                <img src="{{ $reklam->resim }}" alt="{{ $reklam->baslik ?? 'Reklam' }}" class="w-full h-32 object-cover rounded-lg mb-2">
-                            @endif
-                            @if($reklam->baslik)
-                                <p class="font-semibold text-zinc-900 dark:text-white">{{ $reklam->baslik }}</p>
-                            @endif
-                            @if($reklam->icerik)
-                                <div class="text-sm text-zinc-600 dark:text-zinc-400 mt-1">{!! $reklam->icerik !!}</div>
-                            @endif
-                            @if($reklam->link)
-                                </a>
+                            @if($reklam->isCode())
+                                {!! $reklam->kod !!}
+                            @else
+                                @if($reklam->link)<a href="{{ $reklam->link }}" target="_blank" rel="noopener noreferrer nofollow" class="block">@endif
+                                @if($reklam->resim)<img src="{{ $reklam->resim }}" alt="{{ $reklam->baslik ?? 'Reklam' }}" class="w-full h-32 object-cover rounded-lg mb-2" loading="lazy">@endif
+                                @if($reklam->baslik)<p class="font-semibold text-zinc-900 dark:text-white">{{ $reklam->baslik }}</p>@endif
+                                @if($reklam->link)</a>@endif
                             @endif
                         </div>
                     @endforeach
@@ -245,25 +257,19 @@
             @endif
         </div>
 
-        {{-- Alt reklam alanı (rastgele) --}}
+        {{-- Alt reklam alanı --}}
+        @php $reklamAlt = \App\Models\AdZone::getForPagePosition('defter', 'alt', 2); @endphp
         @if($reklamAlt->isNotEmpty())
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-10 pt-8 border-t border-zinc-200 dark:border-zinc-700">
                 @foreach($reklamAlt as $reklam)
                     <div class="defter-reklam rounded-2xl border border-zinc-200 dark:border-zinc-700 overflow-hidden bg-white dark:bg-zinc-800 p-4">
-                        @if($reklam->link)
-                            <a href="{{ $reklam->link }}" target="_blank" rel="noopener noreferrer" class="block">
-                        @endif
-                        @if($reklam->resim)
-                            <img src="{{ $reklam->resim }}" alt="{{ $reklam->baslik ?? 'Reklam' }}" class="w-full h-20 object-cover rounded-lg mb-2">
-                        @endif
-                        @if($reklam->baslik)
-                            <p class="font-medium text-zinc-900 dark:text-white">{{ $reklam->baslik }}</p>
-                        @endif
-                        @if($reklam->icerik)
-                            <div class="text-sm text-zinc-600 dark:text-zinc-400 mt-1">{!! $reklam->icerik !!}</div>
-                        @endif
-                        @if($reklam->link)
-                            </a>
+                        @if($reklam->isCode())
+                            {!! $reklam->kod !!}
+                        @else
+                            @if($reklam->link)<a href="{{ $reklam->link }}" target="_blank" rel="noopener noreferrer nofollow" class="block">@endif
+                            @if($reklam->resim)<img src="{{ $reklam->resim }}" alt="{{ $reklam->baslik ?? 'Reklam' }}" class="w-full h-20 object-cover rounded-lg mb-2" loading="lazy">@endif
+                            @if($reklam->baslik)<p class="font-medium text-zinc-900 dark:text-white">{{ $reklam->baslik }}</p>@endif
+                            @if($reklam->link)</a>@endif
                         @endif
                     </div>
                 @endforeach

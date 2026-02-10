@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Ihale;
 use App\Models\Teklif;
 use App\Models\UserNotification;
+use App\Notifications\TeklifReceivedNotification;
 use App\Services\AdminNotifier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 
 class TeklifController extends Controller
 {
@@ -30,6 +32,9 @@ class TeklifController extends Controller
         if ($company->isBlocked()) {
             return back()->with('error', 'Firmanız engellenmiştir. Teklif veremezsiniz.');
         }
+        if (! $company->canSendTeklif()) {
+            return back()->with('error', 'Bu ay için teklif limitiniz dolmuştur (' . $company->teklif_limit . ' teklif). Paket yükseltmek için lütfen bizimle iletişime geçin.');
+        }
 
         $request->validate([
             'ihale_id' => 'required|exists:ihaleler,id',
@@ -43,7 +48,7 @@ class TeklifController extends Controller
             return back()->with('error', 'Bu ihale için zaten teklif verdiniz.');
         }
 
-        Teklif::create([
+        $teklif = Teklif::create([
             'ihale_id' => $ihale->id,
             'company_id' => $company->id,
             'amount' => $request->amount,
@@ -60,6 +65,10 @@ class TeklifController extends Controller
                 'Yeni teklif geldi',
                 ['url' => route('musteri.ihaleler.show', $ihale)]
             );
+            $ihale->user->notify(new TeklifReceivedNotification($ihale, $teklif));
+        } elseif ($ihale->guest_contact_email) {
+            Notification::route('mail', $ihale->guest_contact_email)
+                ->notify(new TeklifReceivedNotification($ihale, $teklif));
         }
         return back()->with('success', 'Teklifiniz gönderildi.');
     }

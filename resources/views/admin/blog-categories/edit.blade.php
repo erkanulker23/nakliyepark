@@ -31,12 +31,12 @@
             <div class="flex gap-3 pt-2">
                 <button type="submit" class="admin-btn-primary">Güncelle</button>
                 <a href="{{ route('admin.blog-categories.index') }}" class="admin-btn-secondary">İptal</a>
-                <form method="POST" action="{{ route('admin.blog-categories.destroy', $blog_category) }}" class="inline" onsubmit="return confirm('Bu kategoriyi silmek istediğinize emin misiniz?');">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="admin-btn-danger">Sil</button>
-                </form>
             </div>
+        </form>
+        <form method="POST" action="{{ route('admin.blog-categories.destroy', $blog_category) }}" class="inline mt-3" onsubmit="return confirm('Bu kategoriyi silmek istediğinize emin misiniz?');">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="admin-btn-danger">Sil</button>
         </form>
     </div>
 </div>

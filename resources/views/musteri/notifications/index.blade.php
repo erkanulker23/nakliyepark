@@ -1,25 +1,23 @@
-@extends('layouts.app')
+@extends('layouts.musteri')
 
-@section('title', 'Bildirimlerim - NakliyePark')
+@section('title', 'Bildirimlerim')
+@section('page_heading', 'Bildirimlerim')
+@section('page_subtitle', 'Bildirimleriniz')
 
 @section('content')
-<div class="px-4 py-6 max-w-2xl mx-auto">
-    <div class="flex items-center justify-between mb-6">
-        <h1 class="text-xl font-bold text-slate-800 dark:text-slate-100">Bildirimlerim</h1>
-        @php $unreadCount = auth()->user()->userNotifications()->whereNull('read_at')->count(); @endphp
-        @if($unreadCount > 0)
+<div class="max-w-2xl">
+    @php $unreadCount = auth()->user()->userNotifications()->whereNull('read_at')->count(); @endphp
+    @if($unreadCount > 0)
+        <div class="flex justify-end mb-4">
             <form method="POST" action="{{ route('musteri.notifications.mark-all-read') }}" class="inline">
                 @csrf
                 <button type="submit" class="text-sm text-sky-600 dark:text-sky-400 hover:underline">Tümünü okundu işaretle</button>
             </form>
-        @endif
-    </div>
-    <nav class="mb-4">
-        <a href="{{ route('musteri.dashboard') }}" class="text-sm text-sky-600 dark:text-sky-400 hover:underline">← İhalelerime dön</a>
-    </nav>
-    <ul class="space-y-2">
+        </div>
+    @endif
+    <ul class="space-y-3">
         @forelse($notifications as $n)
-            <li class="card-touch bg-white dark:bg-slate-800 p-4 {{ $n->read_at ? 'opacity-80' : '' }}">
+            <li class="admin-card p-4 {{ $n->read_at ? 'opacity-80' : '' }}">
                 <div class="flex justify-between items-start gap-3">
                     <div class="min-w-0 flex-1">
                         <p class="font-medium text-slate-800 dark:text-slate-100">{{ $n->title }}</p>

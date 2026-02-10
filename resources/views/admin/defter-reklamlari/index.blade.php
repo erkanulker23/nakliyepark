@@ -35,8 +35,8 @@
                             @endif
                         </td>
                         <td class="px-4 py-3 text-right">
-                            <a href="{{ route('admin.defter-reklamlari.edit', $r) }}" class="text-sky-500 hover:underline mr-2">Düzenle</a>
-                            <form method="POST" action="{{ route('admin.defter-reklamlari.destroy', $r) }}" class="inline" onsubmit="return confirm('Bu reklamı silmek istediğinize emin misiniz?');">
+                            <a href="{{ route('admin.defter-reklamlari.edit', ['defter_reklamlari' => $r]) }}" class="text-sky-500 hover:underline mr-2">Düzenle</a>
+                            <form method="POST" action="{{ route('admin.defter-reklamlari.destroy', ['defter_reklamlari' => $r]) }}" class="inline" onsubmit="return confirm('Bu reklamı silmek istediğinize emin misiniz?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-500 hover:underline">Sil</button>

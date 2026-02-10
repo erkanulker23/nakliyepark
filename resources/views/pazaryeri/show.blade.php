@@ -1,6 +1,22 @@
 @extends('layouts.app')
 
+@php
+    $pazaryeriGallery = $listing->gallery_paths ?? [];
+    $pazaryeriOgImage = count($pazaryeriGallery) > 0 ? asset('storage/'.$pazaryeriGallery[0]) : null;
+@endphp
 @section('title', $listing->title . ' - Pazaryeri')
+@section('meta_description', Str::limit(strip_tags($listing->description ?? $listing->title), 160) ?: ($listing->title . ' - NakliyePark Pazaryeri ilanı.'))
+@section('canonical_url', route('pazaryeri.show', $listing))
+@section('og_image', $pazaryeriOgImage)
+
+@php
+    $breadcrumbItems = [
+        ['name' => 'Anasayfa', 'url' => route('home')],
+        ['name' => 'Pazaryeri', 'url' => route('pazaryeri.index')],
+        ['name' => $listing->title, 'url' => null],
+    ];
+@endphp
+@include('partials.structured-data-breadcrumb')
 
 @section('content')
 <div class="min-h-screen bg-[#fafafa] dark:bg-zinc-900/50">
@@ -18,19 +34,49 @@
 
         <div class="max-w-4xl">
             <div class="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden shadow-sm">
-                {{-- Görsel --}}
-                <div class="relative aspect-[2/1] sm:aspect-[21/9] max-h-[400px] bg-gradient-to-br from-zinc-100 to-zinc-200 dark:from-zinc-800 dark:to-zinc-700 flex items-center justify-center">
-                    @if($listing->image_path)
-                        <img src="{{ asset('storage/'.$listing->image_path) }}" alt="{{ $listing->title }}" class="w-full h-full object-cover">
+                @php
+                    $galleryPaths = $listing->gallery_paths;
+                    $hasGallery = count($galleryPaths) > 0;
+                @endphp
+                {{-- Resim galerisi --}}
+                <div class="relative bg-zinc-100 dark:bg-zinc-800">
+                    @if($hasGallery)
+                        <div class="relative aspect-[2/1] sm:aspect-[21/9] max-h-[400px] overflow-hidden">
+                            @foreach($galleryPaths as $idx => $path)
+                                <img src="{{ asset('storage/'.$path) }}" alt="{{ $listing->title }} - {{ $idx + 1 }}"
+                                    class="gallery-main w-full h-full object-cover {{ $idx === 0 ? '' : 'hidden' }}"
+                                    data-gallery-index="{{ $idx }}">
+                            @endforeach
+                            <span class="absolute top-4 left-4 inline-flex items-center px-3 py-1.5 rounded-xl text-sm font-medium {{ $listing->listing_type === 'rent' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300' }}">
+                                {{ $listingTypes[$listing->listing_type] ?? $listing->listing_type }}
+                            </span>
+                            @if(count($galleryPaths) > 1)
+                                <span class="absolute top-4 right-4 inline-flex items-center px-3 py-1.5 rounded-xl text-sm font-medium bg-black/50 text-white">
+                                    {{ count($galleryPaths) }} fotoğraf
+                                </span>
+                            @endif
+                        </div>
+                        @if(count($galleryPaths) > 1)
+                            <div class="flex gap-2 p-3 overflow-x-auto border-t border-zinc-200 dark:border-zinc-700 scrollbar-hide">
+                                @foreach($galleryPaths as $idx => $path)
+                                    <button type="button" class="gallery-thumb shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all {{ $idx === 0 ? 'border-emerald-500 ring-2 ring-emerald-500/30' : 'border-transparent hover:border-zinc-300 dark:hover:border-zinc-600' }}"
+                                        data-gallery-index="{{ $idx }}" aria-label="Fotoğraf {{ $idx + 1 }}">
+                                        <img src="{{ asset('storage/'.$path) }}" alt="" class="w-full h-full object-cover">
+                                    </button>
+                                @endforeach
+                            </div>
+                        @endif
                     @else
-                        <div class="text-zinc-400 dark:text-zinc-500 text-center p-8">
-                            <svg class="w-24 h-24 mx-auto mb-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
-                            <p class="font-medium">{{ $vehicleTypes[$listing->vehicle_type] ?? $listing->vehicle_type }}</p>
+                        <div class="relative aspect-[2/1] sm:aspect-[21/9] max-h-[400px] bg-gradient-to-br from-zinc-100 to-zinc-200 dark:from-zinc-800 dark:to-zinc-700 flex items-center justify-center">
+                            <div class="text-zinc-400 dark:text-zinc-500 text-center p-8">
+                                <svg class="w-24 h-24 mx-auto mb-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                                <p class="font-medium">{{ $vehicleTypes[$listing->vehicle_type] ?? $listing->vehicle_type }}</p>
+                            </div>
+                            <span class="absolute top-4 left-4 inline-flex items-center px-3 py-1.5 rounded-xl text-sm font-medium {{ $listing->listing_type === 'rent' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300' }}">
+                                {{ $listingTypes[$listing->listing_type] ?? $listing->listing_type }}
+                            </span>
                         </div>
                     @endif
-                    <span class="absolute top-4 left-4 inline-flex items-center px-3 py-1.5 rounded-xl text-sm font-medium {{ $listing->listing_type === 'rent' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300' }}">
-                        {{ $listingTypes[$listing->listing_type] ?? $listing->listing_type }}
-                    </span>
                 </div>
 
                 <div class="p-6 sm:p-8">
@@ -77,9 +123,9 @@
                             <h2 class="text-lg font-semibold text-zinc-900 dark:text-white mb-4">İlan sahibi</h2>
                             <div class="flex flex-wrap items-center gap-4 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700">
                                 @if($listing->company->logo)
-                                    <img src="{{ asset('storage/'.$listing->company->logo) }}" alt="{{ $listing->company->name }}" class="w-14 h-14 rounded-xl object-cover">
+                                    <img src="{{ asset('storage/'.$listing->company->logo) }}" alt="{{ $listing->company->name }}" class="w-20 h-20 rounded-2xl object-cover border border-zinc-200 dark:border-zinc-600 shadow-sm">
                                 @else
-                                    <div class="w-14 h-14 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-xl font-bold text-emerald-700 dark:text-emerald-300">
+                                    <div class="w-20 h-20 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-2xl font-bold text-emerald-700 dark:text-emerald-300 shadow-sm">
                                         {{ mb_substr($listing->company->name, 0, 1) }}
                                     </div>
                                 @endif
@@ -124,4 +170,29 @@
         </div>
     </div>
 </div>
+
+@if($hasGallery && count($galleryPaths) > 1)
+@push('scripts')
+<script>
+(function() {
+    document.querySelectorAll('.gallery-thumb').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var idx = this.getAttribute('data-gallery-index');
+            document.querySelectorAll('.gallery-main').forEach(function(img) {
+                img.classList.toggle('hidden', img.getAttribute('data-gallery-index') !== idx);
+            });
+            document.querySelectorAll('.gallery-thumb').forEach(function(b) {
+                b.classList.remove('border-emerald-500', 'ring-2', 'ring-emerald-500/30');
+                b.classList.add('border-transparent');
+                if (b.getAttribute('data-gallery-index') === idx) {
+                    b.classList.remove('border-transparent');
+                    b.classList.add('border-emerald-500', 'ring-2', 'ring-emerald-500/30');
+                }
+            });
+        });
+    });
+})();
+</script>
+@endpush
+@endif
 @endsection

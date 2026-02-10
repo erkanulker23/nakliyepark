@@ -18,10 +18,15 @@
             </thead>
             <tbody>
                 @forelse($teklifler as $t)
-                    <tr>
+                    @php $ihale = $t->ihale; @endphp
+                    <tr class="group">
                         <td>
-                            <span class="font-medium text-slate-800 dark:text-slate-200">{{ $t->ihale->from_city }} → {{ $t->ihale->to_city }}</span>
-                            <span class="block text-sm text-slate-500">{{ $t->ihale->volume_m3 }} m³ · {{ $t->ihale->move_date?->format('d.m.Y') ?? '-' }}</span>
+                            @if($ihale)
+                                <a href="{{ route('nakliyeci.ihaleler.show', $ihale) }}" class="font-medium text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">{{ $ihale->from_city }} → {{ $ihale->to_city }}</a>
+                                <span class="block text-sm text-slate-500">{{ $ihale->volume_m3 }} m³ · {{ $ihale->move_date?->format('d.m.Y') ?? '-' }}</span>
+                            @else
+                                <span class="text-slate-500">—</span>
+                            @endif
                         </td>
                         <td class="font-medium">{{ number_format($t->amount, 0, ',', '.') }} ₺</td>
                         <td>
@@ -32,6 +37,9 @@
                                 @endif">
                                 {{ $t->status === 'accepted' ? 'Onaylandı' : ($t->status === 'rejected' ? 'Reddedildi' : 'Beklemede') }}
                             </span>
+                            @if($t->reject_reason)
+                                <p class="text-xs text-amber-600 dark:text-amber-400 mt-1">Red gerekçesi: {{ $t->reject_reason }}</p>
+                            @endif
                         </td>
                         <td class="text-sm text-slate-500">{{ $t->created_at->format('d.m.Y H:i') }}</td>
                     </tr>

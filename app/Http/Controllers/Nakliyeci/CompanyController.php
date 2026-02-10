@@ -46,6 +46,7 @@ class CompanyController extends Controller
             'whatsapp' => $request->whatsapp,
             'email' => $request->email,
             'description' => $request->description,
+            'approved_at' => null, // Admin onayı gerekir; onaylanana kadar sitede görünmez
         ]);
         AdminNotifier::notify('company_created', "Yeni firma: {$company->name} ({$request->user()->email})", 'Yeni firma kaydı', ['url' => route('admin.companies.edit', $company)]);
 
@@ -83,6 +84,8 @@ class CompanyController extends Controller
             'seo_meta_title' => 'nullable|string|max:255',
             'seo_meta_description' => 'nullable|string|max:500',
             'seo_meta_keywords' => 'nullable|string|max:500',
+            'services' => 'nullable|array',
+            'services.*' => 'nullable|string|in:evden_eve_nakliyat,sehirlerarasi_nakliyat,ofis_tasima,esya_depolama,uluslararasi_nakliyat',
         ]);
 
         $company->update([
@@ -97,6 +100,7 @@ class CompanyController extends Controller
             'whatsapp' => $request->whatsapp,
             'email' => $request->email,
             'description' => $request->description,
+            'services' => $request->filled('services') ? $request->services : [],
             'seo_meta_title' => $request->seo_meta_title,
             'seo_meta_description' => $request->seo_meta_description,
             'seo_meta_keywords' => $request->seo_meta_keywords,

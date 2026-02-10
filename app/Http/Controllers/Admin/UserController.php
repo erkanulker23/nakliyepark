@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -40,7 +41,12 @@ class UserController extends Controller
         if ($user->id === auth()->id()) {
             return back()->with('error', 'Kendinizi silemezsiniz.');
         }
+        $email = $user->email;
         $user->delete();
+        Log::channel('admin_actions')->info('Admin user deleted', [
+            'admin_id' => auth()->id(),
+            'deleted_user_email' => $email,
+        ]);
         return redirect()->route('admin.users.index')->with('success', 'Kullanıcı silindi.');
     }
 }

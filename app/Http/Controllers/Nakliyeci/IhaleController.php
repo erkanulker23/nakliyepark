@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Ihale;
 use App\Models\Teklif;
 use App\Models\UserNotification;
+use App\Notifications\TeklifReceivedNotification;
 use App\Services\AdminNotifier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 
 class IhaleController extends Controller
 {
@@ -45,6 +47,9 @@ class IhaleController extends Controller
         if ($company->isBlocked()) {
             return back()->with('error', 'Firmanız engellenmiştir. Teklif veremezsiniz.');
         }
+        if (! $company->canSendTeklif()) {
+            return back()->with('error', 'Bu ay için teklif limitiniz dolmuştur (' . $company->teklif_limit . ' teklif). Paket yükseltmek için lütfen bizimle iletişime geçin.');
+        }
         $request->validate([
             'ihale_id' => 'required|exists:ihaleler,id',
             'amount' => 'required|numeric|min:0',
@@ -54,7 +59,7 @@ class IhaleController extends Controller
         if (Teklif::where('ihale_id', $ihale->id)->where('company_id', $company->id)->exists()) {
             return back()->with('error', 'Bu ihale için zaten teklif verdiniz.');
         }
-        Teklif::create([
+        $teklif = Teklif::create([
             'ihale_id' => $ihale->id,
             'company_id' => $company->id,
             'amount' => $request->amount,
@@ -71,7 +76,37 @@ class IhaleController extends Controller
                 'Yeni teklif geldi',
                 ['url' => route('musteri.ihaleler.show', $ihale)]
             );
+            $ihale->user->notify(new TeklifReceivedNotification($ihale, $teklif));
+        } elseif ($ihale->guest_contact_email) {
+            Notification::route('mail', $ihale->guest_contact_email)
+                ->notify(new TeklifReceivedNotification($ihale, $teklif));
         }
         return redirect()->route('nakliyeci.ihaleler.show', $ihale)->with('success', 'Teklifiniz gönderildi.');
+    }
+
+    /** Nakliyeci kendi teklifini güncelleme talebi gönderir; admin onayından sonra uygulanır. */
+    public function requestTeklifUpdate(Request $request, Ihale $ihale, Teklif $teklif)
+    {
+        if ($ihale->status !== 'published') {
+            abort(404);
+        }
+        $company = $request->user()->company;
+        if (! $company || $teklif->company_id !== $company->id) {
+            abort(403);
+        }
+        if ($teklif->status !== 'pending') {
+            return back()->with('error', 'Sadece beklemedeki teklifler güncellenebilir.');
+        }
+        $request->validate([
+            'amount' => 'required|numeric|min:0',
+            'message' => 'nullable|string|max:500',
+        ]);
+        $teklif->update([
+            'pending_amount' => $request->amount,
+            'pending_message' => $request->message,
+        ]);
+        AdminNotifier::notify('teklif_update_request', "{$company->name} teklif güncelleme talebi gönderdi: {$ihale->from_city} → {$ihale->to_city} - " . number_format((float) $request->amount, 0, ',', '.') . ' ₺ (onay bekliyor)', 'Teklif güncelleme talebi', ['url' => route('admin.teklifler.edit', $teklif)]);
+        $backUrl = $request->input('from_public') ? route('ihaleler.show', $ihale) : route('nakliyeci.ihaleler.show', $ihale);
+        return redirect($backUrl)->with('success', 'Güncelleme talebiniz alındı. Admin onayından sonra yansıyacaktır.');
     }
 }

@@ -1,24 +1,34 @@
 @extends('layouts.app')
 
 @section('title', 'NakliyePark - Akıllı Nakliye İhalesi')
+@section('meta_description', 'Nakliye ihtiyacınızı ihale ile çözün. Üye olmadan nakliye ihalesi başlatın, onaylı nakliye firmalarından teklif alın. Evden eve nakliyat, yük taşıma. Hızlı ve güvenli.')
 
 @section('content')
-{{-- Hero: Modern gradient mesh + glassmorphism --}}
+{{-- Hero: Modern gradient mesh + glassmorphism + floating shapes --}}
 <section class="relative min-h-[75vh] sm:min-h-[80vh] flex items-center overflow-hidden">
     {{-- Background image with subtle zoom --}}
     <div class="absolute inset-0">
         <img src="https://images.unsplash.com/photo-1601579532067-92d5b0b2a2c0?w=1920" alt="" class="absolute inset-0 w-full h-full object-cover scale-105 animate-hero-zoom">
     </div>
-    {{-- Gradient mesh overlay --}}
-    <div class="absolute inset-0 z-10 bg-gradient-to-br from-zinc-950/80 via-zinc-900/70 to-emerald-950/50"></div>
-    <div class="absolute inset-0 z-10 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(16,185,129,0.15),transparent)]"></div>
+    {{-- Gradient mesh overlay — her modda okunaklı kontrast için güçlü katman --}}
+    <div class="absolute inset-0 z-10 bg-gradient-to-br from-zinc-950/90 via-zinc-900/85 to-emerald-950/70"></div>
+    <div class="absolute inset-0 z-10 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(16,185,129,0.2),transparent_50%)]"></div>
+    <div class="absolute inset-0 z-10 bg-[radial-gradient(ellipse_60%_80%_at_80%_50%,rgba(20,184,166,0.08),transparent)]"></div>
     {{-- Subtle grid pattern --}}
-    <div class="absolute inset-0 z-10 opacity-[0.03]" style="background-image: linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px); background-size: 60px 60px;"></div>
+    <div class="absolute inset-0 z-10 opacity-[0.04]" style="background-image: linear-gradient(rgba(255,255,255,.12) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.12) 1px, transparent 1px); background-size: 60px 60px;"></div>
+    {{-- Floating decorative shapes --}}
+    <div class="absolute inset-0 z-10 pointer-events-none" aria-hidden="true">
+        <div class="absolute top-[15%] left-[10%] w-72 h-72 rounded-full border border-white/5 blur-sm"></div>
+        <div class="absolute bottom-[20%] right-[8%] w-96 h-96 rounded-full bg-emerald-500/5 blur-3xl"></div>
+        <div class="absolute top-[40%] right-[15%] w-2 h-2 rounded-full bg-emerald-400/60 shadow-lg shadow-emerald-400/30"></div>
+        <div class="absolute bottom-[35%] left-[20%] w-3 h-3 rounded-full bg-teal-400/50 shadow-lg shadow-teal-400/20"></div>
+        <div class="absolute top-[60%] left-[12%] w-1.5 h-1.5 rounded-full bg-white/40"></div>
+    </div>
 
     <div class="relative z-20 page-container py-24 lg:py-32 text-center">
         {{-- Badge --}}
-        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-white/90 text-sm font-medium mb-8 animate-fade-up">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <div class="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 text-white/95 text-sm font-semibold mb-8 animate-fade-up shadow-lg shadow-black/10">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse ring-2 ring-emerald-400/30"></span>
             Akıllı nakliye platformu
         </div>
 
@@ -31,42 +41,42 @@
         </p>
 
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-up" style="animation-delay: 0.3s;">
-            <a href="{{ route('ihale.create') }}" class="group inline-flex items-center gap-3 min-h-[56px] px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-semibold rounded-2xl shadow-xl shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.03] hover:shadow-emerald-500/40">
+            <a href="{{ route('ihale.create') }}" class="group inline-flex items-center gap-3 min-h-[58px] px-10 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-bold rounded-2xl shadow-xl shadow-emerald-500/30 transition-all duration-300 hover:scale-[1.04] hover:shadow-2xl hover:shadow-emerald-500/35 ring-2 ring-white/20">
                 İhale Başlat
                 <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
             </a>
-            <a href="{{ route('ihaleler.index') }}" class="inline-flex items-center gap-2 min-h-[56px] px-8 py-4 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white font-medium rounded-2xl border border-white/20 transition-all duration-300">
+            <a href="{{ route('ihaleler.index') }}" class="inline-flex items-center gap-2 min-h-[58px] px-10 py-4 bg-white/20 backdrop-blur-xl hover:bg-white/35 text-white font-semibold rounded-2xl border-2 border-white/40 transition-all duration-300 shadow-lg">
                 İhalelere göz at
             </a>
         </div>
 
         {{-- Glassmorphism stats --}}
         <div class="mt-20 flex flex-wrap justify-center gap-6 animate-fade-up" style="animation-delay: 0.4s;">
-            <div class="flex items-center gap-4 px-8 py-5 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10">
-                <div class="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                    <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            <div class="flex items-center gap-4 px-8 py-6 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl shadow-black/10 hover:bg-white/15 transition-colors duration-300">
+                <div class="w-14 h-14 rounded-2xl bg-emerald-500/25 flex items-center justify-center ring-2 ring-emerald-400/20">
+                    <svg class="w-7 h-7 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                 </div>
                 <div class="text-left">
-                    <p class="text-2xl sm:text-3xl font-bold text-white">{{ $stats['ihale_count'] }}</p>
-                    <p class="text-sm text-white/70">Açık ihale</p>
+                    <p class="text-3xl sm:text-4xl font-bold text-white tabular-nums">{{ $stats['ihale_count'] }}</p>
+                    <p class="text-sm font-medium text-white/80">Açık ihale</p>
                 </div>
             </div>
-            <div class="flex items-center gap-4 px-8 py-5 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10">
-                <div class="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                    <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            <div class="flex items-center gap-4 px-8 py-6 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl shadow-black/10 hover:bg-white/15 transition-colors duration-300">
+                <div class="w-14 h-14 rounded-2xl bg-emerald-500/25 flex items-center justify-center ring-2 ring-emerald-400/20">
+                    <svg class="w-7 h-7 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                 </div>
                 <div class="text-left">
-                    <p class="text-2xl sm:text-3xl font-bold text-white">{{ $stats['firma_count'] }}</p>
-                    <p class="text-sm text-white/70">Firma</p>
+                    <p class="text-3xl sm:text-4xl font-bold text-white tabular-nums">{{ $stats['firma_count'] }}</p>
+                    <p class="text-sm font-medium text-white/80">Firma</p>
                 </div>
             </div>
-            <div class="flex items-center gap-4 px-8 py-5 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10">
-                <div class="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                    <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8 4-8-4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+            <div class="flex items-center gap-4 px-8 py-6 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl shadow-black/10 hover:bg-white/15 transition-colors duration-300">
+                <div class="w-14 h-14 rounded-2xl bg-emerald-500/25 flex items-center justify-center ring-2 ring-emerald-400/20">
+                    <svg class="w-7 h-7 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8 4-8-4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10l8 4"/></svg>
                 </div>
                 <div class="text-left">
-                    <p class="text-2xl sm:text-3xl font-bold text-white">{{ $stats['defter_count'] }}</p>
-                    <p class="text-sm text-white/70">Yük ilanı</p>
+                    <p class="text-3xl sm:text-4xl font-bold text-white tabular-nums">{{ $stats['defter_count'] }}</p>
+                    <p class="text-sm font-medium text-white/80">Yük ilanı</p>
                 </div>
             </div>
         </div>
@@ -98,32 +108,40 @@
 @endpush
 
 {{-- Nasıl çalışır — premium horizontal steps --}}
-<section class="section-padding bg-white dark:bg-zinc-900">
-    <div class="page-container">
-        <div class="section-head text-center">
+<section class="section-padding relative overflow-hidden bg-gradient-to-b from-slate-100 via-emerald-100/50 to-slate-100 dark:from-zinc-900 dark:via-emerald-950/25 dark:to-zinc-900">
+    <div class="absolute inset-0 pointer-events-none opacity-30" aria-hidden="true">
+        <div class="absolute top-0 left-1/4 w-96 h-96 rounded-full bg-emerald-300/30 dark:bg-emerald-600/10 blur-3xl"></div>
+        <div class="absolute bottom-0 right-1/4 w-80 h-80 rounded-full bg-teal-300/20 dark:bg-teal-600/10 blur-3xl"></div>
+    </div>
+    <div class="page-container relative z-10">
+        <div class="section-head text-center mb-14">
+            <span class="inline-block w-12 h-1 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 mb-4"></span>
             <h2 class="section-head-title">Nasıl çalışır?</h2>
             <p class="section-head-sub">Üç adımda nakliye ihtiyacını çöz</p>
         </div>
-        <div class="flex flex-col md:flex-row md:items-stretch gap-8 md:gap-0 max-w-4xl mx-auto">
-            <div class="md:flex-1 flex flex-col items-center text-center md:border-r md:border-zinc-200 dark:md:border-zinc-700 md:pr-8 lg:pr-12">
-                <div class="w-20 h-20 rounded-2xl bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/30 mb-5">
-                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+        <div class="flex flex-col md:flex-row md:items-stretch gap-8 md:gap-0 max-w-5xl mx-auto">
+            <div class="md:flex-1 flex flex-col items-center text-center md:border-r md:border-zinc-200/80 dark:md:border-zinc-700 md:pr-8 lg:pr-12">
+                <div class="relative w-24 h-24 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-xl shadow-emerald-500/35 mb-6 ring-4 ring-emerald-500/10">
+                    <span class="absolute -top-1 -right-1 w-8 h-8 rounded-full bg-white dark:bg-zinc-800 text-emerald-600 dark:text-emerald-400 font-bold text-sm flex items-center justify-center shadow-md border-2 border-emerald-500/20">1</span>
+                    <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
                 </div>
                 <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-2">Adım 1</span>
                 <h3 class="font-bold text-xl text-zinc-900 dark:text-white mb-2">İhale başlat</h3>
                 <p class="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed max-w-xs mx-auto">Taşınacak adres, tarih ve eşya bilgisini gir. Üye olmana gerek yok.</p>
             </div>
-            <div class="md:flex-1 flex flex-col items-center text-center md:border-r md:border-zinc-200 dark:md:border-zinc-700 md:px-8 lg:px-12">
-                <div class="w-20 h-20 rounded-2xl bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/30 mb-5">
-                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+            <div class="md:flex-1 flex flex-col items-center text-center md:border-r md:border-zinc-200/80 dark:md:border-zinc-700 md:px-8 lg:px-12 relative">
+                <div class="relative w-24 h-24 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-xl shadow-emerald-500/35 mb-6 ring-4 ring-emerald-500/10">
+                    <span class="absolute -top-1 -right-1 w-8 h-8 rounded-full bg-white dark:bg-zinc-800 text-emerald-600 dark:text-emerald-400 font-bold text-sm flex items-center justify-center shadow-md border-2 border-emerald-500/20">2</span>
+                    <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
                 </div>
                 <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-2">Adım 2</span>
                 <h3 class="font-bold text-xl text-zinc-900 dark:text-white mb-2">Teklif al</h3>
                 <p class="text-zinc-600 dark:text-zinc-400 text-sm leading-relaxed max-w-xs mx-auto">Nakliye firmaları senin için fiyat teklifi sunar. Karşılaştır, sor.</p>
             </div>
             <div class="md:flex-1 flex flex-col items-center text-center md:pl-8 lg:pl-12">
-                <div class="w-20 h-20 rounded-2xl bg-emerald-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/30 mb-5">
-                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                <div class="relative w-24 h-24 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-xl shadow-emerald-500/35 mb-6 ring-4 ring-emerald-500/10">
+                    <span class="absolute -top-1 -right-1 w-8 h-8 rounded-full bg-white dark:bg-zinc-800 text-emerald-600 dark:text-emerald-400 font-bold text-sm flex items-center justify-center shadow-md border-2 border-emerald-500/20">3</span>
+                    <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                 </div>
                 <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-2">Adım 3</span>
                 <h3 class="font-bold text-xl text-zinc-900 dark:text-white mb-2">Nakliyecini seç</h3>
@@ -133,40 +151,244 @@
     </div>
 </section>
 
-@if($musteriVideolari->count() > 0)
-<section class="section-padding bg-zinc-50 dark:bg-zinc-900/50">
+{{-- Müşteri yorumları — sade, okunaklı tasarım --}}
+<section class="section-padding bg-slate-50/80 dark:bg-zinc-900/50 border-t border-zinc-200/60 dark:border-zinc-800/60" id="musteri-videolari">
     <div class="page-container">
-        <div class="section-head">
+        <div class="section-head text-center max-w-2xl mx-auto">
+            <span class="inline-block w-10 h-1 rounded-full bg-amber-500 mb-4"></span>
             <h2 class="section-head-title">Müşteri yorumları</h2>
             <p class="section-head-sub">Nakliye deneyimlerini videoda anlattılar</p>
         </div>
-        <div class="flex gap-5 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-hide snap-x snap-mandatory">
-            @foreach($musteriVideolari as $review)
-                <div class="flex-shrink-0 w-[280px] sm:w-[300px] snap-center">
-                    <div class="card-premium-flat relative aspect-[9/16] max-h-[400px] bg-zinc-200 dark:bg-zinc-700">
-                        @if($review->video_path)
-                            <video class="w-full h-full object-cover" src="{{ asset('storage/'.$review->video_path) }}" controls playsinline preload="metadata"></video>
-                        @else
-                            <div class="w-full h-full flex items-center justify-center text-zinc-500"><span class="text-4xl">🎬</span></div>
-                        @endif
-                        <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 to-transparent text-white text-sm">
-                            <p class="font-semibold">{{ $review->user->name ?? 'Misafir' }}</p>
-                            <p class="text-white/80 text-xs mt-0.5">{{ $review->company->name ?? '' }}</p>
-                            @if($review->comment)<p class="mt-2 line-clamp-2 text-xs text-white/90">{{ Str::limit($review->comment, 80) }}</p>@endif
+
+        @if($musteriVideolari->count() > 0)
+            <div class="relative max-w-5xl mx-auto mt-10">
+                <button type="button" id="video-slider-prev" class="video-slider-btn absolute left-0 top-1/2 -translate-y-1/2 z-20 -translate-x-2 sm:translate-x-0 w-12 h-12 rounded-xl bg-white dark:bg-zinc-800 shadow-md border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-300 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:border-emerald-200 dark:hover:border-emerald-800 transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500/50" aria-label="Önceki video">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <button type="button" id="video-slider-next" class="video-slider-btn absolute right-0 top-1/2 -translate-y-1/2 z-20 translate-x-2 sm:translate-x-0 w-12 h-12 rounded-xl bg-white dark:bg-zinc-800 shadow-md border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-300 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:border-emerald-200 dark:hover:border-emerald-800 transition-all focus:outline-none focus:ring-2 focus:ring-emerald-500/50" aria-label="Sonraki video">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </button>
+
+                <div id="video-slider-track" class="flex gap-6 overflow-x-auto overflow-y-visible pb-6 pt-2 px-4 sm:px-16 scrollbar-hide snap-x snap-mandatory scroll-smooth" style="scroll-behavior: smooth;">
+                    @foreach($musteriVideolari as $index => $review)
+                        <div class="video-slide flex-shrink-0 snap-center transition-all duration-300 ease-out rounded-2xl overflow-hidden" data-index="{{ $index }}">
+                            <div class="video-slide-inner video-slide-container rounded-2xl overflow-hidden site-card shadow-md transition-all duration-300 ease-out">
+                                <div class="relative aspect-[9/16] bg-zinc-100 dark:bg-zinc-800">
+                                    @if($review->video_path)
+                                        <video class="w-full h-full object-cover video-el" src="{{ Str::startsWith($review->video_path, 'http') ? $review->video_path : asset('storage/'.$review->video_path) }}" playsinline preload="metadata" loop></video>
+                                        <button type="button" class="video-play-overlay absolute inset-0 flex items-center justify-center bg-black/25 hover:bg-black/40 transition-colors z-10" aria-label="Oynat">
+                                            <span class="video-play-icon w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-emerald-500 hover:bg-emerald-600 flex items-center justify-center shadow-xl ring-4 ring-white/30 transition-transform hover:scale-105">
+                                                <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                            </span>
+                                        </button>
+                                    @else
+                                        <div class="w-full h-full flex items-center justify-center text-zinc-400"><span class="text-4xl">🎬</span></div>
+                                    @endif
+                                </div>
+                                <div class="p-4 sm:p-5 border-t border-zinc-100 dark:border-zinc-700/80">
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-sm shrink-0">
+                                            {{ mb_substr($review->user->name ?? 'M', 0, 1) }}
+                                        </div>
+                                        <div class="min-w-0 flex-1">
+                                            <p class="font-semibold text-zinc-900 dark:text-white text-sm">{{ $review->user->name ?? 'Misafir' }}</p>
+                                            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{{ $review->company->name ?? '' }}</p>
+                                            @if($review->comment)
+                                                <p class="text-sm text-zinc-600 dark:text-zinc-400 mt-2 line-clamp-2 leading-relaxed pl-2 border-l-2 border-emerald-200 dark:border-emerald-800">{{ Str::limit($review->comment, 85) }}</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    @endforeach
                 </div>
-            @endforeach
-        </div>
+
+                <div id="video-slider-dots" class="flex justify-center gap-2 mt-5 flex-wrap">
+                    @foreach($musteriVideolari as $index => $review)
+                        <button type="button" class="video-slider-dot focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:ring-offset-2 rounded-full" data-index="{{ $index }}" aria-label="Video {{ $index + 1 }}"></button>
+                    @endforeach
+                </div>
+            </div>
+        @else
+            <div class="max-w-xl mx-auto mt-10 rounded-2xl border border-dashed border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/50 p-10 text-center">
+                <div class="w-16 h-16 rounded-2xl bg-zinc-100 dark:bg-zinc-700 flex items-center justify-center mx-auto mb-4 text-3xl">🎬</div>
+                <h3 class="font-semibold text-zinc-900 dark:text-white mb-1">Müşteri yorumları</h3>
+                <p class="text-sm text-zinc-500 dark:text-zinc-400">Taşınma sonrası değerlendirme yapıp video yükleyen müşterilerimizin deneyimleri burada listelenecek.</p>
+            </div>
+        @endif
     </div>
 </section>
+
+@if($musteriVideolari->count() > 0)
+@push('styles')
+<style>
+/* Müşteri videoları — yeni kart tasarımı: ortadaki büyük, yanlar küçük */
+#video-slider-track {
+    -webkit-overflow-scrolling: touch;
+}
+.video-slide {
+    width: 260px;
+    max-width: 90vw;
+}
+.video-slide .video-slide-inner {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.video-slide.active {
+    width: 300px;
+    z-index: 2;
+}
+.video-slide.active .video-slide-inner {
+    transform: scale(1.04);
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1), 0 0 0 3px rgba(5, 150, 105, 0.35);
+}
+.dark .video-slide.active .video-slide-inner {
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35), 0 0 0 3px rgba(5, 150, 105, 0.5);
+}
+.video-slide:not(.active) {
+    opacity: 0.88;
+}
+.video-slide:not(.active) .video-slide-inner {
+    transform: scale(0.96);
+}
+.video-slider-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 9999px;
+    background: rgb(203 213 225);
+    transition: width 0.25s, background 0.25s, border-radius 0.25s;
+}
+.dark .video-slider-dot { background: rgb(71 85 105); }
+.video-play-overlay { transition: opacity 0.2s, background-color 0.2s; }
+.video-slide-container.playing .video-play-overlay {
+    opacity: 0;
+    pointer-events: none;
+}
+.video-slider-dot.active {
+    width: 1.75rem;
+    border-radius: 9999px;
+    background: linear-gradient(90deg, rgb(5 150 105), rgb(20 184 166));
+}
+@media (min-width: 640px) {
+    .video-slide { width: 280px; }
+    .video-slide.active { width: 320px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .video-slide, .video-slide .video-slide-inner { transition: none; }
+}
+</style>
+@endpush
+@push('scripts')
+<script>
+(function() {
+    var track = document.getElementById('video-slider-track');
+    var dots = document.getElementById('video-slider-dots');
+    if (!track || !dots) return;
+    var slides = track.querySelectorAll('.video-slide');
+    var dotBtns = dots.querySelectorAll('.video-slider-dot');
+    var total = slides.length;
+    if (total === 0) return;
+
+    function setActive(index) {
+        index = Math.max(0, Math.min(index, total - 1));
+        slides.forEach(function(s, i) {
+            s.classList.toggle('active', i === index);
+            var ctr = s.querySelector('.video-slide-container');
+            var vid = s.querySelector('.video-el');
+            if (vid) vid.pause();
+            if (ctr) ctr.classList.remove('playing');
+        });
+        dotBtns.forEach(function(d, i) {
+            d.classList.toggle('active', i === index);
+        });
+    }
+
+    function initVideoSlides() {
+        slides.forEach(function(slide) {
+            var ctr = slide.querySelector('.video-slide-container');
+            var vid = slide.querySelector('.video-el');
+            var overlay = slide.querySelector('.video-play-overlay');
+            if (!vid || !overlay || !ctr) return;
+            overlay.addEventListener('click', function() {
+                if (!slide.classList.contains('active')) return;
+                vid.play();
+                ctr.classList.add('playing');
+            });
+            vid.addEventListener('play', function() { ctr.classList.add('playing'); });
+            vid.addEventListener('pause', function() { ctr.classList.remove('playing'); });
+            vid.addEventListener('ended', function() { ctr.classList.remove('playing'); });
+        });
+    }
+
+    function scrollToIndex(index) {
+        index = Math.max(0, Math.min(index, total - 1));
+        var slide = slides[index];
+        if (slide) {
+            var left = slide.offsetLeft - (track.offsetWidth / 2) + (slide.offsetWidth / 2);
+            track.scrollTo({ left: left, behavior: 'smooth' });
+        }
+        setActive(index);
+    }
+
+    function updateActiveFromScroll() {
+        var trackRect = track.getBoundingClientRect();
+        var center = trackRect.left + trackRect.width / 2;
+        var best = 0, bestDist = Infinity;
+        slides.forEach(function(s, i) {
+            var r = s.getBoundingClientRect();
+            var slideCenter = r.left + r.width / 2;
+            var d = Math.abs(slideCenter - center);
+            if (d < bestDist) { bestDist = d; best = i; }
+        });
+        setActive(best);
+    }
+
+    var scrollTicking = false;
+    track.addEventListener('scroll', function() {
+        if (!scrollTicking) {
+            requestAnimationFrame(function() {
+                updateActiveFromScroll();
+                scrollTicking = false;
+            });
+            scrollTicking = true;
+        }
+    });
+
+    document.getElementById('video-slider-prev').addEventListener('click', function() {
+        var current = Array.from(slides).findIndex(function(s) { return s.classList.contains('active'); });
+        scrollToIndex(current <= 0 ? total - 1 : current - 1);
+    });
+    document.getElementById('video-slider-next').addEventListener('click', function() {
+        var current = Array.from(slides).findIndex(function(s) { return s.classList.contains('active'); });
+        scrollToIndex(current < 0 ? 0 : (current + 1) % total);
+    });
+
+    dotBtns.forEach(function(btn, i) {
+        btn.addEventListener('click', function() { scrollToIndex(i); });
+    });
+
+    initVideoSlides();
+    setActive(0);
+    setTimeout(function() { scrollToIndex(0); }, 100);
+})();
+</script>
+@endpush
 @endif
 
-{{-- Son açılan ihaleler — premium cards --}}
-<section class="section-padding bg-zinc-50 dark:bg-zinc-900/50">
-    <div class="page-container">
-        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 section-head">
+{{-- Son açılan ihaleler — sade arka plan, dekoratif şekiller --}}
+<section class="section-padding relative overflow-hidden bg-slate-100/90 dark:bg-zinc-900/80">
+    {{-- Sade arka plan şekilleri --}}
+    <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
+        <div class="absolute top-20 right-10 w-64 h-64 rounded-full bg-emerald-200/30 dark:bg-emerald-500/10 blur-3xl"></div>
+        <div class="absolute bottom-20 left-10 w-48 h-48 rounded-full bg-teal-200/25 dark:bg-teal-500/10 blur-3xl"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full border border-emerald-200/20 dark:border-emerald-500/10"></div>
+        <div class="absolute top-32 left-1/4 w-2 h-2 rounded-full bg-emerald-400/40 dark:bg-emerald-500/30"></div>
+        <div class="absolute bottom-40 right-1/3 w-3 h-3 rounded-full bg-teal-400/30 dark:bg-teal-500/20"></div>
+    </div>
+    <div class="page-container relative z-10">
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 section-head mb-10">
             <div>
+                <span class="inline-block w-10 h-1 rounded-full bg-emerald-500 mb-3"></span>
                 <h2 class="section-head-title">Son açılan ihaleler</h2>
                 <p class="section-head-sub">
                     @if($sonIhale)
@@ -182,7 +404,7 @@
             <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6">
                 @foreach($sonIhaleler as $ihale)
                     <a href="{{ route('ihaleler.show', $ihale) }}" class="group block">
-                        <article class="h-full rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden shadow-sm hover:shadow-lg hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-300 flex flex-col">
+                        <article class="h-full rounded-2xl border-2 border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden shadow-md hover:shadow-xl hover:border-emerald-200 dark:hover:border-emerald-800/50 hover:-translate-y-0.5 transition-all duration-300 flex flex-col">
                             <div class="p-5 sm:p-6 flex-1 flex flex-col">
                                 {{-- Rota çizgisi: Nereden ——— Nereye --}}
                                 <div class="flex items-center gap-2 sm:gap-3">
@@ -234,38 +456,192 @@
     </div>
 </section>
 
-{{-- Nakliye firmaları — premium --}}
-@if($firmalar->count() > 0)
-<section class="section-padding bg-white dark:bg-zinc-900">
+{{-- Firmalar haritada — sadece veri varsa göster --}}
+@php
+$haritadaGoster = $firmalarHaritada->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'city' => $c->city, 'lat' => (float)$c->live_latitude, 'lng' => (float)$c->live_longitude, 'url' => route('firmalar.show', $c)])->values();
+@endphp
+@if($haritadaGoster->count() > 0)
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+#home-companies-map-wrap { position: relative; border-radius: 1rem; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,.08), 0 0 0 1px rgba(0,0,0,.04); }
+#home-companies-map { background: #f4f4f5; min-height: 320px; }
+.dark #home-companies-map { background: #27272a; }
+#home-companies-map .leaflet-control-zoom { border: none !important; }
+#home-companies-map .leaflet-control-zoom a { width: 36px !important; height: 36px !important; line-height: 36px !important; background: #fff !important; color: #374151 !important; border-radius: 10px !important; margin: 6px !important; box-shadow: 0 1px 3px rgba(0,0,0,.1) !important; }
+#home-companies-map .leaflet-control-zoom a:hover { background: #059669 !important; color: #fff !important; }
+.dark #home-companies-map .leaflet-control-zoom a { background: #27272a !important; color: #a1a1aa !important; }
+.dark #home-companies-map .leaflet-control-zoom a:hover { background: #059669 !important; color: #fff !important; }
+#home-companies-map .leaflet-control-attribution { font-size: 10px; opacity: .8; }
+.home-map-marker { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50% 50% 50% 0; background: linear-gradient(135deg, #059669 0%, #047857 100%); transform: rotate(-45deg); box-shadow: 0 2px 10px rgba(5,150,105,.4); border: 2px solid #fff; }
+.home-map-marker-inner { transform: rotate(45deg); color: #fff; font-size: 16px; }
+.home-map-badge { position: absolute; top: 12px; left: 12px; z-index: 1000; padding: 6px 12px; border-radius: 10px; background: rgba(255,255,255,.95); font-size: 12px; font-weight: 600; color: #374151; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+.dark .home-map-badge { background: rgba(39,39,42,.95); color: #e4e4e7; }
+#home-companies-map .leaflet-popup-content-wrapper { border-radius: 12px; padding: 0; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0,0,0,.15); }
+#home-companies-map .leaflet-popup-content { margin: 0; min-width: 220px; }
+</style>
+@endpush
+<section class="section-padding bg-white dark:bg-zinc-950 border-t border-zinc-200/60 dark:border-zinc-800/60">
     <div class="page-container">
-        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 section-head">
-            <div>
-                <h2 class="section-head-title">Nakliye firmaları</h2>
-                <p class="section-head-sub">Onaylı taşıma firmaları</p>
-            </div>
-            <a href="{{ route('firmalar.index') }}" class="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline shrink-0">Tüm firmalar →</a>
+        <div class="mb-8">
+            <h2 class="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">Firmalar haritada</h2>
+            <p class="text-zinc-500 dark:text-zinc-400 mt-1">
+                Konum paylaşan nakliye firmaları haritada. Listeden firmaya tıklayınca haritada konumu gösterilir; işaretçiye tıklayıp firma sayfasına gidebilirsiniz.
+            </p>
         </div>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid lg:grid-cols-[1fr_340px] gap-6 lg:gap-8 items-stretch">
+            <div class="flex flex-col min-h-[320px]">
+                    <div id="home-companies-map-wrap" class="flex-1 rounded-2xl overflow-hidden" style="min-height: 320px;">
+                        <div class="home-map-badge">{{ $haritadaGoster->count() }} firma</div>
+                        <div id="home-companies-map" class="w-full rounded-2xl" style="height: 320px; min-height: 320px;" data-companies="{{ json_encode($haritadaGoster) }}"></div>
+                    </div>
+                </div>
+                <div class="flex flex-col">
+                    <div class="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 overflow-hidden flex flex-col">
+                        <div class="px-4 py-3 border-b border-zinc-200 dark:border-zinc-700">
+                            <h3 class="font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
+                                <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+                                Haritadaki firmalar
+                            </h3>
+                            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Firmaya tıklayınca haritada tam konumu gösterilir</p>
+                        </div>
+                        <div class="flex-1 overflow-y-auto divide-y divide-zinc-200 dark:divide-zinc-700 max-h-[320px] lg:max-h-[420px]">
+                            @foreach($firmalarHaritada as $index => $c)
+                                @php
+                                    $lastUpdate = isset($c->live_location_updated_at) ? $c->live_location_updated_at : null;
+                                    $isCanli = $lastUpdate && $lastUpdate->diffInMinutes(now()) <= 15;
+                                @endphp
+                                <div class="flex items-center gap-3 px-4 py-3 hover:bg-zinc-100/80 dark:hover:bg-zinc-800/50 transition-colors group">
+                                    <span class="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">🚚</span>
+                                    <a href="{{ route('firmalar.show', $c) }}" class="min-w-0 flex-1">
+                                        <p class="font-medium text-zinc-900 dark:text-white group-hover:text-emerald-600 truncate">{{ $c->name }}</p>
+                                        @if($c->city)<p class="text-sm text-zinc-500 dark:text-zinc-400 truncate">{{ $c->city }}</p>@endif
+                                    </a>
+                                    <button type="button" class="home-map-focus-btn w-8 h-8 rounded-lg border border-zinc-200 dark:border-zinc-600 flex items-center justify-center text-zinc-500 hover:text-emerald-600 hover:border-emerald-400 shrink-0 transition-colors" data-focus-map="{{ $index }}" title="Haritada konumu göster" aria-label="Haritada konumu göster">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+                                    </button>
+                                    @if($isCanli)
+                                        <span class="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 text-xs font-medium">
+                                            <span class="w-1 h-1 rounded-full bg-emerald-500 animate-pulse"></span> Canlı
+                                        </span>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+</section>
+@push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+(function() {
+    function initMap() {
+        var el = document.getElementById('home-companies-map');
+        if (!el || typeof L === 'undefined') return;
+        var raw = el.getAttribute('data-companies');
+        if (!raw) return;
+        var companies = [];
+        try { companies = JSON.parse(raw); } catch (e) { return; }
+        if (!companies.length) return;
+        var center = { lat: companies[0].lat, lng: companies[0].lng };
+        if (companies.length > 1) {
+            var sumLat = 0, sumLng = 0;
+            companies.forEach(function(c) { sumLat += c.lat; sumLng += c.lng; });
+            center = { lat: sumLat / companies.length, lng: sumLng / companies.length };
+        }
+        var map = L.map('home-companies-map', { zoomControl: true }).setView([center.lat, center.lng], 6);
+        map.zoomControl.setPosition('topright');
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>', maxZoom: 19 }).addTo(map);
+        var pinIcon = L.divIcon({
+            className: 'home-map-marker',
+            html: '<span class="home-map-marker-inner">🚚</span>',
+            iconSize: [40, 40],
+            iconAnchor: [20, 40]
+        });
+        var bounds = [];
+        window.homeMapMarkers = [];
+        companies.forEach(function(c) {
+            var name = (c.name || 'Firma').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            var city = (c.city || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            var url = (c.url || '#').replace(/"/g, '&quot;');
+            var popHtml = '<div style="padding:12px 14px; font-family:inherit;">' +
+                '<p style="margin:0; font-weight:600; color:#18181b; font-size:14px;">' + name + '</p>' +
+                (city ? '<p style="margin:4px 0 0; font-size:13px; color:#71717a;">' + city + '</p>' : '') +
+                '<a href="' + url + '" style="display:inline-block; margin-top:10px; padding:8px 12px; border-radius:8px; background:#059669; color:#fff; font-size:12px; font-weight:600; text-decoration:none;">Firma sayfası</a>' +
+                '</div>';
+            var m = L.marker([c.lat, c.lng], { icon: pinIcon }).addTo(map);
+            m.bindPopup(popHtml, { maxWidth: 280, minWidth: 220 });
+            window.homeMapMarkers.push(m);
+            bounds.push([c.lat, c.lng]);
+        });
+        if (bounds.length > 1) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 11 });
+        window.homeMap = map;
+        document.querySelectorAll('.home-map-focus-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                var i = parseInt(btn.getAttribute('data-focus-map'), 10);
+                if (!isNaN(i) && window.homeMapMarkers && window.homeMapMarkers[i]) {
+                    var marker = window.homeMapMarkers[i];
+                    var latLng = marker.getLatLng();
+                    map.setView([latLng.lat, latLng.lng], 15);
+                    marker.openPopup();
+                }
+            });
+        });
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(initMap, 100);
+        });
+    } else {
+        setTimeout(initMap, 100);
+    }
+})();
+</script>
+@endpush
+@endif
+
+{{-- Nakliye firmaları — sade, okunaklı kartlar --}}
+@if($firmalar->count() > 0)
+<section class="section-padding relative bg-white dark:bg-zinc-950 overflow-hidden">
+    <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-100/30 dark:bg-emerald-950/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" aria-hidden="true"></div>
+    <div class="page-container relative z-10">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
+            <div>
+                <span class="inline-block w-10 h-1 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 mb-3"></span>
+                <h2 class="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">Nakliye firmaları</h2>
+                <p class="text-zinc-500 dark:text-zinc-400 mt-1">Onaylı taşıma firmalarından teklif alın</p>
+            </div>
+            <a href="{{ route('firmalar.index') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-sm font-medium hover:opacity-90 transition-opacity shrink-0">
+                Tüm firmalar
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             @foreach($firmalar as $firma)
-                <a href="{{ route('firmalar.show', $firma) }}" class="group block">
-                    <article class="card-premium p-6 sm:p-7 flex items-start gap-5">
-                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-emerald-600/20 flex items-center justify-center text-2xl font-bold text-emerald-600 dark:text-emerald-400 shrink-0 ring-1 ring-emerald-500/20">
-                            {{ mb_substr($firma->name, 0, 1) }}
+                <a href="{{ route('firmalar.show', $firma) }}" class="group flex items-center gap-4 p-5 sm:p-6 rounded-2xl border-2 border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 shadow-sm hover:shadow-lg hover:border-emerald-300 dark:hover:border-emerald-700/50 hover:bg-emerald-50/30 dark:hover:bg-zinc-800/80 transition-all duration-300">
+                    @if($firma->logo)
+                        <img src="{{ asset('storage/'.$firma->logo) }}" alt="{{ $firma->name }}" class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover shrink-0 border border-zinc-200/60 dark:border-zinc-700 shadow-sm">
+                    @else
+                        <span class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-emerald-500 flex items-center justify-center text-2xl font-bold text-white shrink-0 shadow-sm">{{ mb_substr($firma->name, 0, 1) }}</span>
+                    @endif
+                    <div class="min-w-0 flex-1">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <h3 class="font-semibold text-zinc-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{{ $firma->name }}</h3>
+                            @include('partials.company-package-badge', ['firma' => $firma])
                         </div>
-                        <div class="min-w-0 flex-1">
-                            <h3 class="font-bold text-lg text-zinc-900 dark:text-white group-hover:text-emerald-600 transition-colors">{{ $firma->name }}</h3>
-                            @if($firma->city)
-                                <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1 flex items-center gap-1.5">
-                                    <svg class="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
-                                    {{ $firma->city }}
-                                </p>
-                            @endif
-                            @if($firma->description)
-                                <p class="text-sm text-zinc-600 dark:text-zinc-400 mt-3 line-clamp-2">{{ Str::limit($firma->description, 90) }}</p>
-                            @endif
-                        </div>
-                        <svg class="w-5 h-5 text-zinc-400 group-hover:text-emerald-500 shrink-0 mt-1 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </article>
+                        @if($firma->city)
+                            <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">{{ $firma->city }}</p>
+                        @endif
+                        @if($firma->description)
+                            <p class="text-sm text-zinc-600 dark:text-zinc-400 mt-2 line-clamp-2">{{ Str::limit($firma->description, 70) }}</p>
+                        @endif
+                    </div>
+                    <span class="w-9 h-9 rounded-lg bg-zinc-200/80 dark:bg-zinc-700 flex items-center justify-center text-zinc-500 dark:text-zinc-400 group-hover:bg-emerald-500 group-hover:text-white group-hover:translate-x-0.5 transition-all shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </span>
                 </a>
             @endforeach
         </div>
@@ -273,40 +649,112 @@
 </section>
 @endif
 
-{{-- Nakliyat defteri --}}
+{{-- Nakliyat defteri — yük ve dönüş ilanları --}}
 <section class="section-padding bg-zinc-50 dark:bg-zinc-900/50">
     <div class="page-container">
-        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 section-head">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
             <div>
-                <h2 class="section-head-title">Nakliyat defteri</h2>
-                <p class="section-head-sub">
-                    @if($sonDefterKaydi)
-                        Son yazılım {{ $sonDefterKaydi->created_at->format('d.m.Y') }} {{ $sonDefterKaydi->created_at->format('H:i') }}
-                    @else
-                        Firmaların yük ilanları
-                    @endif
-                </p>
+                <span class="inline-block w-10 h-1 rounded-full bg-amber-500 mb-3"></span>
+                <h2 class="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">Nakliyat defteri</h2>
+                <p class="text-zinc-500 dark:text-zinc-400 mt-1">Yük ve boş dönüş ilanları</p>
             </div>
-            <a href="{{ route('defter.index') }}" class="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline shrink-0">Tümü →</a>
+            <a href="{{ route('defter.index') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 text-sm font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0">
+                Tüm ilanlar
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
         </div>
         @if($defterIlanlari->count() > 0)
-            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 @foreach($defterIlanlari as $ilan)
-                    <article class="card-premium-flat p-5">
-                        <p class="font-bold text-zinc-900 dark:text-white">{{ $ilan->from_city }} → {{ $ilan->to_city }}</p>
-                        <p class="text-sm text-zinc-500 mt-1">{{ $ilan->company->name }}</p>
-                        <p class="text-xs text-zinc-400 mt-2">{{ $ilan->created_at->format('d.m.Y H:i') }}@if($ilan->volume_m3) · {{ $ilan->volume_m3 }} m³@endif</p>
-                    </article>
+                    <a href="{{ route('defter.index') }}" class="group flex items-center gap-4 p-4 sm:p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-amber-400 dark:hover:border-amber-600/60 transition-all duration-200">
+                        <span class="w-12 h-12 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        </span>
+                        <div class="min-w-0 flex-1">
+                            <p class="font-semibold text-zinc-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                                {{ $ilan->from_city }} → {{ $ilan->to_city }}
+                            </p>
+                            <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">{{ $ilan->company->name }}</p>
+                            <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-2 flex flex-wrap items-center gap-x-3 gap-y-0">
+                                {{ $ilan->created_at->format('d.m.Y') }}
+                                @if($ilan->volume_m3)
+                                    <span>· {{ $ilan->volume_m3 }} m³</span>
+                                @endif
+                            </p>
+                        </div>
+                        <span class="w-9 h-9 rounded-lg bg-zinc-200/80 dark:bg-zinc-700 flex items-center justify-center text-zinc-500 group-hover:bg-amber-500 group-hover:text-white transition-all shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </span>
+                    </a>
                 @endforeach
+            </div>
+        @else
+            <div class="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-10 text-center">
+                <span class="w-14 h-14 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 mx-auto mb-4">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </span>
+                <p class="text-zinc-600 dark:text-zinc-400">Henüz deftere ilan yazılmamış.</p>
+                <a href="{{ route('defter.index') }}" class="text-amber-600 dark:text-amber-400 font-medium mt-2 inline-block hover:underline">Deftere git →</a>
             </div>
         @endif
     </div>
 </section>
 
-{{-- Blog — slider --}}
+{{-- Nakliyeci paketleri — anasayfada, farklı arka plan --}}
+@if(count($paketler) > 0)
+<section class="section-padding relative overflow-hidden bg-gradient-to-br from-zinc-200/60 via-emerald-100/50 to-teal-100/50 dark:from-zinc-950 dark:via-emerald-950/30 dark:to-zinc-900">
+    <div class="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]" style="background-image: radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0); background-size: 28px 28px;"></div>
+    <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-emerald-300/20 dark:bg-emerald-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+    <div class="absolute bottom-0 left-0 w-72 h-72 bg-teal-300/20 dark:bg-teal-600/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+    <div class="page-container relative z-10">
+        <div class="section-head text-center">
+            <h2 class="section-head-title">Nakliye firması mısınız?</h2>
+            <p class="section-head-sub">İhalelere teklif verin, müşterilere ulaşın. Size uygun paketi seçin.</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            @foreach($paketler as $paket)
+                <div class="rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-800/50 p-6 flex flex-col {{ isset($paket['popular']) && $paket['popular'] ? 'ring-2 ring-emerald-500 dark:ring-emerald-400 border-emerald-500/30' : '' }}">
+                    @if(isset($paket['popular']) && $paket['popular'])
+                        <span class="inline-block w-fit mx-auto -mt-1 mb-2 px-3 py-0.5 rounded-full bg-emerald-500 text-white text-xs font-semibold">En popüler</span>
+                    @endif
+                    <h3 class="font-bold text-lg text-zinc-900 dark:text-white text-center">{{ $paket['name'] }}</h3>
+                    <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 text-center mt-2">{{ number_format($paket['price'], 0, ',', '.') }} ₺<span class="text-sm font-normal text-zinc-500">/ay</span></p>
+                    <p class="text-sm text-zinc-600 dark:text-zinc-400 mt-3 text-center">{{ $paket['description'] }}</p>
+                    <ul class="mt-4 space-y-2 flex-1">
+                        @foreach(array_slice($paket['features'] ?? [], 0, 4) as $feature)
+                            <li class="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+                                <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                {{ $feature }}
+                            </li>
+                        @endforeach
+                    </ul>
+                    <div class="mt-6 pt-4 border-t border-zinc-200 dark:border-zinc-700">
+                        @auth
+                            @if(auth()->user()->role === 'nakliyeci')
+                                <a href="{{ route('nakliyeci.paketler.index') }}" class="block w-full py-3 px-4 text-center font-semibold rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white transition-colors">Paketleri görüntüle</a>
+                            @else
+                                <a href="{{ route('register') }}" class="block w-full py-3 px-4 text-center font-semibold rounded-xl border-2 border-emerald-500 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-colors">Firma olarak kayıt ol</a>
+                            @endif
+                        @else
+                            <a href="{{ route('register') }}" class="block w-full py-3 px-4 text-center font-semibold rounded-xl border-2 border-emerald-500 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-colors">Firma olarak kayıt ol</a>
+                        @endauth
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
+
+{{-- Blog — slider, farklı arka plan --}}
 @if($sonBlog->count() > 0)
-<section class="section-padding bg-white dark:bg-zinc-900">
-    <div class="page-container">
+<section class="section-padding relative overflow-hidden bg-gradient-to-b from-amber-100/50 via-slate-100 to-indigo-100/40 dark:from-amber-950/20 dark:via-zinc-900 dark:to-indigo-950/20">
+    <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
+        <div class="absolute top-1/4 left-0 w-80 h-80 rounded-full bg-amber-200/20 dark:bg-amber-500/10 blur-3xl"></div>
+        <div class="absolute bottom-1/4 right-0 w-96 h-96 rounded-full bg-indigo-200/20 dark:bg-indigo-500/10 blur-3xl"></div>
+        <div class="absolute inset-0 opacity-[0.02] dark:opacity-[0.03]" style="background-image: linear-gradient(45deg, transparent 48%, currentColor 50%, transparent 52%); background-size: 24px 24px;"></div>
+    </div>
+    <div class="page-container relative z-10">
         <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 section-head">
             <div>
                 <h2 class="section-head-title">Bloglar</h2>
@@ -368,27 +816,39 @@
 @endif
 
 {{-- Hızlı erişim --}}
-<section class="section-padding bg-zinc-50 dark:bg-zinc-900/50">
-    <div class="page-container">
-        <h2 class="section-head-title mb-8">Hızlı erişim</h2>
+<section class="section-padding relative bg-gradient-to-b from-teal-100/60 via-slate-100 to-amber-100/60 dark:from-teal-950/30 dark:via-zinc-900 dark:to-amber-950/20 overflow-hidden">
+    <div class="absolute inset-0 pointer-events-none opacity-40" aria-hidden="true">
+        <div class="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-teal-200/30 dark:bg-teal-600/10 blur-3xl"></div>
+        <div class="absolute top-0 right-0 w-72 h-72 rounded-full bg-amber-200/20 dark:bg-amber-600/10 blur-3xl"></div>
+    </div>
+    <div class="page-container relative z-10">
+        <div class="text-center mb-10">
+            <span class="inline-block w-12 h-1 rounded-full bg-gradient-to-r from-teal-500 to-amber-500 mb-4"></span>
+            <h2 class="section-head-title">Hızlı erişim</h2>
+        </div>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-5">
-            <a href="{{ route('ihale.create') }}" class="card-premium flex flex-col items-center justify-center min-h-[120px] p-6 text-center group">
-                <span class="w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-3 group-hover:scale-110 transition-transform"><svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg></span>
-                <span class="font-semibold text-zinc-900 dark:text-white">İhale başlat</span>
+            <a href="{{ route('ihale.create') }}" class="relative flex flex-col items-center justify-center min-h-[140px] p-6 rounded-2xl bg-white dark:bg-zinc-900/80 border-2 border-zinc-200/80 dark:border-zinc-800 text-center group shadow-md hover:shadow-xl hover:border-emerald-300 dark:hover:border-emerald-700/50 hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+                <span class="absolute top-0 right-0 w-20 h-20 bg-emerald-500/10 rounded-bl-full group-hover:bg-emerald-500/20 transition-colors"></span>
+                <span class="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-3 group-hover:scale-110 transition-transform"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg></span>
+                <span class="relative font-bold text-zinc-900 dark:text-white">İhale başlat</span>
             </a>
-            <a href="{{ route('ihaleler.index') }}" class="card-premium flex flex-col items-center justify-center min-h-[120px] p-6 text-center group">
-                <span class="w-14 h-14 rounded-2xl bg-sky-100 dark:bg-sky-900/40 flex items-center justify-center text-sky-600 dark:text-sky-400 mb-3 group-hover:scale-110 transition-transform"><svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg></span>
-                <span class="font-semibold text-zinc-900 dark:text-white">İhaleler</span>
+            <a href="{{ route('ihaleler.index') }}" class="relative flex flex-col items-center justify-center min-h-[140px] p-6 rounded-2xl bg-white dark:bg-zinc-900/80 border-2 border-zinc-200/80 dark:border-zinc-800 text-center group shadow-md hover:shadow-xl hover:border-sky-300 dark:hover:border-sky-700/50 hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+                <span class="absolute top-0 right-0 w-20 h-20 bg-sky-500/10 rounded-bl-full group-hover:bg-sky-500/20 transition-colors"></span>
+                <span class="relative w-16 h-16 rounded-2xl bg-sky-100 dark:bg-sky-900/40 flex items-center justify-center text-sky-600 dark:text-sky-400 mb-3 group-hover:scale-110 transition-transform"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg></span>
+                <span class="relative font-bold text-zinc-900 dark:text-white">İhaleler</span>
             </a>
-            <a href="{{ route('firmalar.index') }}" class="card-premium flex flex-col items-center justify-center min-h-[120px] p-6 text-center group">
-                <span class="w-14 h-14 rounded-2xl bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center text-amber-600 dark:text-amber-400 mb-3 group-hover:scale-110 transition-transform"><svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg></span>
-                <span class="font-semibold text-zinc-900 dark:text-white">Firmalar</span>
+            <a href="{{ route('firmalar.index') }}" class="relative flex flex-col items-center justify-center min-h-[140px] p-6 rounded-2xl bg-white dark:bg-zinc-900/80 border-2 border-zinc-200/80 dark:border-zinc-800 text-center group shadow-md hover:shadow-xl hover:border-amber-300 dark:hover:border-amber-700/50 hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+                <span class="absolute top-0 right-0 w-20 h-20 bg-amber-500/10 rounded-bl-full group-hover:bg-amber-500/20 transition-colors"></span>
+                <span class="relative w-16 h-16 rounded-2xl bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center text-amber-600 dark:text-amber-400 mb-3 group-hover:scale-110 transition-transform"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg></span>
+                <span class="relative font-bold text-zinc-900 dark:text-white">Firmalar</span>
             </a>
-            <a href="{{ route('pazaryeri.index') }}" class="card-premium flex flex-col items-center justify-center min-h-[120px] p-6 text-center group">
-                <span class="w-14 h-14 rounded-2xl bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center text-violet-600 dark:text-violet-400 mb-3 group-hover:scale-110 transition-transform"><svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg></span>
-                <span class="font-semibold text-zinc-900 dark:text-white">Pazaryeri</span>
+            <a href="{{ route('pazaryeri.index') }}" class="relative flex flex-col items-center justify-center min-h-[140px] p-6 rounded-2xl bg-white dark:bg-zinc-900/80 border-2 border-zinc-200/80 dark:border-zinc-800 text-center group shadow-md hover:shadow-xl hover:border-violet-300 dark:hover:border-violet-700/50 hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+                <span class="absolute top-0 right-0 w-20 h-20 bg-violet-500/10 rounded-bl-full group-hover:bg-violet-500/20 transition-colors"></span>
+                <span class="relative w-16 h-16 rounded-2xl bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center text-violet-600 dark:text-violet-400 mb-3 group-hover:scale-110 transition-transform"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg></span>
+                <span class="relative font-bold text-zinc-900 dark:text-white">Pazaryeri</span>
             </a>
         </div>
     </div>
 </section>
+
 @endsection

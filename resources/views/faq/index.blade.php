@@ -3,6 +3,31 @@
 @section('title', 'Sıkça Sorulan Sorular - NakliyePark')
 @section('meta_description', 'Nakliye ve NakliyePark platformu hakkında sık sorulan sorular ve cevapları.')
 
+@php
+    $breadcrumbItems = [
+        ['name' => 'Anasayfa', 'url' => route('home')],
+        ['name' => 'Sıkça Sorulan Sorular', 'url' => null],
+    ];
+@endphp
+@include('partials.structured-data-breadcrumb')
+
+@if($faqs->isNotEmpty())
+@push('structured_data')
+@php
+    $faqSchema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'FAQPage',
+        'mainEntity' => $faqs->map(fn($f) => [
+            '@type' => 'Question',
+            'name' => $f->question,
+            'acceptedAnswer' => ['@type' => 'Answer', 'text' => strip_tags($f->answer)],
+        ])->values()->all(),
+    ];
+@endphp
+<script type="application/ld+json">{!! json_encode($faqSchema, JSON_UNESCAPED_UNICODE) !!}</script>
+@endpush
+@endif
+
 @push('scripts')
 <script>
 (function() {

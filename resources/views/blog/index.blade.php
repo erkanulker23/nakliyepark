@@ -58,6 +58,21 @@
     </div>
 
     <div class="page-container pb-16 sm:pb-24 max-w-6xl">
+        @php $blogUst = \App\Models\AdZone::getForPagePosition('blog', 'ust', 2); @endphp
+        @if($blogUst->isNotEmpty())
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                @foreach($blogUst as $reklam)
+                    <div class="rounded-2xl border border-zinc-200 dark:border-zinc-700 overflow-hidden bg-white dark:bg-zinc-800 p-4">
+                        @if($reklam->isCode()){!! $reklam->kod !!}@else
+                            @if($reklam->link)<a href="{{ $reklam->link }}" target="_blank" rel="noopener noreferrer nofollow" class="block">@endif
+                            @if($reklam->resim)<img src="{{ $reklam->resim }}" alt="{{ $reklam->baslik ?? 'Reklam' }}" class="w-full h-24 object-cover rounded-lg mb-2" loading="lazy">@endif
+                            @if($reklam->baslik)<p class="font-medium text-zinc-900 dark:text-white">{{ $reklam->baslik }}</p>@endif
+                            @if($reklam->link)</a>@endif
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        @endif
         @forelse($posts as $index => $post)
             @if($index === 0)
                 {{-- Öne çıkan yazı: büyük kart --}}
@@ -168,6 +183,22 @@
                 <p class="mt-2 text-zinc-500 dark:text-zinc-400 max-w-sm mx-auto">Yakında yeni içeriklerle burada olacağız.</p>
             </div>
         @endforelse
+
+        @php $blogAlt = \App\Models\AdZone::getForPagePosition('blog', 'alt', 2); @endphp
+        @if($blogAlt->isNotEmpty())
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-10 pt-8 border-t border-zinc-200 dark:border-zinc-700">
+                @foreach($blogAlt as $reklam)
+                    <div class="rounded-2xl border border-zinc-200 dark:border-zinc-700 overflow-hidden bg-white dark:bg-zinc-800 p-4">
+                        @if($reklam->isCode()){!! $reklam->kod !!}@else
+                            @if($reklam->link)<a href="{{ $reklam->link }}" target="_blank" rel="noopener noreferrer nofollow" class="block">@endif
+                            @if($reklam->resim)<img src="{{ $reklam->resim }}" alt="{{ $reklam->baslik ?? 'Reklam' }}" class="w-full h-20 object-cover rounded-lg mb-2" loading="lazy">@endif
+                            @if($reklam->baslik)<p class="font-medium text-zinc-900 dark:text-white">{{ $reklam->baslik }}</p>@endif
+                            @if($reklam->link)</a>@endif
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        @endif
 
         @if($posts->hasPages())
             <div class="mt-14 pt-10 border-t border-zinc-200/80 dark:border-zinc-800 flex justify-center">{{ $posts->links() }}</div>

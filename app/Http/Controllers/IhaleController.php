@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Ihale;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 
 class IhaleController extends Controller
 {
     public function index(Request $request)
     {
+        App::setLocale('tr');
         $query = Ihale::where('status', 'published')->withCount('teklifler');
 
         if ($request->filled('from_city')) {

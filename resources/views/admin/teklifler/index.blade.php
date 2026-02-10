@@ -4,7 +4,8 @@
 @section('page_heading', 'Teklifler')
 
 @section('content')
-<form method="get" action="{{ route('admin.teklifler.index') }}" class="mb-6 flex flex-wrap items-end gap-2">
+<p class="text-xs text-slate-500 mb-2">Varsayılan: son 30 gün. Tarih boş bırakırsanız son 30 gün listelenir.</p>
+<form method="get" action="{{ route('admin.teklifler.index') }}" class="mb-6 flex flex-wrap items-center gap-2 sm:flex-nowrap">
     <select name="status" class="admin-input py-2 w-36 text-sm">
         <option value="">Tüm durumlar</option>
         <option value="pending" {{ ($filters['status'] ?? '') === 'pending' ? 'selected' : '' }}>Beklemede</option>
@@ -39,6 +40,8 @@
                 <tr>
                     <td>
                         <a href="{{ route('admin.ihaleler.show', $t->ihale) }}" class="text-indigo-600 hover:underline font-medium">{{ $t->ihale->from_city }} → {{ $t->ihale->to_city }}</a>
+                        <br>
+                        <a href="{{ route('ihaleler.show', $t->ihale) }}" target="_blank" rel="noopener" class="text-slate-500 hover:underline text-xs">İhale sayfasına git</a>
                     </td>
                     <td>{{ $t->company->name ?? '-' }}</td>
                     <td class="font-medium">{{ number_format($t->amount, 0, ',', '.') }} ₺</td>
@@ -47,6 +50,8 @@
                     </td>
                     <td class="text-slate-500 text-sm">{{ $t->created_at->format('d.m.Y H:i') }}</td>
                     <td class="text-right">
+                        <a href="{{ route('admin.ihaleler.show', $t->ihale) }}" class="text-slate-600 dark:text-slate-400 hover:underline text-sm">İhale</a>
+                        <span class="text-slate-300 dark:text-slate-600 mx-1">|</span>
                         <a href="{{ route('admin.teklifler.edit', $t) }}" class="text-indigo-600 hover:underline text-sm font-medium">Düzenle</a>
                         <form method="POST" action="{{ route('admin.teklifler.destroy', $t) }}" class="inline ml-2" onsubmit="return confirm('Bu teklifi silmek istediğinize emin misiniz?');">
                             @csrf

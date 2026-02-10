@@ -9,7 +9,7 @@ class DashboardController extends Controller
 {
     public function index(Request $request)
     {
-        $ihaleler = $request->user()->ihaleler()->latest()->paginate(10);
+        $ihaleler = $request->user()->ihaleler()->with('acceptedTeklif')->latest()->paginate(10);
         return view('musteri.dashboard', compact('ihaleler'));
     }
 }

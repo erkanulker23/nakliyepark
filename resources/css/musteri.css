@@ -1,0 +1,12 @@
+/* Müşteri paneli - sidebar logo ve aktif link vurgusu (sky) */
+.admin-sidebar .musteri-logo-icon {
+  background: #0284c7 !important;
+  color: #fff !important;
+}
+.admin-sidebar .nav-link:hover {
+  background: rgba(2, 132, 199, 0.15);
+}
+.admin-sidebar .nav-link.active {
+  background: #0284c7;
+  border-left: 3px solid #38bdf8;
+}

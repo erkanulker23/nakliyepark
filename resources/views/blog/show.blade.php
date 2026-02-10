@@ -4,29 +4,33 @@
     $metaTitle = $post->meta_title ?: ($post->title . ' - NakliyePark');
     $metaDesc = $post->meta_description ?: ($post->excerpt ?: Str::limit(strip_tags($post->content), 160));
     $canonicalUrl = route('blog.show', $post->slug);
-    $imageUrl = $post->image ? asset('storage/'.$post->image) : asset('icons/icon-192.png');
+    $imageUrl = $post->image
+        ? (Str::startsWith($post->image, 'http') ? $post->image : asset('storage/'.$post->image))
+        : asset('icons/icon-192.png');
 @endphp
 
 @section('title', $metaTitle)
 @section('meta_description', $metaDesc)
+@section('canonical_url', $canonicalUrl)
+@section('og_image', $imageUrl)
 
 @push('meta')
-<meta name="robots" content="index, follow">
-<link rel="canonical" href="{{ $canonicalUrl }}">
 <meta property="og:type" content="article">
-<meta property="og:url" content="{{ $canonicalUrl }}">
-<meta property="og:title" content="{{ $metaTitle }}">
-<meta property="og:description" content="{{ $metaDesc }}">
-<meta property="og:image" content="{{ $imageUrl }}">
-<meta property="og:site_name" content="NakliyePark">
-<meta property="og:locale" content="tr_TR">
 @if($post->published_at)
 <meta property="article:published_time" content="{{ $post->published_at->toIso8601String() }}">
 @endif
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="{{ $metaTitle }}">
-<meta name="twitter:description" content="{{ $metaDesc }}">
-<meta name="twitter:image" content="{{ $imageUrl }}">
+@endpush
+
+@php
+    $breadcrumbItems = [
+        ['name' => 'Anasayfa', 'url' => route('home')],
+        ['name' => 'Blog', 'url' => route('blog.index')],
+        ['name' => $post->title, 'url' => null],
+    ];
+@endphp
+@include('partials.structured-data-breadcrumb')
+
+@push('structured_data')
 <script type="application/ld+json">
 {"@@context":"https://schema.org","@@type":"Article","headline":"{{ addslashes($post->title) }}","description":"{{ addslashes($metaDesc) }}","image":"{{ $imageUrl }}","datePublished":"{{ $post->published_at?->toIso8601String() }}","dateModified":"{{ $post->updated_at->toIso8601String() }}","author":{"@@type":"Organization","name":"NakliyePark"},"publisher":{"@@type":"Organization","name":"NakliyePark","logo":{"@@type":"ImageObject","url":"{{ asset('icons/icon-192.png') }}"}},"mainEntityOfPage":{"@@type":"WebPage","@@id":"{{ $canonicalUrl }}"}}}
 </script>
@@ -60,7 +64,7 @@
                     @if($post->image)
                         <figure class="relative aspect-[2/1] sm:aspect-[21/10] max-h-[320px] overflow-hidden">
                             <img
-                                src="{{ asset('storage/'.$post->image) }}"
+                                src="{{ Str::startsWith($post->image, 'http') ? $post->image : asset('storage/'.$post->image) }}"
                                 alt="{{ $post->title }} - NakliyePark Blog"
                                 class="w-full h-full object-cover object-center"
                                 itemprop="image"
@@ -99,7 +103,7 @@
                             prose-strong:text-zinc-900 dark:prose-strong:text-white
                             prose-img:rounded-xl prose-img:shadow-md"
                             itemprop="articleBody">
-                            {!! nl2br(e($post->content)) !!}
+                            {!! $post->content !!}
                         </div>
 
                         {{-- Paylaşım + Geri dön --}}
@@ -138,7 +142,7 @@
                                 <a href="{{ route('blog.show', $other->slug) }}" class="blog-reveal flex gap-3 p-4 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors group">
                                     @if($other->image)
                                         <div class="w-14 h-14 shrink-0 rounded-lg overflow-hidden bg-zinc-100 dark:bg-zinc-800 ring-1 ring-zinc-200/50 dark:ring-zinc-700">
-                                            <img src="{{ asset('storage/'.$other->image) }}" alt="{{ $other->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
+                                            <img src="{{ Str::startsWith($other->image, 'http') ? $other->image : asset('storage/'.$other->image) }}" alt="{{ $other->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
                                         </div>
                                     @else
                                         <div class="w-14 h-14 shrink-0 rounded-lg bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/40 dark:to-teal-900/30 flex items-center justify-center">
@@ -168,6 +172,21 @@
                             </div>
                         @endif
                     </div>
+                    @php $blogShowSidebar = \App\Models\AdZone::getForPagePosition('blog_show', 'sidebar', 3); @endphp
+                    @if($blogShowSidebar->isNotEmpty())
+                        <div class="mt-6 space-y-4">
+                            @foreach($blogShowSidebar as $reklam)
+                                <div class="rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 p-4">
+                                    @if($reklam->isCode()){!! $reklam->kod !!}@else
+                                        @if($reklam->link)<a href="{{ $reklam->link }}" target="_blank" rel="noopener noreferrer nofollow" class="block">@endif
+                                        @if($reklam->resim)<img src="{{ $reklam->resim }}" alt="{{ $reklam->baslik ?? 'Reklam' }}" class="w-full rounded-lg mb-2 max-h-32 object-cover" loading="lazy">@endif
+                                        @if($reklam->baslik)<p class="font-medium text-zinc-900 dark:text-white text-sm">{{ $reklam->baslik }}</p>@endif
+                                        @if($reklam->link)</a>@endif
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             </aside>
         </div>

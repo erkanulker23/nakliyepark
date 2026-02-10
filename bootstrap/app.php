@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'role' => \App\Http\Middleware\EnsureRole::class,
+            'not.nakliyeci' => \App\Http\Middleware\EnsureNotNakliyeci::class,
         ]);
         $middleware->web(append: [
             \App\Http\Middleware\EnsureNotBlocked::class,

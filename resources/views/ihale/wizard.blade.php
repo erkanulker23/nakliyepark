@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'İhale Oluştur - Nakliyat Hizmeti Seçin')
+@section('meta_description', 'Nakliye ihalesi oluşturun: Evden eve nakliyat veya yük taşıma seçin, rota ve hacim girin. Ücretsiz, üye olmadan teklif alın.')
 
 @section('content')
 <div class="page-container py-6 sm:py-10 max-w-xl mx-auto">
@@ -33,6 +34,12 @@
         <form id="wizard-form" action="{{ route('ihale.store') }}" method="POST" enctype="multipart/form-data" class="relative px-4 sm:px-6 pb-6">
             @csrf
             <input type="hidden" name="service_type" id="service_type" value="">
+            @if(isset($forCompany) && $forCompany)
+                <input type="hidden" name="preferred_company_id" value="{{ $forCompany->id }}">
+                <div class="mb-4 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200/80 dark:border-emerald-800/50 text-sm text-emerald-800 dark:text-emerald-200">
+                    <strong>{{ $forCompany->name }}</strong> firmasından teklif almak için ihale oluşturuyorsunuz. Onay sonrası bu firma bilgilendirilecektir.
+                </div>
+            @endif
 
             {{-- Adım 1: Almak istediğiniz hizmet --}}
             <div data-step-key="service_select" class="step-panel">
@@ -263,6 +270,18 @@
                         <input type="tel" name="guest_contact_phone" inputmode="tel" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl" placeholder="5XX XXX XX XX" value="{{ auth()->user()?->phone }}">
                     </div>
                 </div>
+                {{-- KVKK: Açık rıza ve aydınlatma --}}
+                <div class="mt-4 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" name="kvkk_consent" value="1" required class="mt-1 w-4 h-4 rounded border-zinc-300 text-emerald-500 focus:ring-emerald-500">
+                        <span class="text-sm text-zinc-700 dark:text-zinc-300">
+                            <a href="{{ route('kvkk.aydinlatma') }}" target="_blank" rel="noopener" class="underline font-medium text-emerald-600 dark:text-emerald-400">Kişisel verilerin işlenmesine ilişkin aydınlatma metnini</a> okudum; ad, e-posta, telefon ve adres bilgilerimin talebinin işlenmesi ve firmalarla paylaşılması için açık rızamı veriyorum.
+                        </span>
+                    </label>
+                    <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-2">
+                        Kişisel verileriniz, iş tamamlandıktan veya ihale kapatıldıktan sonra en fazla <strong>{{ $dataRetentionMonths ?? 24 }} ay</strong> saklanır; ardından silinir veya anonimleştirilir.
+                    </p>
+                </div>
             </div>
 
             <div class="flex gap-3 mt-6 pt-5 border-t border-zinc-100 dark:border-zinc-800">
@@ -461,7 +480,13 @@
         if (stepKey === 'to' && !document.getElementById('to_city').value.trim()) { alert('Lütfen il seçin.'); return false; }
         if (stepKey === 'volume' && parseFloat(form.querySelector('#volume_m3').value) <= 0) { alert('En az bir oda için hacim ekleyin.'); return false; }
         if (stepKey === 'ev_esya') { /* tüm alanlar opsiyonel */ }
-        if (stepKey === 'contact') { const name = form.querySelector('input[name="guest_contact_name"]'); const email = form.querySelector('input[name="guest_contact_email"]'); if (!name.value.trim() || !email.value.trim()) { alert('Ad soyad ve e-posta zorunludur.'); return false; } }
+        if (stepKey === 'contact') {
+            const name = form.querySelector('input[name="guest_contact_name"]');
+            const email = form.querySelector('input[name="guest_contact_email"]');
+            const consent = form.querySelector('input[name="kvkk_consent"]');
+            if (!name.value.trim() || !email.value.trim()) { alert('Ad soyad ve e-posta zorunludur.'); return false; }
+            if (!consent || !consent.checked) { alert('Kişisel verilerin işlenmesi için açık rıza vermeniz gerekmektedir.'); return false; }
+        }
         return true;
     }
 

@@ -42,3 +42,29 @@ html:not(.admin-dark) .admin-header .admin-page-title {
 html:not(.admin-dark) .admin-header .admin-page-subtitle {
   color: #64748b;
 }
+
+/* --- Firma paneli: modern stat kartları --- */
+.nakliyeci-stat-card {
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+.nakliyeci-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+.admin-dark .nakliyeci-stat-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+.nakliyeci-stat-icon {
+  flex-shrink: 0;
+}
+
+/* Tablo satırları - teklifler/ihaleler link vurgusu */
+.admin-main-wrap .admin-table tbody tr.group:hover td a {
+  text-decoration: underline;
+}
+.admin-main-wrap .admin-table .admin-btn-primary {
+  transition: opacity 0.15s;
+}
+.admin-main-wrap .admin-table .admin-btn-primary:hover {
+  opacity: 0.9;
+}

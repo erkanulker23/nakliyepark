@@ -63,7 +63,10 @@
                         @elseif($ihale->status === 'closed') bg-slate-100 text-slate-600
                         @elseif($ihale->status === 'cancelled') bg-red-100 text-red-800
                         @else bg-amber-100 text-amber-800 @endif">
-                        {{ $ihale->status }}
+                        @php
+                            $statusLabels = ['published' => 'Yayında', 'closed' => 'Kapalı', 'cancelled' => 'İptal', 'pending' => 'Onay bekliyor', 'draft' => 'Taslak'];
+                        @endphp
+                        {{ $statusLabels[$ihale->status] ?? $ihale->status }}
                     </span>
                 </div>
                 <p class="text-sm text-slate-500 mb-3">
@@ -74,6 +77,11 @@
                 </p>
                 <div class="flex items-center gap-2 mb-2">
                     <a href="{{ route('admin.ihaleler.show', $ihale) }}" class="text-indigo-600 hover:underline text-sm font-medium">İhale detayı →</a>
+                    <form method="POST" action="{{ route('admin.ihaleler.destroy', $ihale) }}" class="inline" onsubmit="return confirm('Bu ihale ve tüm teklifleri silinecek. Emin misiniz?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="text-red-600 hover:underline text-sm font-medium">İhaleyi sil</button>
+                    </form>
                 </div>
                 <h4 class="text-sm font-medium text-slate-700 mt-2 mb-1">Nakliyeciden gelen teklifler ({{ $ihale->teklifler->count() }})</h4>
                 <ul class="space-y-1 text-sm">
