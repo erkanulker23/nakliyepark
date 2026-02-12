@@ -57,4 +57,63 @@ class FirmaController extends Controller
         $acceptanceRate = $totalTeklifCount > 0 ? round(($completedJobsCount / $totalTeklifCount) * 100) : 0;
         return view('firmalar.show', compact('company', 'reviewAvg', 'reviewCount', 'completedJobsCount', 'totalTeklifCount', 'acceptanceRate'));
     }
+
+    /** Haritadaki nakliyeciler: onaylı firmalar; canlı konum yoksa il merkezi koordinatı kullanılır */
+    public function map()
+    {
+        $cityCoords = config('turkey_city_coordinates', []);
+        $baseQuery = Company::whereNotNull('approved_at')->whereNull('blocked_at');
+
+        $cityFilter = request('city', '');
+        if ($cityFilter !== '') {
+            $baseQuery->where('city', 'like', '%' . $cityFilter . '%');
+        }
+
+        $all = $baseQuery->orderBy('name')
+            ->get(['id', 'slug', 'name', 'city', 'district', 'live_latitude', 'live_longitude', 'live_location_updated_at']);
+
+        $withCoords = [];
+        foreach ($all as $c) {
+            $lat = null;
+            $lng = null;
+            if ($c->live_latitude !== null && $c->live_longitude !== null) {
+                $lat = (float) $c->live_latitude;
+                $lng = (float) $c->live_longitude;
+            } elseif (! empty(trim((string) $c->city))) {
+                $cityKey = trim($c->city);
+                if (isset($cityCoords[$cityKey])) {
+                    [$baseLat, $baseLng] = $cityCoords[$cityKey];
+                    $lat = $baseLat + (mt_rand(-200, 200) / 10000.0);
+                    $lng = $baseLng + (mt_rand(-200, 200) / 10000.0);
+                }
+            }
+            if ($lat !== null && $lng !== null) {
+                $withCoords[] = (object) [
+                    'model' => $c,
+                    'lat' => $lat,
+                    'lng' => $lng,
+                ];
+            }
+        }
+
+        $firmalar = collect($withCoords)->map(fn ($e) => $e->model)->values();
+        $cities = $all->pluck('city')->filter()->unique()->sort()->values();
+
+        $companiesJson = collect($withCoords)->map(fn ($e) => [
+            'id' => $e->model->id,
+            'name' => $e->model->name,
+            'city' => $e->model->city,
+            'district' => $e->model->district,
+            'lat' => $e->lat,
+            'lng' => $e->lng,
+            'url' => route('firmalar.show', $e->model),
+        ])->values();
+
+        return view('firmalar.map', [
+            'firmalar' => $firmalar,
+            'cities' => $cities,
+            'companiesJson' => $companiesJson,
+            'filters' => ['city' => $cityFilter],
+        ]);
+    }
 }

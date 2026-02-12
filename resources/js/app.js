@@ -42,8 +42,51 @@ function initToolsDropdown() {
   });
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initToolsDropdown);
-} else {
+// Bildirim dropdown: çan tıklanınca aç/kapa
+function initHeaderNotificationsDropdown() {
+  const wrap = document.getElementById('header-notifications-wrap');
+  if (!wrap) return;
+  const btn = wrap.querySelector('#header-notifications-btn') || document.getElementById('header-notifications-btn');
+  const panel = wrap.querySelector('#header-notifications-panel') || document.getElementById('header-notifications-panel');
+  if (!btn || !panel) return;
+
+  function isOpen() {
+    return !panel.classList.contains('hidden') && !panel.hidden;
+  }
+  function open() {
+    panel.classList.remove('hidden');
+    panel.hidden = false;
+    btn.setAttribute('aria-expanded', 'true');
+  }
+  function close() {
+    panel.classList.add('hidden');
+    panel.hidden = true;
+    btn.setAttribute('aria-expanded', 'false');
+  }
+  function toggle() {
+    if (isOpen()) close(); else open();
+  }
+
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggle();
+  });
+  document.addEventListener('click', (e) => {
+    if (!wrap.contains(e.target)) close();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') close();
+  });
+}
+
+function initHeader() {
   initToolsDropdown();
+  initHeaderNotificationsDropdown();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initHeader);
+} else {
+  initHeader();
 }

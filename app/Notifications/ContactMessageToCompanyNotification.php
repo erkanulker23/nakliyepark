@@ -42,7 +42,7 @@ class ContactMessageToCompanyNotification extends Notification implements Should
             '{action_url}' => $route,
         ]);
         if ($customBody !== null) {
-            return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $customBody]);
+            return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $customBody])->priority(1);
         }
 
         return (new MailMessage)
@@ -52,6 +52,7 @@ class ContactMessageToCompanyNotification extends Notification implements Should
             ->line('**Mesaj:**')
             ->line($this->contactMessage->message)
             ->line('Müşteri ile iletişim bilgileriniz üzerinden iletişime geçebilirsiniz.')
-            ->action('Tekliflerim', $route);
+            ->action('Tekliflerim', $route)
+            ->priority(1);
     }
 }

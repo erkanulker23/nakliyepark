@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\BlogCategory;
 use App\Models\BlogPost;
+use App\Services\BlogAiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -119,5 +120,45 @@ class BlogPostController extends Controller
     {
         $blog->delete();
         return redirect()->route('admin.blog.index')->with('success', 'Blog yazısı silindi.');
+    }
+
+    /**
+     * Yapay zeka ile blog içeriği oluşturur.
+     */
+    public function generateAi(Request $request, BlogAiService $aiService)
+    {
+        $validated = $request->validate([
+            'topic' => 'required|string|max:500',
+            'additional_instructions' => 'nullable|string|max:1000',
+        ]);
+
+        try {
+            $result = $aiService->generate(
+                $validated['topic'],
+                $validated['additional_instructions'] ?? null
+            );
+
+            if (! $result) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Yapay zeka içerik oluşturamadı. Lütfen tekrar deneyin.',
+                ], 500);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $result,
+            ]);
+        } catch (\RuntimeException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 400);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bir hata oluştu: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 }

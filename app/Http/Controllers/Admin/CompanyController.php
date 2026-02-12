@@ -55,6 +55,7 @@ class CompanyController extends Controller
 
     public function edit(Company $company)
     {
+        $this->authorize('update', $company);
         $company->load('user');
         $paketler = config('nakliyepark.nakliyeci_paketler', []);
         return view('admin.companies.edit', compact('company', 'paketler'));
@@ -62,6 +63,7 @@ class CompanyController extends Controller
 
     public function update(Request $request, Company $company)
     {
+        $this->authorize('update', $company);
         $request->validate([
             'name' => 'required|string|max:255',
             'tax_number' => 'nullable|string|max:50',

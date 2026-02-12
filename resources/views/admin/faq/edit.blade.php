@@ -19,6 +19,15 @@
             @error('answer')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
         </div>
         <div class="admin-form-group">
+            <label class="admin-label">Hedef kitle</label>
+            <select name="audience" class="admin-input">
+                <option value="">Hepsi (müşteri + nakliyeci)</option>
+                <option value="musteri" {{ old('audience', $faq->audience) === 'musteri' ? 'selected' : '' }}>Müşteri</option>
+                <option value="nakliyeci" {{ old('audience', $faq->audience) === 'nakliyeci' ? 'selected' : '' }}>Nakliyeci</option>
+            </select>
+            @error('audience')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+        </div>
+        <div class="admin-form-group">
             <label class="admin-label">Sıra</label>
             <input type="number" name="sort_order" value="{{ old('sort_order', $faq->sort_order) }}" min="0" class="admin-input">
             @error('sort_order')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror

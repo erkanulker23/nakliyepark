@@ -14,21 +14,40 @@
                 <h1 class="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">Nakliyat defteri</h1>
                 @auth
                     @if(auth()->user()->isNakliyeci())
-                        <a href="{{ route('nakliyeci.ledger.create') }}" class="btn-primary shrink-0 inline-flex gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                            Deftere yaz
-                        </a>
+                        @if(auth()->user()->company?->isApproved())
+                            <div class="flex flex-wrap items-center gap-2 shrink-0">
+                                @include('partials.defter-share-buttons', ['url' => route('defter.index'), 'title' => 'Nakliyat Defteri — Yük ve boş dönüş ilanları. Nakliyeciler burada ilan paylaşır.', 'label' => 'Defteri paylaş', 'wrapperClass' => 'shrink-0'])
+                                <button type="button" id="defter-yaz-open" class="btn-primary shrink-0 inline-flex gap-2" aria-haspopup="dialog" aria-expanded="false">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                    Deftere yaz
+                                </button>
+                            </div>
+                        @else
+                            <div class="flex flex-wrap items-center gap-2 shrink-0">
+                                @include('partials.defter-share-buttons', ['url' => route('defter.index'), 'title' => 'Nakliyat Defteri — Yük ve boş dönüş ilanları. Nakliyeciler burada ilan paylaşır.', 'label' => 'Defteri paylaş', 'wrapperClass' => 'shrink-0'])
+                                <span class="btn-secondary shrink-0 opacity-75 cursor-not-allowed inline-flex gap-2" title="Firmanız onaylandıktan sonra deftere yazabilirsiniz.">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                    Deftere yaz
+                                </span>
+                            </div>
+                        @endif
                     @else
-                        <span class="btn-secondary shrink-0 opacity-75 cursor-not-allowed inline-flex gap-2" title="Deftere yazabilmeniz için nakliyeci girişi yapmanız gerekmektedir.">
+                        <div class="flex flex-wrap items-center gap-2 shrink-0">
+                            @include('partials.defter-share-buttons', ['url' => route('defter.index'), 'title' => 'Nakliyat Defteri — Yük ve boş dönüş ilanları. Nakliyeciler burada ilan paylaşır.', 'label' => 'Defteri paylaş', 'wrapperClass' => 'shrink-0'])
+                            <span class="btn-secondary shrink-0 opacity-75 cursor-not-allowed inline-flex gap-2" title="Deftere yazabilmeniz için nakliyeci girişi yapmanız gerekmektedir.">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                Deftere yaz
+                            </span>
+                        </div>
+                    @endif
+                @else
+                    <div class="flex flex-wrap items-center gap-2 shrink-0">
+                        @include('partials.defter-share-buttons', ['url' => route('defter.index'), 'title' => 'Nakliyat Defteri — Yük ve boş dönüş ilanları. Nakliyeciler burada ilan paylaşır.', 'label' => 'Defteri paylaş', 'wrapperClass' => 'shrink-0'])
+                        <span class="btn-secondary shrink-0 opacity-75 cursor-not-allowed inline-flex gap-2 pointer-events-none" title="Deftere yazabilmeniz için nakliyeci girişi yapmanız gerekmektedir.">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                             Deftere yaz
                         </span>
-                    @endif
-                @else
-                    <span class="btn-secondary shrink-0 opacity-75 cursor-not-allowed inline-flex gap-2 pointer-events-none" title="Deftere yazabilmeniz için nakliyeci girişi yapmanız gerekmektedir.">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        Deftere yaz
-                    </span>
+                    </div>
                 @endauth
             </div>
 
@@ -149,7 +168,7 @@
                     </div>
                 </div>
             </form>
-            <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">Deftere yazmak için nakliyeci girişi yapıp yukarıdaki <strong>Deftere yaz</strong> butonunu kullanın.</p>
+            <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">Deftere yazmak veya ilanlara yanıt vermek için nakliyeci girişi yapıp yukarıdaki <strong>Deftere yaz</strong> butonunu kullanın. Mevcut ilanların altından yanıt yazabilirsiniz.</p>
         </div>
 
         {{-- Promosyon bantları --}}
@@ -184,9 +203,13 @@
                             <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                                 <div class="min-w-0 flex-1">
                                     <div class="flex flex-wrap items-center gap-2 mb-1">
+                                        @if($show_firmalar_page ?? true)
                                         <a href="{{ route('firmalar.show', $ilan->company) }}" class="font-semibold text-zinc-900 dark:text-white hover:text-amber-600 dark:hover:text-amber-400 uppercase tracking-wide">
                                             {{ $ilan->company->name }}
                                         </a>
+                                        @else
+                                        <span class="font-semibold text-zinc-900 dark:text-white uppercase tracking-wide">{{ $ilan->company->name }}</span>
+                                        @endif
                                         <span class="text-xs text-zinc-400 dark:text-zinc-500">#{{ 98000000 + $ilan->id }}</span>
                                         <span class="inline-flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
                                             <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
@@ -215,6 +238,14 @@
                                             <span class="text-amber-600 dark:text-amber-400"> · {{ number_format($ilan->volume_m3, 1) }} m³</span>
                                         @endif
                                     </p>
+                                    @php
+                                        $ilanShareTitle = 'Nakliyat Defteri - Yük İlanı: ' . $ilan->company->name . ' — ' . $ilan->from_city . ' → ' . $ilan->to_city;
+                                        if ($ilan->load_date) { $ilanShareTitle .= ' · Yük: ' . $ilan->load_date->format('d.m.Y'); }
+                                        if ($ilan->volume_m3) { $ilanShareTitle .= ' · ' . number_format((float) $ilan->volume_m3, 1, ',', '') . ' m³'; }
+                                    @endphp
+                                    <span class="inline-block mt-3">
+                                        @include('partials.defter-share-buttons', ['url' => route('defter.show', $ilan), 'title' => $ilanShareTitle, 'label' => 'Paylaş'])
+                                    </span>
                                 </div>
                                 <div class="shrink-0 text-right text-xs text-zinc-500 dark:text-zinc-400">
                                     @if($ilan->company->created_at)
@@ -222,6 +253,46 @@
                                     @endif
                                 </div>
                             </div>
+
+                            {{-- Yanıtlar --}}
+                            @if($ilan->yanitlar->isNotEmpty())
+                                <div class="mt-5 pt-5 border-t border-zinc-200 dark:border-zinc-700">
+                                    <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-4">Yanıtlar ({{ $ilan->yanitlar->count() }})</p>
+                                    <div class="space-y-4">
+                                        @foreach($ilan->yanitlar as $yanit)
+                                            <div class="pl-4 py-3 pr-3 rounded-xl bg-zinc-100/80 dark:bg-zinc-800/50 border-l-4 border-amber-400/70 dark:border-amber-500/50">
+                                                <div class="flex flex-wrap items-baseline gap-2 mb-1.5">
+                                                    @if($show_firmalar_page ?? true)
+                                                        <a href="{{ route('firmalar.show', $yanit->company) }}" class="font-semibold text-zinc-900 dark:text-white hover:text-amber-600 dark:hover:text-amber-400">{{ $yanit->company->name }}</a>
+                                                    @else
+                                                        <span class="font-semibold text-zinc-900 dark:text-white">{{ $yanit->company->name }}</span>
+                                                    @endif
+                                                    <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ $yanit->created_at->locale('tr')->diffForHumans() }}</span>
+                                                </div>
+                                                <p class="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">{{ nl2br(e($yanit->body)) }}</p>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
+                            {{-- Yanıtla (sadece nakliyeci, kendi ilanı değilse) --}}
+                            @auth
+                                @if(auth()->user()->isNakliyeci() && auth()->user()->company?->isApproved() && $ilan->company_id !== auth()->user()->company?->id)
+                                    <div class="mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-700">
+                                        <form method="POST" action="{{ route('nakliyeci.ledger.reply.store', $ilan) }}" class="flex flex-col sm:flex-row gap-2">
+                                            @csrf
+                                            <label class="sr-only" for="yanit-{{ $ilan->id }}">Yanıtınız</label>
+                                            <textarea id="yanit-{{ $ilan->id }}" name="body" rows="2" class="input-touch text-sm flex-1 resize-none" placeholder="Bu ilana yanıt yazın (örn. bu güzergahta boşum, yük birleştirebiliriz...)" maxlength="2000" required>{{ old('body') }}</textarea>
+                                            <button type="submit" class="btn-primary shrink-0 self-end sm:self-auto py-2.5 px-4 text-sm">Gönder</button>
+                                        </form>
+                                    </div>
+                                @endif
+                            @else
+                                <p class="mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-700 text-xs text-zinc-500 dark:text-zinc-400">
+                                    Bu ilana yanıt yazmak için <a href="{{ route('login') }}" class="text-amber-600 dark:text-amber-400 hover:underline">nakliyeci girişi</a> yapın.
+                                </p>
+                            @endauth
                         </article>
                     @empty
                         <div class="card-premium-flat p-12 text-center">
@@ -277,4 +348,151 @@
         @endif
     </div>
 </div>
+
+{{-- Modal: Deftere yaz (sadece onaylı nakliyeci) --}}
+@auth
+    @if(auth()->user()->isNakliyeci() && auth()->user()->company?->isApproved())
+        <div id="defter-yaz-modal" class="fixed inset-0 z-[200] hidden" role="dialog" aria-modal="true" aria-labelledby="defter-yaz-modal-title">
+            <div class="absolute inset-0 bg-zinc-900/60 dark:bg-zinc-950/70 backdrop-blur-sm" id="defter-yaz-overlay"></div>
+            <div class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg max-h-[90vh] overflow-y-auto mx-4 z-10">
+                <div class="rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-2xl p-6">
+                    <div class="flex items-center justify-between gap-4 mb-5">
+                        <h2 id="defter-yaz-modal-title" class="text-lg font-semibold text-zinc-900 dark:text-white">Deftere yaz</h2>
+                        <button type="button" id="defter-yaz-close" class="p-2 rounded-lg text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800 dark:text-zinc-400" aria-label="Kapat">&times;</button>
+                    </div>
+                    <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-5">Yük veya boş dönüş ilanınızı paylaşın. İlan defter sayfasında listelenir.</p>
+                    <form method="POST" action="{{ route('nakliyeci.ledger.store') }}" class="space-y-4">
+                        @csrf
+                        <input type="hidden" name="redirect_to" value="defter">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="defter-from_city" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Nereden (il) *</label>
+                                <select id="defter-from_city" name="from_city" required class="input-touch py-2.5 text-sm" data-old="{{ old('from_city') }}">
+                                    <option value="">İl seçin</option>
+                                </select>
+                                @error('from_city')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                            </div>
+                            <div>
+                                <label for="defter-to_city" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Nereye (il) *</label>
+                                <select id="defter-to_city" name="to_city" required class="input-touch py-2.5 text-sm" data-old="{{ old('to_city') }}">
+                                    <option value="">İl seçin</option>
+                                </select>
+                                @error('to_city')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="defter-load_date" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Yük tarihi</label>
+                                <input type="date" id="defter-load_date" name="load_date" value="{{ old('load_date') }}" class="input-touch py-2.5 text-sm">
+                                @error('load_date')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                            </div>
+                            <div>
+                                <label for="defter-volume_m3" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Hacim (m³)</label>
+                                <input type="number" id="defter-volume_m3" name="volume_m3" value="{{ old('volume_m3') }}" step="0.01" min="0" class="input-touch py-2.5 text-sm" placeholder="Örn. 50">
+                                @error('volume_m3')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                            </div>
+                        </div>
+                        <div>
+                            <label for="defter-load_type" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Yük tipi</label>
+                            <input type="text" id="defter-load_type" name="load_type" value="{{ old('load_type') }}" class="input-touch py-2.5 text-sm" placeholder="Palet, koli vb.">
+                        </div>
+                        <div>
+                            <label for="defter-vehicle_type" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Araç tipi</label>
+                            <input type="text" id="defter-vehicle_type" name="vehicle_type" value="{{ old('vehicle_type') }}" class="input-touch py-2.5 text-sm" placeholder="Kamyon, TIR vb.">
+                        </div>
+                        <div>
+                            <label for="defter-description" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Açıklama</label>
+                            <textarea id="defter-description" name="description" rows="3" class="input-touch text-sm resize-none" placeholder="Detay varsa yazın">{{ old('description') }}</textarea>
+                        </div>
+                        <div class="flex flex-wrap gap-3 pt-2">
+                            <button type="submit" class="btn-primary py-2.5 px-5 text-sm">Deftere yaz</button>
+                            <button type="button" id="defter-yaz-close-2" class="btn-secondary py-2.5 px-5 text-sm">İptal</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <script>
+        (function() {
+            var modal = document.getElementById('defter-yaz-modal');
+            var openBtn = document.getElementById('defter-yaz-open');
+            var overlay = document.getElementById('defter-yaz-overlay');
+            var closeBtn = document.getElementById('defter-yaz-close');
+            var closeBtn2 = document.getElementById('defter-yaz-close-2');
+            var fromSelect = document.getElementById('defter-from_city');
+            var toSelect = document.getElementById('defter-to_city');
+            var provincesLoaded = false;
+            var provincesApiUrl = '{{ route("api.turkey.provinces") }}';
+
+            function fillSelectWithProvinces(select, data) {
+                if (!select) return;
+                while (select.options.length > 1) select.removeChild(select.lastChild);
+                (data || []).forEach(function(p) {
+                    var opt = document.createElement('option');
+                    opt.value = p.name;
+                    opt.textContent = p.name;
+                    select.appendChild(opt);
+                });
+                var oldVal = select.getAttribute('data-old');
+                if (oldVal) select.value = oldVal;
+            }
+
+            function loadProvincesAndFill() {
+                if (provincesLoaded) {
+                    if (fromSelect) fillSelectWithProvinces(fromSelect, window._defterProvinces || []);
+                    if (toSelect) fillSelectWithProvinces(toSelect, window._defterProvinces || []);
+                    return;
+                }
+                fetch(provincesApiUrl)
+                    .then(function(r) { return r.json(); })
+                    .then(function(res) {
+                        var data = res.data || [];
+                        window._defterProvinces = data;
+                        provincesLoaded = true;
+                        fillSelectWithProvinces(fromSelect, data);
+                        fillSelectWithProvinces(toSelect, data);
+                    })
+                    .catch(function() {
+                        if (fromSelect && fromSelect.options.length === 1) {
+                            var opt = document.createElement('option');
+                            opt.value = '';
+                            opt.textContent = 'İller yüklenemedi';
+                            fromSelect.appendChild(opt);
+                        }
+                        if (toSelect && toSelect.options.length === 1) {
+                            var opt = document.createElement('option');
+                            opt.value = '';
+                            opt.textContent = 'İller yüklenemedi';
+                            toSelect.appendChild(opt);
+                        }
+                    });
+            }
+
+            function openModal() {
+                if (!modal) return;
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                if (openBtn) openBtn.setAttribute('aria-expanded', 'true');
+                loadProvincesAndFill();
+            }
+            function closeModal() {
+                if (!modal) return;
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+                if (openBtn) openBtn.setAttribute('aria-expanded', 'false');
+            }
+            openBtn && openBtn.addEventListener('click', openModal);
+            overlay && overlay.addEventListener('click', closeModal);
+            closeBtn && closeBtn.addEventListener('click', closeModal);
+            closeBtn2 && closeBtn2.addEventListener('click', closeModal);
+            modal && modal.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeModal();
+            });
+            @if(old('from_city') !== null || old('to_city') !== null)
+            openModal();
+            @endif
+        })();
+        </script>
+    @endif
+@endauth
 @endsection

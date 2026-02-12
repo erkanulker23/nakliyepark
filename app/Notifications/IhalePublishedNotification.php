@@ -43,7 +43,7 @@ class IhalePublishedNotification extends Notification implements ShouldQueue
             '{action_url}' => $route,
         ]);
         if ($customBody !== null) {
-            return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $customBody]);
+            return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $customBody])->priority(1);
         }
 
         return (new MailMessage)
@@ -51,6 +51,7 @@ class IhalePublishedNotification extends Notification implements ShouldQueue
             ->greeting('Merhaba!')
             ->line('İhale talebiniz onaylandı ve yayına alındı.')
             ->line('Nakliye firmaları artık size teklif gönderebilir. Gelen teklifleri panelinizden takip edebilirsiniz.')
-            ->action('İhalemi görüntüle', $route);
+            ->action('İhalemi görüntüle', $route)
+            ->priority(1);
     }
 }

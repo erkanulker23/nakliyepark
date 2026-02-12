@@ -1,13 +1,15 @@
 @extends('layouts.app')
 
 @php
+    $listingSlug = \Illuminate\Support\Str::slug($listing->title);
     $pazaryeriGallery = $listing->gallery_paths ?? [];
     $pazaryeriOgImage = count($pazaryeriGallery) > 0 ? asset('storage/'.$pazaryeriGallery[0]) : null;
 @endphp
 @section('title', $listing->title . ' - Pazaryeri')
 @section('meta_description', Str::limit(strip_tags($listing->description ?? $listing->title), 160) ?: ($listing->title . ' - NakliyePark Pazaryeri ilanı.'))
-@section('canonical_url', route('pazaryeri.show', $listing))
+@section('canonical_url', route('pazaryeri.show', [$listing, $listingSlug]))
 @section('og_image', $pazaryeriOgImage)
+@section('og_type', 'product')
 
 @php
     $breadcrumbItems = [
@@ -17,6 +19,41 @@
     ];
 @endphp
 @include('partials.structured-data-breadcrumb')
+
+@php
+    $productSchema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'Product',
+        'name' => $listing->title,
+        'description' => Str::limit(strip_tags($listing->description ?? $listing->title), 300),
+        'url' => route('pazaryeri.show', [$listing, $listingSlug]),
+    ];
+    if ($pazaryeriOgImage) {
+        $productSchema['image'] = $pazaryeriOgImage;
+    }
+    if ($listing->price !== null) {
+        $productSchema['offers'] = [
+            '@type' => 'Offer',
+            'price' => (float) $listing->price,
+            'priceCurrency' => 'TRY',
+            'availability' => 'https://schema.org/InStock',
+        ];
+        if ($listing->listing_type === 'rent') {
+            $productSchema['offers']['priceSpecification'] = [
+                '@type' => 'UnitPriceSpecification',
+                'price' => (float) $listing->price,
+                'priceCurrency' => 'TRY',
+                'unitText' => 'Gün',
+            ];
+        }
+    }
+    if ($listing->city) {
+        $productSchema['areaServed'] = ['@type' => 'Place', 'name' => $listing->city];
+    }
+@endphp
+@push('structured_data')
+<script type="application/ld+json">{!! json_encode($productSchema, JSON_UNESCAPED_UNICODE) !!}</script>
+@endpush
 
 @section('content')
 <div class="min-h-screen bg-[#fafafa] dark:bg-zinc-900/50">
@@ -130,14 +167,20 @@
                                     </div>
                                 @endif
                                 <div class="min-w-0 flex-1">
+                                    @if($show_firmalar_page ?? true)
                                     <a href="{{ route('firmalar.show', $listing->company) }}" class="font-semibold text-zinc-900 dark:text-white hover:text-emerald-600 dark:hover:text-emerald-400">{{ $listing->company->name }}</a>
+                                    @else
+                                    <span class="font-semibold text-zinc-900 dark:text-white">{{ $listing->company->name }}</span>
+                                    @endif
                                     @if($listing->company->city)
                                         <p class="text-sm text-zinc-500 dark:text-zinc-400">{{ $listing->company->city }}{{ $listing->company->district ? ', ' . $listing->company->district : '' }}</p>
                                     @endif
                                 </div>
+                                @if($show_firmalar_page ?? true)
                                 <a href="{{ route('firmalar.show', $listing->company) }}" class="btn-primary text-sm py-2.5 px-5 rounded-xl shrink-0">
                                     Firma sayfası →
                                 </a>
+                                @endif
                             </div>
                             @if($listing->company->phone || $listing->company->whatsapp)
                                 <div class="flex flex-wrap gap-3 mt-3">

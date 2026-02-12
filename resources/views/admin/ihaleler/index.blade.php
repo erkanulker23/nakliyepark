@@ -40,10 +40,24 @@
     </form>
     <a href="{{ route('admin.ihaleler.create') }}" class="admin-btn-primary">Yeni ihale</a>
 </div>
+<div class="mb-4 flex flex-wrap items-center gap-2">
+    <form method="POST" action="{{ route('admin.ihaleler.bulk-publish') }}" id="form-bulk-publish" class="inline">
+        @csrf
+        <input type="hidden" name="ids" id="bulk-ids-publish" value="">
+        <button type="submit" class="admin-btn-secondary text-sm" onclick="setBulkIds('bulk-ids-publish'); return document.getElementById('bulk-ids-publish').value;">Seçilenleri yayınla</button>
+    </form>
+    <form method="POST" action="{{ route('admin.ihaleler.bulk-close') }}" id="form-bulk-close" class="inline">
+        @csrf
+        <input type="hidden" name="ids" id="bulk-ids-close" value="">
+        <button type="submit" class="admin-btn-secondary text-sm" onclick="setBulkIds('bulk-ids-close'); return document.getElementById('bulk-ids-close').value;">Seçilenleri kapat</button>
+    </form>
+    <span class="text-slate-500 text-sm">Listeden ihaleleri seçip toplu işlem uygulayabilirsiniz (yayınla: onay bekleyenler, kapat: yayındakiler).</span>
+</div>
 <div class="admin-card overflow-hidden">
     <table class="w-full admin-table">
         <thead>
             <tr>
+                <th class="w-10"><input type="checkbox" id="select-all" title="Tümünü seç"></th>
                 <th>Güzergah</th>
                 <th>Talep sahibi</th>
                 <th>Tarih / Hacim</th>
@@ -54,6 +68,13 @@
         <tbody>
             @forelse($ihaleler as $i)
                 <tr>
+                    <td>
+                        @if($i->status === 'pending' || $i->status === 'published')
+                            <input type="checkbox" class="bulk-ihale-id" value="{{ $i->id }}" data-status="{{ $i->status }}">
+                        @else
+                            <span class="text-slate-300">—</span>
+                        @endif
+                    </td>
                     <td class="font-medium">{{ $i->from_city }} → {{ $i->to_city }}</td>
                     <td>{{ $i->user?->name ?? $i->guest_contact_name ?? 'Misafir' }}</td>
                     <td class="text-slate-600">
@@ -90,10 +111,19 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">İhale yok.</td></tr>
+                <tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">İhale yok.</td></tr>
             @endforelse
         </tbody>
     </table>
+    <script>
+    document.getElementById('select-all')?.addEventListener('change', function() {
+        document.querySelectorAll('.bulk-ihale-id').forEach(function(cb) { cb.checked = this.checked; }.bind(this));
+    });
+    function setBulkIds(hiddenId) {
+        var ids = Array.from(document.querySelectorAll('.bulk-ihale-id:checked')).map(function(c) { return c.value; });
+        document.getElementById(hiddenId).value = ids.join(',');
+    }
+    </script>
     @if($ihaleler->hasPages())
         <div class="px-4 py-3 border-t border-slate-200">{{ $ihaleler->links() }}</div>
     @endif

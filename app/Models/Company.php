@@ -126,6 +126,11 @@ class Company extends Model
         return $this->hasMany(YukIlani::class, 'company_id');
     }
 
+    public function pazaryeriListings(): HasMany
+    {
+        return $this->hasMany(PazaryeriListing::class, 'company_id');
+    }
+
     public function reviews(): HasMany
     {
         return $this->hasMany(Review::class, 'company_id');

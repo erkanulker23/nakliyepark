@@ -14,6 +14,7 @@
                 <tr>
                     <th class="text-left px-4 py-3 font-medium text-slate-700 dark:text-slate-300 w-12">Sıra</th>
                     <th class="text-left px-4 py-3 font-medium text-slate-700 dark:text-slate-300">Soru</th>
+                    <th class="text-left px-4 py-3 font-medium text-slate-700 dark:text-slate-300 w-28">Hedef</th>
                     <th class="text-right px-4 py-3 font-medium text-slate-700 dark:text-slate-300">İşlem</th>
                 </tr>
             </thead>
@@ -22,6 +23,7 @@
                     <tr class="border-t border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/30">
                         <td class="px-4 py-3 text-slate-500">{{ $f->sort_order }}</td>
                         <td class="px-4 py-3 font-medium">{{ Str::limit($f->question, 60) }}</td>
+                        <td class="px-4 py-3 text-slate-500 text-sm">{{ $f->audience === 'musteri' ? 'Müşteri' : ($f->audience === 'nakliyeci' ? 'Nakliyeci' : 'Hepsi') }}</td>
                         <td class="px-4 py-3 text-right">
                             <a href="{{ route('admin.faq.edit', $f) }}" class="text-sky-500 hover:underline mr-2">Düzenle</a>
                             <form method="POST" action="{{ route('admin.faq.destroy', $f) }}" class="inline" onsubmit="return confirm('Bu soruyu silmek istediğinize emin misiniz?');">
@@ -32,7 +34,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="3" class="px-4 py-8 text-center text-slate-500">SSS yok. <a href="{{ route('admin.faq.create') }}" class="text-sky-500 hover:underline">İlk soruyu ekleyin</a></td></tr>
+                    <tr><td colspan="4" class="px-4 py-8 text-center text-slate-500">SSS yok. <a href="{{ route('admin.faq.create') }}" class="text-sky-500 hover:underline">İlk soruyu ekleyin</a></td></tr>
                 @endforelse
             </tbody>
         </table>

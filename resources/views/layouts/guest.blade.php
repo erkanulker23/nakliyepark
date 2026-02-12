@@ -2,8 +2,11 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5, user-scalable=yes">
     <meta name="theme-color" content="#059669">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
     @php
         $seo_title = trim((string) ($__env->yieldContent('title') ?? 'NakliyePark'));
         $seo_description = trim((string) ($__env->yieldContent('meta_description') ?? config('seo.default_description')));
@@ -26,7 +29,7 @@
     @include('layouts.partials.structured-data')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
-    <script>(function(){var s=localStorage.getItem('site-theme');if(s==='dark')document.documentElement.classList.add('dark');else if(s==='light')document.documentElement.classList.remove('dark');else if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.classList.add('dark');})();</script>
+    <script>(function(){var s=localStorage.getItem('site-theme');if(s==='dark')document.documentElement.classList.add('dark');else if(s==='light')document.documentElement.classList.remove('dark');else document.documentElement.classList.add('dark');})();</script>
 </head>
 <body class="min-h-screen bg-[#fafafa] dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 antialiased font-sans safe-top safe-bottom flex flex-col">
     <div class="fixed top-4 right-4 z-50">
@@ -54,6 +57,6 @@
         @yield('content')
     </main>
     @stack('scripts')
-    <script>(function(){var t=document.getElementById('theme-toggle'),il=document.getElementById('theme-icon-light'),id=document.getElementById('theme-icon-dark');function isD(){return document.documentElement.classList.contains('dark');}function setD(e){if(e){document.documentElement.classList.add('dark');if(il)il.classList.remove('hidden');if(id)id.classList.add('hidden');localStorage.setItem('site-theme','dark');}else{document.documentElement.classList.remove('dark');if(il)il.classList.add('hidden');if(id)id.classList.remove('hidden');localStorage.setItem('site-theme','light');}}var s=localStorage.getItem('site-theme');if(s==='dark')setD(true);else if(s==='light')setD(false);else if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)setD(true);t&&t.addEventListener('click',function(){setD(!isD());});})();</script>
+    <script>(function(){var t=document.getElementById('theme-toggle'),il=document.getElementById('theme-icon-light'),id=document.getElementById('theme-icon-dark');function isD(){return document.documentElement.classList.contains('dark');}function setD(e){if(e){document.documentElement.classList.add('dark');if(il)il.classList.remove('hidden');if(id)id.classList.add('hidden');localStorage.setItem('site-theme','dark');}else{document.documentElement.classList.remove('dark');if(il)il.classList.add('hidden');if(id)id.classList.remove('hidden');localStorage.setItem('site-theme','light');}}var s=localStorage.getItem('site-theme');if(s==='dark')setD(true);else if(s==='light')setD(false);else setD(true);t&&t.addEventListener('click',function(){setD(!isD());});})();</script>
 </body>
 </html>

@@ -54,7 +54,7 @@
             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach($listings as $item)
                     <article class="group rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden shadow-sm hover:shadow-md hover:border-emerald-200 dark:hover:border-emerald-800/50 transition-all">
-                        <a href="{{ route('pazaryeri.show', $item) }}" class="block">
+                        <a href="{{ route('pazaryeri.show', [$item, \Illuminate\Support\Str::slug($item->title)]) }}" class="block">
                             {{-- Görsel alanı (placeholder veya gerçek) --}}
                             <div class="relative aspect-[16/10] bg-gradient-to-br from-zinc-100 to-zinc-200 dark:from-zinc-800 dark:to-zinc-700 flex items-center justify-center">
                                 @if($item->image_path)

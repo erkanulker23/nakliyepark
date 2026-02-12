@@ -39,7 +39,7 @@ class IhalePreferredCompanyPublishedNotification extends Notification implements
             '{action_url}' => $route,
         ]);
         if ($customBody !== null) {
-            return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $customBody]);
+            return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $customBody])->priority(1);
         }
 
         return (new MailMessage)
@@ -47,6 +47,7 @@ class IhalePreferredCompanyPublishedNotification extends Notification implements
             ->greeting('Merhaba!')
             ->line('Bir müşteri sizi tercih ederek taşınma talebi oluşturdu. İhale onaylandı ve yayına alındı.')
             ->line('Hemen teklif vererek müşteriye ulaşabilirsiniz.')
-            ->action('İhaleye git ve teklif ver', $route);
+            ->action('İhaleye git ve teklif ver', $route)
+            ->priority(1);
     }
 }

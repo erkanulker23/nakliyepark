@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -24,6 +25,7 @@ class User extends Authenticatable
         'phone',
         'avatar',
         'blocked_at',
+        'email_verified_at',
     ];
 
     /**
@@ -92,9 +94,27 @@ class User extends Authenticatable
 
     /**
      * Şifre sıfırlama e-postası (Türkçe, özelleştirilebilir konu).
+     * Hata durumunda kullanıcıya hata göstermez, log yazar.
      */
     public function sendPasswordResetNotification(mixed $token): void
     {
-        $this->notify(new \App\Notifications\ResetPasswordNotification($token));
+        \App\Services\SafeNotificationService::sendToUser(
+            $this,
+            new \App\Notifications\ResetPasswordNotification($token),
+            'password_reset'
+        );
+    }
+
+    /**
+     * E-posta doğrulama bildirimi (Türkçe, admin şablonu ile).
+     * Hata durumunda kullanıcıya hata göstermez, log yazar.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        \App\Services\SafeNotificationService::sendToUser(
+            $this,
+            new \App\Notifications\VerifyEmailNotification,
+            'email_verification'
+        );
     }
 }

@@ -51,7 +51,7 @@
                     <td class="text-slate-600 text-sm">{{ $p->published_at?->format('d.m.Y') ?? '—' }}</td>
                     <td>@if($p->featured)<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">Öne çıkan</span>@else — @endif</td>
                     <td class="text-right">
-                        @if($p->status === 'published' && $p->slug)
+                        @if($p->published_at && $p->slug)
                             <a href="{{ route('blog.show', $p->slug) }}" target="_blank" rel="noopener" class="text-slate-600 dark:text-slate-400 hover:underline text-sm font-medium">Blog sayfasına git</a>
                             <span class="text-slate-300 dark:text-slate-600 mx-1">|</span>
                         @endif

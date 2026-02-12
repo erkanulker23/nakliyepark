@@ -29,16 +29,24 @@
 /* Base */
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  @apply antialiased text-zinc-900 font-sans;
-  background-color: #fafafa;
+  @apply antialiased font-sans text-zinc-900 dark:text-zinc-100;
+  background-color: #f8fafc;
+  /* Mobil uygulama hissi: dokunma ve güvenli alan */
+  -webkit-tap-highlight-color: rgba(5, 150, 105, 0.15);
+  tap-highlight-color: rgba(5, 150, 105, 0.15);
+}
+
+.dark body {
+  background-color: #09090b;
 }
 
 /* Site tasarımı: tek yerden müdahale için sınıflar */
 .site-selection::selection {
-  @apply bg-emerald-500/30 text-zinc-900;
+  @apply bg-emerald-500/30 text-zinc-900 dark:text-zinc-100;
 }
 .site-brand { }
 .site-brand-logo { }
@@ -54,10 +62,6 @@ body {
 }
 .site-card {
   @apply bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/80 dark:border-zinc-800;
-}
-
-.dark body {
-  background-color: #0a0a0a;
 }
 
 /* Touch-friendly components */
@@ -121,12 +125,77 @@ body {
   padding-top: env(safe-area-inset-top, 0);
 }
 
-/* Flash messages */
+/* Mobil / PWA standalone: notch ve güvenli alan */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .safe-area-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom), 0.75rem);
+  }
+  .safe-area-top {
+    padding-top: max(env(safe-area-inset-top), 0.5rem);
+  }
+}
+
+/* Mobil: uygulama gibi tam ekran davranışı (standalone) */
+@media (display-mode: standalone), (display-mode: fullscreen) {
+  body {
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+  }
+  .site-selection {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .site-selection input,
+  .site-selection textarea,
+  .site-selection [contenteditable="true"] {
+    user-select: text;
+    -webkit-user-select: text;
+  }
+}
+
+/* Flash messages (legacy; prefer toast) */
 .alert-success {
   @apply rounded-xl bg-emerald-50 text-emerald-800 px-4 py-3 text-sm border border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-200;
 }
 .alert-error {
   @apply rounded-xl bg-red-50 text-red-800 px-4 py-3 text-sm border border-red-200 dark:bg-red-900/20 dark:border-red-800 dark:text-red-200;
+}
+
+/* Toast: sabit konumda, animasyonlu */
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes toast-exit {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+.toast-enter {
+  animation: toast-enter 0.3s ease-out forwards;
+}
+.toast-exit {
+  animation: toast-exit 0.3s ease-in forwards;
+}
+
+/* Bildirim butonu: okunmamış varsa hafif nabız */
+@keyframes notification-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.05); }
+}
+.notification-bell-unread {
+  animation: notification-pulse 2s ease-in-out infinite;
 }
 
 /* Premium: section spacing */
@@ -174,6 +243,7 @@ body {
   display: none;
 }
 
+
 /* Blog: modern reveal + content-visibility */
 .blog-reveal {
   content-visibility: auto;
@@ -192,3 +262,5 @@ body {
     transform: none;
   }
 }
+
+

@@ -59,6 +59,7 @@ class CompanyController extends Controller
         if (! $company) {
             return redirect()->route('nakliyeci.company.create');
         }
+        $this->authorize('update', $company);
         return view('nakliyeci.company.edit', compact('company'));
     }
 
@@ -68,6 +69,7 @@ class CompanyController extends Controller
         if (! $company) {
             return redirect()->route('nakliyeci.company.create');
         }
+        $this->authorize('update', $company);
 
         $request->validate([
             'name' => 'required|string|max:255',

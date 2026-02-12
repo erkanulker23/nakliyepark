@@ -16,9 +16,7 @@ class IhaleController extends Controller
 {
     public function show(Request $request, Ihale $ihale)
     {
-        if ($ihale->user_id !== $request->user()->id) {
-            abort(403, 'Bu ihale size ait değil.');
-        }
+        $this->authorize('view', $ihale);
         $ihale->load(['teklifler.company.user', 'photos']);
         $acceptedTeklif = $ihale->acceptedTeklif;
         return view('musteri.ihaleler.show', compact('ihale', 'acceptedTeklif'));
@@ -26,11 +24,12 @@ class IhaleController extends Controller
 
     public function acceptTeklif(Request $request, Ihale $ihale, Teklif $teklif)
     {
-        if ($ihale->user_id !== $request->user()->id) {
-            abort(403, 'Bu ihale size ait değil.');
-        }
+        $this->authorize('view', $ihale);
         if ($teklif->ihale_id !== $ihale->id) {
             abort(404);
+        }
+        if ($ihale->status === 'closed') {
+            return back()->with('error', 'Bu ihale zaten kapatılmış.');
         }
         if ($teklif->status === 'accepted') {
             return back()->with('info', 'Bu teklif zaten kabul edilmiş.');
@@ -49,7 +48,7 @@ class IhaleController extends Controller
                 'Teklifiniz kabul edildi',
                 ['url' => route('nakliyeci.teklifler.index')]
             );
-            $teklif->company->user->notify(new TeklifAcceptedNotification($ihale, $teklif));
+            \App\Services\SafeNotificationService::sendToUser($teklif->company->user, new TeklifAcceptedNotification($ihale, $teklif), 'teklif_accepted');
         }
         return redirect()->route('musteri.ihaleler.show', $ihale)->with('success', 'Teklif kabul edildi. Firma ile iletişime geçebilirsiniz.');
     }
@@ -57,9 +56,7 @@ class IhaleController extends Controller
     /** Teklif kabulünü geri al (sadece kabulden sonra 10 dakika içinde) */
     public function undoAcceptTeklif(Request $request, Ihale $ihale, Teklif $teklif)
     {
-        if ($ihale->user_id !== $request->user()->id) {
-            abort(403, 'Bu ihale size ait değil.');
-        }
+        $this->authorize('view', $ihale);
         if ($teklif->ihale_id !== $ihale->id || $teklif->status !== 'accepted') {
             abort(404);
         }
@@ -75,9 +72,7 @@ class IhaleController extends Controller
 
     public function storeContactMessage(Request $request, Ihale $ihale, Teklif $teklif)
     {
-        if ($ihale->user_id !== $request->user()->id) {
-            abort(403, 'Bu ihale size ait değil.');
-        }
+        $this->authorize('view', $ihale);
         if ($teklif->ihale_id !== $ihale->id || $teklif->status !== 'accepted') {
             abort(404);
         }
@@ -92,7 +87,7 @@ class IhaleController extends Controller
         ]);
 
         if ($teklif->company && $teklif->company->user) {
-            $teklif->company->user->notify(new ContactMessageToCompanyNotification($contactMessage));
+            \App\Services\SafeNotificationService::sendToUser($teklif->company->user, new ContactMessageToCompanyNotification($contactMessage), 'contact_message_to_company');
         }
 
         return back()->with('success', 'Mesajınız firmaya iletildi. Firma sizinle iletişime geçecektir.');
@@ -101,9 +96,7 @@ class IhaleController extends Controller
     /** Uyuşmazlık / şikâyet aç (kapalı ihale, kabul edilmiş teklif için) */
     public function storeDispute(Request $request, Ihale $ihale)
     {
-        if ($ihale->user_id !== $request->user()->id) {
-            abort(403, 'Bu ihale size ait değil.');
-        }
+        $this->authorize('view', $ihale);
         $acceptedTeklif = $ihale->acceptedTeklif;
         if (! $acceptedTeklif || $ihale->status !== 'closed') {
             return back()->with('error', 'Bu ihale için uyuşmazlık açılamaz.');

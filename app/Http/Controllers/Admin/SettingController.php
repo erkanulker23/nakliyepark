@@ -40,9 +40,6 @@ class SettingController extends Controller
             'tool_distance_meta_title' => Setting::get('tool_distance_meta_title', ''),
             'tool_distance_meta_description' => Setting::get('tool_distance_meta_description', ''),
             'tool_distance_content' => Setting::get('tool_distance_content', ''),
-            'tool_cost_meta_title' => Setting::get('tool_cost_meta_title', ''),
-            'tool_cost_meta_description' => Setting::get('tool_cost_meta_description', ''),
-            'tool_cost_content' => Setting::get('tool_cost_content', ''),
             'tool_road_distance_meta_title' => Setting::get('tool_road_distance_meta_title', ''),
             'tool_road_distance_meta_description' => Setting::get('tool_road_distance_meta_description', ''),
             'tool_road_distance_content' => Setting::get('tool_road_distance_content', ''),
@@ -55,16 +52,30 @@ class SettingController extends Controller
             'custom_header_html' => Setting::get('custom_header_html', ''),
             'custom_footer_html' => Setting::get('custom_footer_html', ''),
             'custom_scripts' => Setting::get('custom_scripts', ''),
+            'contact_phone' => Setting::get('contact_phone', ''),
+            'contact_email' => Setting::get('contact_email', ''),
+            'contact_address' => Setting::get('contact_address', ''),
+            'contact_whatsapp' => Setting::get('contact_whatsapp', ''),
+            'contact_hours' => Setting::get('contact_hours', ''),
+            'show_firmalar_page' => Setting::get('show_firmalar_page', '1'),
+            'openai_api_key_set' => ! empty(Setting::get('openai_api_key', '')),
+            'openai_blog_model' => Setting::get('openai_blog_model', env('OPENAI_BLOG_MODEL', 'gpt-4o-mini')),
         ];
         $mailTemplateKeys = [
             'admin_new_ihale',
+            'email_verification', 'musteri_welcome', 'nakliyeci_welcome',
             'musteri_ihale_created', 'musteri_ihale_published', 'musteri_teklif_received',
             'nakliyeci_ihale_preferred', 'nakliyeci_teklif_accepted', 'nakliyeci_contact_message',
             'password_reset',
         ];
+        $mailDefaults = config('mail_templates_defaults', []);
         foreach ($mailTemplateKeys as $key) {
-            $settings['mail_tpl_' . $key . '_subject'] = Setting::get('mail_tpl_' . $key . '_subject', '');
-            $settings['mail_tpl_' . $key . '_body'] = Setting::get('mail_tpl_' . $key . '_body', '');
+            $storedSubject = Setting::get('mail_tpl_' . $key . '_subject', '');
+            $storedBody = Setting::get('mail_tpl_' . $key . '_body', '');
+            $defaults = $mailDefaults[$key] ?? [];
+            $settings['mail_tpl_' . $key . '_subject'] = $storedSubject !== '' ? (string) $storedSubject : (string) ($defaults['subject'] ?? '');
+            // Gövde her zaman düz metin; view'da HTML olarak render edilmesin diye string zorunlu
+            $settings['mail_tpl_' . $key . '_body'] = $storedBody !== '' ? (string) $storedBody : (string) ($defaults['body'] ?? '');
         }
         $paketlerJson = Setting::get('nakliyeci_paketler', '');
         $settings['nakliyeci_paketler'] = $paketlerJson ? (is_string($paketlerJson) ? json_decode($paketlerJson, true) : $paketlerJson) : config('nakliyepark.nakliyeci_paketler', []);
@@ -98,6 +109,13 @@ class SettingController extends Controller
             'custom_header_html' => 'nullable|string|max:10000',
             'custom_footer_html' => 'nullable|string|max:10000',
             'custom_scripts' => 'nullable|string|max:10000',
+            'contact_phone' => 'nullable|string|max:100',
+            'contact_email' => 'nullable|email',
+            'contact_address' => 'nullable|string|max:500',
+            'contact_whatsapp' => 'nullable|string|max:50',
+            'contact_hours' => 'nullable|string|max:255',
+            'openai_api_key' => 'nullable|string|max:500',
+            'openai_blog_model' => 'nullable|string|max:100',
         ]);
 
         // Sadece ilgili sekme alanlarını güncelle (tab sistemi)
@@ -122,6 +140,7 @@ class SettingController extends Controller
         }
 
         if ($section === 'site' || $section === null) {
+            Setting::set('show_firmalar_page', $request->boolean('show_firmalar_page') ? '1' : '0', 'general');
             foreach (['site_meta_title', 'site_meta_description', 'site_meta_keywords'] as $key) {
                 Setting::set($key, $request->input($key) ?? '', 'seo');
             }
@@ -160,6 +179,24 @@ class SettingController extends Controller
             Setting::set('custom_scripts', $request->input('custom_scripts') ?? '', 'style');
         }
 
+        if ($section === 'contact') {
+            Setting::set('contact_phone', $request->input('contact_phone') ?? '', 'contact');
+            Setting::set('contact_email', $request->input('contact_email') ?? '', 'contact');
+            Setting::set('contact_address', $request->input('contact_address') ?? '', 'contact');
+            Setting::set('contact_whatsapp', $request->input('contact_whatsapp') ?? '', 'contact');
+            Setting::set('contact_hours', $request->input('contact_hours') ?? '', 'contact');
+            return back()->with('success', 'İletişim bilgileri kaydedildi.');
+        }
+
+        if ($section === 'api') {
+            $apiKey = $request->input('openai_api_key');
+            if ($apiKey !== null && $apiKey !== '') {
+                Setting::set('openai_api_key', $apiKey, 'api');
+            }
+            Setting::set('openai_blog_model', $request->input('openai_blog_model') ?? env('OPENAI_BLOG_MODEL', 'gpt-4o-mini'), 'api');
+            return back()->with('success', 'API ayarları kaydedildi.');
+        }
+
         Log::channel('admin_actions')->info('Admin settings updated', [
             'admin_id' => auth()->id(),
             'section' => $section ?? 'multiple',
@@ -172,6 +209,7 @@ class SettingController extends Controller
     {
         $keys = [
             'admin_new_ihale',
+            'email_verification', 'musteri_welcome', 'nakliyeci_welcome',
             'musteri_ihale_created', 'musteri_ihale_published', 'musteri_teklif_received',
             'nakliyeci_ihale_preferred', 'nakliyeci_teklif_accepted', 'nakliyeci_contact_message',
             'password_reset',
@@ -210,7 +248,6 @@ class SettingController extends Controller
             'tool_volume_meta_title', 'tool_volume_meta_description', 'tool_volume_content',
             'tool_distance_meta_title', 'tool_distance_meta_description', 'tool_distance_content',
             'tool_road_distance_meta_title', 'tool_road_distance_meta_description', 'tool_road_distance_content',
-            'tool_cost_meta_title', 'tool_cost_meta_description', 'tool_cost_content',
             'tool_checklist_meta_title', 'tool_checklist_meta_description', 'tool_checklist_content',
             'tool_moving_calendar_meta_title', 'tool_moving_calendar_meta_description', 'tool_moving_calendar_content',
         ];
@@ -233,10 +270,13 @@ class SettingController extends Controller
         if ($driver === 'log' || $driver === 'array') {
             return back()->with('error', 'Test için SMTP kullanılmalı. Mail & Komisyon sekmesinde Mailer olarak "smtp" seçin ve SMTP bilgilerini kaydedin.');
         }
+        $siteName = config('seo.site_name', 'NakliyePark');
         try {
             Mail::purge($driver);
-            Mail::raw('NakliyePark mail ayarları testi. Bu e-postayı aldıysanız SMTP ayarlarınız çalışıyor.', function ($message) use ($request) {
-                $message->to($request->test_email)->subject('NakliyePark - Mail Testi');
+            Mail::send('emails.test', [], function ($message) use ($request, $siteName) {
+                $message->to($request->test_email)
+                    ->subject($siteName . ' - Mail Testi')
+                    ->priority(1);
             });
             return back()->with('success', 'Test e-postası gönderildi: ' . $request->test_email);
         } catch (\Throwable $e) {

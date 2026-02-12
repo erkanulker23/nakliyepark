@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
+use App\Models\Ihale;
 use App\Models\Teklif;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TeklifController extends Controller
 {
@@ -52,7 +54,19 @@ class TeklifController extends Controller
             'message' => 'nullable|string',
             'status' => 'required|in:pending,accepted,rejected',
         ]);
-        $teklif->update(array_merge($request->only(['amount', 'message', 'status']), ['pending_amount' => null, 'pending_message' => null, 'reject_reason' => null]));
+        $newStatus = $request->input('status');
+        DB::transaction(function () use ($request, $teklif, $newStatus) {
+            $teklif->update(array_merge($request->only(['amount', 'message', 'status']), [
+                'pending_amount' => null,
+                'pending_message' => null,
+                'reject_reason' => null,
+                'accepted_at' => $newStatus === 'accepted' ? now() : $teklif->accepted_at,
+            ]));
+            if ($newStatus === 'accepted') {
+                Ihale::where('id', $teklif->ihale_id)->update(['status' => 'closed']);
+                Teklif::where('ihale_id', $teklif->ihale_id)->where('id', '!=', $teklif->id)->update(['status' => 'rejected']);
+            }
+        });
         return redirect()->route('admin.teklifler.index')->with('success', 'Teklif güncellendi.');
     }
 

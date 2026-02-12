@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Company;
 use App\Models\PazaryeriListing;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class PazaryeriController extends Controller
 {
@@ -32,11 +32,18 @@ class PazaryeriController extends Controller
         return view('pazaryeri.index', compact('listings', 'vehicleTypes', 'listingTypes', 'cities'));
     }
 
-    public function show(PazaryeriListing $listing)
+    public function show(Request $request, PazaryeriListing $listing)
     {
         if ($listing->status !== 'active') {
             abort(404);
         }
+
+        $slug = Str::slug($listing->title);
+        $requestSlug = $request->route('slug');
+        if ($requestSlug === null || $requestSlug !== $slug) {
+            return redirect()->route('pazaryeri.show', [$listing, $slug], 301);
+        }
+
         $listing->load('company');
         $vehicleTypes = PazaryeriListing::vehicleTypeLabels();
         $listingTypes = PazaryeriListing::listingTypeLabels();

@@ -43,7 +43,7 @@ class TeklifAcceptedNotification extends Notification implements ShouldQueue
             '{action_url}' => $route,
         ]);
         if ($customBody !== null) {
-            return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $customBody]);
+            return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $customBody])->priority(1);
         }
 
         return (new MailMessage)
@@ -51,6 +51,7 @@ class TeklifAcceptedNotification extends Notification implements ShouldQueue
             ->greeting('Tebrikler!')
             ->line($this->ihale->from_city . ' → ' . $this->ihale->to_city . ' ihalesinde **' . $amount . ' ₺** tutarındaki teklifiniz müşteri tarafından kabul edildi.')
             ->line('Müşteri sizinle iletişime geçebilir. Taşıma detaylarını birlikte netleştirebilirsiniz.')
-            ->action('Tekliflerim', $route);
+            ->action('Tekliflerim', $route)
+            ->priority(1);
     }
 }

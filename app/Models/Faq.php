@@ -9,5 +9,9 @@ class Faq extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['question', 'answer', 'sort_order'];
+    protected $fillable = ['question', 'answer', 'sort_order', 'audience'];
+
+    /** Hedef kitle: null = her ikisi, musteri, nakliyeci */
+    public const AUDIENCE_MUSTERI = 'musteri';
+    public const AUDIENCE_NAKLIYECI = 'nakliyeci';
 }

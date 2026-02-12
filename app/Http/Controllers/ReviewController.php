@@ -12,9 +12,7 @@ class ReviewController extends Controller
 {
     public function create(Ihale $ihale)
     {
-        if ($ihale->user_id !== request()->user()->id) {
-            abort(403);
-        }
+        $this->authorize('createReview', $ihale);
         $company = $ihale->acceptedTeklif?->company;
         if (! $company) {
             return redirect()->route('musteri.dashboard')->with('error', 'Bu ihale için onaylanmış firma yok.');
@@ -36,8 +34,10 @@ class ReviewController extends Controller
         ]);
 
         $ihale = Ihale::findOrFail($request->ihale_id);
-        if ($ihale->user_id !== $request->user()->id) {
-            abort(403);
+        $this->authorize('createReview', $ihale);
+        $acceptedTeklif = $ihale->acceptedTeklif;
+        if (! $acceptedTeklif || (int) $acceptedTeklif->company_id !== (int) $request->company_id) {
+            abort(403, 'Bu ihale için seçilen firma geçersiz.');
         }
 
         $videoPath = null;

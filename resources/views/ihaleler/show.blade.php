@@ -82,8 +82,9 @@
 
 <div class="ihale-detail-page min-h-screen bg-gradient-to-b from-slate-50 to-slate-100/80 dark:from-zinc-950 dark:to-zinc-900 pb-20 sm:pb-8 lg:pb-8">
     {{-- Rota çubuğu --}}
-    <div class="border-b border-slate-200/80 dark:border-zinc-800 bg-gradient-to-r from-amber-50/80 to-emerald-50/80 dark:from-amber-950/20 dark:to-emerald-950/20">
-        <div class="page-container py-4 sm:py-5">
+    <div class="relative border-b border-slate-200/80 dark:border-zinc-800 bg-gradient-to-r from-amber-50/80 to-emerald-50/80 dark:from-amber-950/20 dark:to-emerald-950/20 overflow-hidden">
+        <div class="absolute top-0 right-0 w-20 h-20 bg-sky-500/10 rounded-bl-full transition-colors pointer-events-none" aria-hidden="true"></div>
+        <div class="page-container py-4 sm:py-5 relative">
             <nav class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mb-3">
                 <a href="{{ route('ihaleler.index') }}" class="text-emerald-600 dark:text-emerald-400 hover:underline">Açık ihaleler</a>
                 <span class="mx-1.5">/</span>
@@ -166,7 +167,7 @@
                             </span>
                             <div class="min-w-0 flex-1">
                                 <h3 class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Çıkış yeri</h3>
-                                <p class="font-semibold text-zinc-900 dark:text-white break-words">{{ $ihale->from_district ? $ihale->from_district . ', ' : '' }}{{ $ihale->from_city }}</p>
+                                <p class="font-semibold text-zinc-900 dark:text-white break-words">{{ implode(', ', array_filter([$ihale->from_city, $ihale->from_district, $ihale->from_neighborhood])) ?: '-' }}</p>
                                 @if($ihale->from_address)<p class="text-sm text-zinc-600 dark:text-zinc-400 mt-1 break-words">{{ $ihale->from_address }}</p>@endif
                             </div>
                         </div>
@@ -176,7 +177,7 @@
                             </span>
                             <div class="min-w-0 flex-1">
                                 <h3 class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Varış yeri</h3>
-                                <p class="font-semibold text-zinc-900 dark:text-white break-words">{{ $ihale->to_district ? $ihale->to_district . ', ' : '' }}{{ $ihale->to_city }}</p>
+                                <p class="font-semibold text-zinc-900 dark:text-white break-words">{{ implode(', ', array_filter([$ihale->to_city, $ihale->to_district, $ihale->to_neighborhood])) ?: '-' }}</p>
                                 @if($ihale->to_address)<p class="text-sm text-zinc-600 dark:text-zinc-400 mt-1 break-words">{{ $ihale->to_address }}</p>@endif
                             </div>
                         </div>
@@ -251,7 +252,11 @@
                                 @php $canSeeAmount = $teklif->canShowAmountTo(auth()->user(), $ihale); $canEdit = $teklif->canRequestUpdateBy(auth()->user()); @endphp
                                 <li class="px-4 py-4 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 min-w-0">
                                     <div class="flex items-start gap-3 min-w-0 flex-1">
+                                        @if($show_firmalar_page ?? true)
                                         <a href="{{ route('firmalar.show', $teklif->company) }}" class="flex items-center gap-3 min-w-0 flex-1 group">
+                                            @else
+                                        <div class="flex items-center gap-3 min-w-0 flex-1 group">
+                                            @endif
                                             <span class="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0 group-hover:bg-emerald-500/10 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors overflow-hidden">
                                                 @if($teklif->company->logo)
                                                     <img src="{{ asset('storage/'.$teklif->company->logo) }}" alt="{{ $teklif->company->name }}" class="w-12 h-12 rounded-xl object-cover">
@@ -272,7 +277,7 @@
                                                 </div>
                                                 @if($canSeeAmount && $teklif->message)<p class="text-sm text-zinc-500 dark:text-zinc-400 line-clamp-2 mt-0.5">{{ $teklif->message }}</p>@endif
                                             </div>
-                                        </a>
+                                            @if($show_firmalar_page ?? true)</a>@else</div>@endif
                                     </div>
                                     <div class="flex items-center gap-2 shrink-0 sm:pl-2">
                                         @if($canSeeAmount)

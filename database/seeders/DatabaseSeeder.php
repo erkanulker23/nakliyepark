@@ -20,14 +20,18 @@ class DatabaseSeeder extends Seeder
                 'email' => 'admin@nakliyepark.test',
                 'role' => 'admin',
                 'password' => bcrypt('password'),
+                'email_verified_at' => now(),
             ]);
         }
 
         $this->call(DemoSeeder::class);
+        $this->call(FaqSeeder::class);
         $this->call(DemoIhaleSeeder::class);
         $this->call(DemoFullSeeder::class);
         $this->call(PazaryeriSeeder::class);
         $this->call(ReviewSeeder::class);
         $this->call(DefterReklamiSeeder::class);
+        $this->call(DefterYanitiSeeder::class);
+        $this->call(SponsorSeeder::class);
     }
 }

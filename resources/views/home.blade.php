@@ -83,6 +83,46 @@
     </div>
 </section>
 
+{{-- Hero CTA: Nakliyeci — geliştirilmiş CTA kartı --}}
+<section class="border-y border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-900/80" aria-labelledby="cta-nakliyeci-title">
+    <div class="page-container py-6 sm:py-8">
+        <div class="max-w-4xl mx-auto rounded-2xl border border-emerald-200/80 dark:border-emerald-800/50 bg-white/80 dark:bg-zinc-900/80 shadow-lg shadow-emerald-500/5 dark:shadow-emerald-500/10 backdrop-blur-sm overflow-hidden">
+            <div class="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 sm:gap-6">
+                <div class="min-w-0 flex-1">
+                    <div class="flex items-start gap-3 sm:gap-4">
+                        <span class="shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white shadow-md">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        </span>
+                        <div>
+                            <p class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-0.5">Nakliyeci ol</p>
+                            <h2 id="cta-nakliyeci-title" class="text-lg sm:text-xl font-bold text-zinc-900 dark:text-white tracking-tight">Açık ihalelere teklif ver, yeni müşterilere ulaş</h2>
+                            <p class="text-sm text-zinc-600 dark:text-zinc-400 mt-1">Ücretsiz üyelikle platforma katıl: NakliyePark’taki nakliye taleplerine teklif ver, firmanı müşterilerle buluştur.</p>
+                            <ul class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
+                                <li class="inline-flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    Açık ihalelere anında teklif
+                                </li>
+                                <li class="inline-flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    Müşteriler seni görsün
+                                </li>
+                                <li class="inline-flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    İşini büyüt
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <a href="{{ route('register') }}" class="group shrink-0 inline-flex items-center justify-center gap-2 min-w-[160px] px-6 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 dark:from-orange-500 dark:to-amber-500 dark:hover:from-orange-400 dark:hover:to-amber-400 text-white text-sm font-semibold shadow-lg shadow-orange-500/30 dark:shadow-orange-500/25 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-orange-500/35 dark:hover:shadow-orange-400/30 ring-2 ring-white/20 dark:ring-white/10">
+                    Üyelik oluştur
+                    <svg class="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
 @push('styles')
 <style>
 @keyframes hero-zoom {
@@ -107,8 +147,11 @@
 </style>
 @endpush
 
+<div id="home-ordered-sections">
 {{-- Nasıl çalışır — premium horizontal steps --}}
-<section class="section-padding relative overflow-hidden bg-gradient-to-b from-slate-100 via-emerald-100/50 to-slate-100 dark:from-zinc-900 dark:via-emerald-950/25 dark:to-zinc-900">
+@if($homeSections['home_show_how_it_works'] ?? true)
+<div data-section-key="home_show_how_it_works">
+<section class="section-padding relative overflow-hidden bg-white dark:bg-zinc-950 border-b border-zinc-200/60 dark:border-zinc-800/60">
     <div class="absolute inset-0 pointer-events-none opacity-30" aria-hidden="true">
         <div class="absolute top-0 left-1/4 w-96 h-96 rounded-full bg-emerald-300/30 dark:bg-emerald-600/10 blur-3xl"></div>
         <div class="absolute bottom-0 right-1/4 w-80 h-80 rounded-full bg-teal-300/20 dark:bg-teal-600/10 blur-3xl"></div>
@@ -150,14 +193,20 @@
         </div>
     </div>
 </section>
+</div>
+@endif
 
 {{-- Müşteri yorumları — sade, okunaklı tasarım --}}
-<section class="section-padding bg-slate-50/80 dark:bg-zinc-900/50 border-t border-zinc-200/60 dark:border-zinc-800/60" id="musteri-videolari">
+@if($homeSections['home_show_customer_experiences'] ?? true)
+<div data-section-key="home_show_customer_experiences">
+<section class="section-padding bg-zinc-50/80 dark:bg-zinc-900/80 border-t border-zinc-200/60 dark:border-zinc-800/60" id="musteri-videolari">
     <div class="page-container">
-        <div class="section-head text-center max-w-2xl mx-auto">
-            <span class="inline-block w-10 h-1 rounded-full bg-amber-500 mb-4"></span>
-            <h2 class="section-head-title">Müşteri yorumları</h2>
-            <p class="section-head-sub">Nakliye deneyimlerini videoda anlattılar</p>
+        <div class="section-head text-center max-w-3xl mx-auto mb-12">
+            <h2 class="text-3xl sm:text-4xl font-bold text-zinc-900 dark:text-white mb-4">Müşteri Deneyimleri</h2>
+            <p class="text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                Aşağıdaki videolar, NakliyePark üzerinden taşınan gerçek müşterilerimizin deneyimlerini anlatır.
+                Hangi firmayı seçeceğinize karar vermeden önce, taşınma sürecinin nasıl yönetildiğini doğrudan kullanıcıların ağzından dinleyin.
+            </p>
         </div>
 
         @if($musteriVideolari->count() > 0)
@@ -169,35 +218,29 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                 </button>
 
-                <div id="video-slider-track" class="flex gap-6 overflow-x-auto overflow-y-visible pb-6 pt-2 px-4 sm:px-16 scrollbar-hide snap-x snap-mandatory scroll-smooth" style="scroll-behavior: smooth;">
+                <div id="video-slider-track" class="flex gap-4 overflow-x-auto overflow-y-visible pb-12 pt-8 px-4 sm:px-16 scrollbar-hide snap-x snap-mandatory scroll-smooth" style="scroll-behavior: smooth; perspective: 1000px;">
                     @foreach($musteriVideolari as $index => $review)
-                        <div class="video-slide flex-shrink-0 snap-center transition-all duration-300 ease-out rounded-2xl overflow-hidden" data-index="{{ $index }}">
-                            <div class="video-slide-inner video-slide-container rounded-2xl overflow-hidden site-card shadow-md transition-all duration-300 ease-out">
-                                <div class="relative aspect-[9/16] bg-zinc-100 dark:bg-zinc-800">
+                        <div class="video-slide flex-shrink-0 snap-center transition-all duration-500 ease-out" data-index="{{ $index }}" style="transform-style: preserve-3d;">
+                            <div class="video-slide-inner video-slide-container rounded-[2rem] overflow-hidden shadow-2xl transition-all duration-500 ease-out bg-zinc-900">
+                                <div class="relative aspect-[9/16]">
                                     @if($review->video_path)
                                         <video class="w-full h-full object-cover video-el" src="{{ Str::startsWith($review->video_path, 'http') ? $review->video_path : asset('storage/'.$review->video_path) }}" playsinline preload="metadata" loop></video>
-                                        <button type="button" class="video-play-overlay absolute inset-0 flex items-center justify-center bg-black/25 hover:bg-black/40 transition-colors z-10" aria-label="Oynat">
-                                            <span class="video-play-icon w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-emerald-500 hover:bg-emerald-600 flex items-center justify-center shadow-xl ring-4 ring-white/30 transition-transform hover:scale-105">
-                                                <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                        <button type="button" class="video-play-overlay absolute inset-0 flex items-center justify-center bg-black/10 hover:bg-black/20 transition-colors z-10" aria-label="Oynat">
+                                            <span class="video-play-icon w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-black/30 backdrop-blur-sm flex items-center justify-center shadow-2xl border border-white/40 transition-transform hover:scale-110">
+                                                <svg class="w-10 h-10 sm:w-12 sm:h-12 text-white fill-current drop-shadow-lg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                                             </span>
                                         </button>
+
+                                        @if($review->comment)
+                                            <div class="absolute bottom-6 left-4 right-4 bg-white/95 backdrop-blur-sm p-4 rounded-2xl shadow-xl z-20 transform transition-all duration-500 ease-in-out">
+                                                <p class="text-sm sm:text-base text-zinc-800 font-medium leading-snug">
+                                                    "{{ Str::limit($review->comment, 100) }}"
+                                                </p>
+                                            </div>
+                                        @endif
                                     @else
-                                        <div class="w-full h-full flex items-center justify-center text-zinc-400"><span class="text-4xl">🎬</span></div>
+                                        <div class="w-full h-full flex items-center justify-center text-zinc-400 bg-zinc-800"><span class="text-4xl">🎬</span></div>
                                     @endif
-                                </div>
-                                <div class="p-4 sm:p-5 border-t border-zinc-100 dark:border-zinc-700/80">
-                                    <div class="flex items-start gap-3">
-                                        <div class="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-sm shrink-0">
-                                            {{ mb_substr($review->user->name ?? 'M', 0, 1) }}
-                                        </div>
-                                        <div class="min-w-0 flex-1">
-                                            <p class="font-semibold text-zinc-900 dark:text-white text-sm">{{ $review->user->name ?? 'Misafir' }}</p>
-                                            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{{ $review->company->name ?? '' }}</p>
-                                            @if($review->comment)
-                                                <p class="text-sm text-zinc-600 dark:text-zinc-400 mt-2 line-clamp-2 leading-relaxed pl-2 border-l-2 border-emerald-200 dark:border-emerald-800">{{ Str::limit($review->comment, 85) }}</p>
-                                            @endif
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -219,59 +262,80 @@
         @endif
     </div>
 </section>
+</div>
+@endif
 
-@if($musteriVideolari->count() > 0)
+@if($musteriVideolari->count() > 0 && ($homeSections['home_show_customer_experiences'] ?? true))
 @push('styles')
 <style>
-/* Müşteri videoları — yeni kart tasarımı: ortadaki büyük, yanlar küçük */
+/* Müşteri videoları — yeni kart tasarımı: 3D perspektif ve video içi kartlar */
 #video-slider-track {
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+#video-slider-track::-webkit-scrollbar {
+    display: none;
 }
 .video-slide {
-    width: 260px;
-    max-width: 90vw;
+    width: 280px;
+    max-width: 85vw;
+    perspective: 1200px;
 }
 .video-slide .video-slide-inner {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transform-origin: center;
+    transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
 }
-.video-slide.active {
-    width: 300px;
-    z-index: 2;
+
+/* Perspektif Efektleri */
+.video-slide.is-prev .video-slide-inner {
+    transform: rotateY(20deg) scale(0.9);
+    opacity: 0.7;
+}
+.video-slide.is-next .video-slide-inner {
+    transform: rotateY(-20deg) scale(0.9);
+    opacity: 0.7;
+}
+.video-slide.is-far-prev .video-slide-inner {
+    transform: rotateY(35deg) scale(0.8);
+    opacity: 0.4;
+}
+.video-slide.is-far-next .video-slide-inner {
+    transform: rotateY(-35deg) scale(0.8);
+    opacity: 0.4;
 }
 .video-slide.active .video-slide-inner {
-    transform: scale(1.04);
-    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1), 0 0 0 3px rgba(5, 150, 105, 0.35);
+    transform: rotateY(0deg) scale(1.05);
+    opacity: 1;
+    z-index: 10;
 }
-.dark .video-slide.active .video-slide-inner {
-    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35), 0 0 0 3px rgba(5, 150, 105, 0.5);
+
+.video-play-overlay {
+    transition: opacity 0.3s ease;
 }
-.video-slide:not(.active) {
-    opacity: 0.88;
-}
-.video-slide:not(.active) .video-slide-inner {
-    transform: scale(0.96);
-}
-.video-slider-dot {
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 9999px;
-    background: rgb(203 213 225);
-    transition: width 0.25s, background 0.25s, border-radius 0.25s;
-}
-.dark .video-slider-dot { background: rgb(71 85 105); }
-.video-play-overlay { transition: opacity 0.2s, background-color 0.2s; }
 .video-slide-container.playing .video-play-overlay {
     opacity: 0;
     pointer-events: none;
 }
-.video-slider-dot.active {
-    width: 1.75rem;
-    border-radius: 9999px;
-    background: linear-gradient(90deg, rgb(5 150 105), rgb(20 184 166));
+.video-slide-container.playing .absolute.bottom-6 {
+    transform: translateY(120%);
+    opacity: 0;
 }
+
+.video-slider-dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 9999px;
+    background: rgb(203 213 225);
+    transition: all 0.3s ease;
+}
+.dark .video-slider-dot { background: rgb(71 85 105); }
+.video-slider-dot.active {
+    width: 2rem;
+    background: #10b981;
+}
+
 @media (min-width: 640px) {
-    .video-slide { width: 280px; }
-    .video-slide.active { width: 320px; }
+    .video-slide { width: 320px; }
 }
 @media (prefers-reduced-motion: reduce) {
     .video-slide, .video-slide .video-slide-inner { transition: none; }
@@ -292,11 +356,26 @@
     function setActive(index) {
         index = Math.max(0, Math.min(index, total - 1));
         slides.forEach(function(s, i) {
-            s.classList.toggle('active', i === index);
+            s.classList.remove('active', 'is-prev', 'is-next', 'is-far-prev', 'is-far-next');
+
+            if (i === index) {
+                s.classList.add('active');
+            } else if (i === index - 1) {
+                s.classList.add('is-prev');
+            } else if (i === index + 1) {
+                s.classList.add('is-next');
+            } else if (i < index - 1) {
+                s.classList.add('is-far-prev');
+            } else if (i > index + 1) {
+                s.classList.add('is-far-next');
+            }
+
             var ctr = s.querySelector('.video-slide-container');
             var vid = s.querySelector('.video-el');
-            if (vid) vid.pause();
-            if (ctr) ctr.classList.remove('playing');
+            if (vid && i !== index) {
+                vid.pause();
+                if (ctr) ctr.classList.remove('playing');
+            }
         });
         dotBtns.forEach(function(d, i) {
             d.classList.toggle('active', i === index);
@@ -376,7 +455,9 @@
 @endif
 
 {{-- Son açılan ihaleler — sade arka plan, dekoratif şekiller --}}
-<section class="section-padding relative overflow-hidden bg-slate-100/90 dark:bg-zinc-900/80">
+@if($homeSections['home_show_latest_ihaleler'] ?? true)
+<div data-section-key="home_show_latest_ihaleler">
+<section class="section-padding relative overflow-hidden bg-white dark:bg-zinc-950 border-t border-zinc-200/60 dark:border-zinc-800/60">
     {{-- Sade arka plan şekilleri --}}
     <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
         <div class="absolute top-20 right-10 w-64 h-64 rounded-full bg-emerald-200/30 dark:bg-emerald-500/10 blur-3xl"></div>
@@ -449,18 +530,21 @@
             </div>
         @else
             <div class="card-premium-flat p-12 text-center">
-                <p class="text-zinc-500">Henüz açık ihale yok.</p>
-                <a href="{{ route('ihale.create') }}" class="text-emerald-600 font-semibold mt-2 inline-block hover:underline">İlk ihale sen başlat</a>
+                <p class="text-zinc-500 dark:text-zinc-400">Henüz açık ihale yok.</p>
+                <a href="{{ route('ihale.create') }}" class="text-emerald-600 dark:text-emerald-400 font-semibold mt-2 inline-block hover:underline">İlk ihale sen başlat</a>
             </div>
         @endif
     </div>
 </section>
+</div>
+@endif
 
 {{-- Firmalar haritada — sadece veri varsa göster --}}
 @php
 $haritadaGoster = $firmalarHaritada->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'city' => $c->city, 'lat' => (float)$c->live_latitude, 'lng' => (float)$c->live_longitude, 'url' => route('firmalar.show', $c)])->values();
 @endphp
-@if($haritadaGoster->count() > 0)
+@if(($show_firmalar_page ?? true) && ($homeSections['home_show_firmalar'] ?? true) && $haritadaGoster->count() > 0)
+<div data-section-key="home_show_firmalar">
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <style>
@@ -533,6 +617,7 @@ $haritadaGoster = $firmalarHaritada->map(fn($c) => ['id' => $c->id, 'name' => $c
         </div>
     </div>
 </section>
+</div>
 @push('scripts')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
@@ -604,8 +689,9 @@ $haritadaGoster = $firmalarHaritada->map(fn($c) => ['id' => $c->id, 'name' => $c
 @endif
 
 {{-- Nakliye firmaları — sade, okunaklı kartlar --}}
-@if($firmalar->count() > 0)
-<section class="section-padding relative bg-white dark:bg-zinc-950 overflow-hidden">
+@if(($show_firmalar_page ?? true) && ($homeSections['home_show_firmalar'] ?? true) && $firmalar->count() > 0)
+<div data-section-key="home_show_firmalar">
+<section class="section-padding pb-16 sm:pb-20 relative bg-white dark:bg-zinc-950 overflow-hidden">
     <div class="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-100/30 dark:bg-emerald-950/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" aria-hidden="true"></div>
     <div class="page-container relative z-10">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
@@ -647,62 +733,78 @@ $haritadaGoster = $firmalarHaritada->map(fn($c) => ['id' => $c->id, 'name' => $c
         </div>
     </div>
 </section>
+</div>
 @endif
 
-{{-- Nakliyat defteri — yük ve dönüş ilanları --}}
-<section class="section-padding bg-zinc-50 dark:bg-zinc-900/50">
+{{-- Sponsorlarımız — slider, her seferde 3 görünür --}}
+@if(($homeSections['home_show_sponsors'] ?? true) && $sponsors->count() > 0)
+<div data-section-key="home_show_sponsors">
+<section class="py-8 sm:py-10 relative overflow-hidden bg-zinc-50/80 dark:bg-zinc-900/80 border-b border-zinc-200/60 dark:border-zinc-800/60">
     <div class="page-container">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-10">
-            <div>
-                <span class="inline-block w-10 h-1 rounded-full bg-amber-500 mb-3"></span>
-                <h2 class="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">Nakliyat defteri</h2>
-                <p class="text-zinc-500 dark:text-zinc-400 mt-1">Yük ve boş dönüş ilanları</p>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <p class="text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">Sponsorlarımız</p>
+            @if($sponsors->count() > 3)
+            <div class="flex items-center gap-2">
+                <button type="button" id="sponsor-slider-prev" class="w-9 h-9 rounded-full border border-zinc-300 dark:border-zinc-600 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors" aria-label="Önceki">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <button type="button" id="sponsor-slider-next" class="w-9 h-9 rounded-full border border-zinc-300 dark:border-zinc-600 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors" aria-label="Sonraki">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </button>
             </div>
-            <a href="{{ route('defter.index') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 text-sm font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors shrink-0">
-                Tüm ilanlar
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-            </a>
+            @endif
         </div>
-        @if($defterIlanlari->count() > 0)
-            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                @foreach($defterIlanlari as $ilan)
-                    <a href="{{ route('defter.index') }}" class="group flex items-center gap-4 p-4 sm:p-5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-amber-400 dark:hover:border-amber-600/60 transition-all duration-200">
-                        <span class="w-12 h-12 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        </span>
-                        <div class="min-w-0 flex-1">
-                            <p class="font-semibold text-zinc-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-                                {{ $ilan->from_city }} → {{ $ilan->to_city }}
-                            </p>
-                            <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">{{ $ilan->company->name }}</p>
-                            <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-2 flex flex-wrap items-center gap-x-3 gap-y-0">
-                                {{ $ilan->created_at->format('d.m.Y') }}
-                                @if($ilan->volume_m3)
-                                    <span>· {{ $ilan->volume_m3 }} m³</span>
+        <div class="relative -mx-4 sm:mx-0">
+            <div id="sponsor-slider-track" class="flex gap-4 sm:gap-6 overflow-x-auto overflow-y-hidden pb-2 scrollbar-hide snap-x snap-mandatory scroll-smooth" style="scroll-behavior: smooth;">
+                @foreach($sponsors as $sponsor)
+                    @php $link = $sponsor->url ?? '#'; @endphp
+                    <div class="sponsor-slide flex-shrink-0 w-[calc(100vw/3-1.5rem)] min-w-[140px] max-w-[200px] sm:min-w-[180px] sm:max-w-[240px] snap-center mx-auto first:ml-4 sm:first:ml-0 last:mr-4 sm:last:mr-0">
+                        @if($link !== '#')
+                            <a href="{{ $link }}" target="_blank" rel="noopener noreferrer" class="group block w-full h-full">
+                                <div class="flex items-center justify-center h-20 sm:h-24 px-4 py-4 rounded-xl bg-white dark:bg-zinc-800/60 border border-zinc-200/80 dark:border-zinc-700/80 shadow-sm hover:shadow-md hover:border-emerald-200 dark:hover:border-emerald-800/50 transition-all duration-300 hover:-translate-y-0.5">
+                                    @if($sponsor->logo)
+                                        <img src="{{ asset('storage/'.$sponsor->logo) }}" alt="{{ $sponsor->name }}" class="h-12 sm:h-14 w-full max-w-[180px] object-contain opacity-90 group-hover:opacity-100 transition-opacity">
+                                    @else
+                                        <span class="text-sm font-medium text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-white transition-colors text-center">{{ $sponsor->name }}</span>
+                                    @endif
+                                </div>
+                            </a>
+                        @else
+                            <div class="flex items-center justify-center h-20 sm:h-24 px-4 py-4 rounded-xl bg-white/60 dark:bg-zinc-800/40 border border-zinc-200/60 dark:border-zinc-700/60">
+                                @if($sponsor->logo)
+                                    <img src="{{ asset('storage/'.$sponsor->logo) }}" alt="{{ $sponsor->name }}" class="h-12 sm:h-14 w-full max-w-[180px] object-contain opacity-75">
+                                @else
+                                    <span class="text-sm font-medium text-zinc-500 dark:text-zinc-500 text-center">{{ $sponsor->name }}</span>
                                 @endif
-                            </p>
-                        </div>
-                        <span class="w-9 h-9 rounded-lg bg-zinc-200/80 dark:bg-zinc-700 flex items-center justify-center text-zinc-500 group-hover:bg-amber-500 group-hover:text-white transition-all shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                        </span>
-                    </a>
+                            </div>
+                        @endif
+                    </div>
                 @endforeach
             </div>
-        @else
-            <div class="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-10 text-center">
-                <span class="w-14 h-14 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 mx-auto mb-4">
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                </span>
-                <p class="text-zinc-600 dark:text-zinc-400">Henüz deftere ilan yazılmamış.</p>
-                <a href="{{ route('defter.index') }}" class="text-amber-600 dark:text-amber-400 font-medium mt-2 inline-block hover:underline">Deftere git →</a>
-            </div>
-        @endif
+        </div>
     </div>
 </section>
+</div>
+@if($sponsors->count() > 3)
+@push('scripts')
+<script>
+(function() {
+    var track = document.getElementById('sponsor-slider-track');
+    var prev = document.getElementById('sponsor-slider-prev');
+    var next = document.getElementById('sponsor-slider-next');
+    if (!track || !prev || !next) return;
+    prev.addEventListener('click', function() { track.scrollBy({ left: -track.offsetWidth, behavior: 'smooth' }); });
+    next.addEventListener('click', function() { track.scrollBy({ left: track.offsetWidth, behavior: 'smooth' }); });
+})();
+</script>
+@endpush
+@endif
+@endif
 
 {{-- Nakliyeci paketleri — anasayfada, farklı arka plan --}}
-@if(count($paketler) > 0)
-<section class="section-padding relative overflow-hidden bg-gradient-to-br from-zinc-200/60 via-emerald-100/50 to-teal-100/50 dark:from-zinc-950 dark:via-emerald-950/30 dark:to-zinc-900">
+@if(($homeSections['home_show_pricing'] ?? true) && count($paketler) > 0)
+<div data-section-key="home_show_pricing">
+<section class="section-padding relative overflow-hidden bg-zinc-50/80 dark:bg-zinc-900/80 border-t border-zinc-200/60 dark:border-zinc-800/60">
     <div class="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]" style="background-image: radial-gradient(circle at 2px 2px, currentColor 1px, transparent 0); background-size: 28px 28px;"></div>
     <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-emerald-300/20 dark:bg-emerald-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
     <div class="absolute bottom-0 left-0 w-72 h-72 bg-teal-300/20 dark:bg-teal-600/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
@@ -718,7 +820,7 @@ $haritadaGoster = $firmalarHaritada->map(fn($c) => ['id' => $c->id, 'name' => $c
                         <span class="inline-block w-fit mx-auto -mt-1 mb-2 px-3 py-0.5 rounded-full bg-emerald-500 text-white text-xs font-semibold">En popüler</span>
                     @endif
                     <h3 class="font-bold text-lg text-zinc-900 dark:text-white text-center">{{ $paket['name'] }}</h3>
-                    <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 text-center mt-2">{{ number_format($paket['price'], 0, ',', '.') }} ₺<span class="text-sm font-normal text-zinc-500">/ay</span></p>
+                    <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 text-center mt-2">{{ number_format($paket['price'], 0, ',', '.') }} ₺<span class="text-sm font-normal text-zinc-500 dark:text-zinc-400">/ay</span></p>
                     <p class="text-sm text-zinc-600 dark:text-zinc-400 mt-3 text-center">{{ $paket['description'] }}</p>
                     <ul class="mt-4 space-y-2 flex-1">
                         @foreach(array_slice($paket['features'] ?? [], 0, 4) as $feature)
@@ -744,11 +846,13 @@ $haritadaGoster = $firmalarHaritada->map(fn($c) => ['id' => $c->id, 'name' => $c
         </div>
     </div>
 </section>
+</div>
 @endif
 
 {{-- Blog — slider, farklı arka plan --}}
-@if($sonBlog->count() > 0)
-<section class="section-padding relative overflow-hidden bg-gradient-to-b from-amber-100/50 via-slate-100 to-indigo-100/40 dark:from-amber-950/20 dark:via-zinc-900 dark:to-indigo-950/20">
+@if(($homeSections['home_show_blog'] ?? true) && $sonBlog->count() > 0)
+<div data-section-key="home_show_blog">
+<section class="section-padding relative overflow-hidden bg-white dark:bg-zinc-950 border-t border-zinc-200/60 dark:border-zinc-800/60">
     <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
         <div class="absolute top-1/4 left-0 w-80 h-80 rounded-full bg-amber-200/20 dark:bg-amber-500/10 blur-3xl"></div>
         <div class="absolute bottom-1/4 right-0 w-96 h-96 rounded-full bg-indigo-200/20 dark:bg-indigo-500/10 blur-3xl"></div>
@@ -786,7 +890,7 @@ $haritadaGoster = $firmalarHaritada->map(fn($c) => ['id' => $c->id, 'name' => $c
                                     </div>
                                 @endif
                                 <div class="p-5 sm:p-6">
-                                    <span class="text-xs font-medium text-zinc-400">{{ $post->published_at?->format('d M Y') }}</span>
+                                    <span class="text-xs font-medium text-zinc-400 dark:text-zinc-500">{{ $post->published_at?->format('d M Y') }}</span>
                                     <h3 class="font-bold text-lg text-zinc-900 dark:text-white mt-2 group-hover:text-emerald-600 transition-colors line-clamp-2">{{ $post->title }}</h3>
                                     @if($post->excerpt)
                                         <p class="text-sm text-zinc-600 dark:text-zinc-400 mt-2 line-clamp-2">{{ $post->excerpt }}</p>
@@ -800,6 +904,7 @@ $haritadaGoster = $firmalarHaritada->map(fn($c) => ['id' => $c->id, 'name' => $c
         </div>
     </div>
 </section>
+</div>
 @push('scripts')
 <script>
 (function() {
@@ -815,8 +920,115 @@ $haritadaGoster = $firmalarHaritada->map(fn($c) => ['id' => $c->id, 'name' => $c
 @endpush
 @endif
 
+</div>{{-- #home-ordered-sections --}}
+
+@push('scripts')
+<script>
+(function() {
+    var container = document.getElementById('home-ordered-sections');
+    if (!container) return;
+    var order = @json($homeSectionOrder ?? []);
+    if (!order.length) return;
+    var children = Array.from(container.children);
+    var byKey = {};
+    children.forEach(function(el) {
+        var k = el.getAttribute('data-section-key');
+        if (k) { if (!byKey[k]) byKey[k] = []; byKey[k].push(el); }
+    });
+    order.forEach(function(key) {
+        (byKey[key] || []).forEach(function(el) { container.appendChild(el); });
+    });
+})();
+</script>
+@endpush
+
+{{-- Sıkça sorulan sorular (anasayfa): Müşteri + Nakliyeci — Hızlı erişim tarzı --}}
+@if((isset($faqsHomeMusteri) && $faqsHomeMusteri->isNotEmpty()) || (isset($faqsHomeNakliyeci) && $faqsHomeNakliyeci->isNotEmpty()))
+<section class="section-padding relative bg-zinc-50/80 dark:bg-zinc-900/80 border-t border-zinc-200/60 dark:border-zinc-800/60 overflow-hidden" id="sss">
+    <div class="absolute inset-0 pointer-events-none opacity-30 dark:opacity-20" aria-hidden="true">
+        <div class="absolute top-0 left-1/4 w-96 h-96 rounded-full bg-emerald-200/30 dark:bg-emerald-500/15 blur-3xl"></div>
+        <div class="absolute bottom-0 right-1/4 w-80 h-80 rounded-full bg-teal-200/20 dark:bg-teal-500/15 blur-3xl"></div>
+    </div>
+    <div class="page-container relative z-10">
+        <div class="text-center mb-10">
+            <span class="inline-block w-12 h-1 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 mb-4"></span>
+            <h2 class="section-head-title">Sıkça sorulan sorular</h2>
+            <p class="text-zinc-500 dark:text-zinc-300 mt-2 max-w-xl mx-auto">Müşteri ve nakliyeci için nakliye ve platform hakkında merak ettikleriniz</p>
+            <a href="{{ route('faq.index') }}" class="inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white text-sm font-semibold transition-colors shadow-lg shadow-emerald-500/20 dark:shadow-emerald-500/25">
+                Tüm SSS
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+            {{-- Müşteri için SSS — emerald kart --}}
+            @if(isset($faqsHomeMusteri) && $faqsHomeMusteri->isNotEmpty())
+            <div class="relative rounded-2xl bg-white dark:bg-zinc-800/90 border-2 border-zinc-200/80 dark:border-zinc-600 shadow-lg dark:shadow-xl dark:shadow-black/30 hover:shadow-xl dark:hover:shadow-2xl hover:border-emerald-200 dark:hover:border-emerald-600/60 transition-all duration-300 overflow-hidden">
+                <span class="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 dark:bg-emerald-500/20 rounded-bl-full" aria-hidden="true"></span>
+                <div class="relative p-6">
+                    <h3 class="flex items-center gap-2 text-lg font-bold text-zinc-900 dark:text-white mb-5">
+                        <span class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-300">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                        </span>
+                        Müşteri için SSS
+                    </h3>
+                    <div class="space-y-2">
+                        @foreach($faqsHomeMusteri as $faq)
+                            <details class="group rounded-xl bg-zinc-50/80 dark:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-600 overflow-hidden">
+                                <summary class="flex items-center justify-between gap-3 cursor-pointer list-none py-3 px-4 text-left font-medium text-zinc-800 dark:text-white hover:text-emerald-600 dark:hover:text-white hover:bg-emerald-50/50 dark:hover:bg-zinc-700/80 dark:group-open:bg-zinc-700/80 dark:group-open:text-white transition-colors border-l-4 border-transparent dark:border-zinc-800 dark:group-open:border-emerald-500">
+                                    <span class="pr-2 text-sm">{{ $faq->question }}</span>
+                                    <span class="shrink-0 w-8 h-8 rounded-lg bg-emerald-100 dark:bg-zinc-600 flex items-center justify-center text-emerald-600 dark:text-white group-open:rotate-180 transition-transform">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                    </span>
+                                </summary>
+                                <div class="px-4 pb-3 pt-0">
+                                    <p class="text-sm text-zinc-600 dark:text-zinc-200 leading-relaxed pl-3 border-l-2 border-emerald-300 dark:border-emerald-500">
+                                        {!! nl2br(e($faq->answer)) !!}
+                                    </p>
+                                </div>
+                            </details>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            @endif
+            {{-- Nakliyeci için SSS — teal kart --}}
+            @if(isset($faqsHomeNakliyeci) && $faqsHomeNakliyeci->isNotEmpty())
+            <div class="relative rounded-2xl bg-white dark:bg-zinc-800/90 border-2 border-zinc-200/80 dark:border-zinc-600 shadow-lg dark:shadow-xl dark:shadow-black/30 hover:shadow-xl dark:hover:shadow-2xl hover:border-teal-200 dark:hover:border-teal-600/60 transition-all duration-300 overflow-hidden">
+                <span class="absolute top-0 right-0 w-24 h-24 bg-teal-500/10 dark:bg-teal-500/20 rounded-bl-full" aria-hidden="true"></span>
+                <div class="relative p-6">
+                    <h3 class="flex items-center gap-2 text-lg font-bold text-zinc-900 dark:text-white mb-5">
+                        <span class="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-500/30 flex items-center justify-center text-teal-600 dark:text-teal-300">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        </span>
+                        Nakliyeci için SSS
+                    </h3>
+                    <div class="space-y-2">
+                        @foreach($faqsHomeNakliyeci as $faq)
+                            <details class="group rounded-xl bg-zinc-50/80 dark:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-600 overflow-hidden">
+                                <summary class="flex items-center justify-between gap-3 cursor-pointer list-none py-3 px-4 text-left font-medium text-zinc-800 dark:text-white hover:text-teal-600 dark:hover:text-white hover:bg-teal-50/50 dark:hover:bg-zinc-700/80 dark:group-open:bg-zinc-700/80 dark:group-open:text-white transition-colors border-l-4 border-transparent dark:border-zinc-800 dark:group-open:border-teal-500">
+                                    <span class="pr-2 text-sm">{{ $faq->question }}</span>
+                                    <span class="shrink-0 w-8 h-8 rounded-lg bg-teal-100 dark:bg-zinc-600 flex items-center justify-center text-teal-600 dark:text-white group-open:rotate-180 transition-transform">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                    </span>
+                                </summary>
+                                <div class="px-4 pb-3 pt-0">
+                                    <p class="text-sm text-zinc-600 dark:text-zinc-200 leading-relaxed pl-3 border-l-2 border-teal-300 dark:border-teal-500">
+                                        {!! nl2br(e($faq->answer)) !!}
+                                    </p>
+                                </div>
+                            </details>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            @endif
+        </div>
+    </div>
+</section>
+@endif
+
 {{-- Hızlı erişim --}}
-<section class="section-padding relative bg-gradient-to-b from-teal-100/60 via-slate-100 to-amber-100/60 dark:from-teal-950/30 dark:via-zinc-900 dark:to-amber-950/20 overflow-hidden">
+<section class="section-padding relative bg-white dark:bg-zinc-950 border-t border-zinc-200/60 dark:border-zinc-800/60 overflow-hidden">
     <div class="absolute inset-0 pointer-events-none opacity-40" aria-hidden="true">
         <div class="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-teal-200/30 dark:bg-teal-600/10 blur-3xl"></div>
         <div class="absolute top-0 right-0 w-72 h-72 rounded-full bg-amber-200/20 dark:bg-amber-600/10 blur-3xl"></div>
@@ -837,11 +1049,13 @@ $haritadaGoster = $firmalarHaritada->map(fn($c) => ['id' => $c->id, 'name' => $c
                 <span class="relative w-16 h-16 rounded-2xl bg-sky-100 dark:bg-sky-900/40 flex items-center justify-center text-sky-600 dark:text-sky-400 mb-3 group-hover:scale-110 transition-transform"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg></span>
                 <span class="relative font-bold text-zinc-900 dark:text-white">İhaleler</span>
             </a>
+            @if($show_firmalar_page ?? true)
             <a href="{{ route('firmalar.index') }}" class="relative flex flex-col items-center justify-center min-h-[140px] p-6 rounded-2xl bg-white dark:bg-zinc-900/80 border-2 border-zinc-200/80 dark:border-zinc-800 text-center group shadow-md hover:shadow-xl hover:border-amber-300 dark:hover:border-amber-700/50 hover:-translate-y-1 transition-all duration-300 overflow-hidden">
                 <span class="absolute top-0 right-0 w-20 h-20 bg-amber-500/10 rounded-bl-full group-hover:bg-amber-500/20 transition-colors"></span>
                 <span class="relative w-16 h-16 rounded-2xl bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center text-amber-600 dark:text-amber-400 mb-3 group-hover:scale-110 transition-transform"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg></span>
                 <span class="relative font-bold text-zinc-900 dark:text-white">Firmalar</span>
             </a>
+            @endif
             <a href="{{ route('pazaryeri.index') }}" class="relative flex flex-col items-center justify-center min-h-[140px] p-6 rounded-2xl bg-white dark:bg-zinc-900/80 border-2 border-zinc-200/80 dark:border-zinc-800 text-center group shadow-md hover:shadow-xl hover:border-violet-300 dark:hover:border-violet-700/50 hover:-translate-y-1 transition-all duration-300 overflow-hidden">
                 <span class="absolute top-0 right-0 w-20 h-20 bg-violet-500/10 rounded-bl-full group-hover:bg-violet-500/20 transition-colors"></span>
                 <span class="relative w-16 h-16 rounded-2xl bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center text-violet-600 dark:text-violet-400 mb-3 group-hover:scale-110 transition-transform"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg></span>

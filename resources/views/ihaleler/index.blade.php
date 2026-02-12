@@ -7,6 +7,7 @@
 <div class="min-h-screen bg-zinc-50 dark:bg-zinc-900/50">
     {{-- Hero --}}
     <section class="relative py-12 sm:py-16 overflow-hidden">
+        <div class="absolute top-0 right-0 w-20 h-20 bg-sky-500/10 rounded-bl-full group-hover:bg-sky-500/20 transition-colors pointer-events-none" aria-hidden="true"></div>
         <div class="absolute inset-0 bg-gradient-to-br from-zinc-200/60 via-transparent to-zinc-300/30 dark:from-zinc-800/50 dark:to-zinc-800/20"></div>
         <div class="page-container relative">
             <div class="max-w-2xl">
@@ -114,8 +115,9 @@
             <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6">
                 @foreach($ihaleler as $ihale)
                     <a href="{{ route('ihaleler.show', $ihale) }}" class="group block">
-                        <article class="h-full rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden shadow-sm hover:shadow-lg hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-300 flex flex-col">
-                            <div class="p-5 sm:p-6 flex-1 flex flex-col">
+                        <article class="relative h-full rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden shadow-sm hover:shadow-lg hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-300 flex flex-col">
+                            <div class="absolute top-0 right-0 w-20 h-20 bg-sky-500/10 rounded-bl-full group-hover:bg-sky-500/20 transition-colors pointer-events-none" aria-hidden="true"></div>
+                            <div class="p-5 sm:p-6 flex-1 flex flex-col relative">
                                 {{-- Rota çizgisi: Nereden ——— Nereye --}}
                                 <div class="flex items-center gap-2 sm:gap-3">
                                     <span class="text-sm font-bold text-zinc-800 dark:text-zinc-200 shrink-0 max-w-[28%] sm:max-w-[35%] truncate" title="{{ $ihale->from_city }}">{{ $ihale->from_city }}</span>

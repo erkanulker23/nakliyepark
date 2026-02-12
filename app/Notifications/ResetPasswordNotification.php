@@ -40,7 +40,7 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
             '{expire_minutes}' => (string) $expire,
         ]);
         if ($customBody !== null) {
-            return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $customBody]);
+            return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $customBody])->priority(1);
         }
 
         return (new MailMessage)
@@ -49,6 +49,7 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
             ->line('Hesabınız için şifre sıfırlama talebinde bulundunuz.')
             ->action('Şifremi sıfırla', $url)
             ->line('Bu link ' . $expire . ' dakika geçerlidir.')
-            ->line('Eğer bu talebi siz yapmadıysanız, bu e-postayı dikkate almayın.');
+            ->line('Eğer bu talebi siz yapmadıysanız, bu e-postayı dikkate almayın.')
+            ->priority(1);
     }
 }

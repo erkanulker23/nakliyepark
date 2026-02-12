@@ -9,7 +9,6 @@ use App\Models\UserNotification;
 use App\Notifications\TeklifReceivedNotification;
 use App\Services\AdminNotifier;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Notification;
 
 class TeklifController extends Controller
 {
@@ -65,10 +64,9 @@ class TeklifController extends Controller
                 'Yeni teklif geldi',
                 ['url' => route('musteri.ihaleler.show', $ihale)]
             );
-            $ihale->user->notify(new TeklifReceivedNotification($ihale, $teklif));
+            \App\Services\SafeNotificationService::sendToUser($ihale->user, new TeklifReceivedNotification($ihale, $teklif), 'teklif_received_musteri');
         } elseif ($ihale->guest_contact_email) {
-            Notification::route('mail', $ihale->guest_contact_email)
-                ->notify(new TeklifReceivedNotification($ihale, $teklif));
+            \App\Services\SafeNotificationService::sendToEmail($ihale->guest_contact_email, new TeklifReceivedNotification($ihale, $teklif), 'teklif_received_guest');
         }
         return back()->with('success', 'Teklifiniz gönderildi.');
     }

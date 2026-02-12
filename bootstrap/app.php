@@ -14,6 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\EnsureRole::class,
             'not.nakliyeci' => \App\Http\Middleware\EnsureNotNakliyeci::class,
+            'firmalar.visible' => \App\Http\Middleware\EnsureFirmalarPageVisible::class,
+            'verified.panel' => \App\Http\Middleware\EnsureEmailVerifiedForPanel::class,
         ]);
         $middleware->web(append: [
             \App\Http\Middleware\EnsureNotBlocked::class,

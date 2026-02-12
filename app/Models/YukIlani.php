@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class YukIlani extends Model
 {
@@ -28,5 +29,10 @@ class YukIlani extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function yanitlar(): HasMany
+    {
+        return $this->hasMany(DefterYaniti::class, 'yuk_ilani_id')->latest();
     }
 }

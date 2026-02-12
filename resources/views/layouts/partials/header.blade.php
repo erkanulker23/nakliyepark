@@ -1,6 +1,6 @@
-<header class="sticky top-0 z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border-b border-zinc-200/80 dark:border-zinc-800 safe-top">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between min-h-[72px] py-2">
+<header class="sticky top-0 z-50 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border-b border-zinc-200/80 dark:border-zinc-800 safe-top safe-area-top">
+    <div class="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between min-h-[56px] sm:min-h-[72px] py-2">
             <a href="{{ url('/') }}" class="site-brand flex items-center gap-2.5 shrink-0">
                 @if(!empty($site_logo_url) || !empty($site_logo_dark_url ?? null))
                     @if(!empty($site_logo_url))
@@ -18,7 +18,9 @@
             </a>
             <nav class="hidden lg:flex items-center gap-0.5">
                 <a href="{{ route('ihaleler.index') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400">İhaleler</a>
+                @if($show_firmalar_page ?? true)
                 <a href="{{ route('firmalar.index') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400">Firmalar</a>
+                @endif
                 <a href="{{ route('defter.index') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400">Defter</a>
                 <a href="{{ route('pazaryeri.index') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400">Pazaryeri</a>
                 <div class="relative" id="tools-dropdown-wrap">
@@ -30,9 +32,11 @@
                         <a href="{{ route('tools.volume') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Hacim hesaplama</a>
                         <a href="{{ route('tools.distance') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Mesafe hesaplama</a>
                         <a href="{{ route('tools.road-distance') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Karayolu mesafe</a>
-                        <a href="{{ route('tools.cost') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Tahmini maliyet</a>
                         <a href="{{ route('tools.checklist') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Taşınma kontrol listesi</a>
                         <a href="{{ route('tools.moving-calendar') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Taşınma takvimi</a>
+                        @if($show_firmalar_page ?? true)
+                        <a href="{{ route('firmalar.map') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Nakliyeci bul</a>
+                        @endif
                     </div>
                 </div>
             </nav>
@@ -44,18 +48,12 @@
                 @auth
                     @if(auth()->user()->isAdmin())
                         <a href="{{ route('admin.dashboard') }}" class="btn-ghost rounded-lg hidden sm:inline-flex">Admin</a>
-                    @endif
-                    @if(auth()->user()->isNakliyeci())
+                    @elseif(auth()->user()->isNakliyeci())
                         <a href="{{ route('nakliyeci.company.edit') }}" class="btn-ghost rounded-lg hidden sm:inline-flex">Firmam</a>
-                    @endif
-                    @if(auth()->user()->isMusteri())
+                    @elseif(auth()->user()->isMusteri())
                         <a href="{{ route('musteri.dashboard') }}" class="btn-ghost rounded-lg hidden sm:inline-flex">İhalelerim</a>
-                        @php $musteriNotifCount = auth()->user()->userNotifications()->whereNull('read_at')->count(); @endphp
-                        <a href="{{ route('musteri.notifications.index') }}" class="btn-ghost rounded-lg hidden sm:inline-flex relative">
-                            Bildirimler
-                            @if($musteriNotifCount > 0)<span class="absolute -top-0.5 -right-1 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-emerald-500 text-white text-xs">{{ $musteriNotifCount > 99 ? '99+' : $musteriNotifCount }}</span>@endif
-                        </a>
                     @endif
+                    @include('layouts.partials.notifications-dropdown')
                     <form method="POST" action="{{ route('logout') }}" class="inline">
                         @csrf
                         <button type="submit" class="btn-ghost rounded-lg text-zinc-500">Çıkış</button>
@@ -66,17 +64,21 @@
                 @endauth
             </div>
         </div>
-        <div class="lg:hidden flex items-center gap-1 pb-3 overflow-x-auto -mb-px">
+        <div class="lg:hidden flex items-center gap-1 pb-3 overflow-x-auto -mb-px scrollbar-hide snap-x snap-mandatory scroll-smooth touch-pan-x" style="-webkit-overflow-scrolling: touch;">
             <a href="{{ route('ihaleler.index') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">İhaleler</a>
+            @if($show_firmalar_page ?? true)
             <a href="{{ route('firmalar.index') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Firmalar</a>
+            @endif
             <a href="{{ route('defter.index') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Defter</a>
             <a href="{{ route('pazaryeri.index') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Pazaryeri</a>
             <a href="{{ route('tools.volume') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Hacim</a>
             <a href="{{ route('tools.distance') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Mesafe</a>
             <a href="{{ route('tools.road-distance') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Karayolu</a>
-            <a href="{{ route('tools.cost') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Maliyet</a>
             <a href="{{ route('tools.checklist') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Kontrol listesi</a>
             <a href="{{ route('tools.moving-calendar') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Takvim</a>
+            @if($show_firmalar_page ?? true)
+            <a href="{{ route('firmalar.map') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Nakliyeci bul</a>
+            @endif
         </div>
     </div>
 </header>

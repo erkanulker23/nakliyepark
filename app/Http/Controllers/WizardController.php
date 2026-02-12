@@ -46,11 +46,11 @@ class WizardController extends Controller
 
         AdminNotifier::notify('ihale_created', "Yeni ihale (yayında): {$ihale->from_city} → {$ihale->to_city} (Üye)", 'Yeni ihale', ['url' => route('admin.ihaleler.show', $ihale)]);
 
-        $ihale->user->notify(new IhalePublishedNotification($ihale));
+        \App\Services\SafeNotificationService::sendToUser($ihale->user, new IhalePublishedNotification($ihale), 'wizard_ihale_published');
 
         $admins = User::where('role', 'admin')->get();
         foreach ($admins as $admin) {
-            $admin->notify(new NewIhaleAdminNotification($ihale));
+            \App\Services\SafeNotificationService::sendToUser($admin, new NewIhaleAdminNotification($ihale), 'wizard_ihale_admin');
         }
 
         if ($request->hasFile('photos')) {

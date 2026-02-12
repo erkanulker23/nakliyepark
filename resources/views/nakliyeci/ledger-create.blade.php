@@ -12,13 +12,17 @@
             @csrf
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div class="admin-form-group">
-                    <label class="admin-label">Nereden (şehir) *</label>
-                    <input type="text" name="from_city" value="{{ old('from_city') }}" required class="admin-input" placeholder="Örn. İstanbul">
+                    <label class="admin-label">Nereden (il) *</label>
+                    <select name="from_city" id="ledger-from_city" required class="admin-input" data-old="{{ old('from_city') }}">
+                        <option value="">İl seçin</option>
+                    </select>
                     @error('from_city')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div class="admin-form-group">
-                    <label class="admin-label">Nereye (şehir) *</label>
-                    <input type="text" name="to_city" value="{{ old('to_city') }}" required class="admin-input" placeholder="Örn. Ankara">
+                    <label class="admin-label">Nereye (il) *</label>
+                    <select name="to_city" id="ledger-to_city" required class="admin-input" data-old="{{ old('to_city') }}">
+                        <option value="">İl seçin</option>
+                    </select>
                     @error('to_city')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
             </div>
@@ -53,4 +57,40 @@
         </form>
     </div>
 </div>
+@push('scripts')
+<script>
+(function() {
+    var fromSelect = document.getElementById('ledger-from_city');
+    var toSelect = document.getElementById('ledger-to_city');
+    if (!fromSelect || !toSelect) return;
+    var apiUrl = '{{ route("api.turkey.provinces") }}';
+    fetch(apiUrl).then(function(r) { return r.json(); }).then(function(res) {
+        var data = res.data || [];
+        function fill(s) {
+            if (!s) return;
+            while (s.options.length > 1) s.removeChild(s.lastChild);
+            data.forEach(function(p) {
+                var o = document.createElement('option');
+                o.value = p.name;
+                o.textContent = p.name;
+                s.appendChild(o);
+            });
+            var oldVal = s.getAttribute('data-old');
+            if (oldVal) s.value = oldVal;
+        }
+        fill(fromSelect);
+        fill(toSelect);
+    }).catch(function() {
+        [fromSelect, toSelect].forEach(function(s) {
+            if (s && s.options.length === 1) {
+                var o = document.createElement('option');
+                o.value = '';
+                o.textContent = 'İller yüklenemedi';
+                s.appendChild(o);
+            }
+        });
+    });
+})();
+</script>
+@endpush
 @endsection

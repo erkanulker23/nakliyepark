@@ -6,15 +6,15 @@
 @section('content')
 <div class="w-full max-w-sm">
     <div class="card p-6 sm:p-8">
-        <h1 class="text-xl font-semibold text-zinc-900 dark:text-white mb-1">Giriş yap</h1>
-        <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Hesabınızla devam edin</p>
+        <h1 class="text-xl font-semibold text-zinc-900 dark:text-white mb-1">@isset($admin_login) Yönetici / Admin girişi @else Giriş yap @endisset</h1>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-6">@isset($admin_login) Yönetim paneline erişmek için giriş yapın. @else Hesabınızla devam edin. @endisset</p>
         @if(session('error'))
             <div class="mb-4 rounded-xl bg-red-50 text-red-800 px-4 py-3 text-sm border border-red-200 dark:bg-red-900/20 dark:border-red-800 dark:text-red-200">{{ session('error') }}</div>
         @endif
         @if(session('status'))
             <div class="mb-4 rounded-xl bg-emerald-50 text-emerald-800 px-4 py-3 text-sm border border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-200">{{ session('status') }}</div>
         @endif
-        <form method="POST" action="{{ route('login') }}" class="space-y-4">
+        <form method="POST" action="{{ isset($admin_login) ? route('admin.login.submit') : route('login') }}" class="space-y-4">
             @csrf
             <div>
                 <label for="email" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">E-posta</label>
@@ -43,8 +43,14 @@
             <button type="submit" class="btn-primary w-full">Giriş yap</button>
         </form>
     </div>
-    <p class="mt-6 text-center text-sm text-zinc-500">
-        Hesabınız yok mu? <a href="{{ route('register') }}" class="link-muted">Kayıt olun</a>
-    </p>
+    @if(!isset($admin_login))
+        <p class="mt-6 text-center text-sm text-zinc-500">
+            Hesabınız yok mu? <a href="{{ route('register') }}" class="link-muted">Kayıt olun</a>
+        </p>
+    @else
+        <p class="mt-6 text-center text-sm text-zinc-500">
+            <a href="{{ route('login') }}" class="link-muted">Müşteri / Nakliyeci girişi</a>
+        </p>
+    @endif
 </div>
 @endsection

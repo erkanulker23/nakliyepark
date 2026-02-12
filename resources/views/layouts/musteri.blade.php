@@ -2,8 +2,10 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#0c4a6e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="robots" content="noindex, nofollow">
     <title>@yield('title', 'Panel') - NakliyePark</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -74,6 +76,9 @@
                 <div class="min-w-0 flex-1 mx-3">
                     <h1 class="admin-page-title text-lg font-bold truncate">@yield('page_heading', 'Panel')</h1>
                     @hasSection('page_subtitle')<p class="admin-page-subtitle truncate">@yield('page_subtitle')</p>@endif
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    @include('layouts.partials.notifications-dropdown')
                 </div>
             </header>
             <div class="flex-1 p-6 lg:p-8">

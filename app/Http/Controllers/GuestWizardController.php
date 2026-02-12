@@ -11,7 +11,6 @@ use App\Notifications\NewIhaleAdminNotification;
 use App\Models\ConsentLog;
 use App\Services\AdminNotifier;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Notification;
 
 class GuestWizardController extends Controller
 {
@@ -147,19 +146,18 @@ class GuestWizardController extends Controller
 
         AdminNotifier::notify('ihale_created', "Yeni ihale: {$ihale->from_city} → {$ihale->to_city}" . ($ihale->user_id ? " (Üye)" : " (Misafir)"), 'Yeni ihale', ['url' => route('admin.ihaleler.show', $ihale)]);
 
-        // Müşteriye / misafire e-posta: talebiniz alındı
+        // Müşteriye / misafire e-posta: talebiniz alındı (hata olursa log, işlem geri alınmaz)
         if ($ihale->user_id) {
             $ihale->load('user');
-            $ihale->user->notify(new IhaleCreatedNotification($ihale));
+            \App\Services\SafeNotificationService::sendToUser($ihale->user, new IhaleCreatedNotification($ihale), 'ihale_created_musteri');
         } elseif ($ihale->guest_contact_email) {
-            Notification::route('mail', $ihale->guest_contact_email)
-                ->notify(new IhaleCreatedNotification($ihale));
+            \App\Services\SafeNotificationService::sendToEmail($ihale->guest_contact_email, new IhaleCreatedNotification($ihale), 'ihale_created_guest');
         }
 
         // Admin kullanıcılarına e-posta: yeni ihale talebi
         $admins = User::where('role', 'admin')->get();
         foreach ($admins as $admin) {
-            $admin->notify(new NewIhaleAdminNotification($ihale));
+            \App\Services\SafeNotificationService::sendToUser($admin, new NewIhaleAdminNotification($ihale), 'ihale_created_admin');
         }
 
         if ($request->hasFile('photos')) {

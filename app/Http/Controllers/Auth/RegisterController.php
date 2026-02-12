@@ -62,6 +62,8 @@ class RegisterController extends Controller
         ]);
 
         event(new Registered($user));
+
+        \App\Services\SafeNotificationService::sendToUser($user, new \App\Notifications\WelcomeNotification($user->role), 'welcome_after_register');
         AdminNotifier::notify('user_registered', "Yeni kayıt: {$user->name} ({$user->email}) - Rol: {$user->role}", 'Yeni üye', ['url' => route('admin.users.edit', $user)]);
         Auth::login($user);
 

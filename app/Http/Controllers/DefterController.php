@@ -16,7 +16,7 @@ class DefterController extends Controller
 
     public function index(Request $request)
     {
-        $query = YukIlani::with('company')->where('status', 'active')->latest();
+        $query = YukIlani::with(['company', 'yanitlar.company'])->where('status', 'active')->latest();
 
         if ($request->filled('nereden')) {
             $query->where('from_city', 'like', '%' . $request->nereden . '%');
@@ -54,6 +54,19 @@ class DefterController extends Controller
             'todayCount' => $todayCount,
             'weekCount' => $weekCount,
             'totalCount' => $totalCount,
+        ]);
+    }
+
+    /** Tekil defter ilanı (WhatsApp paylaşım linki bu sayfaya gider) */
+    public function show(YukIlani $yukIlani)
+    {
+        if ($yukIlani->status !== 'active') {
+            abort(404);
+        }
+        $yukIlani->load(['company', 'yanitlar.company']);
+        return view('defter.show', [
+            'ilan' => $yukIlani,
+            'popularCities' => self::POPULAR_CITIES,
         ]);
     }
 }

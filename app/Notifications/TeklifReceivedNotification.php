@@ -47,7 +47,7 @@ class TeklifReceivedNotification extends Notification implements ShouldQueue
             '{action_url}' => $route,
         ]);
         if ($customBody !== null) {
-            return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $customBody]);
+            return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $customBody])->priority(1);
         }
 
         return (new MailMessage)
@@ -55,6 +55,7 @@ class TeklifReceivedNotification extends Notification implements ShouldQueue
             ->greeting('Merhaba!')
             ->line($companyName . ' ihalenize **' . $amount . ' ₺** teklif verdi.')
             ->action('Teklifi görüntüle', $route)
-            ->line('Diğer firmalardan da teklif gelebilir; hepsini karşılaştırıp birini seçebilirsiniz.');
+            ->line('Diğer firmalardan da teklif gelebilir; hepsini karşılaştırıp birini seçebilirsiniz.')
+            ->priority(1);
     }
 }

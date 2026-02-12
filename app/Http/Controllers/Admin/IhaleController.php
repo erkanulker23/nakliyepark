@@ -12,7 +12,6 @@ use App\Notifications\IhalePreferredCompanyPublishedNotification;
 use App\Notifications\IhalePublishedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Notification;
 
 class IhaleController extends Controller
 {
@@ -108,9 +107,28 @@ class IhaleController extends Controller
     public function updateStatus(Request $request, Ihale $ihale)
     {
         $request->validate(['status' => 'required|in:pending,draft,published,closed,cancelled']);
-        $ihale->update(['status' => $request->status]);
-        Log::channel('admin_actions')->info('Admin ihale status updated', ['admin_id' => auth()->id(), 'ihale_id' => $ihale->id, 'status' => $request->status]);
-        if ($request->status === 'published') {
+        $newStatus = $request->status;
+
+        if ($newStatus === 'closed') {
+            \DB::transaction(function () use ($ihale) {
+                $ihale->update(['status' => 'closed']);
+                $rejectedCount = Teklif::where('ihale_id', $ihale->id)->where('status', 'pending')->update(['status' => 'rejected']);
+                AuditLog::adminAction(
+                    'admin_ihale_closed_teklifler_rejected',
+                    Ihale::class,
+                    (int) $ihale->id,
+                    ['before' => 'published', 'rejected_teklif_count' => $rejectedCount],
+                    ['after' => 'closed'],
+                    'İhale kapatıldı; kabul edilmemiş teklifler reddedildi.'
+                );
+            });
+            Log::channel('admin_actions')->info('Admin ihale status updated (closed, teklifler rejected)', ['admin_id' => auth()->id(), 'ihale_id' => $ihale->id]);
+        } else {
+            $ihale->update(['status' => $newStatus]);
+            Log::channel('admin_actions')->info('Admin ihale status updated', ['admin_id' => auth()->id(), 'ihale_id' => $ihale->id, 'status' => $newStatus]);
+        }
+
+        if ($newStatus === 'published') {
             if ($ihale->user_id) {
                 $ihale->load('user');
                 UserNotification::notify(
@@ -120,10 +138,9 @@ class IhaleController extends Controller
                     'İhaleniz yayında',
                     ['url' => route('musteri.ihaleler.show', $ihale)]
                 );
-                $ihale->user->notify(new IhalePublishedNotification($ihale));
+                \App\Services\SafeNotificationService::sendToUser($ihale->user, new IhalePublishedNotification($ihale), 'ihale_published_musteri');
             } elseif ($ihale->guest_contact_email) {
-                Notification::route('mail', $ihale->guest_contact_email)
-                    ->notify(new IhalePublishedNotification($ihale, true));
+                \App\Services\SafeNotificationService::sendToEmail($ihale->guest_contact_email, new IhalePublishedNotification($ihale, true), 'ihale_published_guest');
             }
             if ($ihale->preferred_company_id) {
                 $ihale->load('preferredCompany.user');
@@ -135,12 +152,67 @@ class IhaleController extends Controller
                         'Sizi tercih eden ihale yayında',
                         ['url' => route('nakliyeci.ihaleler.show', $ihale)]
                     );
-                    $ihale->preferredCompany->user->notify(new IhalePreferredCompanyPublishedNotification($ihale));
+                    \App\Services\SafeNotificationService::sendToUser($ihale->preferredCompany->user, new IhalePreferredCompanyPublishedNotification($ihale), 'ihale_preferred_published');
                 }
             }
         }
-        $message = $request->status === 'published' ? 'İhale onaylandı ve yayına alındı.' : 'İhale durumu güncellendi.';
+        $message = match ($newStatus) {
+            'published' => 'İhale onaylandı ve yayına alındı.',
+            'closed' => 'İhale kapatıldı. Kabul edilmemiş teklifler reddedildi.',
+            default => 'İhale durumu güncellendi.',
+        };
         return back()->with('success', $message);
+    }
+
+    /** Toplu yayınla: sadece pending ihaleler */
+    public function bulkPublish(Request $request)
+    {
+        $ids = $request->input('ids');
+        if (is_string($ids)) {
+            $ids = array_values(array_filter(array_map('intval', explode(',', $ids))));
+            $request->merge(['ids' => $ids]);
+        }
+        $request->validate(['ids' => 'required|array', 'ids.*' => 'integer|exists:ihaleler,id']);
+        $ihaleler = Ihale::whereIn('id', $request->ids)->where('status', 'pending')->get();
+        $count = 0;
+        foreach ($ihaleler as $ihale) {
+            $ihale->update(['status' => 'published']);
+            $count++;
+            if ($ihale->user_id) {
+                $ihale->load('user');
+                UserNotification::notify($ihale->user, 'ihale_published', "{$ihale->from_city} → {$ihale->to_city} ihale talebiniz onaylandı.", 'İhaleniz yayında', ['url' => route('musteri.ihaleler.show', $ihale)]);
+                \App\Services\SafeNotificationService::sendToUser($ihale->user, new IhalePublishedNotification($ihale), 'ihale_published_musteri');
+            } elseif ($ihale->guest_contact_email) {
+                \App\Services\SafeNotificationService::sendToEmail($ihale->guest_contact_email, new IhalePublishedNotification($ihale, true), 'ihale_published_guest');
+            }
+            if ($ihale->preferred_company_id) {
+                $ihale->load('preferredCompany.user');
+                if ($ihale->preferredCompany?->user) {
+                    UserNotification::notify($ihale->preferredCompany->user, 'ihale_preferred_published', "Sizi tercih eden ihale yayında: {$ihale->from_city} → {$ihale->to_city}.", 'Sizi tercih eden ihale yayında', ['url' => route('nakliyeci.ihaleler.show', $ihale)]);
+                    \App\Services\SafeNotificationService::sendToUser($ihale->preferredCompany->user, new IhalePreferredCompanyPublishedNotification($ihale), 'ihale_preferred_published');
+                }
+            }
+        }
+        return back()->with('success', "{$count} ihale yayına alındı.");
+    }
+
+    /** Toplu kapat: sadece published ihaleler; pending teklifler rejected yapılır */
+    public function bulkClose(Request $request)
+    {
+        $ids = $request->input('ids');
+        if (is_string($ids)) {
+            $ids = array_values(array_filter(array_map('intval', explode(',', $ids))));
+            $request->merge(['ids' => $ids]);
+        }
+        $request->validate(['ids' => 'required|array', 'ids.*' => 'integer|exists:ihaleler,id']);
+        $ihaleler = Ihale::whereIn('id', $request->ids)->where('status', 'published')->get();
+        foreach ($ihaleler as $ihale) {
+            \DB::transaction(function () use ($ihale) {
+                $ihale->update(['status' => 'closed']);
+                Teklif::where('ihale_id', $ihale->id)->where('status', 'pending')->update(['status' => 'rejected']);
+            });
+        }
+        return back()->with('success', count($ihaleler) . ' ihale kapatıldı.');
     }
 
     /** Nakliyeci teklifini iptal et (rejected) */

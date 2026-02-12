@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\AdZoneController as AdminAdZoneController;
 use App\Http\Controllers\Admin\DisputeController as AdminDisputeController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\FaqController as AdminFaqController;
+use App\Http\Controllers\Admin\HomepageEditorController as AdminHomepageEditorController;
 use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\IhaleController as AdminIhaleController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Admin\MusteriController as AdminMusteriController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\RoomTemplateController as AdminRoomTemplateController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
+use App\Http\Controllers\Admin\SponsorController as AdminSponsorController;
 use App\Http\Controllers\Admin\TeklifController as AdminTeklifController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\YukIlaniController as AdminYukIlaniController;
@@ -23,7 +25,9 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DefterController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\FirmaController;
@@ -48,6 +52,8 @@ use App\Http\Controllers\Nakliyeci\GaleriController as NakliyeciGaleriController
 use App\Http\Controllers\Nakliyeci\IhaleController as NakliyeciIhaleController;
 use App\Http\Controllers\Nakliyeci\LedgerController as NakliyeciLedgerController;
 use App\Http\Controllers\Nakliyeci\LocationController as NakliyeciLocationController;
+use App\Http\Controllers\Nakliyeci\NotificationController as NakliyeciNotificationController;
+use App\Http\Controllers\Nakliyeci\PazaryeriController as NakliyeciPazaryeriController;
 use App\Http\Controllers\Nakliyeci\PaketlerController as NakliyeciPaketlerController;
 use App\Http\Controllers\Nakliyeci\TeklifController as NakliyeciTeklifController;
 use App\Http\Controllers\ReviewController;
@@ -63,29 +69,35 @@ Route::get('/api/turkey/districts', [TurkeyLocationController::class, 'districts
 
 Route::get('/ihaleler', [IhaleController::class, 'index'])->name('ihaleler.index');
 Route::get('/ihaleler/{ihale}', [IhaleController::class, 'show'])->name('ihaleler.show');
-Route::get('/nakliye-firmalari', [FirmaController::class, 'index'])->name('firmalar.index');
-Route::get('/nakliye-firmalari/{company}', [FirmaController::class, 'show'])->name('firmalar.show');
+Route::get('/nakliye-firmalari', [FirmaController::class, 'index'])->name('firmalar.index')->middleware('firmalar.visible');
+Route::get('/nakliye-firmalari/haritadaki-nakliyeciler', [FirmaController::class, 'map'])->name('firmalar.map')->middleware('firmalar.visible');
+Route::get('/nakliye-firmalari/{company}', [FirmaController::class, 'show'])->name('firmalar.show')->middleware('firmalar.visible');
 Route::get('/defter', [DefterController::class, 'index'])->name('defter.index');
+Route::get('/defter/ilan/{yukIlani}', [DefterController::class, 'show'])->name('defter.show');
 Route::get('/pazaryeri', [PazaryeriController::class, 'index'])->name('pazaryeri.index');
-Route::get('/pazaryeri/ilan/{listing}', [PazaryeriController::class, 'show'])->name('pazaryeri.show');
+Route::get('/pazaryeri/ilan/{listing}/{slug?}', [PazaryeriController::class, 'show'])->name('pazaryeri.show');
 
 Route::get('/ihale/olustur', [GuestWizardController::class, 'index'])->middleware('not.nakliyeci')->name('ihale.create');
 Route::post('/ihale/olustur', [GuestWizardController::class, 'store'])->middleware(['not.nakliyeci', 'throttle:10,1'])->name('ihale.store');
 
 Route::get('/araclar/hacim', [ToolController::class, 'volume'])->name('tools.volume');
+Route::get('/araclar/hacim/embed', [ToolController::class, 'volumeEmbed'])->name('tools.volume.embed');
 Route::get('/araclar/mesafe', [ToolController::class, 'distance'])->name('tools.distance');
 Route::get('/araclar/karayolu-mesafe', [ToolController::class, 'roadDistance'])->name('tools.road-distance');
-Route::get('/araclar/tahmini-maliyet', [ToolController::class, 'cost'])->name('tools.cost');
 Route::get('/araclar/tasinma-kontrol-listesi', [ToolController::class, 'checklist'])->name('tools.checklist');
 Route::get('/araclar/tasinma-takvimi', [ToolController::class, 'movingCalendar'])->name('tools.moving-calendar');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
+Route::get('/iletisim', [ContactController::class, 'index'])->name('contact.index');
+Route::post('/iletisim', [ContactController::class, 'store'])->name('contact.store')->middleware('throttle:5,1');
 Route::get('/sss', [FaqController::class, 'index'])->name('faq.index');
 Route::get('/kvkk-aydinlatma', [KvkkController::class, 'aydinlatma'])->name('kvkk.aydinlatma');
 
 Route::middleware(['guest', 'throttle:6,1'])->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
+    Route::get('/yonetici/admin', [LoginController::class, 'showAdminLoginForm'])->name('admin.login');
+    Route::post('/yonetici/admin', [LoginController::class, 'loginAdmin'])->name('admin.login.submit');
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
     // Şifremi unuttum (müşteri ve nakliyeci aynı giriş, aynı şifre sıfırlama)
@@ -95,14 +107,20 @@ Route::middleware(['guest', 'throttle:6,1'])->group(function () {
     Route::post('/sifre-sifirla', [ResetPasswordController::class, 'reset'])->name('password.update');
 });
 
+Route::middleware('auth')->group(function () {
+    Route::get('/email/verify', [VerificationController::class, 'notice'])->name('verification.notice');
+    Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->middleware('signed')->name('verification.verify');
+    Route::post('/email/verification-notification', [VerificationController::class, 'resend'])->middleware('throttle:3,1')->name('verification.send');
+});
+
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified.panel'])->group(function () {
     Route::get('/wizard', fn () => redirect()->route('ihale.create'))->middleware('not.nakliyeci');
     Route::post('/wizard', [GuestWizardController::class, 'store'])->middleware(['not.nakliyeci', 'throttle:10,1'])->name('wizard.store');
 });
 
-Route::middleware(['auth', 'role:musteri'])->prefix('musteri')->name('musteri.')->group(function () {
+Route::middleware(['auth', 'verified.panel', 'role:musteri'])->prefix('musteri')->name('musteri.')->group(function () {
     Route::get('/dashboard', [MusteriDashboardController::class, 'index'])->name('dashboard');
     Route::get('/bilgilerim', [MusteriProfileController::class, 'edit'])->name('bilgilerim.edit');
     Route::put('/bilgilerim', [MusteriProfileController::class, 'update'])->name('bilgilerim.update');
@@ -117,12 +135,12 @@ Route::middleware(['auth', 'role:musteri'])->prefix('musteri')->name('musteri.')
     Route::post('/bildirimler/{id}/okundu', [MusteriNotificationController::class, 'markRead'])->name('notifications.read');
     Route::post('/bildirimler/okundu-tumu', [MusteriNotificationController::class, 'markAllRead'])->name('notifications.mark-all-read');
 });
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified.panel'])->group(function () {
     Route::get('/ihale/{ihale}/degerlendir', [ReviewController::class, 'create'])->name('review.create');
     Route::post('/degerlendirme', [ReviewController::class, 'store'])->name('review.store');
 });
 
-Route::middleware(['auth', 'role:nakliyeci'])->prefix('nakliyeci')->name('nakliyeci.')->group(function () {
+Route::middleware(['auth', 'verified.panel', 'role:nakliyeci'])->prefix('nakliyeci')->name('nakliyeci.')->group(function () {
     Route::get('/dashboard', [NakliyeciDashboardController::class, 'index'])->name('dashboard');
     Route::get('/company/create', [NakliyeciCompanyController::class, 'create'])->name('company.create');
     Route::post('/company', [NakliyeciCompanyController::class, 'store'])->name('company.store');
@@ -132,6 +150,10 @@ Route::middleware(['auth', 'role:nakliyeci'])->prefix('nakliyeci')->name('nakliy
     Route::get('/ledger', [NakliyeciLedgerController::class, 'index'])->name('ledger');
     Route::get('/ledger/olustur', [NakliyeciLedgerController::class, 'create'])->name('ledger.create');
     Route::post('/ledger', [NakliyeciLedgerController::class, 'store'])->name('ledger.store');
+    Route::post('/ledger/ilan/{yukIlani}/yanit', [NakliyeciLedgerController::class, 'storeReply'])->name('ledger.reply.store')->middleware('throttle:30,1');
+    Route::get('/bildirimler', [NakliyeciNotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/bildirimler/{id}/okundu', [NakliyeciNotificationController::class, 'markRead'])->name('notifications.read');
+    Route::post('/bildirimler/okundu-tumu', [NakliyeciNotificationController::class, 'markAllRead'])->name('notifications.mark-all-read');
     Route::get('/galeri', [NakliyeciGaleriController::class, 'index'])->name('galeri.index');
     Route::get('/galeri/olustur', [NakliyeciGaleriController::class, 'create'])->name('galeri.create');
     Route::post('/galeri', [NakliyeciGaleriController::class, 'store'])->name('galeri.store');
@@ -149,6 +171,12 @@ Route::middleware(['auth', 'role:nakliyeci'])->prefix('nakliyeci')->name('nakliy
     Route::post('/ihaleler/{ihale}/teklif/{teklif}/guncelle', [NakliyeciIhaleController::class, 'requestTeklifUpdate'])->name('ihaleler.teklif.request-update');
     Route::post('/teklif', [NakliyeciTeklifController::class, 'store'])->middleware('throttle:20,1')->name('teklif.store');
     Route::post('/location', [NakliyeciLocationController::class, 'update'])->name('location.update');
+    Route::get('/pazaryeri', [NakliyeciPazaryeriController::class, 'index'])->name('pazaryeri.index');
+    Route::get('/pazaryeri/olustur', [NakliyeciPazaryeriController::class, 'create'])->name('pazaryeri.create');
+    Route::post('/pazaryeri', [NakliyeciPazaryeriController::class, 'store'])->name('pazaryeri.store');
+    Route::get('/pazaryeri/{pazaryeri}/duzenle', [NakliyeciPazaryeriController::class, 'edit'])->name('pazaryeri.edit');
+    Route::put('/pazaryeri/{pazaryeri}', [NakliyeciPazaryeriController::class, 'update'])->name('pazaryeri.update');
+    Route::delete('/pazaryeri/{pazaryeri}', [NakliyeciPazaryeriController::class, 'destroy'])->name('pazaryeri.destroy');
 });
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -177,6 +205,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/companies/{company}/reject', [AdminCompanyController::class, 'reject'])->name('companies.reject');
     Route::patch('/companies/{company}/package', [AdminCompanyController::class, 'updatePackage'])->name('companies.update-package');
     Route::get('/ihaleler', [AdminIhaleController::class, 'index'])->name('ihaleler.index');
+    Route::post('/ihaleler/bulk-publish', [AdminIhaleController::class, 'bulkPublish'])->name('ihaleler.bulk-publish');
+    Route::post('/ihaleler/bulk-close', [AdminIhaleController::class, 'bulkClose'])->name('ihaleler.bulk-close');
     Route::get('/ihaleler/create', [AdminIhaleController::class, 'create'])->name('ihaleler.create');
     Route::post('/ihaleler', [AdminIhaleController::class, 'store'])->name('ihaleler.store');
     Route::get('/ihaleler/{ihale}', [AdminIhaleController::class, 'show'])->name('ihaleler.show');
@@ -200,10 +230,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/disputes', [AdminDisputeController::class, 'index'])->name('disputes.index');
     Route::get('/disputes/{dispute}', [AdminDisputeController::class, 'show'])->name('disputes.show');
     Route::post('/disputes/{dispute}/resolve', [AdminDisputeController::class, 'resolve'])->name('disputes.resolve');
+    Route::post('/blog/generate-ai', [AdminBlogPostController::class, 'generateAi'])->middleware('throttle:10,1')->name('blog.generate-ai');
     Route::resource('blog', AdminBlogPostController::class)->except(['show']);
     Route::resource('blog-categories', AdminBlogCategoryController::class)->except(['show']);
     Route::resource('faq', AdminFaqController::class);
     Route::resource('room-templates', AdminRoomTemplateController::class);
+    Route::get('/homepage-editor', [AdminHomepageEditorController::class, 'index'])->name('homepage-editor.index');
+    Route::post('/homepage-editor', [AdminHomepageEditorController::class, 'update'])->name('homepage-editor.update');
+    Route::resource('sponsors', AdminSponsorController::class)->except(['show']);
     Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
     Route::post('/settings', [AdminSettingController::class, 'update'])->name('settings.update');
     Route::post('/settings/mail-templates', [AdminSettingController::class, 'updateMailTemplates'])->name('settings.update-mail-templates');
@@ -214,4 +248,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
     Route::get('/notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/{id}/read', [AdminNotificationController::class, 'markRead'])->name('notifications.read');
+    Route::get('/site-contact-messages', [\App\Http\Controllers\Admin\SiteContactMessageController::class, 'index'])->name('site-contact-messages.index');
+    Route::get('/site-contact-messages/{siteContactMessage}', [\App\Http\Controllers\Admin\SiteContactMessageController::class, 'show'])->name('site-contact-messages.show');
+    Route::delete('/site-contact-messages/{siteContactMessage}', [\App\Http\Controllers\Admin\SiteContactMessageController::class, 'destroy'])->name('site-contact-messages.destroy');
 });

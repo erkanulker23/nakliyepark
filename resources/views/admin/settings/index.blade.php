@@ -4,9 +4,17 @@
 @section('page_heading', 'Site, SEO ve sistem ayarları')
 
 @push('styles')
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
 <style>
 .settings-tab-panel { display: none; }
 .settings-tab-panel.active { display: block; }
+.mail-body-editor-wrap { min-height: 200px; }
+.mail-body-editor-wrap .ql-editor { min-height: 180px; font-size: 14px; }
+.mail-body-editor-wrap .ql-toolbar.ql-snow { border-radius: 0.375rem 0.375rem 0 0; }
+.mail-body-editor-wrap .ql-container.ql-snow { border-radius: 0 0 0.375rem 0.375rem; }
+.dark .mail-body-editor-wrap .ql-snow { border-color: rgb(71 85 105); }
+.dark .mail-body-editor-wrap .ql-toolbar.ql-snow { background: rgb(51 65 85); }
+.dark .mail-body-editor-wrap .ql-container { background: rgb(30 41 59); color: rgb(226 232 240); }
 </style>
 @endpush
 
@@ -50,6 +58,16 @@
             class="settings-tab px-4 py-3 text-sm font-medium border-b-2 -mb-px border-transparent transition-colors rounded-t-lg
             text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600">
             Paketler
+        </button>
+        <button type="button" role="tab" id="tab-contact" aria-selected="false" aria-controls="panel-contact" data-tab="contact"
+            class="settings-tab px-4 py-3 text-sm font-medium border-b-2 -mb-px border-transparent transition-colors rounded-t-lg
+            text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600">
+            İletişim bilgileri
+        </button>
+        <button type="button" role="tab" id="tab-api" aria-selected="false" aria-controls="panel-api" data-tab="api"
+            class="settings-tab px-4 py-3 text-sm font-medium border-b-2 -mb-px border-transparent transition-colors rounded-t-lg
+            text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600">
+            API / Yapay Zeka
         </button>
     </nav>
 
@@ -99,6 +117,16 @@
                         @error('site_favicon')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                         <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">PNG, ICO, GIF veya SVG. En fazla 1 MB.</p>
                     </div>
+                </div>
+                <div class="border-b border-slate-200 dark:border-slate-600 pb-5">
+                    <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">Nakliye firmaları sayfası</h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm mb-3">Frontend’de nakliye firmaları listesi ve haritadaki nakliyeciler sayfasının (menü linkleri dahil) gösterilip gösterilmeyeceğini buradan ayarlayabilirsiniz.</p>
+                    <div class="admin-form-group flex items-center gap-3">
+                        <input type="checkbox" name="show_firmalar_page" id="show_firmalar_page" value="1" class="rounded border-slate-300 dark:border-slate-600 text-emerald-600 focus:ring-emerald-500"
+                            {{ ($settings['show_firmalar_page'] ?? '1') === '1' ? 'checked' : '' }}>
+                        <label for="show_firmalar_page" class="admin-label mb-0">Nakliye firmaları sayfası frontend’de gösterilsin</label>
+                    </div>
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">İşareti kaldırırsanız /nakliye-firmalari ve menüdeki Firmalar linkleri gizlenir; sayfaya doğrudan gidildiğinde 404 döner.</p>
                 </div>
                 <div class="border-b border-slate-200 dark:border-slate-600 pb-5">
                     <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">SEO ayarları</h3>
@@ -169,7 +197,6 @@
                     'volume' => ['label' => 'Hacim Hesaplama', 'route' => route('tools.volume')],
                     'distance' => ['label' => 'Mesafe Hesaplama', 'route' => route('tools.distance')],
                     'road_distance' => ['label' => 'Karayolu Mesafe', 'route' => route('tools.road-distance')],
-                    'cost' => ['label' => 'Tahmini Maliyet', 'route' => route('tools.cost')],
                     'checklist' => ['label' => 'Taşınma Kontrol Listesi', 'route' => route('tools.checklist')],
                     'moving_calendar' => ['label' => 'Taşınma Takvimi', 'route' => route('tools.moving-calendar')],
                 ] as $slug => $info)
@@ -344,13 +371,16 @@
         <div class="admin-card p-6 w-full">
             <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-2">Sistem e-posta şablonları ve içerikleri</h3>
             <p class="text-slate-600 dark:text-slate-400 text-sm mb-4">Projeden otomatik giden <strong>tüm e-postalar</strong> burada tanımlıdır. Her biri bir kullanıcı etkileşiminde (ihale oluşturma, teklif gelmesi, şifre sıfırlama vb.) tetiklenir. <strong>Konu</strong> ve <strong>içerik (gövde)</strong> metnini özelleştirebilirsiniz; boş bırakırsanız varsayılan metin kullanılır.</p>
-            <p class="text-slate-600 dark:text-slate-400 text-sm mb-6">İçerikte kullanılabilecek değişkenler: <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">{from_city}</code>, <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">{to_city}</code>, <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">{site_name}</code>, <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">{action_url}</code> (ilgili sayfa linki), <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">{firma_adi}</code>, <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">{teklif_tutar}</code>, <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">{musteri_adi}</code>, <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">{reset_url}</code> (şifre sıfırlama). HTML kullanabilirsiniz (örn. <code class="text-xs">&lt;p&gt;</code>, <code class="text-xs">&lt;a&gt;</code>, <code class="text-xs">&lt;strong&gt;</code>).</p>
+            <p class="text-slate-600 dark:text-slate-400 text-sm mb-6">İçerikte kullanılabilecek değişkenler: <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">{from_city}</code>, <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">{to_city}</code>, <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">{site_name}</code>, <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">{name}</code>, <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">{action_url}</code> (ilgili sayfa linki), <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">{verification_url}</code> (e-posta doğrulama), <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">{firma_adi}</code>, <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">{teklif_tutar}</code>, <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">{musteri_adi}</code>, <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">{reset_url}</code> (şifre sıfırlama). HTML kullanabilirsiniz (örn. <code class="text-xs">&lt;p&gt;</code>, <code class="text-xs">&lt;a&gt;</code>, <code class="text-xs">&lt;strong&gt;</code>).</p>
 
             <form method="POST" action="{{ route('admin.settings.update-mail-templates') }}">
                 @csrf
                 @php
                     $systemEmails = [
                         ['key' => 'admin_new_ihale',  'trigger' => 'Müşteri veya misafir nakliye talebi (ihale) oluşturduğunda',           'who' => 'Admin',      'label' => 'Yeni ihale bildirimi'],
+                        ['key' => 'email_verification',      'trigger' => 'Yeni üye kayıt olduğunda (e-posta doğrulama linki)',            'who' => 'Müşteri / Nakliyeci', 'label' => 'E-posta doğrulama'],
+                        ['key' => 'musteri_welcome',        'trigger' => 'Müşteri olarak kayıt olduğunda',                                 'who' => 'Müşteri', 'label' => 'Hoş geldin (müşteri)'],
+                        ['key' => 'nakliyeci_welcome',      'trigger' => 'Nakliyeci olarak kayıt olduğunda',                               'who' => 'Nakliyeci', 'label' => 'Hoş geldin (nakliyeci)'],
                         ['key' => 'musteri_ihale_created',  'trigger' => 'Talep (ihale) sisteme kaydedildiğinde',                         'who' => 'Müşteri / Misafir e-postası', 'label' => 'İhale oluşturuldu'],
                         ['key' => 'musteri_ihale_published', 'trigger' => 'Admin ihale talebini onaylayıp yayına aldığında',               'who' => 'Müşteri / Misafir e-postası', 'label' => 'İhale onaylandı / yayında'],
                         ['key' => 'musteri_teklif_received', 'trigger' => 'Nakliyeci ihaleye teklif verdiğinde',                           'who' => 'Müşteri / Misafir e-postası', 'label' => 'Yeni teklif alındı'],
@@ -375,7 +405,15 @@
                             </div>
                             <div class="admin-form-group">
                                 <label class="admin-label">E-posta içeriği (gövde)</label>
-                                <textarea name="mail_tpl_{{ $row['key'] }}_body" rows="5" class="admin-input text-sm w-full font-mono" placeholder="Boş bırakılırsa varsayılan metin kullanılır. HTML ve değişkenler kullanabilirsiniz.">{{ old('mail_tpl_'.$row['key'].'_body', $settings['mail_tpl_'.$row['key'].'_body'] ?? '') }}</textarea>
+                                @php
+                                    $bodyRaw = old('mail_tpl_'.$row['key'].'_body', $settings['mail_tpl_'.$row['key'].'_body'] ?? '');
+                                    $bodyEscaped = is_string($bodyRaw) ? e($bodyRaw) : e((string) $bodyRaw);
+                                @endphp
+                                <div class="mail-body-editor-wrap" data-body-key="{{ $row['key'] }}">
+                                    <textarea name="mail_tpl_{{ $row['key'] }}_body" class="mail-body-editor-src hidden" placeholder="Boş bırakılırsa varsayılan metin kullanılır.">{{ $bodyEscaped }}</textarea>
+                                    <div class="mail-body-editor-container rounded-lg border border-slate-300 dark:border-slate-600 overflow-hidden bg-white dark:bg-slate-800" style="min-height: 200px;"></div>
+                                </div>
+                                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Zengin metin editörü ile düzenleyin. E-postada biçimli (HTML) olarak gönderilir. Değişkenler: {from_city}, {to_city}, {action_url} vb.</p>
                             </div>
                         </div>
                     </div>
@@ -423,6 +461,63 @@
             </form>
         </div>
     </div>
+
+    {{-- Tab: İletişim bilgileri --}}
+    <div role="tabpanel" id="panel-contact" class="settings-tab-panel" aria-labelledby="tab-contact" hidden>
+        <div class="admin-card p-6 max-w-3xl">
+            <p class="text-slate-600 dark:text-slate-400 text-sm mb-6">İletişim sayfasında ve footer’da gösterilecek bilgiler. Boş bırakılan alanlar sitede görünmez.</p>
+            <form method="POST" action="{{ route('admin.settings.update') }}" class="space-y-5">
+                @csrf
+                <input type="hidden" name="settings_section" value="contact">
+                <div class="admin-form-group">
+                    <label class="admin-label">Telefon</label>
+                    <input type="text" name="contact_phone" value="{{ old('contact_phone', $settings['contact_phone'] ?? '') }}" class="admin-input" placeholder="Örn: 0 (212) 555 00 00">
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-label">E-posta</label>
+                    <input type="email" name="contact_email" value="{{ old('contact_email', $settings['contact_email'] ?? '') }}" class="admin-input" placeholder="iletisim@nakliyepark.com">
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-label">Adres</label>
+                    <textarea name="contact_address" rows="3" class="admin-input" placeholder="Şirket adresi">{{ old('contact_address', $settings['contact_address'] ?? '') }}</textarea>
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-label">WhatsApp numarası (isteğe bağlı)</label>
+                    <input type="text" name="contact_whatsapp" value="{{ old('contact_whatsapp', $settings['contact_whatsapp'] ?? '') }}" class="admin-input" placeholder="905321234567 (başında 0 olmadan)">
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-label">Çalışma saatleri (isteğe bağlı)</label>
+                    <input type="text" name="contact_hours" value="{{ old('contact_hours', $settings['contact_hours'] ?? '') }}" class="admin-input" placeholder="Örn: Pazartesi–Cuma 09:00–18:00">
+                </div>
+                <button type="submit" class="admin-btn-primary">İletişim bilgilerini kaydet</button>
+            </form>
+        </div>
+    </div>
+
+    {{-- Tab: API / Yapay Zeka --}}
+    <div role="tabpanel" id="panel-api" class="settings-tab-panel" aria-labelledby="tab-api" hidden>
+        <div class="admin-card p-6 max-w-2xl">
+            <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-2">API ve yapay zeka ayarları</h3>
+            <p class="text-slate-600 dark:text-slate-400 text-sm mb-6">Blog yazılarını yapay zeka ile oluşturmak için OpenAI API bilgilerini girin. Anahtar admin panelinde güvenle saklanır; .env zorunlu değildir.</p>
+            <form method="POST" action="{{ route('admin.settings.update') }}" class="space-y-5">
+                @csrf
+                <input type="hidden" name="settings_section" value="api">
+                <div class="admin-form-group">
+                    <label class="admin-label">OpenAI API anahtarı</label>
+                    <input type="password" name="openai_api_key" value="" class="admin-input font-mono" placeholder="{{ !empty($settings['openai_api_key_set']) ? '•••••••••••• (değiştirmek için yeni anahtar girin)' : 'sk-... (OpenAI platform.openai.com üzerinden alınır)' }}" autocomplete="new-password">
+                    @error('openai_api_key')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Boş bırakırsanız mevcut anahtar değişmez. <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" class="text-emerald-600 dark:text-emerald-400 hover:underline">API anahtarı oluştur</a></p>
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-label">OpenAI model (isteğe bağlı)</label>
+                    <input type="text" name="openai_blog_model" value="{{ old('openai_blog_model', $settings['openai_blog_model'] ?? 'gpt-4o-mini') }}" class="admin-input font-mono" placeholder="gpt-4o-mini">
+                    @error('openai_blog_model')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Blog oluşturmada kullanılacak model. Örn: gpt-4o-mini, gpt-4o</p>
+                </div>
+                <button type="submit" class="admin-btn-primary">API ayarlarını kaydet</button>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -464,8 +559,52 @@
     var hash = window.location.hash.slice(1);
     var saved = null;
     try { saved = localStorage.getItem(storageKey); } catch (e) {}
-    var initial = (hash === 'site' || hash === 'tools' || hash === 'mail' || hash === 'commission' || hash === 'style' || hash === 'mail-templates' || hash === 'packages') ? hash : (saved || 'site');
+    var initial = (hash === 'site' || hash === 'tools' || hash === 'mail' || hash === 'commission' || hash === 'style' || hash === 'mail-templates' || hash === 'packages' || hash === 'contact' || hash === 'api') ? hash : (saved || 'site');
     activate(initial);
 })();
 </script>
+
+@push('scripts')
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+<script>
+(function() {
+    if (typeof Quill === 'undefined') return;
+    var wrappers = document.querySelectorAll('.mail-body-editor-wrap');
+    wrappers.forEach(function(wrap) {
+        var textarea = wrap.querySelector('textarea.mail-body-editor-src');
+        var container = wrap.querySelector('.mail-body-editor-container');
+        if (!textarea || !container) return;
+        var initialHtml = (textarea.value || '').trim();
+        var quill = new Quill(container, {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    [{ 'header': [2, 3, false] }],
+                    ['bold', 'italic', 'underline'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['link'],
+                    ['clean']
+                ]
+            }
+        });
+        if (initialHtml) {
+            quill.root.innerHTML = initialHtml;
+        }
+        quill.on('text-change', function() {
+            textarea.value = quill.root.innerHTML;
+        });
+        textarea.value = quill.root.innerHTML;
+        wrap._quill = quill;
+    });
+    var form = document.querySelector('form[action*="mail-templates"]');
+    if (form) {
+        form.addEventListener('submit', function() {
+            wrappers.forEach(function(wrap) {
+                if (wrap._quill) wrap.querySelector('textarea.mail-body-editor-src').value = wrap._quill.root.innerHTML;
+            });
+        });
+    }
+})();
+</script>
+@endpush
 @endsection

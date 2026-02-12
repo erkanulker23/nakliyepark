@@ -25,8 +25,10 @@ class FaqController extends Controller
             'question' => 'required|string|max:500',
             'answer' => 'required|string',
             'sort_order' => 'nullable|integer|min:0',
+            'audience' => 'nullable|in:musteri,nakliyeci',
         ]);
         $data['sort_order'] = (int) ($data['sort_order'] ?? 0);
+        $data['audience'] = $data['audience'] ?? null;
         Faq::create($data);
         return redirect()->route('admin.faq.index')->with('success', 'SSS eklendi.');
     }
@@ -42,8 +44,10 @@ class FaqController extends Controller
             'question' => 'required|string|max:500',
             'answer' => 'required|string',
             'sort_order' => 'nullable|integer|min:0',
+            'audience' => 'nullable|in:musteri,nakliyeci',
         ]);
         $data['sort_order'] = (int) ($data['sort_order'] ?? 0);
+        $data['audience'] = $data['audience'] ?? null;
         $faq->update($data);
         return redirect()->route('admin.faq.index')->with('success', 'SSS güncellendi.');
     }
