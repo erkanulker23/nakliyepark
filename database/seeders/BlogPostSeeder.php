@@ -5,34 +5,38 @@ namespace Database\Seeders;
 use App\Models\BlogCategory;
 use App\Models\BlogPost;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class BlogPostSeeder extends Seeder
 {
     public function run(): void
     {
-        // Eski blog yazılarını temizle
-        BlogPost::query()->delete();
+        $this->command?->info('BlogPostSeeder: Kategoriler ve yazılar oluşturuluyor...');
 
-        $categories = $this->ensureCategories();
-        $posts = BlogPostsData::get();
+        DB::transaction(function () {
+            BlogPost::query()->delete();
+            $categories = $this->ensureCategories();
+            $posts = BlogPostsData::get();
 
-        foreach ($posts as $index => $postData) {
-            $categorySlug = $postData['category_slug'];
-            $categoryId = $categories[$categorySlug] ?? $categories['genel-nakliyat'];
+            foreach ($posts as $index => $postData) {
+                $categorySlug = $postData['category_slug'];
+                $categoryId = $categories[$categorySlug] ?? $categories['genel-nakliyat'];
 
-            BlogPost::create([
-                'category_id' => $categoryId,
-                'title' => $postData['title'],
-                'slug' => $postData['slug'],
-                'meta_title' => $postData['meta_title'],
-                'meta_description' => $postData['meta_description'],
-                'excerpt' => $postData['excerpt'],
-                'content' => $postData['content'],
-                'published_at' => now()->subDays($index),
-                'featured' => $index < 6,
-            ]);
-        }
+                BlogPost::create([
+                    'category_id' => $categoryId,
+                    'title' => $postData['title'],
+                    'slug' => $postData['slug'],
+                    'meta_title' => $postData['meta_title'],
+                    'meta_description' => $postData['meta_description'],
+                    'excerpt' => $postData['excerpt'],
+                    'content' => $postData['content'],
+                    'published_at' => now()->subDays($index),
+                    'featured' => $index < 6,
+                ]);
+            }
+        });
+
+        $this->command?->info('BlogPostSeeder: ' . BlogPost::count() . ' blog yazısı oluşturuldu.');
     }
 
     private function ensureCategories(): array

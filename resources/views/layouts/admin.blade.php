@@ -59,10 +59,16 @@
                     <span>{{ session('error') }}</span>
                 </div>
             @endif
-            @if(session('info'))
+            @php
+                $adminInfo = session('info');
+                if ($adminInfo && (str_contains($adminInfo, 'süresi doldu') || str_contains($adminInfo, 'tekrar giriş yapın'))) {
+                    $adminInfo = null;
+                }
+            @endphp
+            @if($adminInfo)
                 <div class="app-alert app-alert--info" role="alert">
                     <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
-                    <span>{{ session('info') }}</span>
+                    <span>{{ $adminInfo }}</span>
                 </div>
             @endif
             @yield('content')

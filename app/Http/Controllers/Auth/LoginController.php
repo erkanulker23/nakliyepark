@@ -111,6 +111,7 @@ class LoginController extends Controller
         }
 
         $request->session()->regenerate();
+        $request->session()->forget('info');
 
         if ($user->isAdmin()) {
             return redirect()->intended(route('admin.dashboard'));
@@ -185,6 +186,8 @@ class LoginController extends Controller
         }
 
         $request->session()->regenerate();
+        // 419 sonrası kalan "Sayfa yenilendi. Lütfen tekrar giriş yapın." gibi info flash'ını temizle; panele girince bu mesaj çıkmasın
+        $request->session()->forget('info');
 
         return redirect()->intended(route('admin.dashboard'));
     }
