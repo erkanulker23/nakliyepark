@@ -4,7 +4,7 @@
 @section('page_heading', 'Nakliyeciler (Firmalar)')
 
 @section('content')
-<p class="text-sm text-slate-600 dark:text-slate-400 mb-4">Nakliyeci olarak kayıt olup firma bilgilerini dolduran kullanıcılar burada listelenir. Varsayılan olarak <strong>onay bekleyen</strong> firmalar gösterilir. Tüm kullanıcıları (nakliyeci/müşteri) görmek için <a href="{{ route('admin.users.index') }}" class="text-emerald-600 dark:text-emerald-400 hover:underline">Kullanıcılar</a> sayfasını kullanın.</p>
+<p class="text-sm text-slate-600 dark:text-slate-400 mb-4">Nakliyeci olarak kayıt olup firma bilgilerini dolduran kullanıcılar burada listelenir. Onay filtresinden <strong>Onaylı</strong> veya <strong>Onay bekliyor</strong> seçerek listeleyebilirsiniz. Tüm kullanıcıları (nakliyeci/müşteri) görmek için <a href="{{ route('admin.users.index') }}" class="text-emerald-600 dark:text-emerald-400 hover:underline">Kullanıcılar</a> sayfasını kullanın.</p>
 <div class="flex flex-col sm:flex-row sm:flex-nowrap sm:items-center sm:justify-between gap-4 mb-6">
     <form method="get" action="{{ route('admin.companies.index') }}" class="flex flex-wrap items-center gap-2 sm:flex-nowrap">
         <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Firma, şehir veya e-posta ara..." class="admin-input py-2 w-56 text-sm">

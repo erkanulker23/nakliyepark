@@ -31,20 +31,11 @@ class CompanyController extends Controller
             });
         }
         
-        // Varsayılan olarak onay bekleyen firmaları göster (eğer hiç filtre yoksa)
-        if ($request->has('approved')) {
-            // Kullanıcı açıkça bir seçim yapmış
-            if ($request->approved === '1') {
-                $query->whereNotNull('approved_at');
-            } elseif ($request->approved === '0') {
-                $query->whereNull('approved_at');
-            }
-            // Eğer approved boş string ise (Tümü seçilmiş), filtreleme yapma
-        } else {
-            // Hiç filtre yoksa ve query string boşsa, varsayılan olarak onay bekleyen firmaları göster
-            if (!$request->hasAny(['q', 'blocked', 'package', 'sort', 'dir'])) {
-                $query->whereNull('approved_at');
-            }
+        // Onay filtresi: sadece kullanıcı seçtiğinde uygula (varsayılan: tümü)
+        if ($request->approved === '1') {
+            $query->whereNotNull('approved_at');
+        } elseif ($request->approved === '0') {
+            $query->whereNull('approved_at');
         }
         if ($request->filled('blocked')) {
             if ($request->blocked === '1') {
@@ -67,12 +58,6 @@ class CompanyController extends Controller
 
         $companies = $query->paginate(15)->withQueryString();
         $filters = $request->only(['q', 'approved', 'blocked', 'package', 'sort', 'dir']);
-        
-        // Eğer hiç filtre yoksa ve varsayılan olarak onay bekleyenleri gösteriyorsak, filters'a ekle
-        if (!$request->hasAny(['q', 'approved', 'blocked', 'package', 'sort', 'dir'])) {
-            $filters['approved'] = '0';
-        }
-        
         $paketler = config('nakliyepark.nakliyeci_paketler', []);
 
         return view('admin.companies.index', compact('companies', 'filters', 'paketler'));

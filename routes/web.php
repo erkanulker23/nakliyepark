@@ -119,9 +119,11 @@ Route::middleware(['guest', 'throttle:10,1'])->group(function () {
     Route::post('/sifre-sifirla', [ResetPasswordController::class, 'reset'])->name('password.update');
 });
 
+// E-posta doğrulama: giriş yapmadan token (imzalı link) ile onaylanır
+Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->middleware('signed')->name('verification.verify');
+
 Route::middleware('auth')->group(function () {
     Route::get('/email/verify', [VerificationController::class, 'notice'])->name('verification.notice');
-    Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->middleware('signed')->name('verification.verify');
     Route::post('/email/verification-notification', [VerificationController::class, 'resend'])->middleware('throttle:3,1')->name('verification.send');
 });
 

@@ -3,6 +3,16 @@
     $showEmbedLink = $showEmbedLink ?? false;
     $ihaleCreateUrl = $ihaleCreateUrl ?? route('ihale.create');
 @endphp
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+#price-estimator-map-container { border-radius: 1rem; overflow: hidden; }
+#price-estimator-map-container .leaflet-control-zoom a { border-radius: 8px; }
+</style>
+@endpush
+@push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+@endpush
 <div class="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-lg overflow-hidden" id="price-estimator">
     <div class="p-4 sm:p-5 border-b border-zinc-200 dark:border-zinc-800 bg-gradient-to-r from-emerald-50/80 to-teal-50/50 dark:from-emerald-950/20 dark:to-zinc-900">
         <h2 class="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
@@ -86,6 +96,17 @@
         </div>
         <input type="hidden" id="distance_km" value="0">
 
+        {{-- Harita: iller seçildikten sonra karayolu rotası --}}
+        <div id="price-estimator-map-wrapper" class="relative rounded-2xl overflow-hidden border border-zinc-200/80 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800/50 hidden shadow-lg">
+            <div id="price-estimator-map-container" class="w-full" style="height: 320px;">
+                <div id="price-estimator-map" class="w-full h-full"></div>
+            </div>
+            <div id="price-estimator-map-legend" class="absolute bottom-3 left-3 right-3 sm:left-auto sm:right-3 sm:w-auto flex items-center justify-center gap-4 text-sm bg-white/95 dark:bg-zinc-900/95 backdrop-blur rounded-lg px-3 py-2 shadow">
+                <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-red-500"></span> Nereden</span>
+                <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-500"></span> Nereye</span>
+            </div>
+        </div>
+
         {{-- Kat bilgisi --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -163,6 +184,7 @@
 (function() {
     const config = @json($config);
     const ROAD_FACTOR = 1.25;
+    const OSRM_BASE = 'https://router.project-osrm.org/route/v1/driving';
     const provincesApiUrl = '{{ route("api.turkey.provinces") }}';
     const districtsApiUrl = '{{ route("api.turkey.districts") }}';
     const ihaleCreateUrl = '{{ $ihaleCreateUrl }}';
@@ -185,8 +207,14 @@
     const priceDetailsEl = document.getElementById('price-details');
     const resultBox = document.getElementById('result-box');
     const localMessage = document.getElementById('local-message');
+    const mapWrapper = document.getElementById('price-estimator-map-wrapper');
 
     let provinces = [];
+    let priceEstimatorMap = null;
+    let priceEstimatorFromMarker = null;
+    let priceEstimatorToMarker = null;
+    let priceEstimatorLine = null;
+    let priceEstimatorRouteRequest = null;
 
     function getDistance() {
         return Math.max(0, Math.round(parseFloat(distanceEl?.value || 0) || 0));
@@ -312,12 +340,75 @@
             });
     }
 
+    function getFromToCoords() {
+        const fromOpt = fromProvince?.options[fromProvince?.selectedIndex];
+        const toOpt = toProvince?.options[toProvince?.selectedIndex];
+        if (!fromOpt || !toOpt || !fromOpt.value || !toOpt.value || fromOpt.value === toOpt.value) return null;
+        const lat1 = parseFloat(fromOpt.dataset.lat), lng1 = parseFloat(fromOpt.dataset.lng);
+        const lat2 = parseFloat(toOpt.dataset.lat), lng2 = parseFloat(toOpt.dataset.lng);
+        if (isNaN(lat1) || isNaN(lng1) || isNaN(lat2) || isNaN(lng2)) return null;
+        return { from: { lat: lat1, lng: lng1, name: fromOpt.dataset.name || fromOpt.text }, to: { lat: lat2, lng: lng2, name: toOpt.dataset.name || toOpt.text } };
+    }
+
+    function updatePriceEstimatorMap() {
+        const coords = getFromToCoords();
+        if (!coords || !mapWrapper) {
+            if (mapWrapper) mapWrapper.classList.add('hidden');
+            return;
+        }
+        mapWrapper.classList.remove('hidden');
+        if (typeof L === 'undefined') return;
+        if (!priceEstimatorMap) {
+            priceEstimatorMap = L.map('price-estimator-map').setView([coords.from.lat, coords.from.lng], 6);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(priceEstimatorMap);
+        }
+        if (priceEstimatorFromMarker) priceEstimatorMap.removeLayer(priceEstimatorFromMarker);
+        if (priceEstimatorToMarker) priceEstimatorMap.removeLayer(priceEstimatorToMarker);
+        if (priceEstimatorLine) priceEstimatorMap.removeLayer(priceEstimatorLine);
+        priceEstimatorFromMarker = L.marker([coords.from.lat, coords.from.lng]).addTo(priceEstimatorMap).bindPopup('<b>Nereden</b><br>' + (coords.from.name || ''));
+        priceEstimatorToMarker = L.marker([coords.to.lat, coords.to.lng]).addTo(priceEstimatorMap).bindPopup('<b>Nereye</b><br>' + (coords.to.name || ''));
+        const bounds = [[coords.from.lat, coords.from.lng], [coords.to.lat, coords.to.lng]];
+        if (priceEstimatorRouteRequest) priceEstimatorRouteRequest.abort();
+        priceEstimatorRouteRequest = new AbortController();
+        const url = OSRM_BASE + '/' + coords.from.lng + ',' + coords.from.lat + ';' + coords.to.lng + ',' + coords.to.lat + '?overview=full&geometries=geojson';
+        fetch(url, { signal: priceEstimatorRouteRequest.signal })
+            .then(r => r.json())
+            .then(data => {
+                if (data.code === 'Ok' && data.routes && data.routes[0]) {
+                    const route = data.routes[0];
+                    const roadKm = route.distance != null ? Math.round(route.distance / 1000) : null;
+                    if (roadKm != null && distanceEl) {
+                        distanceEl.value = roadKm;
+                        const fromName = fromProvince?.options[fromProvince?.selectedIndex]?.text || '';
+                        const toName = toProvince?.options[toProvince?.selectedIndex]?.text || '';
+                        if (distanceLabel) distanceLabel.textContent = 'Mesafe: ' + roadKm + ' km (' + fromName + ' → ' + toName + ')';
+                        calculate();
+                    }
+                    if (route.geometry && route.geometry.coordinates && route.geometry.coordinates.length) {
+                        const lineCoords = route.geometry.coordinates.map(c => [c[1], c[0]]);
+                        priceEstimatorLine = L.polyline(lineCoords, { color: '#059669', weight: 4, opacity: 0.9 }).addTo(priceEstimatorMap);
+                        priceEstimatorMap.fitBounds(L.latLngBounds(lineCoords), { padding: [30, 30], maxZoom: 12 });
+                        return;
+                    }
+                }
+                priceEstimatorLine = L.polyline([[coords.from.lat, coords.from.lng], [coords.to.lat, coords.to.lng]], { color: '#059669', weight: 4, opacity: 0.9 }).addTo(priceEstimatorMap);
+                priceEstimatorMap.fitBounds(bounds, { padding: [30, 30], maxZoom: 12 });
+            })
+            .catch(function() {
+                priceEstimatorLine = L.polyline([[coords.from.lat, coords.from.lng], [coords.to.lat, coords.to.lng]], { color: '#059669', weight: 4, opacity: 0.9 }).addTo(priceEstimatorMap);
+                priceEstimatorMap.fitBounds(bounds, { padding: [30, 30], maxZoom: 12 });
+            });
+    }
+
     function calcDistanceAuto() {
         const fromOpt = fromProvince?.options[fromProvince?.selectedIndex];
         const toOpt = toProvince?.options[toProvince?.selectedIndex];
         if (!fromOpt || !toOpt || !fromOpt.value || !toOpt.value) {
             if (distanceEl) distanceEl.value = '0';
             if (distanceLabel) distanceLabel.textContent = 'Mesafe: İl ve ilçe seçin, otomatik hesaplanacak';
+            if (mapWrapper) mapWrapper.classList.add('hidden');
             calculate();
             return;
         }
@@ -325,6 +416,7 @@
         const lat2 = parseFloat(toOpt.dataset.lat), lng2 = parseFloat(toOpt.dataset.lng);
         if (isNaN(lat1) || isNaN(lng1) || isNaN(lat2) || isNaN(lng2)) {
             if (distanceEl) distanceEl.value = '0';
+            updatePriceEstimatorMap();
             calculate();
             return;
         }
@@ -334,6 +426,7 @@
         const fromName = fromProvince?.options[fromProvince?.selectedIndex]?.text || '';
         const toName = toProvince?.options[toProvince?.selectedIndex]?.text || '';
         if (distanceLabel) distanceLabel.textContent = 'Mesafe: ' + roadKm + ' km (' + fromName + ' → ' + toName + ')';
+        updatePriceEstimatorMap();
         calculate();
     }
 

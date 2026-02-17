@@ -91,10 +91,12 @@
     const resultBox = document.getElementById('result');
     const resultKm = document.getElementById('result-km');
 
+    const OSRM_BASE = 'https://router.project-osrm.org/route/v1/driving';
     let map = null;
     let fromMarker = null;
     let toMarker = null;
     let line = null;
+    let routeRequest = null;
     let provinces = [];
 
     function haversine(lat1, lon1, lat2, lon2) {
@@ -103,6 +105,23 @@
         const dLon = (lon2 - lon1) * Math.PI / 180;
         const a = Math.sin(dLat/2)**2 + Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) * Math.sin(dLon/2)**2;
         return 2 * R * Math.asin(Math.sqrt(a));
+    }
+
+    function fetchRoadRoute(from, to, onSuccess, onFallback) {
+        const url = OSRM_BASE + '/' + from.lng + ',' + from.lat + ';' + to.lng + ',' + to.lat + '?overview=full&geometries=geojson';
+        if (routeRequest) routeRequest.abort();
+        routeRequest = new AbortController();
+        fetch(url, { signal: routeRequest.signal })
+            .then(r => r.json())
+            .then(data => {
+                if (data.code === 'Ok' && data.routes && data.routes[0] && data.routes[0].geometry && data.routes[0].geometry.coordinates) {
+                    const coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+                    onSuccess(coords);
+                } else {
+                    if (onFallback) onFallback();
+                }
+            })
+            .catch(() => { if (onFallback) onFallback(); });
     }
 
     function fillSelect(select, excludeId) {
@@ -171,10 +190,20 @@
             bounds.push([to.lat, to.lng]);
         }
         if (from && to) {
-            line = L.polyline([[from.lat, from.lng], [to.lat, to.lng]], { color: '#059669', weight: 4, opacity: 0.9 }).addTo(map);
-            const km = Math.round(haversine(from.lat, from.lng, to.lat, to.lng));
-            resultKm.textContent = km;
+            const airKm = Math.round(haversine(from.lat, from.lng, to.lat, to.lng));
+            resultKm.textContent = airKm;
             resultBox.classList.remove('hidden');
+            fetchRoadRoute(from, to,
+                function(coords) {
+                    if (line) map.removeLayer(line);
+                    line = L.polyline(coords, { color: '#059669', weight: 4, opacity: 0.9 }).addTo(map);
+                    map.fitBounds(L.latLngBounds(coords), { padding: [40, 40], maxZoom: 12 });
+                },
+                function() {
+                    if (line) map.removeLayer(line);
+                    line = L.polyline([[from.lat, from.lng], [to.lat, to.lng]], { color: '#059669', weight: 4, opacity: 0.9 }).addTo(map);
+                }
+            );
         } else {
             resultBox.classList.add('hidden');
         }

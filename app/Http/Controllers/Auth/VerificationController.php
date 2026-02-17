@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -24,17 +24,29 @@ class VerificationController extends Controller
     }
 
     /**
-     * Doğrulama linkine tıklandığında (imzalı URL ile).
+     * Doğrulama linkine tıklandığında (imzalı URL ile). Giriş yapmadan token ile onaylanır.
      */
-    public function verify(EmailVerificationRequest $request)
+    public function verify(Request $request, string $id, string $hash)
     {
-        if ($request->user()->hasVerifiedEmail()) {
-            return $this->redirectAfterVerify($request->user(), true);
+        $user = User::find($id);
+        if (! $user) {
+            return redirect()->route('login')->with('error', 'Geçersiz doğrulama linki.');
+        }
+        if ($user->hasVerifiedEmail()) {
+            return $this->redirectAfterVerify($user, true);
+        }
+        if (! hash_equals((string) $hash, (string) sha1($user->getEmailForVerification()))) {
+            return redirect()->route('login')->with('error', 'Geçersiz doğrulama linki.');
         }
 
-        $request->fulfill();
+        $user->markEmailAsVerified();
 
-        return $this->redirectAfterVerify($request->user(), false);
+        // Giriş yapmamışsa token ile doğrulama sonrası oturum aç (isteğe bağlı, UX için)
+        if (! Auth::check()) {
+            Auth::login($user);
+        }
+
+        return $this->redirectAfterVerify($user, false);
     }
 
     private function redirectAfterVerify($user, bool $alreadyVerified): \Illuminate\Http\RedirectResponse

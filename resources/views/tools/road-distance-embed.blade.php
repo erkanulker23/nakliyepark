@@ -45,7 +45,7 @@
             <div class="border-t sm:border-t-0 sm:border-l border-emerald-200 dark:border-emerald-800 pt-4 sm:pt-0 sm:pl-6">
                 <p class="text-sm text-zinc-600 dark:text-zinc-400">Tahmini karayolu mesafe</p>
                 <p class="text-2xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-1"><span id="result-road">0</span> km</p>
-                <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Kuş uçuşu × ~1.25</p>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Karayolu rota ile hesaplanır</p>
             </div>
         </div>
     </div>
@@ -56,6 +56,7 @@
 <script>
 (function() {
     const ROAD_FACTOR = 1.25;
+    const OSRM_BASE = 'https://router.project-osrm.org/route/v1/driving';
     const provincesApiUrl = '{{ route("api.turkey.provinces") }}';
     const fromSelect = document.getElementById('from-province');
     const toSelect = document.getElementById('to-province');
@@ -68,6 +69,7 @@
     let fromMarker = null;
     let toMarker = null;
     let line = null;
+    let routeRequest = null;
     let provinces = [];
 
     function haversine(lat1, lon1, lat2, lon2) {
@@ -76,6 +78,27 @@
         const dLon = (lon2 - lon1) * Math.PI / 180;
         const a = Math.sin(dLat/2)**2 + Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) * Math.sin(dLon/2)**2;
         return 2 * R * Math.asin(Math.sqrt(a));
+    }
+
+    function fetchRoadRoute(from, to, onSuccess, onFallback) {
+        const url = OSRM_BASE + '/' + from.lng + ',' + from.lat + ';' + to.lng + ',' + to.lat + '?overview=full&geometries=geojson';
+        if (routeRequest) routeRequest.abort();
+        routeRequest = new AbortController();
+        fetch(url, { signal: routeRequest.signal })
+            .then(r => r.json())
+            .then(data => {
+                if (data.code === 'Ok' && data.routes && data.routes[0]) {
+                    const route = data.routes[0];
+                    const roadKm = route.distance != null ? Math.round(route.distance / 1000) : null;
+                    const coords = (route.geometry && route.geometry.coordinates)
+                        ? route.geometry.coordinates.map(c => [c[1], c[0]])
+                        : null;
+                    onSuccess(coords, roadKm);
+                } else {
+                    if (onFallback) onFallback();
+                }
+            })
+            .catch(() => { if (onFallback) onFallback(); });
     }
 
     function fillSelect(select, excludeId) {
@@ -138,12 +161,27 @@
             bounds.push([to.lat, to.lng]);
         }
         if (from && to) {
-            line = L.polyline([[from.lat, from.lng], [to.lat, to.lng]], { color: '#059669', weight: 4, opacity: 0.9 }).addTo(map);
             const airKm = Math.round(haversine(from.lat, from.lng, to.lat, to.lng));
-            const roadKm = Math.round(airKm * ROAD_FACTOR);
             resultAir.textContent = airKm;
-            resultRoad.textContent = roadKm;
+            resultRoad.textContent = '…';
             resultBox.classList.remove('hidden');
+            fetchRoadRoute(from, to,
+                function(coords, roadKm) {
+                    if (line) map.removeLayer(line);
+                    if (coords && coords.length) {
+                        line = L.polyline(coords, { color: '#059669', weight: 4, opacity: 0.9 }).addTo(map);
+                        map.fitBounds(L.latLngBounds(coords), { padding: [40, 40], maxZoom: 12 });
+                    } else {
+                        line = L.polyline([[from.lat, from.lng], [to.lat, to.lng]], { color: '#059669', weight: 4, opacity: 0.9 }).addTo(map);
+                    }
+                    resultRoad.textContent = roadKm != null ? roadKm : Math.round(airKm * ROAD_FACTOR);
+                },
+                function() {
+                    if (line) map.removeLayer(line);
+                    line = L.polyline([[from.lat, from.lng], [to.lat, to.lng]], { color: '#059669', weight: 4, opacity: 0.9 }).addTo(map);
+                    resultRoad.textContent = Math.round(airKm * ROAD_FACTOR);
+                }
+            );
         } else {
             resultBox.classList.add('hidden');
         }
