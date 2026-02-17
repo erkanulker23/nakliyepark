@@ -276,6 +276,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::delete('/site-contact-messages/{siteContactMessage}', [\App\Http\Controllers\Admin\SiteContactMessageController::class, 'destroy'])->name('site-contact-messages.destroy');
     // Defter API (harici sarı defter — evdennakliyateve.com vb.) veri çekme ve firmaya dönüştürme
     Route::get('/defter-api', [\App\Http\Controllers\Admin\DefterApiController::class, 'index'])->name('defter-api.index');
+    Route::post('/defter-api/settings', [\App\Http\Controllers\Admin\DefterApiController::class, 'updateSettings'])->name('defter-api.settings');
     Route::post('/defter-api/fetch', [\App\Http\Controllers\Admin\DefterApiController::class, 'fetch'])->name('defter-api.fetch');
     Route::post('/defter-api/entries/{entry}/import', [\App\Http\Controllers\Admin\DefterApiController::class, 'importAsCompany'])->name('defter-api.import');
     Route::post('/defter-api/import-selected', [\App\Http\Controllers\Admin\DefterApiController::class, 'importSelected'])->name('defter-api.import-selected');

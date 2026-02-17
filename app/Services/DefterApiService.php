@@ -3,11 +3,36 @@
 namespace App\Services;
 
 use App\Models\DefterApiEntry;
+use App\Models\Setting;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class DefterApiService
 {
+    /** API adresi: önce panel ayarı, yoksa config/env. */
+    public static function getApiUrl(): string
+    {
+        $v = Setting::get('defter_api_url', '');
+        return $v !== '' ? $v : (config('nakliyepark.defter_api.url') ?? '');
+    }
+
+    /** Cookie: önce panel ayarı, yoksa config/env. */
+    public static function getCookie(): string
+    {
+        $v = Setting::get('defter_api_cookie', '');
+        return $v !== '' ? $v : (config('nakliyepark.defter_api.cookie') ?? '');
+    }
+
+    /** Çekilecek maksimum kayıt: önce panel ayarı, yoksa config. */
+    public static function getFetchLimit(): int
+    {
+        $v = Setting::get('defter_api_fetch_limit', '');
+        if ($v !== '' && is_numeric($v)) {
+            return (int) $v;
+        }
+        return (int) config('nakliyepark.defter_api.fetch_limit', 500);
+    }
+
     /**
      * API'den veri çekip defter_api_entries tablosuna yazar veya günceller.
      * all=1&limit=N ile tüm kayıtlar çekilir.
@@ -16,14 +41,14 @@ class DefterApiService
      */
     public function fetchAndSync(): array
     {
-        $url = config('nakliyepark.defter_api.url');
-        $cookie = config('nakliyepark.defter_api.cookie');
-        $limit = config('nakliyepark.defter_api.fetch_limit', 500);
+        $url = self::getApiUrl();
+        $cookie = self::getCookie();
+        $limit = self::getFetchLimit();
 
         if (empty($url)) {
             return [
                 'success' => false,
-                'message' => 'Defter API URL ayarlanmamış. .env dosyasında DEFTER_API_URL tanımlayın.',
+                'message' => 'Defter API adresi girilmemiş. Aşağıdaki "API ayarları" bölümünden adresi yazıp kaydedin.',
                 'fetched' => 0,
                 'created' => 0,
                 'updated' => 0,

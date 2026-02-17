@@ -8,13 +8,33 @@
     Harici sarı defter (evdennakliyateve.com vb.) API’sinden veri çekip burada listelersiniz. İstediğiniz kayıtları <strong>firma olarak sisteme ekleyebilirsiniz</strong>; eklenen firmalar <strong>onay bekleyen</strong> olarak oluşturulur, admin onayından sonra yayına alınır.
 </p>
 
-@if(!$apiConfigured)
-<div class="admin-card p-4 rounded-xl mb-6 border-2 border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20">
-    <p class="text-sm text-amber-800 dark:text-amber-200">
-        <strong>API ayarlanmamış.</strong> Veri çekmek için <code class="px-1.5 py-0.5 bg-amber-200/50 dark:bg-amber-900/50 rounded">.env</code> dosyasında <code class="px-1.5 py-0.5 bg-amber-200/50 dark:bg-amber-900/50 rounded">DEFTER_API_URL</code> (defter-api.php adresi) ve isteğe bağlı <code class="px-1.5 py-0.5 bg-amber-200/50 dark:bg-amber-900/50 rounded">DEFTER_API_COOKIE</code> tanımlayın. Cookie süresi dolunca tarayıcıdan <code>document.cookie</code> ile yenileyin.
+{{-- API ayarları: URL ve cookie bu sayfadan girilir --}}
+<div class="admin-card p-6 rounded-2xl mb-6 border border-slate-200 dark:border-slate-700">
+    <h2 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">API ayarları</h2>
+    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+        Veri çekmek için aşağıya Defter API adresini (defter-api.php’nin tam URL’si) yazıp <strong>Kaydet</strong>’e tıklayın. Cookie isteğe bağlıdır; oturum açık veri için gerekebilir. Cookie süresi dolunca tarayıcıda <strong>F12 → Console</strong> açıp <code class="px-1 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-xs">document.cookie</code> yazarak çıkan değeri kopyalayıp aşağıdaki alana yapıştırın.
     </p>
+    <form method="post" action="{{ route('admin.defter-api.settings') }}" class="space-y-4 max-w-2xl">
+        @csrf
+        <div>
+            <label for="defter_api_url" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">API adresi (URL) *</label>
+            <input type="url" id="defter_api_url" name="defter_api_url" value="{{ old('defter_api_url', $settings['url']) }}" placeholder="https://example.com/defter-api.php" class="admin-input w-full py-2 text-sm">
+            @error('defter_api_url')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+        </div>
+        <div>
+            <label for="defter_api_cookie" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cookie (isteğe bağlı)</label>
+            <textarea id="defter_api_cookie" name="defter_api_cookie" rows="3" placeholder="PHPSESSID=...; remember_token=..." class="admin-input w-full py-2 text-sm resize-y">{{ old('defter_api_cookie', $settings['cookie']) }}</textarea>
+            @error('defter_api_cookie')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+        </div>
+        <div>
+            <label for="defter_api_fetch_limit" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Çekilecek maksimum kayıt</label>
+            <input type="number" id="defter_api_fetch_limit" name="defter_api_fetch_limit" value="{{ old('defter_api_fetch_limit', $settings['fetch_limit']) }}" min="10" max="5000" step="1" class="admin-input w-32 py-2 text-sm">
+            <span class="text-slate-500 text-sm ml-2">(varsayılan 500)</span>
+            @error('defter_api_fetch_limit')<p class="text-red-600 text-sm mt-1">{{ $message }}</p>@enderror
+        </div>
+        <button type="submit" class="admin-btn-primary text-sm py-2 px-4">Kaydet</button>
+    </form>
 </div>
-@endif
 
 @if(session('success'))
     <div class="admin-card p-4 rounded-xl mb-6 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200">

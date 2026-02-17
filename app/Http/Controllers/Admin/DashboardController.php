@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Models\CompanyVehicleImage;
 use App\Models\DefterApiEntry;
 use App\Models\Ihale;
+use App\Services\DefterApiService;
 use App\Models\Teklif;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -43,7 +44,7 @@ class DashboardController extends Controller
 
         $defterApiTotal = DefterApiEntry::count();
         $defterApiNotImported = DefterApiEntry::whereNull('company_id')->count();
-        $defterApiConfigured = ! empty(config('nakliyepark.defter_api.url'));
+        $defterApiConfigured = DefterApiService::getApiUrl() !== '';
 
         return view('admin.dashboard', compact(
             'stats', 'recentCompanies', 'recentIhaleler', 'recentUsers',

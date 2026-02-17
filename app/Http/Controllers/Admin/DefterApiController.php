@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Company;
 use App\Models\DefterApiEntry;
+use App\Models\Setting;
 use App\Models\User;
 use App\Services\DefterApiService;
 use App\Services\AdminNotifier;
@@ -42,9 +43,33 @@ class DefterApiController extends Controller
             'not_imported' => DefterApiEntry::whereNull('company_id')->count(),
         ];
 
-        $apiConfigured = ! empty(config('nakliyepark.defter_api.url'));
+        $apiConfigured = DefterApiService::getApiUrl() !== '';
+        $settings = [
+            'url' => Setting::get('defter_api_url', ''),
+            'cookie' => Setting::get('defter_api_cookie', ''),
+            'fetch_limit' => (string) (Setting::get('defter_api_fetch_limit', '') ?: 500),
+        ];
 
-        return view('admin.defter-api.index', compact('entries', 'stats', 'apiConfigured'));
+        return view('admin.defter-api.index', compact('entries', 'stats', 'apiConfigured', 'settings'));
+    }
+
+    /**
+     * Defter API ayarlarını sayfadan kaydet (URL, cookie, limit).
+     */
+    public function updateSettings(Request $request)
+    {
+        $request->validate([
+            'defter_api_url' => 'nullable|string|url|max:500',
+            'defter_api_cookie' => 'nullable|string|max:2000',
+            'defter_api_fetch_limit' => 'nullable|integer|min:10|max:5000',
+        ]);
+
+        Setting::set('defter_api_url', $request->input('defter_api_url', ''), 'defter_api');
+        Setting::set('defter_api_cookie', $request->input('defter_api_cookie', ''), 'defter_api');
+        $limit = $request->input('defter_api_fetch_limit');
+        Setting::set('defter_api_fetch_limit', $limit !== null && $limit !== '' ? (int) $limit : 500, 'defter_api');
+
+        return redirect()->route('admin.defter-api.index')->with('success', 'Defter API ayarları kaydedildi.');
     }
 
     /**
