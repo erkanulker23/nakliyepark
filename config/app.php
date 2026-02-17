@@ -132,4 +132,13 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Super Admin
+    |--------------------------------------------------------------------------
+    | Süper admin e-posta adresi: tüm admin bildirimleri (yeni üye, ihale, firma onayı,
+    | teklif, uyuşmazlık vb.) bu adrese e-posta olarak da gönderilir.
+    */
+    'super_admin_email' => env('SUPER_ADMIN_EMAIL', 'erkanulker0@gmail.com'),
+
 ];

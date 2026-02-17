@@ -103,16 +103,28 @@ class CompanyController extends Controller
         $company->load('user');
         $company->update($data);
 
-        // Firma e-postası değiştiyse, giriş için kullanılan User e-postasını da güncelle (nakliyeci yeni e-posta ile giriş yapabilsin)
-        if ($request->has('email') && $company->user) {
-            $newEmail = $request->input('email');
-            if (is_string($newEmail) && trim($newEmail) !== '' && $company->user->email !== trim($newEmail)) {
-                $company->user->update(['email' => trim($newEmail)]);
+        // Firma e-postası ve giriş (User) e-postasını senkronize et; panel e-posta doğrulama sayfasına düşmesin.
+        if ($company->user) {
+            $newEmail = trim((string) $request->input('email', ''));
+            $user = $company->user;
+            if ($newEmail !== '' && $user->email !== $newEmail) {
+                $user->update([
+                    'email' => $newEmail,
+                    'email_verified_at' => $user->email_verified_at ?? now(),
+                ]);
                 Log::channel('admin_actions')->info('Admin synced company email to user', [
                     'admin_id' => auth()->id(),
                     'company_id' => $company->id,
-                    'user_id' => $company->user->id,
-                    'new_email' => trim($newEmail),
+                    'user_id' => $user->id,
+                    'new_email' => $newEmail,
+                ]);
+            } elseif ($newEmail !== '' && ! $user->email_verified_at) {
+                // E-posta zaten aynı ama kullanıcı hâlâ doğrulanmamış (örn. admin mail değiştirdikten sonra link eski mailde kaldı)
+                $user->update(['email_verified_at' => now()]);
+                Log::channel('admin_actions')->info('Admin marked user email as verified', [
+                    'admin_id' => auth()->id(),
+                    'company_id' => $company->id,
+                    'user_id' => $user->id,
                 ]);
             }
         }
