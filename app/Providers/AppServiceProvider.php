@@ -65,7 +65,7 @@ class AppServiceProvider extends ServiceProvider
                 ]);
             }
         };
-        View::composer(['layouts.partials.header', 'layouts.partials.notifications-dropdown'], $inject);
+        View::composer(['layouts.partials.header', 'layouts.partials.notifications-dropdown', 'layouts.admin'], $inject);
     }
 
     protected function applyPackagesFromDatabase(): void

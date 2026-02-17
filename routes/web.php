@@ -270,7 +270,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/profile', [AdminProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
     Route::get('/notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/read-all', [AdminNotificationController::class, 'markAllRead'])->name('notifications.read-all');
     Route::post('/notifications/{id}/read', [AdminNotificationController::class, 'markRead'])->name('notifications.read');
+    Route::delete('/notifications/{id}', [AdminNotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::post('/notifications/destroy-all', [AdminNotificationController::class, 'destroyAll'])->name('notifications.destroy-all');
     Route::get('/site-contact-messages', [\App\Http\Controllers\Admin\SiteContactMessageController::class, 'index'])->name('site-contact-messages.index');
     Route::get('/site-contact-messages/{siteContactMessage}', [\App\Http\Controllers\Admin\SiteContactMessageController::class, 'show'])->name('site-contact-messages.show');
     Route::delete('/site-contact-messages/{siteContactMessage}', [\App\Http\Controllers\Admin\SiteContactMessageController::class, 'destroy'])->name('site-contact-messages.destroy');

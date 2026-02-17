@@ -145,14 +145,39 @@
                     @hasSection('page_subtitle')<p class="admin-page-subtitle">@yield('page_subtitle')</p>@endif
                 </div>
                 <div class="flex items-center gap-2 sm:gap-3">
-                    {{-- Bildirimler (header) --}}
-                    <a href="{{ route('admin.notifications.index') }}" class="admin-header-btn relative p-2.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-emerald-400" aria-label="Bildirimler" title="Bildirimler">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-6-6 6 6 0 00-6 6v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-                        @php $headerUnread = \App\Models\AdminNotification::whereNull('read_at')->count(); @endphp
-                        @if($headerUnread > 0)
-                            <span class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-emerald-500 text-white text-xs font-semibold px-1">{{ $headerUnread > 99 ? '99+' : $headerUnread }}</span>
-                        @endif
-                    </a>
+                    {{-- Bildirimler dropdown --}}
+                    @php
+                        $adminNotifs = $header_notifications ?? collect();
+                        $adminUnread = $header_unread_count ?? 0;
+                    @endphp
+                    <div class="relative" id="admin-notifications-wrap">
+                        <button type="button" id="admin-notifications-btn" class="admin-header-btn relative p-2.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-emerald-400" aria-label="Bildirimler" title="Bildirimler" aria-expanded="false" aria-haspopup="true">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-6-6 6 6 0 00-6 6v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                            @if($adminUnread > 0)
+                                <span class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-emerald-500 text-white text-xs font-semibold px-1">{{ $adminUnread > 99 ? '99+' : $adminUnread }}</span>
+                            @endif
+                        </button>
+                        <div id="admin-notifications-panel" class="absolute right-0 mt-2 w-80 sm:w-96 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-xl z-50 overflow-hidden hidden" role="dialog" aria-label="Bildirimler listesi">
+                            <div class="p-3 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                                <span class="font-semibold text-slate-800 dark:text-slate-200">Bildirimler</span>
+                                <a href="{{ route('admin.notifications.index') }}" class="text-sm text-emerald-600 dark:text-emerald-400 hover:underline">Tümü</a>
+                            </div>
+                            <div class="max-h-80 overflow-y-auto">
+                                @forelse($adminNotifs->take(15) as $nb)
+                                    <a href="{{ !empty($nb->data['url']) ? $nb->data['url'] : route('admin.notifications.index') }}" class="block px-3 py-2.5 border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/50 {{ $nb->read_at ? '' : 'bg-emerald-50/50 dark:bg-emerald-950/20' }}">
+                                        <p class="text-sm font-medium text-slate-800 dark:text-slate-200 truncate">{{ $nb->title ?? $nb->type }}</p>
+                                        <p class="text-xs text-slate-500 dark:text-slate-400 truncate">{{ Str::limit($nb->message, 60) }}</p>
+                                        <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{{ $nb->created_at->diffForHumans() }}</p>
+                                    </a>
+                                @empty
+                                    <p class="px-3 py-6 text-sm text-slate-500 dark:text-slate-400 text-center">Bildirim yok.</p>
+                                @endforelse
+                            </div>
+                            <div class="p-2 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80">
+                                <a href="{{ route('admin.notifications.index') }}" class="block text-center text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:underline py-1.5">Tüm bildirimler →</a>
+                            </div>
+                        </div>
+                    </div>
                     <button type="button" id="admin-dark-toggle" class="admin-header-btn p-2.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-emerald-400" aria-label="Açık/Koyu mod" title="Açık/Koyu mod">
                         <svg id="admin-icon-sun" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                         <svg id="admin-icon-moon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
@@ -183,6 +208,32 @@
         </main>
     </div>
     <script>
+        (function() {
+            var wrap = document.getElementById('admin-notifications-wrap');
+            var btn = document.getElementById('admin-notifications-btn');
+            var panel = document.getElementById('admin-notifications-panel');
+            if (wrap && btn && panel) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var isHidden = panel.classList.contains('hidden');
+                    panel.classList.toggle('hidden', !isHidden);
+                    btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+                });
+                document.addEventListener('click', function(e) {
+                    if (!wrap.contains(e.target)) {
+                        panel.classList.add('hidden');
+                        btn.setAttribute('aria-expanded', 'false');
+                    }
+                });
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        panel.classList.add('hidden');
+                        btn.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            }
+        })();
         document.getElementById('sidebar-open')?.addEventListener('click', function() {
             document.getElementById('admin-sidebar').classList.add('open');
             document.getElementById('sidebar-overlay').classList.remove('opacity-0', 'pointer-events-none');
