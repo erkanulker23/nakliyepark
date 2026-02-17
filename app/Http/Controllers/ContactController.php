@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ConsentLog;
 use App\Models\SiteContactMessage;
 use App\Services\AdminNotifier;
 use Illuminate\Http\Request;
@@ -20,11 +21,13 @@ class ContactController extends Controller
             'email' => 'required|email',
             'subject' => 'nullable|string|max:255',
             'message' => 'required|string|max:5000',
+            'kvkk_consent' => 'accepted',
         ], [
             'name.required' => 'Adınızı girin.',
             'email.required' => 'E-posta adresinizi girin.',
             'email.email' => 'Geçerli bir e-posta adresi girin.',
             'message.required' => 'Mesajınızı yazın.',
+            'kvkk_consent.accepted' => 'Kişisel verilerin işlenmesi için açık rıza vermeniz gerekmektedir.',
         ]);
 
         $msg = SiteContactMessage::create([
@@ -33,6 +36,8 @@ class ContactController extends Controller
             'subject' => $request->subject,
             'message' => $request->message,
         ]);
+
+        ConsentLog::log('kvkk_contact', null, null, ['site_contact_message_id' => $msg->id]);
 
         AdminNotifier::notify(
             'site_contact_message',

@@ -35,6 +35,7 @@ use App\Http\Controllers\GuestWizardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\IhaleController;
 use App\Http\Controllers\KvkkController;
+use App\Http\Controllers\LegalController;
 use App\Http\Controllers\Musteri\DashboardController as MusteriDashboardController;
 use App\Http\Controllers\Musteri\IhaleController as MusteriIhaleController;
 use App\Http\Controllers\Musteri\MesajController as MusteriMesajController;
@@ -64,6 +65,7 @@ use App\Http\Controllers\WizardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 
 // Türkiye il, ilçe, mahalle API (api.turkiyeapi.dev proxy)
 Route::get('/api/turkey/provinces', [TurkeyLocationController::class, 'provinces'])->name('api.turkey.provinces');
@@ -73,7 +75,7 @@ Route::get('/ihaleler', [IhaleController::class, 'index'])->name('ihaleler.index
 Route::get('/ihaleler/{ihale}', [IhaleController::class, 'show'])->name('ihaleler.show');
 Route::get('/nakliye-firmalari', [FirmaController::class, 'index'])->name('firmalar.index')->middleware('firmalar.visible');
 Route::get('/nakliye-firmalari/haritadaki-nakliyeciler', [FirmaController::class, 'map'])->name('firmalar.map')->middleware('firmalar.visible');
-Route::get('/nakliye-firmalari/{company}', [FirmaController::class, 'show'])->name('firmalar.show')->middleware('firmalar.visible');
+Route::get('/nakliye-firmalari/{companyForShow}', [FirmaController::class, 'show'])->name('firmalar.show')->middleware('firmalar.visible');
 Route::get('/defter', [DefterController::class, 'index'])->name('defter.index');
 Route::get('/defter/ilan/{yukIlani}', [DefterController::class, 'show'])->name('defter.show');
 Route::get('/pazaryeri', [PazaryeriController::class, 'index'])->name('pazaryeri.index');
@@ -99,6 +101,9 @@ Route::get('/iletisim', [ContactController::class, 'index'])->name('contact.inde
 Route::post('/iletisim', [ContactController::class, 'store'])->name('contact.store')->middleware('throttle:5,1');
 Route::get('/sss', [FaqController::class, 'index'])->name('faq.index');
 Route::get('/kvkk-aydinlatma', [KvkkController::class, 'aydinlatma'])->name('kvkk.aydinlatma');
+Route::get('/mesafeli-satis-sozlesmesi', [LegalController::class, 'mesafeliSatis'])->name('legal.mesafeli-satis');
+Route::get('/on-bilgilendirme-formu', [LegalController::class, 'onBilgilendirme'])->name('legal.on-bilgilendirme');
+Route::get('/iade-kosullari', [LegalController::class, 'iadeKosullari'])->name('legal.iade-kosullari');
 
 // Admin girişi: ayrı throttle (dakikada 20 istek) — 429 önlemek için normal girişten ayrı
 Route::middleware(['guest', 'throttle:20,1'])->group(function () {
@@ -128,6 +133,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
+Route::get('/logout', [LoginController::class, 'logout'])->name('logout.get')->middleware('auth');
 
 Route::middleware(['auth', 'verified.panel'])->group(function () {
     Route::get('/wizard', fn () => redirect()->route('ihale.create'))->middleware('not.nakliyeci');
@@ -142,6 +148,9 @@ Route::middleware(['auth', 'verified.panel', 'role:musteri'])->prefix('musteri')
     Route::get('/teklifler', [MusteriTeklifController::class, 'index'])->name('teklifler.index');
     Route::get('/mesajlar', [MusteriMesajController::class, 'index'])->name('mesajlar.index');
     Route::get('/ihaleler/{ihale}', [MusteriIhaleController::class, 'show'])->name('ihaleler.show');
+    Route::post('/ihaleler/{ihale}/kapat', [MusteriIhaleController::class, 'close'])->name('ihaleler.close');
+    Route::post('/ihaleler/{ihale}/yayina-al', [MusteriIhaleController::class, 'open'])->name('ihaleler.open');
+    Route::post('/ihaleler/{ihale}/bekleme', [MusteriIhaleController::class, 'pause'])->name('ihaleler.pause');
     Route::post('/ihaleler/{ihale}/teklif/{teklif}/kabul', [MusteriIhaleController::class, 'acceptTeklif'])->name('ihaleler.accept-teklif');
     Route::post('/ihaleler/{ihale}/teklif/{teklif}/reddet', [MusteriIhaleController::class, 'rejectTeklif'])->name('ihaleler.reject-teklif');
     Route::post('/ihaleler/{ihale}/teklif/{teklif}/kabul-geri-al', [MusteriIhaleController::class, 'undoAcceptTeklif'])->name('ihaleler.undo-accept');
@@ -206,6 +215,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::resource('users', AdminUserController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     Route::post('/users/{user}/approve', [AdminUserController::class, 'approve'])->name('users.approve');
+    Route::post('/users/{user}/send-company-reminder', [AdminUserController::class, 'sendCompanyReminder'])->name('users.send-company-reminder');
     Route::get('/musteriler', [AdminMusteriController::class, 'index'])->name('musteriler.index');
     Route::get('/musteriler/{user}', [AdminMusteriController::class, 'show'])->name('musteriler.show');
     Route::get('/consent-logs', [AdminConsentLogController::class, 'index'])->name('consent-logs.index');
@@ -276,9 +286,10 @@ Route::delete('/companies/{company}/galeri/{id}', [AdminCompanyController::class
     Route::put('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
     Route::get('/notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/read-all', [AdminNotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::post('/notifications/destroy-all', [AdminNotificationController::class, 'destroyAll'])->name('notifications.destroy-all');
     Route::post('/notifications/{id}/read', [AdminNotificationController::class, 'markRead'])->name('notifications.read');
     Route::delete('/notifications/{id}', [AdminNotificationController::class, 'destroy'])->name('notifications.destroy');
-    Route::post('/notifications/destroy-all', [AdminNotificationController::class, 'destroyAll'])->name('notifications.destroy-all');
+    Route::get('/sitemap', [\App\Http\Controllers\Admin\SitemapController::class, 'index'])->name('sitemap.index');
     Route::get('/site-contact-messages', [\App\Http\Controllers\Admin\SiteContactMessageController::class, 'index'])->name('site-contact-messages.index');
     Route::get('/site-contact-messages/{siteContactMessage}', [\App\Http\Controllers\Admin\SiteContactMessageController::class, 'show'])->name('site-contact-messages.show');
     Route::delete('/site-contact-messages/{siteContactMessage}', [\App\Http\Controllers\Admin\SiteContactMessageController::class, 'destroy'])->name('site-contact-messages.destroy');

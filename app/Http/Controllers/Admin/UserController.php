@@ -99,6 +99,28 @@ class UserController extends Controller
         return back()->with('success', 'Kullanıcıya e-posta doğrulama linki gönderildi.');
     }
 
+    /** Nakliyeci rolündeki ancak firma oluşturmamış kullanıcıya "firma oluştur" hatırlatma maili gönderir. */
+    public function sendCompanyReminder(User $user)
+    {
+        if (! $user->isNakliyeci()) {
+            return back()->with('error', 'Bu kullanıcı nakliyeci değil.');
+        }
+        if ($user->company) {
+            return back()->with('info', 'Bu kullanıcının zaten firması var.');
+        }
+        \App\Services\SafeNotificationService::sendToUser(
+            $user,
+            new \App\Notifications\CompanyCreateReminderNotification(),
+            'admin_company_create_reminder'
+        );
+        Log::channel('admin_actions')->info('Admin sent company create reminder to user', [
+            'admin_id' => auth()->id(),
+            'user_id' => $user->id,
+            'user_email' => $user->email,
+        ]);
+        return back()->with('success', 'Firma oluşturma hatırlatma maili gönderildi.');
+    }
+
     public function destroy(User $user)
     {
         if ($user->id === auth()->id()) {

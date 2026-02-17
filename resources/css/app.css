@@ -1,4 +1,6 @@
 @import 'tailwindcss';
+@import './panel.css';
+@import './panels-new.css';
 
 /* Koyu mod: .dark sınıfı ile tetiklenir (manuel geçiş için) */
 @custom-variant dark (&&:where(.dark, .dark *));

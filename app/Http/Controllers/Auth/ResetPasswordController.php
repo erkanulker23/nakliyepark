@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\BlockedEmail;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -34,11 +35,19 @@ class ResetPasswordController extends Controller
             'email' => ['required', 'email'],
             'password' => ['required', 'string', 'confirmed', PasswordRule::min(8)->letters()->numbers()],
         ], [
+            'email.required' => 'E-posta adresi gerekli.',
+            'email.email' => 'Geçerli bir e-posta adresi girin.',
             'password.min' => 'Şifre en az 8 karakter olmalıdır.',
             'password.letters' => 'Şifre en az bir harf içermelidir.',
             'password.numbers' => 'Şifre en az bir rakam içermelidir.',
             'password.confirmed' => 'Şifre tekrarı eşleşmiyor.',
         ]);
+
+        if (BlockedEmail::isBlocked($request->email)) {
+            throw ValidationException::withMessages([
+                'email' => ['Bu e-posta adresi engellenmiştir.'],
+            ]);
+        }
 
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),

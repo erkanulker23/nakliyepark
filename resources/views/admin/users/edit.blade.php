@@ -5,7 +5,7 @@
 @section('page_subtitle', $user->email)
 
 @section('content')
-<div class="max-w-2xl space-y-4">
+<div class="max-w-2xl space-y-4 min-w-0">
     {{-- Onay & Engelleme --}}
     <div class="admin-card p-4 flex flex-wrap items-center gap-4">
         <div class="flex flex-wrap items-center gap-3">
@@ -33,6 +33,15 @@
                         <button type="submit" class="admin-btn-primary text-sm">Firmayı onayla</button>
                     </form>
                 @endif
+            </div>
+        @elseif($user->isNakliyeci())
+            <span class="text-zinc-300 dark:text-zinc-600">|</span>
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="text-sm text-amber-600 dark:text-amber-400 font-medium">Firma oluşturmamış</span>
+                <form method="POST" action="{{ route('admin.users.send-company-reminder', $user) }}" class="inline">
+                    @csrf
+                    <button type="submit" class="admin-btn-secondary text-sm">Firma oluşturması için hatırlatma maili gönder</button>
+                </form>
             </div>
         @endif
         <span class="text-zinc-300 dark:text-zinc-600">|</span>
@@ -81,8 +90,20 @@
             </div>
             <div class="admin-form-group">
                 <label class="admin-label">Yeni şifre (boş bırakırsanız değişmez)</label>
-                <input type="password" name="password" class="admin-input" placeholder="••••••••">
-                <input type="password" name="password_confirmation" class="admin-input mt-2" placeholder="Tekrar">
+                <div class="relative">
+                    <input type="password" name="password" id="admin-user-password" class="admin-input pr-10" placeholder="••••••••" autocomplete="new-password">
+                    <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded" aria-label="Şifreyi göster/gizle" title="Şifreyi göster" data-toggle-password="admin-user-password">
+                        <svg class="w-5 h-5 eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        <svg class="w-5 h-5 eye-closed hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878a4.5 4.5 0 106.262 6.262M4.031 11.117A10.047 10.047 0 002 12c0 4.478 2.943 8.268 7 9.543 3.974-1.271 7.26-3.678 9.608-6.424M19 12a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </button>
+                </div>
+                <div class="relative mt-2">
+                    <input type="password" name="password_confirmation" id="admin-user-password-confirmation" class="admin-input pr-10" placeholder="Tekrar" autocomplete="new-password">
+                    <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 rounded" aria-label="Şifreyi göster/gizle" title="Şifreyi göster" data-toggle-password="admin-user-password-confirmation">
+                        <svg class="w-5 h-5 eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        <svg class="w-5 h-5 eye-closed hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878a4.5 4.5 0 106.262 6.262M4.031 11.117A10.047 10.047 0 002 12c0 4.478 2.943 8.268 7 9.543 3.974-1.271 7.26-3.678 9.608-6.424M19 12a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </button>
+                </div>
                 @error('password')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
             </div>
             <div class="flex gap-3 pt-2">
@@ -92,4 +113,33 @@
         </form>
     </div>
 </div>
+
+@push('scripts')
+<script>
+(function() {
+    document.querySelectorAll('[data-toggle-password]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var id = this.getAttribute('data-toggle-password');
+            var input = document.getElementById(id);
+            if (!input) return;
+            var open = btn.querySelector('.eye-open');
+            var closed = btn.querySelector('.eye-closed');
+            if (input.type === 'password') {
+                input.type = 'text';
+                if (open) open.classList.add('hidden');
+                if (closed) closed.classList.remove('hidden');
+                btn.setAttribute('title', 'Şifreyi gizle');
+                btn.setAttribute('aria-label', 'Şifreyi gizle');
+            } else {
+                input.type = 'password';
+                if (open) open.classList.remove('hidden');
+                if (closed) closed.classList.add('hidden');
+                btn.setAttribute('title', 'Şifreyi göster');
+                btn.setAttribute('aria-label', 'Şifreyi göster');
+            }
+        });
+    });
+})();
+</script>
+@endpush
 @endsection

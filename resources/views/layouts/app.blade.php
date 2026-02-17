@@ -7,6 +7,9 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     @php
         $seo_title = trim((string) ($__env->yieldContent('title') ?? $site_meta_title ?? config('seo.site_name', 'NakliyePark')));
         $seo_description = trim((string) ($__env->yieldContent('meta_description') ?? $site_meta_description ?? config('seo.default_description')));

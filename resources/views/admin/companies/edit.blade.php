@@ -5,10 +5,10 @@
 @section('page_subtitle', $company->name)
 
 @section('content')
-<div class="max-w-3xl space-y-4">
+<div class="max-w-3xl space-y-4 min-w-0">
     <div class="flex flex-wrap items-center gap-3">
-        @if($company->approved_at && $company->slug)
-            <a href="{{ route('firmalar.show', $company) }}" target="_blank" rel="noopener" class="admin-btn-secondary text-sm">Firma sayfasına git</a>
+        @if($company->approved_at && !empty($company->slug))
+            <a href="{{ route('firmalar.show', $company->slug) }}" target="_blank" rel="noopener" class="admin-btn-secondary text-sm">Firma sayfasına git</a>
         @endif
         <a href="{{ route('admin.companies.index') }}" class="text-slate-600 dark:text-slate-400 hover:underline text-sm">Firmalar listesine dön</a>
     </div>
@@ -253,11 +253,17 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        var provincesUrl = '{{ route("api.turkey.provinces") }}';
-        var districtsUrl = '{{ route("api.turkey.districts") }}';
-        var fallbackProvinces = @json(array_keys(config('turkey_city_coordinates', [])));
-        var currentCity = {{ json_encode(old('city', $company->city)) }};
-        var currentDistrict = {{ json_encode(old('district', $company->district)) }};
+        var provincesUrl = {!! json_encode(route('api.turkey.provinces')) !!};
+        var districtsUrl = {!! json_encode(route('api.turkey.districts')) !!};
+        @php
+            $fallbackIlList = array_keys(config('turkey_city_coordinates', []));
+            if (empty($fallbackIlList)) {
+                $fallbackIlList = ['Adana','Adıyaman','Afyonkarahisar','Ağrı','Aksaray','Amasya','Ankara','Antalya','Ardahan','Artvin','Aydın','Balıkesir','Bartın','Batman','Bayburt','Bilecik','Bingöl','Bitlis','Bolu','Burdur','Bursa','Çanakkale','Çankırı','Çorum','Denizli','Diyarbakır','Düzce','Edirne','Elazığ','Erzincan','Erzurum','Eskişehir','Gaziantep','Giresun','Gümüşhane','Hakkari','Hatay','Iğdır','Isparta','İstanbul','İzmir','Kahramanmaraş','Karabük','Karaman','Kars','Kastamonu','Kayseri','Kırıkkale','Kırklareli','Kırşehir','Kilis','Kocaeli','Konya','Kütahya','Malatya','Manisa','Mardin','Mersin','Muğla','Muş','Nevşehir','Niğde','Ordu','Osmaniye','Rize','Sakarya','Samsun','Siirt','Sinop','Sivas','Şanlıurfa','Şırnak','Tekirdağ','Tokat','Trabzon','Tunceli','Uşak','Van','Yalova','Yozgat','Zonguldak'];
+            }
+        @endphp
+        var fallbackProvinces = @json($fallbackIlList);
+        var currentCity = {!! json_encode(old('city', $company->city)) !!};
+        var currentDistrict = {!! json_encode(old('district', $company->district)) !!};
         var provSel = document.getElementById('company_province_id');
         var distSel = document.getElementById('company_district_id');
         var cityInp = document.getElementById('company_city');

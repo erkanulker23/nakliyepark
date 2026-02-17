@@ -14,6 +14,7 @@ use App\Services\AdminNotifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Throwable;
 
 class GuestWizardController extends Controller
@@ -72,7 +73,7 @@ class GuestWizardController extends Controller
             'guest_contact_name' => 'nullable|string|max:255',
             'guest_contact_email' => 'nullable|email',
             'guest_contact_phone' => 'nullable|string|max:20',
-            'preferred_company_id' => 'nullable|exists:companies,id',
+            'preferred_company_id' => ['nullable', Rule::exists('companies', 'id')->whereNotNull('approved_at')],
             'photos' => 'nullable|array',
             'photos.*' => 'image|max:5120',
             'kvkk_consent' => 'accepted', // KVKK açık rıza (misafir ve üye için kişisel veri işleme)

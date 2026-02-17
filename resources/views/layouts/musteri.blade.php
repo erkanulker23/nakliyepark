@@ -3,119 +3,88 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#0c4a6e">
+    <meta name="theme-color" content="#f8fafc" id="app-theme-color-musteri">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="robots" content="noindex, nofollow">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>@yield('title', 'Panel') - NakliyePark</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
-    @vite(['resources/css/app.css', 'resources/css/admin.css', 'resources/css/musteri.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
-<body class="admin-body min-h-screen bg-slate-50 text-slate-800 antialiased font-sans">
-    <div class="flex">
-        {{-- Sol menü - Müşteri paneli --}}
-        <aside id="musteri-sidebar" class="admin-sidebar fixed lg:sticky top-0 left-0 z-40 w-64 border-r border-slate-700/50 shadow-xl lg:shadow-none transition-transform duration-200 ease-out">
-            <div class="admin-sidebar-header flex items-center justify-between h-16 px-5 border-b border-slate-700/50">
-                <a href="{{ route('musteri.dashboard') }}" class="admin-sidebar-logo flex items-center gap-3 font-semibold min-w-0">
-                    @php $musteriAdi = auth()->user()->name ?? 'Müşteri'; $musteriBasHarf = mb_substr($musteriAdi, 0, 1); $musteriAvatar = auth()->user()->avatar ?? null; @endphp
-                    @if($musteriAvatar)
-                        <img src="{{ asset('storage/' . $musteriAvatar) }}" alt="" class="w-9 h-9 rounded-xl object-cover shadow-lg shrink-0">
-                    @else
-                        <span class="musteri-logo-icon w-9 h-9 rounded-xl bg-sky-600 flex items-center justify-center text-white text-sm font-bold shadow-lg shrink-0">{{ mb_strtoupper($musteriBasHarf) ?: 'M' }}</span>
-                    @endif
-                    <span class="truncate">{{ $musteriAdi }}</span>
-                </a>
-                <button type="button" id="sidebar-close" class="admin-sidebar-close lg:hidden p-2 text-slate-400 hover:text-white rounded-lg" aria-label="Menüyü kapat">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+<body class="app-shell has-rail antialiased">
+    @include('layouts.partials.new-musteri-rail')
+
+    <div class="flex flex-col min-h-screen lg:min-h-0">
+        <header class="app-bar">
+            <div class="app-bar__spacer">
+                <h1 class="app-bar__title">@yield('page_heading', 'Panel')</h1>
+                @hasSection('page_subtitle')<p class="app-bar__subtitle">@yield('page_subtitle')</p>@endif
+            </div>
+            <div class="app-bar__actions">
+                @include('layouts.partials.notifications-dropdown')
+                <button type="button" id="app-theme-toggle-musteri" class="app-bar__btn" aria-label="Açık/Koyu mod">
+                    <svg id="app-icon-sun-m" class="hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:1.25rem;height:1.25rem"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                    <svg id="app-icon-moon-m" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:1.25rem;height:1.25rem"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
                 </button>
             </div>
-            <nav class="p-3 space-y-0.5 overflow-y-auto" style="max-height: calc(100vh - 4rem);">
-                <a href="{{ route('musteri.dashboard') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('musteri.dashboard') ? 'active' : '' }}">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-                    İhalelerim
-                </a>
-                <a href="{{ route('ihale.create') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                    Yeni İhale
-                </a>
-                <a href="{{ route('musteri.teklifler.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('musteri.teklifler.*') ? 'active' : '' }}">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    Gelen Teklifler
-                </a>
-                <a href="{{ route('musteri.mesajlar.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('musteri.mesajlar.*') ? 'active' : '' }}">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                    Gelen Mesajlar
-                </a>
-                <div class="admin-sidebar-label pt-4 pb-1 px-3 text-xs font-semibold uppercase tracking-wider">Hesap</div>
-                <a href="{{ route('musteri.bilgilerim.edit') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('musteri.bilgilerim.*') ? 'active' : '' }}">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                    Bilgilerim
-                </a>
-                <a href="{{ route('musteri.notifications.index') }}" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('musteri.notifications.*') ? 'active' : '' }}">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-                    Bildirimler
-                </a>
-                <a href="{{ url('/') }}" target="_blank" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                    Siteye git
-                </a>
-                <form method="POST" action="{{ route('logout') }}" class="block">
-                    @csrf
-                    <button type="submit" class="nav-link w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left">
-                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                        Çıkış
-                    </button>
-                </form>
-            </nav>
-        </aside>
-        <div id="sidebar-overlay" class="fixed inset-0 z-30 bg-black/50 lg:hidden opacity-0 pointer-events-none transition-opacity" aria-hidden="true"></div>
-        <main class="flex-1 min-h-screen flex flex-col bg-slate-50 admin-main-wrap">
-            <header class="admin-header sticky top-0 z-20 flex items-center justify-between h-16 px-4 sm:px-6 bg-white border-b border-slate-200 shadow-sm">
-                <button type="button" id="sidebar-open" class="admin-header-btn lg:hidden p-2 -ml-2 text-slate-500 hover:bg-slate-100 rounded-lg" aria-label="Menüyü aç">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                </button>
-                <div class="min-w-0 flex-1 mx-3">
-                    <h1 class="admin-page-title text-lg font-bold truncate">@yield('page_heading', 'Panel')</h1>
-                    @hasSection('page_subtitle')<p class="admin-page-subtitle truncate">@yield('page_subtitle')</p>@endif
+        </header>
+
+        <main class="app-main">
+            <div class="app-main__inner">
+            @if(session('success'))
+                <div class="app-alert app-alert--success" role="alert">
+                    <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                    <span>{{ session('success') }}</span>
                 </div>
-                <div class="flex items-center gap-2 shrink-0">
-                    @include('layouts.partials.notifications-dropdown')
+            @endif
+            @if(session('error'))
+                <div class="app-alert app-alert--error" role="alert">
+                    <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                    <span>{{ session('error') }}</span>
                 </div>
-            </header>
-            <div class="flex-1 p-6 lg:p-8">
-                @if(session('success'))
-                    <div class="admin-alert-success mb-6 rounded-lg border px-4 py-3 text-sm font-medium">
-                        {{ session('success') }}
-                    </div>
-                @endif
-                @if(session('error'))
-                    <div class="admin-alert-error mb-6 rounded-lg border px-4 py-3 text-sm font-medium">
-                        {{ session('error') }}
-                    </div>
-                @endif
-                @if(session('info'))
-                    <div class="rounded-xl bg-sky-50 dark:bg-sky-900/20 text-sky-800 dark:text-sky-200 px-4 py-3 text-sm border border-sky-200 dark:border-sky-800 mb-6">
-                        {{ session('info') }}
-                    </div>
-                @endif
-                @yield('content')
+            @endif
+            @if(session('info'))
+                <div class="app-alert app-alert--info" role="alert">
+                    <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                    <span>{{ session('info') }}</span>
+                </div>
+            @endif
+            @yield('content')
             </div>
         </main>
+
+        @include('layouts.partials.new-musteri-bottom')
     </div>
+
     <script>
-        document.getElementById('sidebar-open')?.addEventListener('click', function() {
-            document.getElementById('musteri-sidebar').classList.add('open');
-            document.getElementById('sidebar-overlay').classList.remove('opacity-0', 'pointer-events-none');
-        });
-        function closeSidebar() {
-            document.getElementById('musteri-sidebar').classList.remove('open');
-            document.getElementById('sidebar-overlay').classList.add('opacity-0', 'pointer-events-none');
+    (function() {
+        var toggle = document.getElementById('app-theme-toggle-musteri');
+        var iconSun = document.getElementById('app-icon-sun-m');
+        var iconMoon = document.getElementById('app-icon-moon-m');
+        var meta = document.getElementById('app-theme-color-musteri');
+        function setMeta(dark) {
+            if (meta) meta.setAttribute('content', dark ? '#0f172a' : '#f8fafc');
         }
-        document.getElementById('sidebar-close')?.addEventListener('click', closeSidebar);
-        document.getElementById('sidebar-overlay')?.addEventListener('click', closeSidebar);
+        var saved = localStorage.getItem('app-dark');
+        if (saved === '1') {
+            document.documentElement.classList.add('app-dark');
+            if (iconSun) iconSun.classList.remove('hidden');
+            if (iconMoon) iconMoon.classList.add('hidden');
+            setMeta(true);
+        } else { setMeta(false); }
+        if (toggle) {
+            toggle.addEventListener('click', function() {
+                document.documentElement.classList.toggle('app-dark');
+                var dark = document.documentElement.classList.contains('app-dark');
+                localStorage.setItem('app-dark', dark ? '1' : '0');
+                if (iconSun) iconSun.classList.toggle('hidden', !dark);
+                if (iconMoon) iconMoon.classList.toggle('hidden', dark);
+                setMeta(dark);
+            });
+        }
+    })();
     </script>
     @stack('scripts')
 </body>

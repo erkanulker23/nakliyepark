@@ -27,9 +27,17 @@ class Company extends Model
         });
     }
 
+    /** Türkçe karakterleri ASCII karşılıklarına çevirip slug üretir (ğ->g, ı->i, ş->s, ü->u, ö->o, ç->c) */
+    protected function turkishToAscii(string $text): string
+    {
+        $map = ['ğ' => 'g', 'Ğ' => 'G', 'ı' => 'i', 'İ' => 'I', 'ş' => 's', 'Ş' => 'S', 'ü' => 'u', 'Ü' => 'U', 'ö' => 'o', 'Ö' => 'O', 'ç' => 'c', 'Ç' => 'C'];
+        return strtr($text, $map);
+    }
+
     public function generateSlug(): string
     {
-        $base = Str::slug($this->name ?: 'firma');
+        $name = $this->name ?: 'firma';
+        $base = Str::slug($this->turkishToAscii($name));
         $slug = $base;
         $n = 0;
         $query = static::query()->where('slug', $slug);
@@ -77,6 +85,12 @@ class Company extends Model
     public function hasPendingChanges(): bool
     {
         return !empty($this->pending_changes) && is_array($this->pending_changes);
+    }
+
+    /** Sadece sitede listelenen firmalar: onaylı ve engelli değil (/nakliye-firmalari detay için) */
+    public function scopeForFirmalarShow($query)
+    {
+        return $query->whereNotNull('approved_at')->whereNull('blocked_at');
     }
 
     /** Haritada görünür ve son 2 saat içinde konum güncellenmiş mi */

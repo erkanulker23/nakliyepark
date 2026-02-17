@@ -6,138 +6,120 @@
 
 @section('content')
 @if($company->isBlocked())
-    <div class="mb-6 rounded-lg px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200">
+    <div class="panel-card p-4 mb-6 border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 rounded-2xl">
         <p class="font-semibold">Üyeliğiniz askıya alındı</p>
-        @if($company->blocked_reason)
-            <p class="text-sm mt-1 opacity-90">Sebep: {{ $company->blocked_reason }}</p>
-        @endif
-        <p class="text-sm mt-1">Teklif veremez ve firmanız sitede listelenmez. Sorunuz varsa destek ile iletişime geçin.</p>
+        @if($company->blocked_reason)<p class="text-sm mt-1 opacity-90">Sebep: {{ $company->blocked_reason }}</p>@endif
+        <p class="text-sm mt-1">Teklif veremez ve firmanız sitede listelenmez.</p>
     </div>
 @endif
-<div class="nakliyeci-stats grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-    <div class="admin-card nakliyeci-stat-card p-5 sm:p-6 flex items-start gap-4">
-        <div class="nakliyeci-stat-icon rounded-xl p-3 {{ $company->isApproved() ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400' : 'bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400' }}">
+
+{{-- Hızlı aksiyon: Teklif Ver FAB (sadece onaylı ve bloklu değilse) --}}
+@if($company->isApproved() && !$company->isBlocked())
+    <a href="{{ route('nakliyeci.ihaleler.index') }}" class="panel-fab" aria-label="Teklif ver">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+    </a>
+@endif
+
+{{-- Sayılar büyük: stat kartları --}}
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+    <div class="panel-stat flex items-start gap-3 {{ $company->isApproved() ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800' : 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800' }}">
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 {{ $company->isApproved() ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400' : 'bg-amber-500/20 text-amber-600 dark:text-amber-400' }}">
             @if($company->isApproved())
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             @else
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             @endif
         </div>
         <div class="min-w-0">
-            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Firma durumu</p>
-            <p class="text-lg font-bold mt-0.5 {{ $company->isApproved() ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400' }}">
-                {{ $company->isApproved() ? 'Onaylı' : 'Onay bekliyor' }}
-            </p>
+            <p class="panel-stat-value {{ $company->isApproved() ? 'text-emerald-700 dark:text-emerald-300' : 'text-amber-700 dark:text-amber-300' }} text-xl sm:text-2xl">{{ $company->isApproved() ? 'Onaylı' : 'Bekliyor' }}</p>
+            <p class="panel-stat-label">Firma durumu</p>
         </div>
     </div>
-    <div class="admin-card nakliyeci-stat-card p-5 sm:p-6 flex items-start gap-4">
-        <div class="nakliyeci-stat-icon rounded-xl p-3 bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        </div>
-        <div class="min-w-0">
-            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Toplam teklif</p>
-            <p class="text-2xl font-bold text-slate-800 dark:text-slate-200 mt-0.5">{{ $company->teklifler()->count() }}</p>
-        </div>
+    <div class="panel-stat">
+        <p class="panel-stat-value text-2xl sm:text-3xl">{{ $company->teklifler()->count() }}</p>
+        <p class="panel-stat-label">Toplam teklif</p>
     </div>
-    <div class="admin-card nakliyeci-stat-card p-5 sm:p-6 flex items-start gap-4">
-        <div class="nakliyeci-stat-icon rounded-xl p-3 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-        </div>
-        <div class="min-w-0">
-            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Kabul edilen</p>
-            <p class="text-2xl font-bold text-slate-800 dark:text-slate-200 mt-0.5">{{ $company->acceptedTeklifler()->count() }}</p>
-        </div>
+    <div class="panel-stat">
+        <p class="panel-stat-value text-2xl sm:text-3xl">{{ $company->acceptedTeklifler()->count() }}</p>
+        <p class="panel-stat-label">Kabul edilen</p>
     </div>
-    <div class="admin-card nakliyeci-stat-card p-5 sm:p-6 flex items-start gap-4">
-        <div class="nakliyeci-stat-icon rounded-xl p-3 bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-400">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        </div>
-        <div class="min-w-0">
-            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Toplam kazanç</p>
-            <p class="text-2xl font-bold text-slate-800 dark:text-slate-200 mt-0.5">{{ number_format($company->total_earnings, 0, ',', '.') }} ₺</p>
-        </div>
+    <div class="panel-stat">
+        <p class="panel-stat-value text-2xl sm:text-3xl">{{ number_format($company->total_earnings, 0, ',', '.') }} ₺</p>
+        <p class="panel-stat-label">Toplam kazanç</p>
     </div>
 </div>
 
-<div class="grid lg:grid-cols-2 gap-6 mb-6">
-    <div class="admin-card p-6">
+<div class="grid lg:grid-cols-2 gap-4 sm:gap-6 mb-6">
+    <div class="panel-card p-4 sm:p-5">
         <div class="flex items-center justify-between mb-4">
-            <h2 class="font-semibold text-slate-800 dark:text-slate-200">Son teklifler</h2>
-            <a href="{{ route('nakliyeci.teklifler.index') }}" class="text-sm text-emerald-600 hover:underline font-medium">Tümü →</a>
+            <h2 class="font-semibold text-[var(--panel-text)]">Son teklifler</h2>
+            <a href="{{ route('nakliyeci.teklifler.index') }}" class="text-sm font-medium text-[var(--panel-primary)] hover:underline">Tümü →</a>
         </div>
         @forelse($teklifler->take(5) as $t)
             @php $ihale = $t->ihale; @endphp
-            <article class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-600 last:border-0 gap-3">
+            <a href="{{ $ihale ? route('nakliyeci.ihaleler.show', $ihale) : '#' }}" class="panel-action-row block w-full text-left hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors">
                 <div class="min-w-0 flex-1">
-                    @if($ihale)
-                        <a href="{{ route('nakliyeci.ihaleler.show', $ihale) }}" class="font-medium text-slate-800 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 block truncate">{{ $ihale->from_location_text }} → {{ $ihale->to_location_text }}</a>
-                    @else
-                        <span class="font-medium text-slate-500">—</span>
-                    @endif
-                    <p class="text-sm text-slate-500">{{ number_format($t->amount, 0, ',', '.') }} ₺</p>
+                    <p class="font-medium text-[var(--panel-text)] truncate">{{ $ihale ? $ihale->from_location_text . ' → ' . $ihale->to_location_text : '—' }}</p>
+                    <p class="text-sm text-[var(--panel-text-muted)]">{{ number_format($t->amount, 0, ',', '.') }} ₺</p>
                 </div>
-                <span class="text-xs px-2.5 py-1 rounded-full font-medium shrink-0
-                    @if($t->status === 'accepted') bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300
-                    @elseif($t->status === 'rejected') bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300
-                    @else bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-300
-                    @endif">
+                <x-panel.status-badge :status="$t->status === 'accepted' ? 'approved' : ($t->status === 'rejected' ? 'rejected' : 'pending')">
                     {{ $t->status === 'accepted' ? 'Onaylandı' : ($t->status === 'rejected' ? 'Reddedildi' : 'Beklemede') }}
-                </span>
-            </article>
+                </x-panel.status-badge>
+            </a>
         @empty
-            <p class="text-slate-500 text-sm py-2">Henüz teklif yok.</p>
+            <p class="text-[var(--panel-text-muted)] text-sm py-4">Henüz teklif yok.</p>
         @endforelse
     </div>
-    <div class="admin-card p-6">
-        <h2 class="font-semibold text-slate-800 dark:text-slate-200 mb-4">Firma bilgileri</h2>
-        <p class="text-sm text-slate-500 mb-4">Firma adı, iletişim ve açıklama gibi bilgileri buradan güncelleyebilirsiniz.</p>
-        <a href="{{ route('nakliyeci.company.edit') }}" class="admin-btn-primary inline-flex">Firma bilgilerini düzenle</a>
-    </div>
-    <div class="admin-card p-6" id="map-visibility-card">
-        <h2 class="font-semibold text-slate-800 dark:text-slate-200 mb-2">Haritada görünsün</h2>
-        <p class="text-sm text-slate-500 mb-4">Açıkken konumunuz anasayfadaki haritada nakliye firmalarıyla birlikte gösterilir. Sayfayı açık tutun ve konum izni verin.</p>
-        <label class="flex items-center gap-3 cursor-pointer">
-            <input type="checkbox" id="map_visible_toggle" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" {{ $company->map_visible ? 'checked' : '' }}>
-            <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Anasayfada haritada konumumu göster</span>
-        </label>
-        <p id="map-visibility-status" class="text-xs mt-2 text-slate-500"></p>
+    <div class="panel-card p-4 sm:p-5">
+        <h2 class="font-semibold text-[var(--panel-text)] mb-2">Firma bilgileri</h2>
+        <p class="text-sm text-[var(--panel-text-muted)] mb-4">Firma adı, iletişim ve açıklama gibi bilgileri buradan güncelleyebilirsiniz.</p>
+        <a href="{{ route('nakliyeci.company.edit') }}" class="btn-primary inline-flex">Firma bilgilerini düzenle</a>
     </div>
 </div>
 
-{{-- Açık ihaleler - hızlı teklif --}}
-<div class="admin-card p-6">
+{{-- Haritada görünsün --}}
+<div class="panel-card p-4 sm:p-5 mb-6">
+    <h2 class="font-semibold text-[var(--panel-text)] mb-2">Haritada görünsün</h2>
+    <p class="text-sm text-[var(--panel-text-muted)] mb-4">Açıkken konumunuz anasayfadaki haritada nakliye firmalarıyla birlikte gösterilir.</p>
+    <label class="flex items-center gap-3 cursor-pointer">
+        <input type="checkbox" id="map_visible_toggle" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" {{ $company->map_visible ? 'checked' : '' }}>
+        <span class="text-sm font-medium text-[var(--panel-text)]">Anasayfada haritada konumumu göster</span>
+    </label>
+    <p id="map-visibility-status" class="text-xs mt-2 text-[var(--panel-text-muted)]"></p>
+</div>
+
+{{-- Açık ihaleler: kart yapısı, teklif ver CTA --}}
+<div class="panel-card p-4 sm:p-5">
     <div class="flex items-center justify-between mb-4">
-        <h2 class="font-semibold text-slate-800 dark:text-slate-200">Açık ihaleler</h2>
-        <a href="{{ route('nakliyeci.ihaleler.index') }}" class="text-sm text-emerald-600 dark:text-emerald-400 hover:underline font-medium">Tümü →</a>
+        <h2 class="font-semibold text-[var(--panel-text)]">Açık ihaleler</h2>
+        <a href="{{ route('nakliyeci.ihaleler.index') }}" class="text-sm font-medium text-[var(--panel-primary)] hover:underline">Tümü →</a>
     </div>
-    <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">Tek tıkla teklif verebilir veya detay için satıra tıklayın.</p>
     @if($company->isBlocked())
-        <p class="text-slate-500 text-sm py-2">Üyeliğiniz askıda olduğu için yeni teklif veremezsiniz.</p>
+        <p class="text-[var(--panel-text-muted)] text-sm py-2">Üyeliğiniz askıda olduğu için yeni teklif veremezsiniz.</p>
     @elseif($company->isApproved())
         @forelse($yayindakiIhaleler as $ihale)
             @php $benimTeklif = $ihale->teklifler()->where('company_id', $company->id)->first(); @endphp
-            <article class="nakliyeci-ihale-row flex flex-wrap items-center gap-4 py-4 border-b border-slate-200 dark:border-slate-600 last:border-0">
-                <div class="flex-1 min-w-[200px]">
-                    <a href="{{ route('nakliyeci.ihaleler.show', $ihale) }}" class="font-medium text-slate-800 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400">{{ $ihale->from_location_text }} → {{ $ihale->to_location_text }}</a>
-                    <p class="text-sm text-slate-500 mt-0.5">{{ $ihale->volume_m3 }} m³ · {{ $ihale->move_date?->format('d.m.Y') ?? '-' }}</p>
+            <div class="flex flex-col sm:flex-row sm:items-center gap-3 py-4 border-b border-[var(--panel-border)] last:border-0">
+                <div class="flex-1 min-w-0">
+                    <a href="{{ route('nakliyeci.ihaleler.show', $ihale) }}" class="font-medium text-[var(--panel-text)] hover:text-[var(--panel-primary)] block">{{ $ihale->from_location_text }} → {{ $ihale->to_location_text }}</a>
+                    <p class="text-sm text-[var(--panel-text-muted)]">{{ $ihale->volume_m3 }} m³ · {{ $ihale->move_date?->format('d.m.Y') ?? '-' }}</p>
                 </div>
                 @if($benimTeklif)
-                    <p class="text-sm text-slate-600 dark:text-slate-400">Teklifiniz: <strong>{{ number_format($benimTeklif->amount, 0, ',', '.') }} ₺</strong> — {{ $benimTeklif->status === 'accepted' ? 'Onaylandı' : ($benimTeklif->status === 'rejected' ? 'Reddedildi' : 'Beklemede') }}</p>
+                    <p class="text-sm text-[var(--panel-text-muted)]">Teklifiniz: <strong class="text-[var(--panel-text)]">{{ number_format($benimTeklif->amount, 0, ',', '.') }} ₺</strong> — <x-panel.status-badge :status="$benimTeklif->status === 'accepted' ? 'approved' : ($benimTeklif->status === 'rejected' ? 'rejected' : 'pending')">{{ $benimTeklif->status === 'accepted' ? 'Onaylandı' : ($benimTeklif->status === 'rejected' ? 'Reddedildi' : 'Beklemede') }}</x-panel.status-badge></p>
                 @else
                     <form method="POST" action="{{ route('nakliyeci.teklif.store') }}" class="flex gap-2 flex-wrap items-center">
                         @csrf
                         <input type="hidden" name="ihale_id" value="{{ $ihale->id }}">
-                        <input type="number" name="amount" min="0" step="100" placeholder="Tutar (₺)" required
-                               class="admin-input w-28 sm:w-32 text-sm">
-                        <button type="submit" class="admin-btn-primary text-sm">Teklif Ver</button>
+                        <input type="number" name="amount" min="0" step="100" placeholder="Tutar (₺)" required class="input-touch w-28 sm:w-32 text-sm rounded-xl">
+                        <button type="submit" class="btn-primary text-sm">Teklif Ver</button>
                     </form>
                 @endif
-            </article>
+            </div>
         @empty
-            <p class="text-slate-500 text-sm py-2">Şu an açık ihale yok.</p>
+            <p class="text-[var(--panel-text-muted)] text-sm py-2">Şu an açık ihale yok.</p>
         @endforelse
     @else
-        <p class="text-slate-500 text-sm">Firmanız onaylandıktan sonra teklif verebilirsiniz.</p>
+        <p class="text-[var(--panel-text-muted)] text-sm">Firmanız onaylandıktan sonra teklif verebilirsiniz.</p>
     @endif
 </div>
 
@@ -149,7 +131,6 @@
     const url = '{{ route("nakliyeci.location.update") }}';
     const csrf = '{{ csrf_token() }}';
     let locationInterval = null;
-
     function sendLocation(mapVisible, lat, lng) {
         const body = new FormData();
         body.append('_token', csrf);
@@ -160,40 +141,26 @@
             .then(r => r.json())
             .then(data => {
                 if (data.ok && statusEl) {
-                    if (data.map_visible) statusEl.textContent = 'Haritada görünüyorsunuz. Konum güncelleniyor.';
+                    if (data.map_visible) statusEl.textContent = 'Haritada görünüyorsunuz.';
                     else statusEl.textContent = '';
                 }
             })
             .catch(() => { if (statusEl) statusEl.textContent = 'Güncelleme gönderilemedi.'; });
     }
-
     function updateLocation() {
-        if (!navigator.geolocation) {
-            if (statusEl) statusEl.textContent = 'Tarayıcınız konum desteklemiyor.';
-            return;
-        }
+        if (!navigator.geolocation) { if (statusEl) statusEl.textContent = 'Konum desteklenmiyor.'; return; }
         navigator.geolocation.getCurrentPosition(
             function(pos) { sendLocation(undefined, pos.coords.latitude, pos.coords.longitude); },
-            function() { if (statusEl) statusEl.textContent = 'Konum alınamadı. İzin verin veya sayfayı yenileyin.'; }
+            function() { if (statusEl) statusEl.textContent = 'Konum alınamadı.'; }
         );
     }
-
     toggle.addEventListener('change', function() {
         const on = this.checked;
         sendLocation(on);
-        if (on) {
-            updateLocation();
-            locationInterval = setInterval(updateLocation, 90000);
-        } else {
-            if (locationInterval) { clearInterval(locationInterval); locationInterval = null; }
-            if (statusEl) statusEl.textContent = '';
-        }
+        if (on) { updateLocation(); locationInterval = setInterval(updateLocation, 90000); }
+        else { if (locationInterval) { clearInterval(locationInterval); locationInterval = null; } if (statusEl) statusEl.textContent = ''; }
     });
-
-    if (toggle.checked) {
-        updateLocation();
-        locationInterval = setInterval(updateLocation, 90000);
-    }
+    if (toggle.checked) { updateLocation(); locationInterval = setInterval(updateLocation, 90000); }
 })();
 </script>
 @endpush

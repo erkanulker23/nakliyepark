@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Company;
 use App\Models\User;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -50,3 +51,18 @@ Artisan::command('admin:ensure {email : E-posta adresi} {--password= : Şifre (y
 
     $this->info('Admin giriş: /yonetici/admin');
 })->purpose('Belirtilen e-postayı admin yapar veya yeni süper admin oluşturur (--password zorunlu)');
+
+Artisan::command('companies:refresh-slugs', function (): void {
+    $companies = Company::withoutGlobalScopes()->get();
+    $updated = 0;
+    foreach ($companies as $company) {
+        $newSlug = $company->generateSlug();
+        if ($company->slug !== $newSlug) {
+            $company->slug = $newSlug;
+            $company->saveQuietly();
+            $updated++;
+            $this->line("  {$company->name} → {$newSlug}");
+        }
+    }
+    $this->info("Slug güncellendi: {$updated} firma.");
+})->purpose('Firma slug’larını Türkçe karakter desteği ile yeniden üretir (404 düzeltmek için)');

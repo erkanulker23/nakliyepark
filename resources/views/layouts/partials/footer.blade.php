@@ -1,6 +1,6 @@
 <footer class="bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 safe-bottom pb-20 lg:pb-0">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-10">
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-6 sm:gap-10">
             <div>
                 @if(!empty($site_logo_url ?? null) || !empty($site_logo_dark_url ?? null))
                     <a href="{{ url('/') }}" class="inline-block mb-4">
@@ -49,6 +49,15 @@
                 <ul class="space-y-2.5">
                     <li><a href="{{ route('contact.index') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">İletişim</a></li>
                     <li><a href="{{ route('blog.index') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Blog</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-sm font-semibold text-zinc-900 dark:text-white uppercase tracking-wider mb-4">Yasal</h3>
+                <ul class="space-y-2.5">
+                    <li><a href="{{ route('legal.mesafeli-satis') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Mesafeli Satış Sözleşmesi</a></li>
+                    <li><a href="{{ route('legal.on-bilgilendirme') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Ön Bilgilendirme Formu</a></li>
+                    <li><a href="{{ route('legal.iade-kosullari') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">İade ve Cayma Koşulları</a></li>
+                    <li><a href="{{ route('kvkk.aydinlatma') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">KVKK Aydınlatma Metni</a></li>
                 </ul>
             </div>
         </div>

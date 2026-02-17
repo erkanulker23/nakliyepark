@@ -110,6 +110,11 @@
                     <textarea name="message" id="message" rows="5" required class="input-touch w-full rounded-xl min-h-[120px]" placeholder="Mesajınızı yazın">{{ old('message') }}</textarea>
                     @error('message')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 </div>
+                <div class="flex items-start gap-2">
+                    <input type="checkbox" name="kvkk_consent" id="kvkk_consent" value="1" {{ old('kvkk_consent') ? 'checked' : '' }} required class="mt-1 rounded border-zinc-300 dark:border-zinc-600 text-emerald-600 focus:ring-emerald-500">
+                    <label for="kvkk_consent" class="text-sm text-zinc-600 dark:text-zinc-400">Kişisel verilerimin <a href="{{ route('kvkk.aydinlatma') }}" target="_blank" rel="noopener noreferrer" class="underline hover:text-emerald-600">KVKK Aydınlatma Metni</a> kapsamında işlenmesini kabul ediyorum. *</label>
+                </div>
+                @error('kvkk_consent')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 <button type="submit" class="btn-primary w-full sm:w-auto">Gönder</button>
             </form>
         </div>

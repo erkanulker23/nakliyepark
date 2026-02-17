@@ -40,21 +40,42 @@ return Application::configure(basePath: dirname(__DIR__))
                 ->withErrors(['email' => $message]);
         });
 
-        // CSRF token hatası için özel işleme
-        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, \Illuminate\Http\Request $request) {
+        // CSRF / 419 hatası: TokenMismatchException veya 419 HttpException (Laravel bazen 419’e çeviriyor)
+        $handle419 = function (\Illuminate\Http\Request $request) {
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'CSRF token süresi doldu. Lütfen sayfayı yenileyip tekrar deneyin.'], 419);
             }
-            
-            // Login sayfalarına özel yönlendirme
-            if ($request->is('yonetici/admin') || $request->is('login')) {
-                return redirect()->back()
+            // Logout isteğinde token süresi dolmuşsa yine de çıkış yap
+            if ($request->isMethod('POST') && $request->is('logout')) {
+                \Illuminate\Support\Facades\Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                return redirect('/')->with('info', 'Oturum süresi dolduğu için çıkış yapıldı.');
+            }
+            // Admin login (POST): giriş sayfasına taze form ile yönlendir
+            if ($request->isMethod('POST') && ($request->routeIs('admin.login.submit') || $request->is('yonetici/admin'))) {
+                return redirect()->route('admin.login')
                     ->withInput($request->except('_token'))
                     ->with('error', 'Oturum süresi doldu. Lütfen tekrar giriş yapın.');
             }
-            
-            return redirect()->back()
-                ->withInput($request->except('_token'))
-                ->with('error', 'Sayfa süresi doldu. Lütfen sayfayı yenileyip tekrar deneyin.');
+            // Normal login (POST)
+            if ($request->isMethod('POST') && $request->is('login')) {
+                return redirect()->route('login')
+                    ->withInput($request->except('_token'))
+                    ->with('error', 'Oturum süresi doldu. Lütfen tekrar giriş yapın.');
+            }
+            // Form gönderimlerinde (ihale, iletişim vb.) 419 hata sayfasını göster — kullanıcı nedenini görsün
+            return response()->view('errors.419', [], 419);
+        };
+
+        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, \Illuminate\Http\Request $request) use ($handle419) {
+            return $handle419($request);
+        });
+
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $e, \Illuminate\Http\Request $request) use ($handle419) {
+            if ($e->getStatusCode() === 419) {
+                return $handle419($request);
+            }
+            return null;
         });
     })->create();

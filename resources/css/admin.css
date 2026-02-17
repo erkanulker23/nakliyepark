@@ -3,6 +3,8 @@
    Temiz, okunaklı, mobil uyumlu
    ============================================ */
 
+@import './panel.css';
+
 :root {
   --admin-sidebar-bg: #0f172a;
   --admin-sidebar-border: rgba(51, 65, 85, 0.6);

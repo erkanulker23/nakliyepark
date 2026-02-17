@@ -201,30 +201,37 @@ class IyzicoPaymentService
             $company = $paymentRequest->company;
             $paidPrice = (float) $result->getPaidPrice();
 
-            if ($paymentRequest->type === PaymentRequest::TYPE_BORC) {
-                CompanyCommissionPayment::create([
-                    'company_id' => $company->id,
-                    'amount' => $paidPrice,
-                    'currency' => $result->getCurrency() ?? 'TRY',
-                    'gateway' => 'iyzico',
-                    'transaction_id' => $result->getPaymentId(),
-                    'conversation_id' => $conversationId,
-                    'meta' => ['token' => $token],
-                    'paid_at' => now(),
-                ]);
-            } else {
-                $company->update(['package' => $paymentRequest->package_id]);
+            if ($paymentRequest->type === PaymentRequest::TYPE_BORC && $paidPrice < (float) $paymentRequest->amount) {
+                $paymentRequest->update(['status' => PaymentRequest::STATUS_FAILED]);
+                return ['success' => false, 'error' => 'Ödeme tutarı yetersiz.'];
             }
 
-            $paymentRequest->update([
-                'status' => PaymentRequest::STATUS_COMPLETED,
-                'gateway_transaction_id' => $result->getPaymentId(),
-                'completed_at' => now(),
-            ]);
+            \DB::transaction(function () use ($paymentRequest, $company, $paidPrice, $result, $conversationId, $token) {
+                if ($paymentRequest->type === PaymentRequest::TYPE_BORC) {
+                    CompanyCommissionPayment::create([
+                        'company_id' => $company->id,
+                        'amount' => $paidPrice,
+                        'currency' => $result->getCurrency() ?? 'TRY',
+                        'gateway' => 'iyzico',
+                        'transaction_id' => $result->getPaymentId(),
+                        'conversation_id' => $conversationId,
+                        'meta' => ['token' => $token],
+                        'paid_at' => now(),
+                    ]);
+                } else {
+                    $company->update(['package' => $paymentRequest->package_id]);
+                }
+
+                $paymentRequest->update([
+                    'status' => PaymentRequest::STATUS_COMPLETED,
+                    'gateway_transaction_id' => $result->getPaymentId(),
+                    'completed_at' => now(),
+                ]);
+            });
 
             return [
                 'success' => true,
-                'payment_request' => $paymentRequest,
+                'payment_request' => $paymentRequest->fresh(),
                 'redirect_url' => $paymentRequest->type === PaymentRequest::TYPE_BORC
                     ? route('nakliyeci.borc.index')
                     : route('nakliyeci.paketler.index'),

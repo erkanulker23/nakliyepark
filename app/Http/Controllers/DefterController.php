@@ -19,6 +19,7 @@ class DefterController extends Controller
         $query = YukIlani::with(['company', 'yanitlar.company'])
             ->where('yuk_ilanlari.status', 'active')
             ->join('companies', 'companies.id', '=', 'yuk_ilanlari.company_id')
+            ->whereNull('companies.deleted_at')
             ->orderByRaw("EXISTS (SELECT 1 FROM payment_requests pr WHERE pr.company_id = yuk_ilanlari.company_id AND pr.type = 'paket' AND pr.status = 'completed') DESC")
             ->orderByRaw('CASE WHEN companies.package = ? THEN 0 WHEN companies.package = ? THEN 1 WHEN companies.package = ? THEN 2 ELSE 3 END', ['kurumsal', 'profesyonel', 'baslangic'])
             ->latest('yuk_ilanlari.created_at')
@@ -70,6 +71,9 @@ class DefterController extends Controller
             abort(404);
         }
         $yukIlani->load(['company', 'yanitlar.company']);
+        if (! $yukIlani->company) {
+            abort(404);
+        }
         return view('defter.show', [
             'ilan' => $yukIlani,
             'popularCities' => self::POPULAR_CITIES,

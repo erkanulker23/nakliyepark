@@ -19,6 +19,9 @@ class IhaleController extends Controller
         $this->authorize('view', $ihale);
         $ihale->load(['teklifler.company.user', 'photos']);
         $acceptedTeklif = $ihale->acceptedTeklif;
+        if ($acceptedTeklif) {
+            $acceptedTeklif->load(['contactMessages.fromUser', 'company']);
+        }
         return view('musteri.ihaleler.show', compact('ihale', 'acceptedTeklif'));
     }
 
@@ -122,15 +125,20 @@ class IhaleController extends Controller
     {
         $this->authorize('view', $ihale);
         $acceptedTeklif = $ihale->acceptedTeklif;
-        if (! $acceptedTeklif || $ihale->status !== 'closed') {
-            return back()->with('error', 'Bu ihale için uyuşmazlık açılamaz.');
+
+        if (! $acceptedTeklif) {
+            return back()->with('error', 'Şikâyet açabilmek için önce bir teklifi kabul etmiş olmanız gerekir. Henüz kabul ettiğiniz bir teklif yok.');
         }
+        if ($ihale->status !== 'closed') {
+            return back()->with('error', 'Şikâyet yalnızca ihale kapandıktan sonra (teklif kabul edildikten sonra) açılabilir. Bu ihale henüz kapalı görünmüyor; lütfen sayfayı yenileyin veya destek ile iletişime geçin.');
+        }
+
         $request->validate([
             'reason' => 'required|string|in:iptal,adres_hatasi,gelmedi,hakaret,diger',
             'description' => 'nullable|string|max:2000',
         ]);
         if (Dispute::where('ihale_id', $ihale->id)->where('opened_by_user_id', $request->user()->id)->whereIn('status', ['open', 'admin_review'])->exists()) {
-            return back()->with('error', 'Bu ihale için zaten açık bir uyuşmazlık kaydınız var.');
+            return back()->with('error', 'Bu ihale için zaten açık bir uyuşmazlık kaydınız var. Aynı ihale için birden fazla şikâyet açılamaz.');
         }
         Dispute::create([
             'ihale_id' => $ihale->id,
@@ -143,5 +151,53 @@ class IhaleController extends Controller
         ]);
         \App\Services\AdminNotifier::notify('dispute_opened', "Uyuşmazlık açıldı: {$ihale->from_city} → {$ihale->to_city} (Müşteri)", 'Yeni uyuşmazlık', ['url' => route('admin.disputes.index')]);
         return redirect()->route('musteri.ihaleler.show', $ihale)->with('success', 'Şikâyetiniz alındı. En kısa sürede incelenecektir.');
+    }
+
+    /** Müşteri ihale kapatır (yayından kaldırır; bekleyen teklifler reddedilir). Sadece yayındaki ve henüz teklif kabul edilmemiş ihaleler. */
+    public function close(Request $request, Ihale $ihale)
+    {
+        $this->authorize('view', $ihale);
+        if ($ihale->status !== 'published') {
+            return back()->with('error', $ihale->status === 'closed' ? 'Bu ihale zaten kapalı.' : 'Sadece yayındaki ihaleler kapatılabilir.');
+        }
+        if ($ihale->acceptedTeklif) {
+            return back()->with('error', 'Teklif kabul edilmiş ihale zaten kapalı sayılır; ek işlem gerekmez.');
+        }
+        \DB::transaction(function () use ($ihale) {
+            \App\Models\Teklif::where('ihale_id', $ihale->id)->where('status', 'pending')->update(['status' => 'rejected']);
+            $ihale->update(['status' => 'closed']);
+        });
+        return back()->with('success', 'İhale kapatıldı. Artık firmalar bu ilana teklif veremez.');
+    }
+
+    /** Müşteri ihale açar (yayına alır). Kapalı (manuel kapatılmış) veya taslaktaki ihaleler. */
+    public function open(Request $request, Ihale $ihale)
+    {
+        $this->authorize('view', $ihale);
+        if ($ihale->status === 'published') {
+            return back()->with('info', 'Bu ihale zaten yayında.');
+        }
+        if ($ihale->status === 'closed' && $ihale->acceptedTeklif) {
+            return back()->with('error', 'Teklif kabul edilmiş ihale tekrar açılamaz. Kabulü geri almak için ihale detayından «Kabulü geri al» kullanın.');
+        }
+        if (! in_array($ihale->status, ['closed', 'draft'], true)) {
+            return back()->with('error', 'Sadece kapalı veya bekleme modundaki ihaleler yayına alınabilir. (Onay bekleyen ihaleler admin onayından sonra yayına alınır.)');
+        }
+        $ihale->update(['status' => 'published']);
+        return back()->with('success', 'İhale yayına alındı. Firmalar tekrar teklif verebilir.');
+    }
+
+    /** Müşteri ihale bekleme moduna alır (taslak; listede görünmez, teklif kabul edilmez). Sadece yayındaki ihaleler. */
+    public function pause(Request $request, Ihale $ihale)
+    {
+        $this->authorize('view', $ihale);
+        if ($ihale->status !== 'published') {
+            return back()->with('error', $ihale->status === 'draft' ? 'Bu ihale zaten bekleme modunda.' : 'Sadece yayındaki ihaleler bekleme moduna alınabilir.');
+        }
+        if ($ihale->acceptedTeklif) {
+            return back()->with('error', 'Teklif kabul edilmiş ihale bekleme moduna alınamaz.');
+        }
+        $ihale->update(['status' => 'draft']);
+        return back()->with('success', 'İhale bekleme moduna alındı. İstediğiniz zaman «Yayına al» ile tekrar açabilirsiniz.');
     }
 }

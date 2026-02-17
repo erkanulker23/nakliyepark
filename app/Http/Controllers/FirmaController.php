@@ -32,8 +32,12 @@ class FirmaController extends Controller
             $query->whereJsonContains('services', $service);
         }
 
-        $firmalar = $query->orderByRaw('CASE WHEN package = ? THEN 0 WHEN package = ? THEN 1 WHEN package = ? THEN 2 ELSE 3 END', ['kurumsal', 'profesyonel', 'baslangic'])
-            ->latest()
+        // Paket almış firmalar hep üstte; her ziyarette liste rastgele (paketliler ve paketsizler kendi içinde rastgele)
+        $driver = $query->getConnection()->getDriverName();
+        $randFn = $driver === 'mysql' ? 'RAND()' : 'RANDOM()';
+        $firmalar = $query
+            ->orderByRaw("CASE WHEN package IS NOT NULL AND package != '' THEN 0 ELSE 1 END")
+            ->orderByRaw($randFn)
             ->paginate(12)
             ->withQueryString();
 
@@ -44,11 +48,9 @@ class FirmaController extends Controller
         return view('firmalar.index', compact('firmalar', 'cities', 'serviceLabels', 'filters'));
     }
 
-    public function show(Company $company)
+    public function show(Company $companyForShow)
     {
-        if (! $company->approved_at || $company->blocked_at) {
-            abort(404);
-        }
+        $company = $companyForShow;
         $company->increment('view_count');
         $company->load('user', 'reviews.user', 'contracts', 'approvedVehicleImages', 'documents');
         $reviewAvg = round($company->reviews->avg('rating') ?? 0, 1);
@@ -59,11 +61,11 @@ class FirmaController extends Controller
         return view('firmalar.show', compact('company', 'reviewAvg', 'reviewCount', 'completedJobsCount', 'totalTeklifCount', 'acceptanceRate'));
     }
 
-    /** Haritadaki nakliyeciler: onaylı firmalar; canlı konum yoksa il merkezi koordinatı kullanılır */
+    /** Haritadaki nakliyeciler: sadece map_visible=true; canlı konum 2 saatten eskiyse il merkezi kullanılır */
     public function map()
     {
         $cityCoords = config('turkey_city_coordinates', []);
-        $baseQuery = Company::whereNotNull('approved_at')->whereNull('blocked_at');
+        $baseQuery = Company::whereNotNull('approved_at')->whereNull('blocked_at')->where('map_visible', true);
 
         $cityFilter = request('city', '');
         if ($cityFilter !== '') {
@@ -73,11 +75,13 @@ class FirmaController extends Controller
         $all = $baseQuery->orderBy('name')
             ->get(['id', 'slug', 'name', 'city', 'district', 'live_latitude', 'live_longitude', 'live_location_updated_at']);
 
+        $twoHoursAgo = now()->subHours(2);
         $withCoords = [];
         foreach ($all as $c) {
             $lat = null;
             $lng = null;
-            if ($c->live_latitude !== null && $c->live_longitude !== null) {
+            $liveRecent = $c->live_location_updated_at && $c->live_location_updated_at >= $twoHoursAgo;
+            if ($liveRecent && $c->live_latitude !== null && $c->live_longitude !== null) {
                 $lat = (float) $c->live_latitude;
                 $lng = (float) $c->live_longitude;
             } elseif (! empty(trim((string) $c->city))) {

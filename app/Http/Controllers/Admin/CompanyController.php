@@ -162,7 +162,7 @@ class CompanyController extends Controller
         return redirect()->route('admin.companies.index')->with('success', 'Firma silindi. Geri almak için destek ile iletişime geçin.');
     }
 
-    public function approve(Company $company)
+    public function approve(Request $request, Company $company)
     {
         $wasApproved = $company->approved_at !== null;
         $company->load('user');
@@ -189,7 +189,10 @@ class CompanyController extends Controller
             );
         }
         
-        return back()->with('success', 'Firma onaylandı.');
+        if ($request->input('redirect') === 'dashboard') {
+            return redirect()->route('admin.dashboard')->with('success', 'Firma onaylandı.');
+        }
+        return redirect()->route('admin.companies.edit', $company)->with('success', 'Firma onaylandı.');
     }
 
     public function reject(Company $company)
@@ -213,8 +216,10 @@ class CompanyController extends Controller
     public function approvePendingChanges(Company $company)
     {
         $this->authorize('update', $company);
+        $company->refresh();
         if (! $company->hasPendingChanges()) {
-            return back()->with('error', 'Bekleyen değişiklik yok.');
+            return redirect()->route('admin.companies.edit', $company)
+                ->with('info', 'Bekleyen değişiklik bulunamadı. Zaten onaylanmış olabilir; sayfayı yeniledik.');
         }
         $pending = $company->pending_changes;
         $data = [
@@ -258,7 +263,7 @@ class CompanyController extends Controller
             'company_id' => $company->id,
             'company_name' => $company->name,
         ]);
-        return back()->with('success', 'Firmanın gönderdiği değişiklikler onaylandı ve yayına alındı.');
+        return redirect()->route('admin.companies.edit', $company)->with('success', 'Firmanın gönderdiği değişiklikler onaylandı ve yayına alındı.');
     }
 
     /** Listeden hızlı paket atama (AJAX veya form submit). */
