@@ -12,7 +12,7 @@
             <div class="admin-form-group">
                 <label class="admin-label">Sayfa *</label>
                 <select name="sayfa" required class="admin-input">
-                    @foreach(\App\Models\AdZone::sayfaSecenekleri() as $key => $label)
+                    @foreach($sayfaSecenekleri ?? \App\Models\AdZone::sayfaSecenekleri() as $key => $label)
                         <option value="{{ $key }}" {{ old('sayfa') === $key ? 'selected' : '' }}>{{ $label }}</option>
                     @endforeach
                 </select>
@@ -21,7 +21,7 @@
             <div class="admin-form-group">
                 <label class="admin-label">Konum *</label>
                 <select name="konum" required class="admin-input">
-                    @foreach(\App\Models\AdZone::konumSecenekleri() as $key => $label)
+                    @foreach($konumSecenekleri ?? \App\Models\AdZone::konumSecenekleri() as $key => $label)
                         <option value="{{ $key }}" {{ old('konum') === $key ? 'selected' : '' }}>{{ $label }}</option>
                     @endforeach
                 </select>

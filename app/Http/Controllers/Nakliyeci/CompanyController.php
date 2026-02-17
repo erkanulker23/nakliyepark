@@ -118,17 +118,15 @@ class CompanyController extends Controller
             }
             $path = $request->file('logo')->store('company-logos/' . $company->id, 'public');
             $data['logo'] = $path;
-            $data['logo_approved_at'] = null;
-            AdminNotifier::notify('company_logo_uploaded', "Firma logosu yüklendi: {$company->name}", 'Logo onay bekliyor', ['url' => route('admin.companies.edit', $company)]);
+            $data['logo_approved_at'] = now(); // Logo yüklendiğinde hemen yayında gösterilsin
+            AdminNotifier::notify('company_logo_uploaded', "Firma logosu yüklendi: {$company->name}", 'Yeni logo', ['url' => route('admin.companies.edit', $company)]);
         }
 
         $company->update($data);
 
         $message = 'Firma bilgileriniz güncellendi.';
         if ($request->hasFile('logo')) {
-            $message .= ' Logo admin onayından sonra yayına alınacaktır.';
-        } else {
-            $message .= ' Değişiklikler admin onayından sonra yayına alınacaktır.';
+            $message .= ' Logo firma sayfanızda görünecektir.';
         }
         return redirect()->route('nakliyeci.company.edit')->with('success', $message);
     }

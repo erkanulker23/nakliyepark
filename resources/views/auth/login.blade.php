@@ -8,11 +8,30 @@
     <div class="card p-6 sm:p-8">
         <h1 class="text-xl font-semibold text-zinc-900 dark:text-white mb-1">@isset($admin_login) Yönetici / Admin girişi @else Giriş yap @endisset</h1>
         <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-6">@isset($admin_login) Yönetim paneline erişmek için giriş yapın. @else Hesabınızla devam edin. @endisset</p>
+
+        @if($errors->any())
+            <div class="mb-4 rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 px-4 py-4 flex items-start gap-3" role="alert">
+                <span class="shrink-0 w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </span>
+                <div class="min-w-0">
+                    <p class="font-semibold text-red-800 dark:text-red-200">Giriş yapılamadı</p>
+                    <ul class="mt-1 text-sm text-red-700 dark:text-red-300 space-y-0.5">
+                        @foreach($errors->all() as $message)
+                            <li>{{ $message }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        @endif
         @if(session('error'))
-            <div class="mb-4 rounded-xl bg-red-50 text-red-800 px-4 py-3 text-sm border border-red-200 dark:bg-red-900/20 dark:border-red-800 dark:text-red-200">{{ session('error') }}</div>
+            <div class="mb-4 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-800 dark:text-red-200 px-4 py-3 text-sm border border-red-200 dark:border-red-800 flex items-start gap-3" role="alert">
+                <span class="shrink-0 w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center"><svg class="w-4 h-4 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span>
+                <p class="font-medium">{{ session('error') }}</p>
+            </div>
         @endif
         @if(session('status'))
-            <div class="mb-4 rounded-xl bg-emerald-50 text-emerald-800 px-4 py-3 text-sm border border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-200">{{ session('status') }}</div>
+            <div class="mb-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-200 px-4 py-3 text-sm border border-emerald-200 dark:border-emerald-800">{{ session('status') }}</div>
         @endif
         <form method="POST" action="{{ isset($admin_login) ? route('admin.login.submit') : route('login') }}" class="space-y-4">
             @csrf

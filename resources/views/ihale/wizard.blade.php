@@ -34,6 +34,30 @@
         <form id="wizard-form" action="{{ route('ihale.store') }}" method="POST" enctype="multipart/form-data" class="relative px-4 sm:px-6 pb-6">
             @csrf
             <input type="hidden" name="service_type" id="service_type" value="">
+
+            @if(session('success'))
+                <div class="mb-4 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-sm flex items-start gap-3" role="alert">
+                    <span class="shrink-0 w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center"><svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></span>
+                    <p class="font-medium">{{ session('success') }}</p>
+                </div>
+            @endif
+            @if(session('error'))
+                <div class="mb-4 p-4 rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 text-sm flex items-start gap-3" role="alert">
+                    <span class="shrink-0 w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center"><svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></span>
+                    <p class="font-medium">{{ session('error') }}</p>
+                </div>
+            @endif
+            @if($errors->any())
+                <div class="mb-4 p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200 text-sm" role="alert">
+                    <p class="font-semibold mb-2">Lütfen aşağıdaki hataları düzeltin:</p>
+                    <ul class="list-disc list-inside space-y-1">
+                        @foreach($errors->all() as $err)
+                            <li>{{ $err }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             @if(isset($forCompany) && $forCompany)
                 <input type="hidden" name="preferred_company_id" value="{{ $forCompany->id }}">
                 <div class="mb-4 p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200/80 dark:border-emerald-800/50 text-sm text-emerald-800 dark:text-emerald-200">
@@ -259,21 +283,24 @@
                 <div class="space-y-3">
                     <div>
                         <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-1">Ad Soyad</label>
-                        <input type="text" name="guest_contact_name" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl" placeholder="Adınız ve soyadınız" value="{{ auth()->user()?->name }}">
+                        <input type="text" name="guest_contact_name" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl @error('guest_contact_name') border-red-500 @enderror" placeholder="Adınız ve soyadınız" value="{{ old('guest_contact_name', auth()->user()?->name) }}">
+                        @error('guest_contact_name')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-1">E-posta</label>
-                        <input type="email" name="guest_contact_email" inputmode="email" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl" placeholder="E-posta adresiniz" value="{{ auth()->user()?->email }}">
+                        <input type="email" name="guest_contact_email" inputmode="email" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl @error('guest_contact_email') border-red-500 @enderror" placeholder="E-posta adresiniz" value="{{ old('guest_contact_email', auth()->user()?->email) }}">
+                        @error('guest_contact_email')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-1">Telefon</label>
-                        <input type="tel" name="guest_contact_phone" inputmode="tel" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl" placeholder="5XX XXX XX XX" value="{{ auth()->user()?->phone }}">
+                        <input type="tel" name="guest_contact_phone" inputmode="tel" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl @error('guest_contact_phone') border-red-500 @enderror" placeholder="5XX XXX XX XX" value="{{ old('guest_contact_phone', auth()->user()?->phone) }}">
+                        @error('guest_contact_phone')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                     </div>
                 </div>
                 {{-- KVKK: Açık rıza ve aydınlatma --}}
                 <div class="mt-4 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700">
                     <label class="flex items-start gap-3 cursor-pointer">
-                        <input type="checkbox" name="kvkk_consent" value="1" required class="mt-1 w-4 h-4 rounded border-zinc-300 text-emerald-500 focus:ring-emerald-500">
+                        <input type="checkbox" name="kvkk_consent" value="1" required class="mt-1 w-4 h-4 rounded border-zinc-300 text-emerald-500 focus:ring-emerald-500 @error('kvkk_consent') border-red-500 @enderror" @if(old('kvkk_consent')) checked @endif>
                         <span class="text-sm text-zinc-700 dark:text-zinc-300">
                             <a href="{{ route('kvkk.aydinlatma') }}" target="_blank" rel="noopener" class="underline font-medium text-emerald-600 dark:text-emerald-400">Kişisel verilerin işlenmesine ilişkin aydınlatma metnini</a> okudum; ad, e-posta, telefon ve adres bilgilerimin talebinin işlenmesi ve firmalarla paylaşılması için açık rızamı veriyorum.
                         </span>
@@ -281,6 +308,7 @@
                     <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-2">
                         Kişisel verileriniz, iş tamamlandıktan veya ihale kapatıldıktan sonra en fazla <strong>{{ $dataRetentionMonths ?? 24 }} ay</strong> saklanır; ardından silinir veya anonimleştirilir.
                     </p>
+                    @error('kvkk_consent')<p class="mt-2 text-sm text-red-600">{{ $message }}</p>@enderror
                 </div>
             </div>
 

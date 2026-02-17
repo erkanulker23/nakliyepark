@@ -36,6 +36,10 @@ class LoginController extends Controller
         $request->validate([
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
+        ], [
+            'email.required' => 'E-posta adresi gerekli.',
+            'email.email' => 'Geçerli bir e-posta adresi girin.',
+            'password.required' => 'Şifre gerekli.',
         ]);
 
         if (BlockedEmail::isBlocked($request->email)) {
@@ -50,14 +54,25 @@ class LoginController extends Controller
             ]);
         }
 
-        if (! Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
-            Log::warning('Failed login attempt', [
+        $userByEmail = User::where('email', $request->email)->first();
+        if (! $userByEmail) {
+            Log::warning('Failed login attempt (email not found)', [
                 'email' => $request->email,
                 'ip' => $request->ip(),
                 'user_agent' => $request->userAgent(),
             ]);
             throw ValidationException::withMessages([
-                'email' => [__('auth.failed')],
+                'email' => ['Bu e-posta adresi ile kayıtlı hesap bulunamadı. Lütfen e-posta adresinizi kontrol edin veya kayıt olun.'],
+            ]);
+        }
+        if (! Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+            Log::warning('Failed login attempt (wrong password)', [
+                'email' => $request->email,
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+            throw ValidationException::withMessages([
+                'password' => ['Girilen şifre hatalı. Şifrenizi kontrol edin veya şifremi unuttum ile sıfırlayın.'],
             ]);
         }
 

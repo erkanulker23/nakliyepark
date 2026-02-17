@@ -27,12 +27,13 @@ class RegisterController extends Controller
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'phone' => ['nullable', 'string', 'max:20'],
+            'phone' => ['nullable', 'string', 'max:15', 'regex:/^[0-9]+$/'],
             'password' => ['required', 'string', 'confirmed', Password::min(8)->letters()->numbers()],
             'role' => ['required', 'in:musteri,nakliyeci'],
         ], [
             'password.letters' => 'Şifre en az bir harf içermelidir.',
             'password.numbers' => 'Şifre en az bir rakam içermelidir.',
+            'phone.regex' => 'Telefon numarası sadece rakamlardan oluşmalıdır.',
         ]);
 
         if (BlockedEmail::isBlocked($request->email)) {

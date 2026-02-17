@@ -38,13 +38,13 @@ class UserController extends Controller
 
     public function approve(User $user)
     {
-        $user->update(['email_verified_at' => now()]);
-        Log::channel('admin_actions')->info('Admin user approved (email verified)', [
+        $user->sendEmailVerificationNotification();
+        Log::channel('admin_actions')->info('Admin sent verification email to user', [
             'admin_id' => auth()->id(),
             'user_id' => $user->id,
             'user_email' => $user->email,
         ]);
-        return back()->with('success', 'Kullanıcı onaylandı (e-posta doğrulandı).');
+        return back()->with('success', 'Kullanıcıya e-posta doğrulama linki gönderildi.');
     }
 
     public function destroy(User $user)

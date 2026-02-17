@@ -12,6 +12,8 @@ use App\Notifications\NewIhaleAdminNotification;
 use App\Models\ConsentLog;
 use App\Services\AdminNotifier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class GuestWizardController extends Controller
 {
@@ -140,7 +142,15 @@ class GuestWizardController extends Controller
         }
         unset($validated['photos'], $validated['description_items'], $validated['ev_salon'], $validated['ev_yatak_odasi'], $validated['ev_mutfak'], $validated['ev_diger'], $validated['ev_koli'], $validated['kvkk_consent']);
 
-        $ihale = Ihale::create($validated);
+        try {
+            $ihale = Ihale::create($validated);
+        } catch (Throwable $e) {
+            Log::error('İhale oluşturma hatası', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return redirect()->route('ihale.create')->withInput()->with('error', 'İhale kaydedilirken bir hata oluştu. Lütfen tekrar deneyin. Sorun devam ederse bizimle iletişime geçin.');
+        }
 
         // KVKK: Açık rıza logu (IP, tarih - admin panelinde görüntülenebilir)
         ConsentLog::log('kvkk_ihale', $request->user()?->id, $ihale->id, ['form' => 'ihale_wizard']);

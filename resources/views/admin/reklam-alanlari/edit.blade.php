@@ -2,18 +2,18 @@
 
 @section('title', 'Reklam Alanı Düzenle')
 @section('page_heading', 'Reklam alanı düzenle')
-@section('page_subtitle', $reklam_alani->baslik ?: (\App\Models\AdZone::sayfaSecenekleri()[$reklam_alani->sayfa] ?? $reklam_alani->sayfa) . ' – ' . (\App\Models\AdZone::konumSecenekleri()[$reklam_alani->konum] ?? $reklam_alani->konum))
+@section('page_subtitle', $reklam_alani->baslik ?: (($sayfaSecenekleri ?? \App\Models\AdZone::sayfaSecenekleri())[$reklam_alani->sayfa] ?? $reklam_alani->sayfa) . ' – ' . (($konumSecenekleri ?? \App\Models\AdZone::konumSecenekleri())[$reklam_alani->konum] ?? $reklam_alani->konum))
 
 @section('content')
 <div class="max-w-2xl">
-    <form method="POST" action="{{ route('admin.reklam-alanlari.update', $reklam_alani) }}" class="admin-card p-6 space-y-4" id="adZoneForm">
+    <form method="POST" action="{{ route('admin.reklam-alanlari.update', ['reklam_alanlari' => $reklam_alani]) }}" class="admin-card p-6 space-y-4" id="adZoneForm">
         @csrf
         @method('PUT')
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="admin-form-group">
                 <label class="admin-label">Sayfa *</label>
                 <select name="sayfa" required class="admin-input">
-                    @foreach(\App\Models\AdZone::sayfaSecenekleri() as $key => $label)
+                    @foreach($sayfaSecenekleri ?? \App\Models\AdZone::sayfaSecenekleri() as $key => $label)
                         <option value="{{ $key }}" {{ old('sayfa', $reklam_alani->sayfa) === $key ? 'selected' : '' }}>{{ $label }}</option>
                     @endforeach
                 </select>
@@ -22,7 +22,7 @@
             <div class="admin-form-group">
                 <label class="admin-label">Konum *</label>
                 <select name="konum" required class="admin-input">
-                    @foreach(\App\Models\AdZone::konumSecenekleri() as $key => $label)
+                    @foreach($konumSecenekleri ?? \App\Models\AdZone::konumSecenekleri() as $key => $label)
                         <option value="{{ $key }}" {{ old('konum', $reklam_alani->konum) === $key ? 'selected' : '' }}>{{ $label }}</option>
                     @endforeach
                 </select>
@@ -77,7 +77,7 @@
             <a href="{{ route('admin.reklam-alanlari.index') }}" class="admin-btn-secondary">İptal</a>
         </div>
     </form>
-    <form method="POST" action="{{ route('admin.reklam-alanlari.destroy', $reklam_alani) }}" class="inline mt-3" onsubmit="return confirm('Bu reklam alanını silmek istediğinize emin misiniz?');">
+    <form method="POST" action="{{ route('admin.reklam-alanlari.destroy', ['reklam_alanlari' => $reklam_alani]) }}" class="inline mt-3" onsubmit="return confirm('Bu reklam alanını silmek istediğinize emin misiniz?');">
         @csrf
         @method('DELETE')
         <button type="submit" class="admin-btn-danger">Sil</button>

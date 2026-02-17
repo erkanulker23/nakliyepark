@@ -16,7 +16,7 @@
                 <span class="text-sm text-amber-600 dark:text-amber-400">Hayır</span>
                 <form method="POST" action="{{ route('admin.users.approve', $user) }}" class="inline">
                     @csrf
-                    <button type="submit" class="admin-btn-primary text-sm">Kullanıcıyı onayla (E-posta doğrula)</button>
+                    <button type="submit" class="admin-btn-primary text-sm">Doğrulama mailini gönder</button>
                 </form>
             @endif
         </div>

@@ -28,7 +28,10 @@ class AdZoneController extends Controller
 
     public function create()
     {
-        return view('admin.reklam-alanlari.create');
+        return view('admin.reklam-alanlari.create', [
+            'sayfaSecenekleri' => AdZone::sayfaSecenekleri(),
+            'konumSecenekleri' => AdZone::konumSecenekleri(),
+        ]);
     }
 
     public function store(Request $request)
@@ -56,12 +59,16 @@ class AdZoneController extends Controller
         return redirect()->route('admin.reklam-alanlari.index')->with('success', 'Reklam alanı eklendi.');
     }
 
-    public function edit(AdZone $reklam_alani)
+    public function edit(AdZone $reklam_alanlari)
     {
-        return view('admin.reklam-alanlari.edit', compact('reklam_alani'));
+        return view('admin.reklam-alanlari.edit', [
+            'reklam_alani' => $reklam_alanlari,
+            'sayfaSecenekleri' => AdZone::sayfaSecenekleri(),
+            'konumSecenekleri' => AdZone::konumSecenekleri(),
+        ]);
     }
 
-    public function update(Request $request, AdZone $reklam_alani)
+    public function update(Request $request, AdZone $reklam_alanlari)
     {
         $data = $request->validate([
             'sayfa'   => 'required|in:' . implode(',', array_keys(AdZone::sayfaSecenekleri())),
@@ -82,13 +89,13 @@ class AdZoneController extends Controller
             $data['resim'] = null;
             $data['link'] = null;
         }
-        $reklam_alani->update($data);
+        $reklam_alanlari->update($data);
         return redirect()->route('admin.reklam-alanlari.index')->with('success', 'Reklam alanı güncellendi.');
     }
 
-    public function destroy(AdZone $reklam_alani)
+    public function destroy(AdZone $reklam_alanlari)
     {
-        $reklam_alani->delete();
+        $reklam_alanlari->delete();
         return redirect()->route('admin.reklam-alanlari.index')->with('success', 'Reklam alanı silindi.');
     }
 }
