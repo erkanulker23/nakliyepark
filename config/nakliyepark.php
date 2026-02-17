@@ -59,4 +59,14 @@ return [
             'cta' => 'Kurumsal paket',
         ],
     ],
+
+    /*
+    | Defter JSON API (evdennakliyateve.com vb. sarı defter) — Admin panelinden veri çekmek için.
+    | Kendi sunucunuza yüklediğiniz defter-api.php adresini ve tarayıcıdan alacağınız cookie'yi girin.
+    */
+    'defter_api' => [
+        'url' => env('DEFTER_API_URL', ''),
+        'cookie' => env('DEFTER_API_COOKIE', ''),
+        'fetch_limit' => (int) env('DEFTER_API_FETCH_LIMIT', 500),
+    ],
 ];

@@ -174,6 +174,22 @@
     </div>
 </div>
 
+@if($defterApiConfigured || $defterApiTotal > 0)
+<div class="mb-6 p-4 rounded-xl border border-sky-200 dark:border-sky-800 bg-sky-50/50 dark:bg-sky-950/20">
+    <h3 class="text-sm font-semibold text-sky-800 dark:text-sky-200 mb-2">Defter API</h3>
+    <p class="text-sm text-slate-600 dark:text-slate-400 mb-2">
+        Harici sarı defterden çekilen kayıtlar: <strong>{{ $defterApiTotal }}</strong> toplam, <strong>{{ $defterApiNotImported }}</strong> firmaya aktarılmamış.
+    </p>
+    <a href="{{ route('admin.defter-api.index') }}" class="inline-flex items-center gap-2 text-sm font-medium text-sky-600 dark:text-sky-400 hover:underline">Defter API sayfası →</a>
+    @if($defterApiConfigured)
+        <form method="post" action="{{ route('admin.defter-api.fetch') }}" class="inline ml-3">
+            @csrf
+            <button type="submit" class="text-sm py-1.5 px-3 rounded-lg bg-sky-600 text-white hover:bg-sky-700">Verileri çek</button>
+        </form>
+    @endif
+</div>
+@endif
+
 <div class="flex flex-wrap gap-4 mb-6 p-4 rounded-xl bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
     <span class="text-sm text-slate-600 dark:text-slate-400"><strong class="text-slate-800 dark:text-slate-200">{{ $stats['users'] }}</strong> toplam kullanıcı</span>
     <span class="text-slate-400 dark:text-slate-500">|</span>

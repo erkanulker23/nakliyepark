@@ -166,6 +166,12 @@ class Company extends Model
         return $this->hasMany(Review::class, 'company_id');
     }
 
+    /** Defter API'den bu firmaya aktarılan kayıt (varsa). */
+    public function defterApiEntry(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(DefterApiEntry::class);
+    }
+
     public function isApproved(): bool
     {
         return $this->approved_at !== null;

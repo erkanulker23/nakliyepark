@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Company;
 use App\Models\CompanyVehicleImage;
+use App\Models\DefterApiEntry;
 use App\Models\Ihale;
 use App\Models\Teklif;
 use App\Models\User;
@@ -40,13 +41,18 @@ class DashboardController extends Controller
         $companiesWithUnapprovedImages = Company::whereHas('vehicleImages', fn ($q) => $q->whereNull('approved_at'))
             ->latest()->take(10)->get(['id', 'name', 'slug']);
 
+        $defterApiTotal = DefterApiEntry::count();
+        $defterApiNotImported = DefterApiEntry::whereNull('company_id')->count();
+        $defterApiConfigured = ! empty(config('nakliyepark.defter_api.url'));
+
         return view('admin.dashboard', compact(
             'stats', 'recentCompanies', 'recentIhaleler', 'recentUsers',
             'pendingCompaniesCount', 'pendingCompanies',
             'companiesWithPendingChangesCount', 'companiesWithPendingChanges',
             'pendingIhalelerCount', 'pendingIhaleler',
             'tekliflerWithPendingUpdateCount', 'tekliflerWithPendingUpdate',
-            'galleryImagesPendingCount', 'companiesWithUnapprovedImages'
+            'galleryImagesPendingCount', 'companiesWithUnapprovedImages',
+            'defterApiTotal', 'defterApiNotImported', 'defterApiConfigured'
         ));
     }
 }
