@@ -99,11 +99,15 @@ Route::post('/iletisim', [ContactController::class, 'store'])->name('contact.sto
 Route::get('/sss', [FaqController::class, 'index'])->name('faq.index');
 Route::get('/kvkk-aydinlatma', [KvkkController::class, 'aydinlatma'])->name('kvkk.aydinlatma');
 
+// Admin girişi: ayrı throttle (dakikada 20 istek) — 429 önlemek için normal girişten ayrı
+Route::middleware(['guest', 'throttle:20,1'])->group(function () {
+    Route::get('/yonetici/admin', [LoginController::class, 'showAdminLoginForm'])->name('admin.login');
+    Route::post('/yonetici/admin', [LoginController::class, 'loginAdmin'])->name('admin.login.submit');
+});
+
 Route::middleware(['guest', 'throttle:6,1'])->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
-    Route::get('/yonetici/admin', [LoginController::class, 'showAdminLoginForm'])->name('admin.login');
-    Route::post('/yonetici/admin', [LoginController::class, 'loginAdmin'])->name('admin.login.submit');
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
     // Şifremi unuttum (müşteri ve nakliyeci aynı giriş, aynı şifre sıfırlama)
