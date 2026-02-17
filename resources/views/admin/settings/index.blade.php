@@ -201,7 +201,6 @@
                 @foreach([
                     'volume' => ['label' => 'Hacim Hesaplama', 'route' => route('tools.volume')],
                     'distance' => ['label' => 'Mesafe Hesaplama', 'route' => route('tools.distance')],
-                    'road_distance' => ['label' => 'Karayolu Mesafe', 'route' => route('tools.road-distance')],
                     'checklist' => ['label' => 'Taşınma Kontrol Listesi', 'route' => route('tools.checklist')],
                     'moving_calendar' => ['label' => 'Taşınma Takvimi', 'route' => route('tools.moving-calendar')],
                     'price_estimator' => ['label' => 'Tahmini Fiyat Hesaplama', 'route' => route('tools.price-estimator')],

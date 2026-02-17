@@ -51,7 +51,7 @@ class Company extends Model
         'user_id', 'name', 'slug', 'tax_number', 'tax_office', 'address', 'city', 'district',
         'live_latitude', 'live_longitude', 'live_location_updated_at', 'map_visible',
         'phone', 'phone_2', 'whatsapp', 'email',
-        'description', 'logo', 'logo_approved_at', 'services', 'approved_at', 'package', 'blocked_at', 'blocked_reason',
+        'description', 'logo', 'logo_approved_at', 'services', 'approved_at', 'package',         'blocked_at', 'blocked_reason', 'view_count',
         'email_verified_at', 'phone_verified_at', 'official_company_verified_at',
         'seo_meta_title', 'seo_meta_description', 'seo_meta_keywords',
         'pending_changes', 'pending_changes_at',
@@ -315,5 +315,23 @@ class Company extends Model
     public function getOutstandingCommissionAttribute(): float
     {
         return max(0, round($this->total_commission - $this->paid_commission, 2));
+    }
+
+    /**
+     * Telefon numarasını gösterim için formatlar: 10 haneli ve 5 ile başlıyorsa başına 0 ekler (0532...).
+     */
+    public static function formatPhoneForDisplay(?string $phone): string
+    {
+        if ($phone === null || $phone === '') {
+            return '';
+        }
+        $digits = preg_replace('/\D/', '', $phone);
+        if (strlen($digits) === 10 && $digits[0] === '5') {
+            return '0' . $digits;
+        }
+        if (strlen($digits) === 11 && $digits[0] === '0') {
+            return $phone;
+        }
+        return $phone;
     }
 }

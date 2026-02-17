@@ -17,6 +17,24 @@
 @endphp
 @include('partials.structured-data-breadcrumb')
 
+@push('structured_data')
+@php
+    $serviceSchema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'Service',
+        'name' => $ihale->from_location_text . ' - ' . $ihale->to_location_text . ' Nakliye Talebi',
+        'description' => strip_tags(Str::limit($ihaleMetaDesc ?? '', 300)),
+        'url' => route('ihaleler.show', $ihale),
+        'areaServed' => array_filter([
+            ['@type' => 'Place', 'name' => $ihale->from_city],
+            ['@type' => 'Place', 'name' => $ihale->to_city],
+        ]),
+        'serviceType' => $ihaleServiceLabel ?? 'Nakliyat',
+    ];
+@endphp
+<script type="application/ld+json">{!! json_encode($serviceSchema, JSON_UNESCAPED_UNICODE) !!}</script>
+@endpush
+
 @push('styles')
 <style>
 .ihale-detail-page .ihale-layout {

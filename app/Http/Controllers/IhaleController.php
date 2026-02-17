@@ -59,6 +59,7 @@ class IhaleController extends Controller
         if ($ihale->status !== 'published') {
             abort(404);
         }
+        $ihale->increment('view_count');
         $ihale->load(['teklifler.company', 'photos', 'user']);
         $ihale->loadCount('teklifler');
         $nakliyeciVerdiMi = auth()->check()

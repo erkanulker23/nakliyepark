@@ -60,6 +60,11 @@
                 </div>
             </div>
             <div class="admin-form-group">
+                <label class="admin-label">Makale için prompt / talimatlar</label>
+                <textarea name="ai_prompt" id="blog-ai-prompt" rows="3" class="admin-input" placeholder="AI talimatları veya notlar (sadece panelde görünür)">{{ old('ai_prompt', $blog->ai_prompt) }}</textarea>
+                @error('ai_prompt')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+            </div>
+            <div class="admin-form-group">
                 <label class="admin-label">Özet</label>
                 <textarea name="excerpt" id="blog-excerpt" rows="3" class="admin-input">{{ old('excerpt', $blog->excerpt) }}</textarea>
                 @error('excerpt')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
@@ -79,9 +84,9 @@
             </div>
             <div class="admin-form-group">
                 <label class="admin-label">İçerik *</label>
-                <textarea name="content" id="blog-content" rows="16" required class="admin-input text-sm font-mono" placeholder="Metin veya HTML (p, strong, ul, h2 vb.)">{{ old('content', $blog->content) }}</textarea>
+                <textarea name="content" id="blog-content" rows="16" required class="admin-input text-sm" placeholder="Zengin metin içerik">{{ old('content', $blog->content) }}</textarea>
                 @error('content')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
-                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Bu alan sayfada aynen gösterilir. HTML etiketleri kullanabilirsiniz: &lt;p&gt;, &lt;strong&gt;, &lt;a&gt;, &lt;ul&gt;, &lt;h2&gt; vb.</p>
+                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Zengin editör ile biçimlendirme, başlık, liste ve link ekleyebilirsiniz.</p>
             </div>
             <div class="border-t border-slate-200 pt-5">
                 <h4 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">Kapak görseli</h4>
@@ -126,8 +131,22 @@
 </div>
 
 @push('scripts')
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    tinymce.init({
+        selector: '#blog-content',
+        height: 420,
+        menubar: false,
+        plugins: 'lists link image code table',
+        toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | bullist numlist | link image | code',
+        content_style: 'body { font-family: inherit; font-size: 14px; }',
+        language: 'tr',
+        promotion: false
+    });
+    document.getElementById('blog-form').addEventListener('submit', function() {
+        if (typeof tinymce !== 'undefined') tinymce.triggerSave();
+    });
     var btn = document.getElementById('ai-generate-btn');
     var topicInput = document.getElementById('ai-topic');
     var instructionsInput = document.getElementById('ai-instructions');
@@ -174,7 +193,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('blog-title').value = d.title || '';
                 document.getElementById('blog-slug').value = slugify(d.title) || document.getElementById('blog-slug').value;
                 document.getElementById('blog-excerpt').value = d.excerpt || '';
-                document.getElementById('blog-content').value = d.content || '';
+                if (typeof tinymce !== 'undefined' && tinymce.get('blog-content')) {
+                    tinymce.get('blog-content').setContent(d.content || '');
+                } else {
+                    document.getElementById('blog-content').value = d.content || '';
+                }
                 document.getElementById('blog-meta-title').value = d.meta_title || '';
                 document.getElementById('blog-meta-description').value = d.meta_description || '';
                 errorEl.classList.add('hidden');

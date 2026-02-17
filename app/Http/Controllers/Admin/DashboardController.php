@@ -29,6 +29,9 @@ class DashboardController extends Controller
         $recentIhaleler = Ihale::with('user')->latest()->take(10)->get();
         $recentUsers = User::latest()->take(10)->get();
 
+        $mostViewedCompanies = Company::whereNotNull('approved_at')->whereNull('blocked_at')->orderByDesc('view_count')->take(10)->get(['id', 'name', 'slug', 'city', 'view_count']);
+        $mostViewedIhaleler = Ihale::where('status', 'published')->orderByDesc('view_count')->take(10)->get(['id', 'from_city', 'to_city', 'slug', 'view_count']);
+
         // Onay bekleyenler (en üstte gösterilecek)
         $pendingCompaniesCount = Company::whereNull('approved_at')->count();
         $pendingCompanies = Company::with('user')->whereNull('approved_at')->latest()->take(15)->get();
@@ -48,6 +51,7 @@ class DashboardController extends Controller
 
         return view('admin.dashboard', compact(
             'stats', 'recentCompanies', 'recentIhaleler', 'recentUsers',
+            'mostViewedCompanies', 'mostViewedIhaleler',
             'pendingCompaniesCount', 'pendingCompanies',
             'companiesWithPendingChangesCount', 'companiesWithPendingChanges',
             'pendingIhalelerCount', 'pendingIhaleler',

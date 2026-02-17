@@ -49,6 +49,7 @@ class FirmaController extends Controller
         if (! $company->approved_at || $company->blocked_at) {
             abort(404);
         }
+        $company->increment('view_count');
         $company->load('user', 'reviews.user', 'contracts', 'approvedVehicleImages', 'documents');
         $reviewAvg = round($company->reviews->avg('rating') ?? 0, 1);
         $reviewCount = $company->reviews->count();

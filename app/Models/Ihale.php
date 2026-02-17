@@ -88,7 +88,7 @@ class Ihale extends Model
         'guest_contact_name', 'guest_contact_email', 'guest_contact_phone',
         'from_city', 'from_address', 'from_district', 'from_neighborhood', 'from_postal_code',
         'to_city', 'to_address', 'to_district', 'to_neighborhood', 'to_postal_code', 'distance_km',
-        'move_date', 'move_date_end', 'volume_m3', 'description', 'status', 'slug',
+        'move_date', 'move_date_end', 'volume_m3', 'description', 'status', 'slug', 'view_count',
     ];
 
     public function isGuest(): bool

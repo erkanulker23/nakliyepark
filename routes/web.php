@@ -86,8 +86,8 @@ Route::get('/araclar/hacim', [ToolController::class, 'volume'])->name('tools.vol
 Route::get('/araclar/hacim/embed', [ToolController::class, 'volumeEmbed'])->name('tools.volume.embed');
 Route::get('/araclar/mesafe', [ToolController::class, 'distance'])->name('tools.distance');
 Route::get('/araclar/mesafe/embed', [ToolController::class, 'distanceEmbed'])->name('tools.distance.embed');
-Route::get('/araclar/karayolu-mesafe', [ToolController::class, 'roadDistance'])->name('tools.road-distance');
-Route::get('/araclar/karayolu-mesafe/embed', [ToolController::class, 'roadDistanceEmbed'])->name('tools.road-distance.embed');
+Route::redirect('/araclar/karayolu-mesafe', '/araclar/mesafe', 301);
+Route::redirect('/araclar/karayolu-mesafe/embed', '/araclar/mesafe/embed', 301);
 Route::get('/araclar/tasinma-kontrol-listesi', [ToolController::class, 'checklist'])->name('tools.checklist');
 Route::get('/araclar/tasinma-takvimi', [ToolController::class, 'movingCalendar'])->name('tools.moving-calendar');
 Route::get('/araclar/tahmini-fiyat', [ToolController::class, 'priceEstimator'])->name('tools.price-estimator');
@@ -204,7 +204,7 @@ Route::middleware(['auth', 'verified.panel', 'role:nakliyeci'])->prefix('nakliye
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn () => redirect()->route('admin.dashboard'));
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-    Route::resource('users', AdminUserController::class)->only(['index', 'edit', 'update', 'destroy']);
+    Route::resource('users', AdminUserController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     Route::post('/users/{user}/approve', [AdminUserController::class, 'approve'])->name('users.approve');
     Route::get('/musteriler', [AdminMusteriController::class, 'index'])->name('musteriler.index');
     Route::get('/musteriler/{user}', [AdminMusteriController::class, 'show'])->name('musteriler.show');

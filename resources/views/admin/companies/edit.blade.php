@@ -233,7 +233,9 @@
 
     <script>
     (function() {
-        var apiBase = '{{ url("/api/turkey") }}';
+        var provincesUrl = '{{ route("api.turkey.provinces") }}';
+        var districtsUrl = '{{ route("api.turkey.districts") }}';
+        var fallbackProvinces = @json(array_keys(config('turkey_city_coordinates', [])));
         var currentCity = {{ json_encode(old('city', $company->city)) }};
         var currentDistrict = {{ json_encode(old('district', $company->district)) }};
         var districtStore = [];
@@ -251,30 +253,47 @@
             if (provSel.selectedIndex > 0) cityInp.value = provSel.options[provSel.selectedIndex].text;
             if (distSel.selectedIndex > 0) distInp.value = distSel.options[distSel.selectedIndex].text;
         }
-        fetch(apiBase + '/provinces').then(function(r) { return r.json(); }).then(function(res) {
-            if (!res.data || !res.data.length) return;
-            res.data.forEach(function(p) {
-                provSel.appendChild(new Option(p.name, p.id));
-            });
-            selectByText(provSel, currentCity);
-            if (provSel.value) loadDistricts(provSel.value);
-        });
         function loadDistricts(provinceId) {
             if (!provinceId) return;
-            fetch(apiBase + '/districts?province_id=' + provinceId).then(function(r) { return r.json(); }).then(function(res) {
-                if (!res.data) return;
-                districtStore = res.data;
+            distSel.innerHTML = '<option value="">Yükleniyor...</option>';
+            fetch(districtsUrl + '?province_id=' + encodeURIComponent(provinceId)).then(function(r) { return r.json(); }).then(function(res) {
+                districtStore = res.data || [];
                 distSel.innerHTML = '<option value="">İlçe seçin</option>';
-                res.data.forEach(function(d) { distSel.appendChild(new Option(d.name, d.id)); });
+                (res.data || []).forEach(function(d) { distSel.appendChild(new Option(d.name, d.id)); });
                 selectByText(distSel, currentDistrict);
+                syncHidden();
+            }).catch(function() {
+                distSel.innerHTML = '<option value="">İlçe listesi alınamadı</option>';
                 syncHidden();
             });
         }
+        function fillProvincesFromApi() {
+            fetch(provincesUrl).then(function(r) { return r.json(); }).then(function(res) {
+                if (res.data && res.data.length) {
+                    res.data.forEach(function(p) { provSel.appendChild(new Option(p.name, p.id)); });
+                    selectByText(provSel, currentCity);
+                    if (provSel.value) loadDistricts(provSel.value);
+                    else syncHidden();
+                    return;
+                }
+                fillProvincesFallback();
+            }).catch(function() { fillProvincesFallback(); });
+        }
+        function fillProvincesFallback() {
+            fallbackProvinces.forEach(function(name) { provSel.appendChild(new Option(name, name)); });
+            selectByText(provSel, currentCity);
+            syncHidden();
+            distSel.innerHTML = '<option value="">İlçe (API gerekli)</option>';
+        }
+        fillProvincesFromApi();
         provSel.addEventListener('change', function() {
             distSel.innerHTML = '<option value="">Önce il seçin</option>';
             distInp.value = '';
-            if (this.value) loadDistricts(this.value);
-            else cityInp.value = '';
+            if (this.value) {
+                var isId = /^\d+$/.test(this.value);
+                if (isId) loadDistricts(this.value);
+                else { cityInp.value = this.value; syncHidden(); }
+            } else cityInp.value = '';
             syncHidden();
         });
         distSel.addEventListener('change', syncHidden);
