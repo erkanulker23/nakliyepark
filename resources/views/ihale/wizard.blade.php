@@ -346,14 +346,20 @@
     let step = 1;
     let totalSteps = 1 + 7;
     const apiBase = '{{ url("/api/turkey") }}';
+    const wizardOpenContactOnLoad = {{ (session("wizard_open_contact") || $errors->has("guest_contact_name") || $errors->has("guest_contact_email") || $errors->has("guest_contact_phone") || $errors->has("kvkk_consent")) ? "true" : "false" }};
+    const oldServiceType = @json(old('service_type', 'evden_eve_nakliyat'));
     let fromDistricts = [];
     let toDistricts = [];
 
     function fillProvinces() {
         fetch(apiBase + '/provinces').then(r => r.json()).then(res => {
-            if (!res.data || !res.data.length) return;
             const fromSel = document.getElementById('from_province_id');
             const toSel = document.getElementById('to_province_id');
+            if (!res.data || !res.data.length) {
+                if (fromSel) fromSel.innerHTML = '<option value="">İller yüklenemedi</option>';
+                if (toSel) toSel.innerHTML = '<option value="">İller yüklenemedi</option>';
+                return;
+            }
             if (fromSel && toSel) {
                 fromSel.innerHTML = '<option value="">İl seçin</option>';
                 toSel.innerHTML = '<option value="">İl seçin</option>';
@@ -511,8 +517,11 @@
         if (stepKey === 'contact') {
             const name = form.querySelector('input[name="guest_contact_name"]');
             const email = form.querySelector('input[name="guest_contact_email"]');
+            const phone = form.querySelector('input[name="guest_contact_phone"]');
             const consent = form.querySelector('input[name="kvkk_consent"]');
-            if (!name.value.trim() || !email.value.trim()) { alert('Ad soyad ve e-posta zorunludur.'); return false; }
+            if (!name || !name.value.trim()) { alert('Ad soyad zorunludur.'); return false; }
+            if (!email || !email.value.trim()) { alert('E-posta adresi zorunludur.'); return false; }
+            if (!isLoggedIn && phone && !phone.value.trim()) { alert('Telefon numarası zorunludur.'); return false; }
             if (!consent || !consent.checked) { alert('Kişisel verilerin işlenmesi için açık rıza vermeniz gerekmektedir.'); return false; }
         }
         return true;
@@ -559,8 +568,15 @@
         });
     });
 
-    form.addEventListener('submit', function() {
+    form.addEventListener('submit', function(ev) {
         syncServiceType();
+        var contactStepKey = getCurrentStepKey();
+        if (step === getTotalSteps() && contactStepKey === 'contact') {
+            if (!validateStep()) {
+                ev.preventDefault();
+                return false;
+            }
+        }
         const service = getService();
         if (service === 'esya_depolama') {
             document.getElementById('to_city').value = '';
@@ -587,11 +603,31 @@
         if (stepContact) {
             var nameInp = stepContact.querySelector('input[name="guest_contact_name"]');
             var emailInp = stepContact.querySelector('input[name="guest_contact_email"]');
+            var phoneInp = stepContact.querySelector('input[name="guest_contact_phone"]');
             if (nameInp) nameInp.removeAttribute('required');
             if (emailInp) emailInp.removeAttribute('required');
+            if (phoneInp) phoneInp.removeAttribute('required');
+        }
+    } else {
+        var stepContact = document.getElementById('step-contact');
+        if (stepContact) {
+            var nameInp = stepContact.querySelector('input[name="guest_contact_name"]');
+            var emailInp = stepContact.querySelector('input[name="guest_contact_email"]');
+            var phoneInp = stepContact.querySelector('input[name="guest_contact_phone"]');
+            if (nameInp) nameInp.setAttribute('required', 'required');
+            if (emailInp) emailInp.setAttribute('required', 'required');
+            if (phoneInp) phoneInp.setAttribute('required', 'required');
         }
     }
     showStep(1);
+    if (wizardOpenContactOnLoad && oldServiceType) {
+        var radio = form.querySelector('input[name="service_type_radio"][value="' + oldServiceType + '"]');
+        if (radio) {
+            radio.checked = true;
+            syncServiceType();
+        }
+        showStep(getTotalSteps());
+    }
 })();
 </script>
 @endpush

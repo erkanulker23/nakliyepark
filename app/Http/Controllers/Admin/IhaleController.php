@@ -129,6 +129,7 @@ class IhaleController extends Controller
         }
 
         if ($newStatus === 'published') {
+            \App\Services\AdminNotifier::notify('ihale_published', "İhale yayına alındı: {$ihale->from_city} → {$ihale->to_city} (#{$ihale->id})", 'İhale yayında', ['url' => route('admin.ihaleler.show', $ihale)]);
             if ($ihale->user_id) {
                 $ihale->load('user');
                 UserNotification::notify(
@@ -155,6 +156,8 @@ class IhaleController extends Controller
                     \App\Services\SafeNotificationService::sendToUser($ihale->preferredCompany->user, new IhalePreferredCompanyPublishedNotification($ihale), 'ihale_preferred_published');
                 }
             }
+        } elseif ($newStatus === 'closed' || $newStatus === 'cancelled') {
+            \App\Services\AdminNotifier::notify('ihale_status_changed', "İhale durumu değişti: {$ihale->from_city} → {$ihale->to_city} (#{$ihale->id}) → " . ($newStatus === 'closed' ? 'Kapatıldı' : 'İptal'), 'İhale durumu', ['url' => route('admin.ihaleler.show', $ihale)]);
         }
         $message = match ($newStatus) {
             'published' => 'İhale onaylandı ve yayına alındı.',
@@ -228,6 +231,8 @@ class IhaleController extends Controller
             'teklif_id' => $teklif->id,
             'company_id' => $teklif->company_id,
         ]);
+        $companyName = $teklif->company ? $teklif->company->name : 'Firma';
+        \App\Services\AdminNotifier::notify('teklif_rejected', "Teklif reddedildi: {$companyName} - {$ihale->from_city} → {$ihale->to_city} (#{$ihale->id})", 'Teklif reddedildi', ['url' => route('admin.ihaleler.show', $ihale)]);
         return redirect()->route('admin.ihaleler.show', $ihale)->with('success', 'Teklif iptal edildi.');
     }
 

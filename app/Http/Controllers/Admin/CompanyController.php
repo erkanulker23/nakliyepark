@@ -129,16 +129,11 @@ class CompanyController extends Controller
             }
         }
 
+        // Firma onayı (yayında mı): sadece approved_at güncellenir; doğrulama rozetleri ayrı alanlardan gelir
         if ($request->has('approved')) {
             $approved = $request->boolean('approved');
-            $company->update([
-                'approved_at' => $approved ? now() : null,
-                'email_verified_at' => $approved ? now() : null,
-                'phone_verified_at' => $approved ? now() : null,
-                'official_company_verified_at' => $approved ? now() : null,
-            ]);
-            
-            // Eğer daha önce onaylanmamışsa ve şimdi onaylandıysa, kullanıcıya e-posta gönder
+            $company->update(['approved_at' => $approved ? now() : null]);
+
             if (!$wasApproved && $approved && $company->user) {
                 SafeNotificationService::sendToUser(
                     $company->user,
@@ -147,6 +142,14 @@ class CompanyController extends Controller
                 );
             }
         }
+
+        // Doğrulama rozetleri: formdaki checkbox'lara göre ayrı ayrı güncellenir (admin gerçekten doğruladığı bilgileri işaretler)
+        $company->update([
+            'email_verified_at' => $request->boolean('email_verified') ? now() : null,
+            'phone_verified_at' => $request->boolean('phone_verified') ? now() : null,
+            'official_company_verified_at' => $request->boolean('official_company_verified') ? now() : null,
+        ]);
+
         return redirect()->route('admin.companies.edit', $company)->with('success', 'Firma güncellendi.');
     }
 
@@ -203,6 +206,7 @@ class CompanyController extends Controller
             'company_id' => $company->id,
             'company_name' => $company->name,
         ]);
+        AdminNotifier::notify('company_rejected', "Firma onayı kaldırıldı: {$company->name}", 'Firma onayı kaldırıldı', ['url' => route('admin.companies.edit', $company)]);
         return back()->with('success', 'Firma onayı kaldırıldı.');
     }
 

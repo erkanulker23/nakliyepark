@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\SiteContactMessage;
+use App\Services\AdminNotifier;
 use Illuminate\Http\Request;
 
 class ContactController extends Controller
@@ -26,12 +27,19 @@ class ContactController extends Controller
             'message.required' => 'Mesajınızı yazın.',
         ]);
 
-        SiteContactMessage::create([
+        $msg = SiteContactMessage::create([
             'name' => $request->name,
             'email' => $request->email,
             'subject' => $request->subject,
             'message' => $request->message,
         ]);
+
+        AdminNotifier::notify(
+            'site_contact_message',
+            "Yeni iletişim formu: {$request->name} ({$request->email})" . ($request->subject ? " - Konu: {$request->subject}" : ''),
+            'Yeni iletişim mesajı',
+            ['url' => route('admin.site-contact-messages.show', $msg)]
+        );
 
         return redirect()->route('contact.index')->with('success', 'Mesajınız alındı. En kısa sürede size dönüş yapacağız.');
     }

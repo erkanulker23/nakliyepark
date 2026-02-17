@@ -337,39 +337,26 @@
                                         </button>
                                     @endforeach
                                 </div>
-                                {{-- Lightbox --}}
-                                <dialog id="gallery-lightbox" class="fixed inset-0 z-[200] w-full h-full max-w-none max-h-none m-0 p-0 flex flex-col bg-black/95 backdrop-blur-sm border-0 rounded-none text-left shadow-2xl [&::backdrop]:bg-black/80 [&::backdrop]:backdrop-blur-sm" aria-label="Galeri lightbox">
-                                    <div class="absolute inset-0" id="lightbox-backdrop" aria-hidden="true"></div>
-                                    <button type="button" id="lightbox-close" class="absolute top-4 right-4 z-10 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-white/50" aria-label="Kapat">
+                                {{-- Lightbox: div tabanlı overlay (dialog yerine - Safari/mobil uyumluluğu için) --}}
+                                <div id="gallery-lightbox" class="fixed inset-0 z-[200] flex-col bg-black" aria-hidden="true" role="dialog" aria-label="Galeri lightbox" style="display: none;">
+                                    <div class="absolute inset-0 bg-black" id="lightbox-backdrop"></div>
+                                    <button type="button" id="lightbox-close" class="absolute top-4 right-4 z-[210] w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-white/50" aria-label="Kapat">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                                     </button>
-                                    <button type="button" id="lightbox-prev" class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-white/50" aria-label="Önceki">
+                                    <button type="button" id="lightbox-prev" class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-[210] w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-white/50" aria-label="Önceki">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                                     </button>
-                                    <button type="button" id="lightbox-next" class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-white/50" aria-label="Sonraki">
+                                    <button type="button" id="lightbox-next" class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-[210] w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-white/50" aria-label="Sonraki">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                                     </button>
-                                    <div class="flex-1 flex items-center justify-center p-4 pt-16 pb-24 min-h-0">
-                                        <img id="lightbox-img" src="" alt="" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl">
+                                    <div class="absolute inset-0 flex items-center justify-center p-4 pt-16 pb-24 box-border pointer-events-none">
+                                        <img id="lightbox-img" src="" alt="" class="max-w-full max-h-full w-auto h-auto object-contain rounded-lg shadow-2xl pointer-events-auto" style="max-height: calc(100vh - 140px);">
                                     </div>
-                                    <div class="absolute bottom-0 left-0 right-0 p-4 pb-safe bg-gradient-to-t from-black/80 to-transparent">
+                                    <div class="absolute bottom-0 left-0 right-0 p-4 pb-safe bg-gradient-to-t from-black/90 to-transparent z-[210] pointer-events-auto">
                                         <p id="lightbox-counter" class="text-center text-sm text-white/90 font-medium"></p>
                                         <p id="lightbox-caption" class="text-center text-sm text-white/80 mt-1 min-h-[1.25rem]"></p>
                                     </div>
-                                </dialog>
-                                {{-- Sayfa yüklenirken veya bfcache ile geri gelindiğinde lightbox kapalı olsun (siyah ekran önlenir) --}}
-                                <script>
-                                (function(){
-                                    var d = document.getElementById('gallery-lightbox');
-                                    var img = document.getElementById('lightbox-img');
-                                    function ensureClosed() {
-                                        if (d && typeof d.close === 'function') d.close();
-                                        if (img) img.removeAttribute('src');
-                                    }
-                                    ensureClosed();
-                                    window.addEventListener('pageshow', function(e) { if (e.persisted) ensureClosed(); });
-                                })();
-                                </script>
+                                </div>
                             @else
                                 <div class="flex flex-col items-center justify-center py-12 px-4 rounded-xl bg-zinc-50/60 dark:bg-zinc-800/30 border border-dashed border-zinc-200 dark:border-zinc-700/50">
                                     <span class="w-14 h-14 rounded-2xl bg-zinc-200/60 dark:bg-zinc-700/50 flex items-center justify-center text-zinc-400 dark:text-zinc-500 mb-3">
@@ -518,32 +505,43 @@
 @push('scripts')
 <script>
 (function(){
-    var lb = document.getElementById('gallery-lightbox');
+    var overlay = document.getElementById('gallery-lightbox');
     var img = document.getElementById('lightbox-img');
     var captionEl = document.getElementById('lightbox-caption');
     var counterEl = document.getElementById('lightbox-counter');
     var thumbs = document.querySelectorAll('.company-gallery-thumb');
     var total = thumbs ? thumbs.length : 0;
     var currentIndex = 0;
+    var isOpen = false;
 
-    if (!lb || !img) return;
+    if (!overlay || !img) return;
+
+    function isOverlayOpen() {
+        return overlay && overlay.style.display === 'flex';
+    }
 
     function ensureClosed() {
-        if (lb && typeof lb.close === 'function') lb.close();
+        if (overlay) {
+            overlay.style.display = 'none';
+            overlay.setAttribute('aria-hidden', 'true');
+        }
         if (img) img.removeAttribute('src');
+        if (document.body) document.body.style.overflow = '';
+        isOpen = false;
     }
-    ensureClosed();
 
     function items() {
         if (!thumbs || !thumbs.length) return [];
         return Array.prototype.map.call(thumbs, function(t){
-            return { src: t.dataset.src, caption: t.dataset.caption || '' };
+            var thumbImg = t.querySelector('img');
+            var src = t.dataset.src || (thumbImg ? thumbImg.src : '');
+            return { src: src, caption: t.dataset.caption || '' };
         });
     }
     var data = items();
 
     function open(index) {
-        if (total === 0 || !lb || !img) return;
+        if (total === 0 || !overlay || !img) return;
         currentIndex = (index + total) % total;
         var item = data[currentIndex];
         if (!item || !item.src) return;
@@ -551,16 +549,22 @@
         img.alt = item.caption || 'Galeri';
         if (captionEl) captionEl.textContent = item.caption || '';
         if (counterEl) counterEl.textContent = (currentIndex + 1) + ' / ' + total;
-        lb.showModal();
+        overlay.style.display = 'flex';
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+        isOpen = true;
     }
+
     function close() {
-        if (lb && typeof lb.close === 'function') lb.close();
-        if (img) img.removeAttribute('src');
+        ensureClosed();
     }
+
+    ensureClosed();
+    window.addEventListener('pageshow', function(e) { if (e.persisted) ensureClosed(); });
 
     if (thumbs) {
         for (var i = 0; i < thumbs.length; i++) {
-            thumbs[i].addEventListener('click', function(ix){ return function(){ open(ix); }; }(i));
+            thumbs[i].addEventListener('click', (function(ix){ return function(){ open(ix); }; })(i));
         }
     }
     var backdrop = document.getElementById('lightbox-backdrop');
@@ -573,7 +577,7 @@
     if (nextBtn) nextBtn.addEventListener('click', function(e){ e.stopPropagation(); open(currentIndex + 1); });
 
     document.addEventListener('keydown', function(e){
-        if (!lb || !lb.open) return;
+        if (!isOverlayOpen()) return;
         if (e.key === 'Escape') { close(); return; }
         if (e.key === 'ArrowLeft') open(currentIndex - 1);
         if (e.key === 'ArrowRight') open(currentIndex + 1);

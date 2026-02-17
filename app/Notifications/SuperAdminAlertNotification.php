@@ -4,13 +4,15 @@ namespace App\Notifications;
 
 use App\Services\MailTemplateService;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SuperAdminAlertNotification extends Notification implements ShouldQueue
+/**
+ * Admin e-postası kuyruğa bağlı olmadan hemen gönderilir;
+ * böylece queue worker çalışmasa bile süper admin tüm bildirimleri e-posta ile alır.
+ */
+class SuperAdminAlertNotification extends Notification
 {
-    use Queueable;
 
     public function __construct(
         public string $title,

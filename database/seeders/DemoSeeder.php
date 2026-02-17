@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\YukIlani;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class DemoSeeder extends Seeder
 {
@@ -91,9 +92,10 @@ class DemoSeeder extends Seeder
         ];
 
         foreach ($firmalar as $f) {
+            $slug = Str::slug($f['name']);
             Company::updateOrCreate(
                 ['user_id' => $f['user_id']],
-                $f
+                array_merge($f, ['slug' => $slug])
             );
         }
 

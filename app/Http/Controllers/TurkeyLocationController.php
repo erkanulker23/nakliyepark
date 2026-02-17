@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Client\ConnectionException;
 
 /**
  * Türkiye il, ilçe ve mahalle verilerini api.turkiyeapi.dev üzerinden sağlar.
  * Tüm iller, ilçeler ve mahalleler bu API'den gelir.
+ * API erişilemezse (DNS/network) 502 yerine boş data döner; frontend "İller yüklenemedi" gösterir.
  */
 class TurkeyLocationController extends Controller
 {
@@ -18,15 +20,19 @@ class TurkeyLocationController extends Controller
 
     public function provinces()
     {
-        $response = Http::timeout(15)->get($this->baseUrl() . '/provinces');
+        try {
+            $response = Http::timeout(15)->get($this->baseUrl() . '/provinces');
+        } catch (ConnectionException $e) {
+            return response()->json(['data' => [], 'error' => 'İl listesi şu an yüklenemiyor. Lütfen daha sonra tekrar deneyin.']);
+        }
 
-        if (!$response->successful()) {
-            return response()->json(['error' => 'İl listesi alınamadı.'], 502);
+        if (! $response->successful()) {
+            return response()->json(['data' => [], 'error' => 'İl listesi alınamadı.']);
         }
 
         $body = $response->json();
         if (($body['status'] ?? '') !== 'OK' || empty($body['data'])) {
-            return response()->json(['error' => 'Geçersiz veri.'], 502);
+            return response()->json(['data' => [], 'error' => 'Geçersiz veri.']);
         }
 
         $provinces = collect($body['data'])->map(fn ($p) => [
@@ -43,21 +49,25 @@ class TurkeyLocationController extends Controller
     {
         $provinceId = $request->integer('province_id');
         if ($provinceId <= 0) {
-            return response()->json(['error' => 'Geçerli il seçin.'], 400);
+            return response()->json(['data' => [], 'error' => 'Geçerli il seçin.']);
         }
 
-        $response = Http::timeout(15)->get($this->baseUrl() . '/districts', [
-            'provinceId' => $provinceId,
-            'limit' => 1000,
-        ]);
+        try {
+            $response = Http::timeout(15)->get($this->baseUrl() . '/districts', [
+                'provinceId' => $provinceId,
+                'limit' => 1000,
+            ]);
+        } catch (ConnectionException $e) {
+            return response()->json(['data' => [], 'error' => 'İlçe listesi şu an yüklenemiyor.']);
+        }
 
-        if (!$response->successful()) {
-            return response()->json(['error' => 'İlçe listesi alınamadı.'], 502);
+        if (! $response->successful()) {
+            return response()->json(['data' => [], 'error' => 'İlçe listesi alınamadı.']);
         }
 
         $body = $response->json();
         $data = [];
-        if (($body['status'] ?? '') === 'OK' && !empty($body['data'])) {
+        if (($body['status'] ?? '') === 'OK' && ! empty($body['data'])) {
             $data = collect($body['data'])->map(fn ($d) => [
                 'id' => $d['id'],
                 'name' => $d['name'],

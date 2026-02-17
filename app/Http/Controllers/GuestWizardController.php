@@ -13,6 +13,7 @@ use App\Models\ConsentLog;
 use App\Services\AdminNotifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 use Throwable;
 
 class GuestWizardController extends Controller
@@ -79,10 +80,23 @@ class GuestWizardController extends Controller
         if (! $request->user()) {
             $rules['guest_contact_name'] = 'required|string|max:255';
             $rules['guest_contact_email'] = 'required|email';
+            $rules['guest_contact_phone'] = 'required|string|max:20';
         }
-        $validated = $request->validate($rules, [
+        $messages = [
             'kvkk_consent.accepted' => 'Kişisel verilerin işlenmesi için açık rıza vermeniz gerekmektedir.',
-        ]);
+            'guest_contact_name.required' => 'Ad soyad zorunludur.',
+            'guest_contact_email.required' => 'E-posta adresi zorunludur.',
+            'guest_contact_email.email' => 'Geçerli bir e-posta adresi girin.',
+            'guest_contact_phone.required' => 'Telefon numarası zorunludur.',
+        ];
+        $validator = Validator::make($request->all(), $rules, $messages);
+        if ($validator->fails()) {
+            return redirect()->route('ihale.create')
+                ->withInput()
+                ->withErrors($validator)
+                ->with('wizard_open_contact', true);
+        }
+        $validated = $validator->validated();
 
         $validated['service_type'] = $serviceType;
         if ($request->filled('description_items')) {

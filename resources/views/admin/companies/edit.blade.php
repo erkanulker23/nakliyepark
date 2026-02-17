@@ -197,6 +197,27 @@
                     </label>
                     <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Onaylı olmayan firmalar sitede ve /nakliye-firmalari/... sayfasında görünmez (404). Yeni nakliyeci kayıtları önce admin onayı gerektirir.</p>
                 </div>
+                <div class="admin-form-group pt-2 border-t border-slate-200 dark:border-slate-600">
+                    <p class="admin-label mb-2">Doğrulama rozetleri (firma sayfasında gösterilir)</p>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="hidden" name="email_verified" value="0">
+                            <input type="checkbox" name="email_verified" value="1" {{ old('email_verified', $company->email_verified_at ? '1' : '0') === '1' ? 'checked' : '' }} class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                            <span class="text-sm text-slate-700 dark:text-slate-300">E-posta adresi doğrulandı</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="hidden" name="phone_verified" value="0">
+                            <input type="checkbox" name="phone_verified" value="1" {{ old('phone_verified', $company->phone_verified_at ? '1' : '0') === '1' ? 'checked' : '' }} class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                            <span class="text-sm text-slate-700 dark:text-slate-300">Telefon numarası doğrulandı</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="hidden" name="official_company_verified" value="0">
+                            <input type="checkbox" name="official_company_verified" value="1" {{ old('official_company_verified', $company->official_company_verified_at ? '1' : '0') === '1' ? 'checked' : '' }} class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                            <span class="text-sm text-slate-700 dark:text-slate-300">Resmi şirket bilgileri (vergi no / vergi dairesi) doğrulandı</span>
+                        </label>
+                    </div>
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">İşaretlediğiniz alanlar firma detay sayfasında "Doğrulama bilgileri" olarak gösterilir. Firma onayından bağımsız olarak tek tek işaretleyebilir veya kaldırabilirsiniz.</p>
+                </div>
             </div>
 
             {{-- Sekme: SEO --}}
