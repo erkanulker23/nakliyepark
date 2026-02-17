@@ -21,6 +21,9 @@ class GuestWizardController extends Controller
 {
     public function index(Request $request)
     {
+        if ($request->user() && $request->user()->role === 'nakliyeci') {
+            return redirect()->route('home')->with('info', 'Nakliye firması olarak ihale oluşturamazsınız. Sadece müşteri hesapları ihale talebi oluşturabilir.');
+        }
         $rooms = RoomTemplate::orderBy('sort_order')->get();
         $step = 1;
         $forCompany = null;
@@ -33,6 +36,9 @@ class GuestWizardController extends Controller
 
     public function store(Request $request)
     {
+        if ($request->user() && $request->user()->role === 'nakliyeci') {
+            return redirect()->route('home')->with('info', 'Nakliye firması olarak ihale oluşturamazsınız. Sadece müşteri hesapları ihale talebi oluşturabilir.');
+        }
         $serviceType = $request->input('service_type', 'evden_eve_nakliyat');
         $validServiceTypes = [
             Ihale::SERVICE_EVDEN_EVE,
@@ -40,6 +46,7 @@ class GuestWizardController extends Controller
             Ihale::SERVICE_PARCA_ESYA,
             Ihale::SERVICE_DEPOLAMA,
             Ihale::SERVICE_OFIS,
+            Ihale::SERVICE_ULUSLARASI,
         ];
         if (! in_array($serviceType, $validServiceTypes, true)) {
             $serviceType = Ihale::SERVICE_EVDEN_EVE;
@@ -52,17 +59,19 @@ class GuestWizardController extends Controller
             'from_address' => 'nullable|string',
             'from_district' => 'nullable|string|max:100',
             'from_neighborhood' => 'nullable|string|max:150',
-            'to_city' => $serviceType === Ihale::SERVICE_DEPOLAMA ? 'nullable|string|max:100' : 'required|string|max:100',
+            'from_floor' => 'nullable|string|max:50',
+            'from_elevator' => 'nullable|string|in:var,yok',
+            'to_city' => in_array($serviceType, [Ihale::SERVICE_DEPOLAMA], true) ? 'nullable|string|max:100' : 'required|string|max:100',
             'to_address' => 'nullable|string',
             'to_district' => 'nullable|string|max:100',
             'to_neighborhood' => 'nullable|string|max:150',
+            'to_floor' => 'nullable|string|max:50',
+            'to_elevator' => 'nullable|string|in:var,yok',
             'distance_km' => 'nullable|numeric|min:0',
             'move_date' => 'nullable|date',
             'move_date_end' => 'nullable|date',
             'date_preference' => 'nullable|string|in:tarih_araligi,fiyat_bakiyorum',
-            'volume_m3' => $serviceType === Ihale::SERVICE_SEHIRLERARASI
-                ? 'required|numeric|min:0'
-                : 'nullable|numeric|min:0',
+            'volume_m3' => 'nullable|numeric|min:0',
             'ev_salon' => 'nullable|string|max:1000',
             'ev_yatak_odasi' => 'nullable|string|max:1000',
             'ev_mutfak' => 'nullable|string|max:1000',
@@ -72,7 +81,7 @@ class GuestWizardController extends Controller
             'description_items' => 'nullable|string',
             'guest_contact_name' => 'nullable|string|max:255',
             'guest_contact_email' => 'nullable|email',
-            'guest_contact_phone' => 'nullable|string|max:20',
+            'guest_contact_phone' => ['nullable', 'string', 'max:20', 'regex:/^0[\s0-9]{10,14}$/'],
             'preferred_company_id' => ['nullable', Rule::exists('companies', 'id')->whereNotNull('approved_at')],
             'photos' => 'nullable|array',
             'photos.*' => 'image|max:5120',
@@ -81,7 +90,7 @@ class GuestWizardController extends Controller
         if (! $request->user()) {
             $rules['guest_contact_name'] = 'required|string|max:255';
             $rules['guest_contact_email'] = 'required|email';
-            $rules['guest_contact_phone'] = 'required|string|max:20';
+            $rules['guest_contact_phone'] = ['required', 'string', 'max:20', 'regex:/^0[\s0-9]{10,14}$/'];
         }
         $messages = [
             'kvkk_consent.accepted' => 'Kişisel verilerin işlenmesi için açık rıza vermeniz gerekmektedir.',
@@ -89,6 +98,7 @@ class GuestWizardController extends Controller
             'guest_contact_email.required' => 'E-posta adresi zorunludur.',
             'guest_contact_email.email' => 'Geçerli bir e-posta adresi girin.',
             'guest_contact_phone.required' => 'Telefon numarası zorunludur.',
+            'guest_contact_phone.regex' => 'Telefon numarası 0555 555 55 55 formatında olmalıdır.',
         ];
         $validator = Validator::make($request->all(), $rules, $messages);
         if ($validator->fails()) {
@@ -149,6 +159,13 @@ class GuestWizardController extends Controller
             unset($validated['guest_contact_name'], $validated['guest_contact_email'], $validated['guest_contact_phone']);
         } else {
             $validated['user_id'] = null;
+            if (!empty($validated['guest_contact_phone'])) {
+                $digits = preg_replace('/\D/', '', $validated['guest_contact_phone']);
+                if (strlen($digits) === 10 && str_starts_with($digits, '5')) {
+                    $digits = '0' . $digits;
+                }
+                $validated['guest_contact_phone'] = strlen($digits) === 11 ? $digits : $validated['guest_contact_phone'];
+            }
         }
         if ($request->filled('preferred_company_id')) {
             $validated['preferred_company_id'] = $request->input('preferred_company_id');

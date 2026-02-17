@@ -28,15 +28,17 @@
   --radius-button: 0.75rem;
 }
 
-/* Base */
+/* Base – mobil yatay kaymayı önle */
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
 }
 
 body {
   @apply antialiased font-sans text-zinc-900 dark:text-zinc-100;
   background-color: #f8fafc;
+  overflow-x: hidden;
   /* Mobil uygulama hissi: dokunma ve güvenli alan */
   -webkit-tap-highlight-color: rgba(5, 150, 105, 0.15);
   tap-highlight-color: rgba(5, 150, 105, 0.15);

@@ -12,66 +12,12 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
-<body class="app-shell has-rail antialiased" data-panel-version="new">
-    <div id="app-admin-flyout-backdrop" class="app-flyout-backdrop" aria-hidden="true"></div>
-    @include('layouts.partials.new-admin-flyout')
-    @include('layouts.partials.new-admin-rail')
-    {{-- Flyout: her zaman en solda, tam yükseklik (cache’den bağımsız) --}}
-    <style>
-    #app-admin-flyout {
-        position: fixed !important;
-        left: 0 !important;
-        top: 0 !important;
-        bottom: 0 !important;
-        width: 280px !important;
-        max-width: 85vw !important;
-        margin: 0 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        overflow: hidden !important;
-        background: var(--app-surface, #fff) !important;
-        border-right: 1px solid var(--app-border, #e2e8f0) !important;
-        box-shadow: 4px 0 24px rgba(0,0,0,.12) !important;
-        z-index: 50 !important;
-    }
-    #app-admin-flyout.is-hidden { display: none !important; }
-    #app-admin-flyout .app-flyout__nav {
-        flex: 1 !important;
-        min-height: 0 !important;
-        overflow-y: auto !important;
-        padding: 0.25rem 0.5rem !important;
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 1px !important;
-    }
-    #app-admin-flyout .app-flyout__nav .app-nav-link {
-        padding: 0.3rem 0.75rem !important;
-        font-size: 0.8125rem !important;
-        min-height: 32px !important;
-    }
-    #app-admin-flyout .app-flyout__head { padding: 0.5rem 0.75rem !important; font-size: 0.8125rem !important; }
-    #app-admin-flyout .app-flyout__footer { padding: 0.4rem 0.5rem !important; }
-    #app-admin-flyout-backdrop {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,.35);
-        z-index: 45;
-    }
-    #app-admin-flyout-backdrop.is-visible { display: block !important; }
-    @media (max-width: 1023px) {
-        #app-admin-flyout-backdrop.is-visible { display: none !important; }
-    }
-    /* Flyout ve linkler tıklanabilir */
-    #app-admin-flyout { pointer-events: auto !important; }
-    #app-admin-flyout .app-nav-link,
-    #app-admin-flyout a,
-    #app-admin-flyout button { pointer-events: auto !important; cursor: pointer !important; }
-    </style>
+<body class="app-shell has-sidebar antialiased" data-panel-version="new">
+    @include('layouts.partials.new-admin-sidebar')
 
     <div class="flex flex-col min-h-screen lg:min-h-0">
         <header class="app-bar">
-            <button type="button" id="app-admin-flyout-btn" class="js-toggle-admin-flyout app-bar__btn app-bar__menu-btn" aria-label="Menü" aria-haspopup="true" aria-expanded="false">
+            <button type="button" data-open-app-drawer class="app-bar__btn app-bar__menu-btn lg:hidden" aria-label="Menü" aria-haspopup="true" aria-expanded="false">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                 <span class="app-bar__menu-btn-label">Menü</span>
             </button>
@@ -146,47 +92,6 @@
         if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
         if (backdrop) backdrop.addEventListener('click', closeDrawer);
         document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeDrawer(); });
-    })();
-    (function() {
-        var flyout = document.getElementById('app-admin-flyout');
-        var backdrop = document.getElementById('app-admin-flyout-backdrop');
-        var triggers = document.querySelectorAll('.js-toggle-admin-flyout');
-        function closeFlyout() {
-            if (flyout) {
-                flyout.classList.add('is-hidden');
-                flyout.setAttribute('aria-hidden', 'true');
-            }
-            triggers.forEach(function(b) { b.setAttribute('aria-expanded', 'false'); });
-            if (backdrop) {
-                backdrop.classList.remove('is-visible');
-                backdrop.setAttribute('aria-hidden', 'true');
-            }
-        }
-        function toggleFlyout(e) {
-            e.stopPropagation();
-            if (!flyout) return;
-            var open = !flyout.classList.contains('is-hidden');
-            flyout.classList.toggle('is-hidden', open);
-            flyout.setAttribute('aria-hidden', open ? 'true' : 'false');
-            triggers.forEach(function(b) { b.setAttribute('aria-expanded', open ? 'false' : 'true'); });
-            if (backdrop) {
-                backdrop.classList.toggle('is-visible', !open);
-                backdrop.setAttribute('aria-hidden', open ? 'true' : 'false');
-            }
-        }
-        if (flyout) {
-            triggers.forEach(function(btn) { btn.addEventListener('click', toggleFlyout); });
-            if (backdrop) backdrop.addEventListener('click', closeFlyout);
-            document.addEventListener('click', function(e) {
-                var inFlyout = flyout.contains(e.target);
-                var isTrigger = false;
-                for (var i = 0; i < triggers.length; i++) { if (triggers[i] === e.target || triggers[i].contains(e.target)) { isTrigger = true; break; } }
-                if (!inFlyout && !isTrigger && !(backdrop && backdrop.contains(e.target))) closeFlyout();
-            });
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') closeFlyout();
-            });
-        }
     })();
     (function() {
         var toggle = document.getElementById('app-theme-toggle');

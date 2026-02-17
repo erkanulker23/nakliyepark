@@ -37,12 +37,18 @@
             @if($ihale->from_address)
                 <p class="text-sm text-slate-500 mt-1">{{ $ihale->from_address }}</p>
             @endif
+            @if($ihale->from_floor || $ihale->from_elevator)
+                <p class="text-sm text-slate-500 mt-1">@if($ihale->from_floor) Kat: {{ \App\Models\Ihale::floorLabel($ihale->from_floor) }}@endif @if($ihale->from_floor && $ihale->from_elevator) · @endif @if($ihale->from_elevator) Asansör: {{ \App\Models\Ihale::elevatorLabel($ihale->from_elevator) }}@endif</p>
+            @endif
         </div>
         <div class="admin-card p-6">
             <h2 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">Varış yeri</h2>
             <p class="font-medium text-slate-800 dark:text-slate-200">{{ $ihale->to_location_text ?: '-' }}</p>
             @if($ihale->to_address)
                 <p class="text-sm text-slate-500 mt-1">{{ $ihale->to_address }}</p>
+            @endif
+            @if($ihale->to_floor || $ihale->to_elevator)
+                <p class="text-sm text-slate-500 mt-1">@if($ihale->to_floor) Kat: {{ \App\Models\Ihale::floorLabel($ihale->to_floor) }}@endif @if($ihale->to_floor && $ihale->to_elevator) · @endif @if($ihale->to_elevator) Asansör: {{ \App\Models\Ihale::elevatorLabel($ihale->to_elevator) }}@endif</p>
             @endif
         </div>
     </div>

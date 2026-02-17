@@ -52,17 +52,17 @@ return Application::configure(basePath: dirname(__DIR__))
                 $request->session()->regenerateToken();
                 return redirect('/')->with('info', 'Oturum süresi dolduğu için çıkış yapıldı.');
             }
-            // Admin login (POST): giriş sayfasına taze form ile yönlendir
+            // Admin login (POST): giriş sayfasına taze form ile yönlendir (bilgi mesajı, hata değil)
             if ($request->isMethod('POST') && ($request->routeIs('admin.login.submit') || $request->is('yonetici/admin'))) {
                 return redirect()->route('admin.login')
                     ->withInput($request->except('_token'))
-                    ->with('error', 'Oturum süresi doldu. Lütfen tekrar giriş yapın.');
+                    ->with('info', 'Sayfa yenilendi. Lütfen tekrar giriş yapın.');
             }
             // Normal login (POST)
             if ($request->isMethod('POST') && $request->is('login')) {
                 return redirect()->route('login')
                     ->withInput($request->except('_token'))
-                    ->with('error', 'Oturum süresi doldu. Lütfen tekrar giriş yapın.');
+                    ->with('info', 'Sayfa yenilendi. Lütfen tekrar giriş yapın.');
             }
             // Form gönderimlerinde (ihale, iletişim vb.) 419 hata sayfasını göster — kullanıcı nedenini görsün
             return response()->view('errors.419', [], 419);

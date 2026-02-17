@@ -93,6 +93,7 @@
         'parca_esya_tasimaciligi' => 'Parça eşya',
         'esya_depolama' => 'Eşya depolama',
         'ofis_tasima' => 'Ofis taşıma',
+        'uluslararasi_nakliyat' => 'Uluslararası nakliyat',
         default => 'Nakliye',
     };
     $showStickyCta = !auth()->check() || (auth()->user()->isNakliyeci() && auth()->user()->company?->isApproved() && !$nakliyeciVerdiMi);
@@ -187,6 +188,9 @@
                                 <h3 class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Çıkış yeri</h3>
                                 <p class="font-semibold text-zinc-900 dark:text-white break-words">{{ $ihale->from_location_text ?: '-' }}</p>
                                 @if($ihale->from_address)<p class="text-sm text-zinc-600 dark:text-zinc-400 mt-1 break-words">{{ $ihale->from_address }}</p>@endif
+                                @if($ihale->from_floor || $ihale->from_elevator)
+                                    <p class="text-sm text-zinc-600 dark:text-zinc-400 mt-1">@if($ihale->from_floor) Kat: {{ \App\Models\Ihale::floorLabel($ihale->from_floor) }}@endif @if($ihale->from_floor && $ihale->from_elevator) · @endif @if($ihale->from_elevator) Asansör: {{ \App\Models\Ihale::elevatorLabel($ihale->from_elevator) }}@endif</p>
+                                @endif
                             </div>
                         </div>
                         <div class="p-5 flex gap-4 min-w-0">
@@ -197,6 +201,9 @@
                                 <h3 class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Varış yeri</h3>
                                 <p class="font-semibold text-zinc-900 dark:text-white break-words">{{ $ihale->to_location_text ?: '-' }}</p>
                                 @if($ihale->to_address)<p class="text-sm text-zinc-600 dark:text-zinc-400 mt-1 break-words">{{ $ihale->to_address }}</p>@endif
+                                @if($ihale->to_floor || $ihale->to_elevator)
+                                    <p class="text-sm text-zinc-600 dark:text-zinc-400 mt-1">@if($ihale->to_floor) Kat: {{ \App\Models\Ihale::floorLabel($ihale->to_floor) }}@endif @if($ihale->to_floor && $ihale->to_elevator) · @endif @if($ihale->to_elevator) Asansör: {{ \App\Models\Ihale::elevatorLabel($ihale->to_elevator) }}@endif</p>
+                                @endif
                             </div>
                         </div>
                     </div>

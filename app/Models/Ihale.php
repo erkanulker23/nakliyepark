@@ -30,6 +30,7 @@ class Ihale extends Model
         self::SERVICE_PARCA_ESYA => 'parca-esya',
         self::SERVICE_DEPOLAMA => 'esya-depolama',
         self::SERVICE_OFIS => 'ofis-tasima',
+        self::SERVICE_ULUSLARASI => 'uluslararasi-nakliyat',
     ];
 
     protected static function booted(): void
@@ -71,6 +72,7 @@ class Ihale extends Model
     public const SERVICE_PARCA_ESYA = 'parca_esya_tasimaciligi';
     public const SERVICE_DEPOLAMA = 'esya_depolama';
     public const SERVICE_OFIS = 'ofis_tasima';
+    public const SERVICE_ULUSLARASI = 'uluslararasi_nakliyat';
 
     public static function serviceTypeLabels(): array
     {
@@ -80,14 +82,15 @@ class Ihale extends Model
             self::SERVICE_PARCA_ESYA => 'Parça eşya',
             self::SERVICE_DEPOLAMA => 'Eşya depolama',
             self::SERVICE_OFIS => 'Ofis taşıma',
+            self::SERVICE_ULUSLARASI => 'Uluslararası nakliyat',
         ];
     }
 
     protected $fillable = [
         'user_id', 'preferred_company_id', 'service_type', 'room_type',
         'guest_contact_name', 'guest_contact_email', 'guest_contact_phone',
-        'from_city', 'from_address', 'from_district', 'from_neighborhood', 'from_postal_code',
-        'to_city', 'to_address', 'to_district', 'to_neighborhood', 'to_postal_code', 'distance_km',
+        'from_city', 'from_address', 'from_district', 'from_neighborhood', 'from_postal_code', 'from_floor', 'from_elevator',
+        'to_city', 'to_address', 'to_district', 'to_neighborhood', 'to_postal_code', 'to_floor', 'to_elevator', 'distance_km',
         'move_date', 'move_date_end', 'volume_m3', 'description', 'status', 'slug', 'view_count',
     ];
 
@@ -108,6 +111,31 @@ class Ihale extends Model
     {
         $parts = array_filter([$this->to_city, $this->to_district, $this->to_neighborhood]);
         return $parts !== [] ? implode(', ', $parts) : (string) ($this->to_city ?? '');
+    }
+
+    /** Kat değeri için görüntü metni */
+    public static function floorLabel(?string $value): string
+    {
+        return match ($value) {
+            'zemin' => 'Zemin',
+            '1' => '1. kat',
+            '2' => '2. kat',
+            '3' => '3. kat',
+            '4' => '4. kat',
+            '4_plus' => '4. kat ve üzeri',
+            'bilinmiyor' => 'Bilinmiyor',
+            default => (string) $value,
+        };
+    }
+
+    /** Asansör değeri için görüntü metni */
+    public static function elevatorLabel(?string $value): string
+    {
+        return match ($value) {
+            'var' => 'Var',
+            'yok' => 'Yok',
+            default => (string) $value,
+        };
     }
 
     protected function casts(): array

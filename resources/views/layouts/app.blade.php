@@ -70,7 +70,7 @@
             <button type="button" id="toast-close-btn" class="toast-close shrink-0 p-1 rounded-lg hover:opacity-80" aria-label="Kapat">&times;</button>
         </div>
     @endif
-    <main class="min-h-screen pb-24 sm:pb-12">
+    <main class="min-h-screen pb-24 sm:pb-12 overflow-x-hidden max-w-[100vw]">
         @yield('content')
     </main>
     @include('layouts.partials.footer')

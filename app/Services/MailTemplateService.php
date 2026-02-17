@@ -30,22 +30,22 @@ class MailTemplateService
         return self::replacePlaceholders($body, $replacements);
     }
 
-    /** Paragraf stili (test maili ile aynı) */
+    /** Paragraf stili – modern, okunaklı */
     private static function pStyle(): string
     {
-        return 'margin: 0 0 16px; font-size: 15px; line-height: 1.6; color: #334155;';
+        return 'margin: 0 0 18px; font-size: 15px; line-height: 1.65; color: #475569;';
     }
 
-    /** İlk/giriş paragrafı (biraz daha büyük) */
+    /** İlk/giriş paragrafı – vurgulu */
     private static function pStyleFirst(): string
     {
-        return 'margin: 0 0 16px; font-size: 16px; line-height: 1.6; color: #334155;';
+        return 'margin: 0 0 18px; font-size: 17px; line-height: 1.6; color: #1e293b; font-weight: 500;';
     }
 
-    /** Buton stili (emails.layout ile aynı) */
+    /** Ana buton stili – modern CTA (düz renk: e-posta istemci uyumluluğu) */
     private static function buttonStyle(): string
     {
-        return 'display: inline-block; padding: 14px 28px; background-color: #059669; color: #ffffff !important; text-decoration: none; font-weight: 600; font-size: 15px; border-radius: 8px;';
+        return 'display: inline-block; padding: 14px 28px; background-color: #059669; color: #ffffff !important; text-decoration: none; font-weight: 600; font-size: 15px; border-radius: 10px;';
     }
 
     /**
@@ -63,11 +63,11 @@ class MailTemplateService
             $html .= '<p style="' . $style . '">' . $text . '</p>';
         }
         if ($buttons !== null && $buttons !== []) {
-            $html .= '<p style="margin: 24px 0 0; font-size: 15px;">';
+            $html .= '<p style="margin: 28px 0 0; font-size: 15px;">';
             foreach ($buttons as $i => $b) {
                 if (isset($b['url'], $b['text'])) {
                     if ($i > 0) {
-                        $html .= ' ';
+                        $html .= ' &nbsp; ';
                     }
                     $html .= '<a href="' . e($b['url']) . '" style="' . self::buttonStyle() . '">' . e($b['text']) . '</a>';
                 }

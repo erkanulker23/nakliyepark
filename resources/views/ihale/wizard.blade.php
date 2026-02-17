@@ -89,6 +89,10 @@
                         <input type="radio" name="service_type_radio" value="ofis_tasima" class="w-5 h-5 text-emerald-500 accent-emerald-500">
                         <span class="font-medium text-zinc-800 dark:text-zinc-100">Ofis taşıma</span>
                     </label>
+                    <label class="flex items-center gap-4 min-h-[52px] px-4 rounded-xl border-2 border-zinc-200 dark:border-zinc-700 cursor-pointer hover:border-emerald-400/80 hover:bg-zinc-50/80 dark:hover:bg-zinc-800/50 transition-all duration-200 has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50/80 dark:has-[:checked]:border-emerald-500 dark:has-[:checked]:bg-emerald-900/20 has-[:checked]:shadow-sm">
+                        <input type="radio" name="service_type_radio" value="uluslararasi_nakliyat" class="w-5 h-5 text-emerald-500 accent-emerald-500">
+                        <span class="font-medium text-zinc-800 dark:text-zinc-100">Uluslararası nakliyat</span>
+                    </label>
                 </div>
             </div>
 
@@ -105,14 +109,14 @@
                 </div>
             </div>
 
-            {{-- Adım: Nereden (İl, İlçe, Mahalle API'den) --}}
+            {{-- Adım: Nereden (İl, İlçe, Mahalle API'den veya uluslararası ülke/şehir) --}}
             <div data-step-key="from" class="step-panel hidden">
                 <h3 class="text-base font-semibold text-zinc-900 dark:text-white mb-3" id="from_title">Nereden taşınıyorsun (eski ev nerede)?</h3>
-                <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-3">İl, ilçe ve mahalle seçin.</p>
-                <div class="space-y-3">
+                <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-3" id="from_hint">İl, ilçe ve mahalle seçin.</p>
+                <div id="from_turkey_wrap" class="space-y-3">
                     <div>
                         <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">İl *</label>
-                        <select name="from_province_id" id="from_province_id" required class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl">
+                        <select name="from_province_id" id="from_province_id" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl">
                             <option value="">İl seçin</option>
                         </select>
                     </div>
@@ -130,22 +134,58 @@
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Sokak / adres detayı (opsiyonel)</label>
-                        <input type="text" name="from_address" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl" placeholder="Sokak, bina no vb.">
+                        <input type="text" id="from_address_turkey" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl" placeholder="Sokak, bina no vb.">
+                    </div>
+                    {{-- Alınacağı yer: kat ve asansör (evden eve / şehirler arası) --}}
+                    <div id="from_floor_elevator_wrap" class="hidden space-y-3 pt-3 mt-3 border-t border-zinc-200 dark:border-zinc-700">
+                        <p class="text-xs font-medium text-zinc-600 dark:text-zinc-400">Alınacağı yer (eşyanın alınacağı adres)</p>
+                        <div>
+                            <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Kat durumu</label>
+                            <select name="from_floor" id="from_floor" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl">
+                                <option value="">Seçin</option>
+                                <option value="zemin">Zemin</option>
+                                <option value="1">1. kat</option>
+                                <option value="2">2. kat</option>
+                                <option value="3">3. kat</option>
+                                <option value="4">4. kat</option>
+                                <option value="4_plus">4. kat ve üzeri</option>
+                                <option value="bilinmiyor">Bilinmiyor</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Asansör durumu</label>
+                            <select name="from_elevator" id="from_elevator" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl">
+                                <option value="">Seçin</option>
+                                <option value="var">Var</option>
+                                <option value="yok">Yok</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div id="from_international_wrap" class="hidden space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Çıkış yeri (ülke ve şehir) *</label>
+                        <input type="text" id="from_city_international" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl" placeholder="Örn. Almanya, Berlin" maxlength="150" autocomplete="off">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Adres detayı (opsiyonel)</label>
+                        <input type="text" id="from_address_international" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl" placeholder="Sokak, bina no vb.">
                     </div>
                 </div>
                 <input type="hidden" name="from_city" id="from_city" value="">
+                <input type="hidden" name="from_address" id="from_address" value="">
                 <input type="hidden" name="from_district" id="from_district" value="">
                 <input type="hidden" name="from_neighborhood" id="from_neighborhood" value="">
             </div>
 
-            {{-- Adım: Nereye (İl, İlçe, Mahalle API'den) --}}
+            {{-- Adım: Nereye (İl, İlçe, Mahalle API'den veya uluslararası ülke/şehir) --}}
             <div data-step-key="to" class="step-panel hidden">
                 <h3 class="text-base font-semibold text-zinc-900 dark:text-white mb-3" id="to_title">Nereye taşınıyorsun (yeni ev nerede)?</h3>
-                <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-3">İl, ilçe ve mahalle seçin.</p>
-                <div class="space-y-3">
+                <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-3" id="to_hint">İl, ilçe ve mahalle seçin.</p>
+                <div id="to_turkey_wrap" class="space-y-3">
                     <div>
                         <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">İl *</label>
-                        <select name="to_province_id" id="to_province_id" required class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl">
+                        <select name="to_province_id" id="to_province_id" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl">
                             <option value="">İl seçin</option>
                         </select>
                     </div>
@@ -163,10 +203,46 @@
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Sokak / adres detayı (opsiyonel)</label>
-                        <input type="text" name="to_address" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl" placeholder="Sokak, bina no vb.">
+                        <input type="text" id="to_address_turkey" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl" placeholder="Sokak, bina no vb.">
+                    </div>
+                    {{-- Gideceği yer: kat ve asansör (evden eve / şehirler arası) --}}
+                    <div id="to_floor_elevator_wrap" class="hidden space-y-3 pt-3 mt-3 border-t border-zinc-200 dark:border-zinc-700">
+                        <p class="text-xs font-medium text-zinc-600 dark:text-zinc-400">Gideceği yer (eşyanın gideceği adres)</p>
+                        <div>
+                            <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Kat durumu</label>
+                            <select name="to_floor" id="to_floor" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl">
+                                <option value="">Seçin</option>
+                                <option value="zemin">Zemin</option>
+                                <option value="1">1. kat</option>
+                                <option value="2">2. kat</option>
+                                <option value="3">3. kat</option>
+                                <option value="4">4. kat</option>
+                                <option value="4_plus">4. kat ve üzeri</option>
+                                <option value="bilinmiyor">Bilinmiyor</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Asansör durumu</label>
+                            <select name="to_elevator" id="to_elevator" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl">
+                                <option value="">Seçin</option>
+                                <option value="var">Var</option>
+                                <option value="yok">Yok</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div id="to_international_wrap" class="hidden space-y-3">
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Varış yeri (ülke ve şehir) *</label>
+                        <input type="text" id="to_city_international" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl" placeholder="Örn. Türkiye, İstanbul" maxlength="150" autocomplete="off">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Adres detayı (opsiyonel)</label>
+                        <input type="text" id="to_address_international" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl" placeholder="Sokak, bina no vb.">
                     </div>
                 </div>
                 <input type="hidden" name="to_city" id="to_city" value="">
+                <input type="hidden" name="to_address" id="to_address" value="">
                 <input type="hidden" name="to_district" id="to_district" value="">
                 <input type="hidden" name="to_neighborhood" id="to_neighborhood" value="">
             </div>
@@ -276,27 +352,59 @@
                 <div id="photo-preview" class="mt-3 flex flex-wrap gap-2"></div>
             </div>
 
-            {{-- Adım: İletişim (misafir için) --}}
+            {{-- Adım: İletişim (misafir için; giriş yapmışsa değiştirilemez) --}}
+            @php
+                $wizardUser = auth()->user();
+                $wizardUserPhone = $wizardUser?->phone ?? '';
+                $wizardUserPhoneDigits = preg_replace('/\D/', '', $wizardUserPhone);
+                if (strlen($wizardUserPhoneDigits) >= 10) {
+                    $wizardUserPhoneFormatted = '0' . substr($wizardUserPhoneDigits, -10);
+                    $wizardUserPhoneFormatted = substr($wizardUserPhoneFormatted, 0, 4) . ' ' . substr($wizardUserPhoneFormatted, 4, 3) . ' ' . substr($wizardUserPhoneFormatted, 7, 2) . ' ' . substr($wizardUserPhoneFormatted, 9, 2);
+                } else {
+                    $wizardUserPhoneFormatted = $wizardUserPhone;
+                }
+            @endphp
             <div data-step-key="contact" class="step-panel hidden" id="step-contact">
                 <h3 class="text-base font-semibold text-zinc-900 dark:text-white mb-3">İletişim bilgileriniz</h3>
-                <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">Talebinizi oluşturmak için iletişim bilgilerine ihtiyacımız var. Üye değilseniz bu alanları doldurun.</p>
-                <div class="space-y-3">
-                    <div>
-                        <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-1">Ad Soyad</label>
-                        <input type="text" name="guest_contact_name" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl @error('guest_contact_name') border-red-500 @enderror" placeholder="Adınız ve soyadınız" value="{{ old('guest_contact_name', auth()->user()?->name) }}">
-                        @error('guest_contact_name')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                @if($wizardUser)
+                    <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">Giriş yaptığınız hesaba ait iletişim bilgileri kullanılacaktır; bu alanlar değiştirilemez.</p>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-1">Ad Soyad</label>
+                            <input type="text" readonly class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-100 dark:bg-zinc-800/80 rounded-xl bg-zinc-50 text-zinc-600 dark:text-zinc-400" value="{{ old('guest_contact_name', $wizardUser->name) }}">
+                            <input type="hidden" name="guest_contact_name" value="{{ old('guest_contact_name', $wizardUser->name) }}">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-1">E-posta</label>
+                            <input type="email" readonly class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-100 dark:bg-zinc-800/80 rounded-xl bg-zinc-50 text-zinc-600 dark:text-zinc-400" value="{{ old('guest_contact_email', $wizardUser->email) }}">
+                            <input type="hidden" name="guest_contact_email" value="{{ old('guest_contact_email', $wizardUser->email) }}">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-1">Telefon</label>
+                            <input type="text" readonly class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-100 dark:bg-zinc-800/80 rounded-xl bg-zinc-50 text-zinc-600 dark:text-zinc-400" value="{{ old('guest_contact_phone', $wizardUserPhoneFormatted) }}">
+                            <input type="hidden" name="guest_contact_phone" value="{{ old('guest_contact_phone', $wizardUser->phone) }}">
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-1">E-posta</label>
-                        <input type="email" name="guest_contact_email" inputmode="email" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl @error('guest_contact_email') border-red-500 @enderror" placeholder="E-posta adresiniz" value="{{ old('guest_contact_email', auth()->user()?->email) }}">
-                        @error('guest_contact_email')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                @else
+                    <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">Talebinizi oluşturmak için iletişim bilgilerine ihtiyacımız var. Lütfen aşağıdaki alanları doldurun.</p>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-1">Ad Soyad</label>
+                            <input type="text" name="guest_contact_name" id="guest_contact_name" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl @error('guest_contact_name') border-red-500 @enderror" placeholder="Adınız ve soyadınız" value="{{ old('guest_contact_name') }}">
+                            @error('guest_contact_name')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-1">E-posta</label>
+                            <input type="email" name="guest_contact_email" inputmode="email" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl @error('guest_contact_email') border-red-500 @enderror" placeholder="E-posta adresiniz" value="{{ old('guest_contact_email') }}">
+                            @error('guest_contact_email')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-1">Telefon</label>
+                            <input type="tel" name="guest_contact_phone" id="guest_contact_phone" inputmode="tel" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl @error('guest_contact_phone') border-red-500 @enderror" placeholder="0555 555 55 55" value="{{ old('guest_contact_phone') }}" maxlength="14" data-phone-format>
+                            @error('guest_contact_phone')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-zinc-600 dark:text-zinc-400 mb-1">Telefon</label>
-                        <input type="tel" name="guest_contact_phone" inputmode="tel" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl @error('guest_contact_phone') border-red-500 @enderror" placeholder="5XX XXX XX XX" value="{{ old('guest_contact_phone', auth()->user()?->phone) }}">
-                        @error('guest_contact_phone')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
-                    </div>
-                </div>
+                @endif
                 {{-- KVKK: Açık rıza ve aydınlatma --}}
                 <div class="mt-4 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700">
                     <label class="flex items-start gap-3 cursor-pointer">
@@ -334,14 +442,17 @@
 
     const SERVICE_STEPS = {
         evden_eve_nakliyat: ['room_type', 'from', 'to', 'ev_esya', 'date', 'photos', 'contact'],
-        sehirlerarasi_nakliyat: ['from', 'to', 'volume', 'date', 'photos', 'contact'],
+        sehirlerarasi_nakliyat: ['from', 'to', 'date', 'photos', 'contact'],
         parca_esya_tasimaciligi: ['from', 'to', 'description_items', 'date', 'photos', 'contact'],
         esya_depolama: ['from', 'description_items', 'date', 'photos', 'contact'],
-        ofis_tasima: ['from', 'to', 'description_items', 'date', 'photos', 'contact']
+        ofis_tasima: ['from', 'to', 'description_items', 'date', 'photos', 'contact'],
+        uluslararasi_nakliyat: ['from', 'to', 'description_items', 'date', 'photos', 'contact']
     };
-    const FROM_TITLES = { evden_eve_nakliyat: 'Nereden taşınıyorsun (eski ev nerede)?', sehirlerarasi_nakliyat: 'Nereden taşınıyorsun?', parca_esya_tasimaciligi: 'Eşyalar nereden alınacak?', esya_depolama: 'Eşyalar nerede (depolama adresi)?', ofis_tasima: 'Mevcut ofis adresi nerede?' };
-    const TO_TITLES = { evden_eve_nakliyat: 'Nereye taşınıyorsun (yeni ev nerede)?', sehirlerarasi_nakliyat: 'Nereye taşınıyorsun?', parca_esya_tasimaciligi: 'Eşyalar nereye gidecek?', ofis_tasima: 'Yeni ofis adresi nerede?' };
-    const DESCRIPTION_ITEMS_CONFIG = { parca_esya_tasimaciligi: { title: 'Taşınacak eşyalar', hint: 'Taşınacak eşyaları kısaca listeleyin.', placeholder: 'Örn: Koltuk, kitaplık, 3 koli...' }, esya_depolama: { title: 'Depolanacak eşyalar', hint: 'Depolamak istediğiniz eşyaları kısaca yazın.', placeholder: 'Örn: Mobilya, koli, beyaz eşya...' }, ofis_tasima: { title: 'Ofis büyüklüğü / taşınacaklar', hint: 'Ofis metrekaresi veya taşınacak eşya listesi.', placeholder: 'Örn: 80 m² ofis, 15 masa, arşiv dolabı...' } };
+    const FROM_TITLES = { evden_eve_nakliyat: 'Nereden taşınıyorsun (eski ev nerede)?', sehirlerarasi_nakliyat: 'Nereden taşınıyorsun?', parca_esya_tasimaciligi: 'Eşyalar nereden alınacak?', esya_depolama: 'Eşyaların depolanacağı il ve ilçe nerede?', ofis_tasima: 'Mevcut ofis adresi nerede?', uluslararasi_nakliyat: 'Çıkış yeri (ülke ve şehir)' };
+    const TO_TITLES = { evden_eve_nakliyat: 'Nereye taşınıyorsun (yeni ev nerede)?', sehirlerarasi_nakliyat: 'Nereye taşınıyorsun?', parca_esya_tasimaciligi: 'Eşyalar nereye gidecek?', ofis_tasima: 'Yeni ofis adresi nerede?', uluslararasi_nakliyat: 'Varış yeri (ülke ve şehir)' };
+    const FROM_HINTS = { evden_eve_nakliyat: 'İl, ilçe ve mahalle seçin.', sehirlerarasi_nakliyat: 'İl, ilçe ve mahalle seçin.', parca_esya_tasimaciligi: 'İl, ilçe ve mahalle seçin.', esya_depolama: 'Eşyanın depolanmasını istediğiniz il ve ilçeyi seçin.', ofis_tasima: 'İl, ilçe ve mahalle seçin.', uluslararasi_nakliyat: 'Taşımanın başlayacağı ülke ve şehri yazın.' };
+    const TO_HINTS = { evden_eve_nakliyat: 'İl, ilçe ve mahalle seçin.', sehirlerarasi_nakliyat: 'İl, ilçe ve mahalle seçin.', parca_esya_tasimaciligi: 'İl, ilçe ve mahalle seçin.', ofis_tasima: 'İl, ilçe ve mahalle seçin.', uluslararasi_nakliyat: 'Taşımanın varacağı ülke ve şehri yazın.' };
+    const DESCRIPTION_ITEMS_CONFIG = { parca_esya_tasimaciligi: { title: 'Taşınacak eşyalar', hint: 'Taşınacak eşyaları kısaca listeleyin.', placeholder: 'Örn: Koltuk, kitaplık, 3 koli...' }, esya_depolama: { title: 'Depolanacak eşyalar', hint: 'Depolamak istediğiniz eşyaları kısaca yazın.', placeholder: 'Örn: Mobilya, koli, beyaz eşya...' }, ofis_tasima: { title: 'Ofis büyüklüğü ve taşınacaklar', hint: 'Ofis metrekaresi, oda sayısı, masa/dolap sayısı ve özel eşyaları (sunucu, arşiv, bitki vb.) detaylı yazın.', placeholder: 'Örn: 120 m², 3 oda, 25 masa, 8 dolap, sunucu odası, arşiv, 15 koli...' }, uluslararasi_nakliyat: { title: 'Taşınacaklar ve notlar', hint: 'Taşınacak eşyaları ve gümrük / özel taleplerinizi yazın.', placeholder: 'Örn: Ev eşyası, 40 m³; gümrük işlemleri gerekebilir...' } };
 
     let step = 1;
     let totalSteps = 1 + 7;
@@ -496,22 +607,74 @@
         if (step >= 2 && service) {
             const fromTitle = document.getElementById('from_title'); if (fromTitle && FROM_TITLES[service]) fromTitle.textContent = FROM_TITLES[service];
             const toTitle = document.getElementById('to_title'); if (toTitle && TO_TITLES[service]) toTitle.textContent = TO_TITLES[service];
+            const fromHint = document.getElementById('from_hint'); if (fromHint && FROM_HINTS[service]) fromHint.textContent = FROM_HINTS[service];
+            const toHint = document.getElementById('to_hint'); if (toHint && TO_HINTS[service]) toHint.textContent = TO_HINTS[service];
         }
+        var isInternational = service === 'uluslararasi_nakliyat';
+        var fromTurkeyWrap = document.getElementById('from_turkey_wrap');
+        var fromIntWrap = document.getElementById('from_international_wrap');
+        var toTurkeyWrap = document.getElementById('to_turkey_wrap');
+        var toIntWrap = document.getElementById('to_international_wrap');
+        var fromProvince = document.getElementById('from_province_id');
+        var toProvince = document.getElementById('to_province_id');
+        var fromCityInt = document.getElementById('from_city_international');
+        var toCityInt = document.getElementById('to_city_international');
+        if (fromTurkeyWrap) fromTurkeyWrap.classList.toggle('hidden', isInternational);
+        if (fromIntWrap) fromIntWrap.classList.toggle('hidden', !isInternational);
+        if (toTurkeyWrap) toTurkeyWrap.classList.toggle('hidden', isInternational);
+        if (toIntWrap) toIntWrap.classList.toggle('hidden', !isInternational);
+        var showFloorElevator = !isInternational && (service === 'evden_eve_nakliyat' || service === 'sehirlerarasi_nakliyat');
+        var fromFloorWrap = document.getElementById('from_floor_elevator_wrap');
+        var toFloorWrap = document.getElementById('to_floor_elevator_wrap');
+        if (fromFloorWrap) fromFloorWrap.classList.toggle('hidden', !showFloorElevator);
+        if (toFloorWrap) toFloorWrap.classList.toggle('hidden', !showFloorElevator);
+        if (fromProvince) { fromProvince.required = !isInternational; if (isInternational) fromProvince.value = ''; }
+        if (toProvince) { toProvince.required = !isInternational; if (isInternational) toProvince.value = ''; }
+        if (fromCityInt) fromCityInt.required = isInternational;
+        if (toCityInt) toCityInt.required = isInternational;
         if (stepKey === 'description_items' && service && DESCRIPTION_ITEMS_CONFIG[service]) {
             const cfg = DESCRIPTION_ITEMS_CONFIG[service];
             const titleEl = document.getElementById('description_items_title'); if (titleEl) titleEl.textContent = cfg.title;
             const hintEl = document.getElementById('description_items_hint'); if (hintEl) hintEl.textContent = cfg.hint;
             const field = document.getElementById('description_items_field'); if (field) field.placeholder = cfg.placeholder;
         }
-        if (stepKey === 'to') document.getElementById('to_province_id').required = true;
+        if (stepKey === 'to' && toProvince) toProvince.required = !isInternational;
+    }
+    function syncFromToValues() {
+        var service = getService();
+        if (service === 'uluslararasi_nakliyat') {
+            var fc = document.getElementById('from_city_international');
+            var fa = document.getElementById('from_address_international');
+            document.getElementById('from_city').value = fc ? fc.value.trim() : '';
+            document.getElementById('from_address').value = fa ? fa.value.trim() : '';
+            document.getElementById('from_district').value = '';
+            document.getElementById('from_neighborhood').value = '';
+            var tc = document.getElementById('to_city_international');
+            var ta = document.getElementById('to_address_international');
+            document.getElementById('to_city').value = tc ? tc.value.trim() : '';
+            document.getElementById('to_address').value = ta ? ta.value.trim() : '';
+            document.getElementById('to_district').value = '';
+            document.getElementById('to_neighborhood').value = '';
+        } else {
+            document.getElementById('from_address').value = (document.getElementById('from_address_turkey') || {}).value || '';
+            document.getElementById('to_address').value = (document.getElementById('to_address_turkey') || {}).value || '';
+        }
     }
 
     function validateStep() {
         if (step === 1) { if (!getService()) { alert('Lütfen bir hizmet seçin.'); return false; } syncServiceType(); return true; }
         const stepKey = getCurrentStepKey();
         if (stepKey === 'room_type' && !form.querySelector('input[name="room_type"]:checked')) { alert('Lütfen oda tipi seçin.'); return false; }
-        if (stepKey === 'from' && !document.getElementById('from_city').value.trim()) { alert('Lütfen il seçin.'); return false; }
-        if (stepKey === 'to' && !document.getElementById('to_city').value.trim()) { alert('Lütfen il seçin.'); return false; }
+        if (stepKey === 'from') {
+            syncFromToValues();
+            if (getService() === 'uluslararasi_nakliyat') { if (!(document.getElementById('from_city_international') || {}).value.trim()) { alert('Lütfen çıkış yeri (ülke ve şehir) girin.'); return false; } }
+            else if (!document.getElementById('from_city').value.trim()) { alert('Lütfen il seçin.'); return false; }
+        }
+        if (stepKey === 'to') {
+            syncFromToValues();
+            if (getService() === 'uluslararasi_nakliyat') { if (!(document.getElementById('to_city_international') || {}).value.trim()) { alert('Lütfen varış yeri (ülke ve şehir) girin.'); return false; } }
+            else if (!document.getElementById('to_city').value.trim()) { alert('Lütfen il seçin.'); return false; }
+        }
         if (stepKey === 'volume' && parseFloat(form.querySelector('#volume_m3').value) <= 0) { alert('En az bir oda için hacim ekleyin.'); return false; }
         if (stepKey === 'ev_esya') { /* tüm alanlar opsiyonel */ }
         if (stepKey === 'contact') {
@@ -531,6 +694,8 @@
     document.getElementById('wizard-back').addEventListener('click', () => { if (step > 1) showStep(step - 1); });
     btnNext.addEventListener('click', () => {
         if (!validateStep()) return;
+        var stepKey = getCurrentStepKey();
+        if (stepKey === 'from' || stepKey === 'to') syncFromToValues();
         if (step < getTotalSteps()) showStep(step + 1);
     });
 
@@ -570,6 +735,7 @@
 
     form.addEventListener('submit', function(ev) {
         syncServiceType();
+        syncFromToValues();
         var contactStepKey = getCurrentStepKey();
         if (step === getTotalSteps() && contactStepKey === 'contact') {
             if (!validateStep()) {
@@ -617,6 +783,26 @@
             if (nameInp) nameInp.setAttribute('required', 'required');
             if (emailInp) emailInp.setAttribute('required', 'required');
             if (phoneInp) phoneInp.setAttribute('required', 'required');
+        }
+        // Telefon formatı: 0555 555 55 55
+        var phoneInput = document.getElementById('guest_contact_phone');
+        if (phoneInput && phoneInput.hasAttribute('data-phone-format')) {
+            function formatTurkishPhone(val) {
+                var d = (val || '').replace(/\D/g, '');
+                if (d.length > 10) d = d.slice(0, 11);
+                if (d.length > 0 && d[0] !== '0') d = '0' + d;
+                if (d.length <= 4) return d;
+                if (d.length <= 7) return d.slice(0, 4) + ' ' + d.slice(4);
+                if (d.length <= 9) return d.slice(0, 4) + ' ' + d.slice(4, 7) + ' ' + d.slice(7);
+                return d.slice(0, 4) + ' ' + d.slice(4, 7) + ' ' + d.slice(7, 9) + ' ' + d.slice(9, 11);
+            }
+            phoneInput.addEventListener('input', function() {
+                var start = this.selectionStart, prevLen = this.value.length;
+                this.value = formatTurkishPhone(this.value);
+                var newLen = this.value.length;
+                this.setSelectionRange(Math.min(start + (this.value.length - prevLen), this.value.length), Math.min(start + (this.value.length - prevLen), this.value.length));
+            });
+            if (phoneInput.value) phoneInput.value = formatTurkishPhone(phoneInput.value);
         }
     }
     showStep(1);

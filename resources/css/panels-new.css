@@ -20,6 +20,7 @@
   --app-shadow: 0 1px 3px rgba(0,0,0,0.06);
   --app-shadow-lg: 0 10px 40px -10px rgba(0,0,0,0.12);
   --app-rail-w: 64px;
+  --app-sidebar-w: 260px;
   --app-bar-h: 56px;
   --app-bottom-h: 64px;
 }
@@ -38,7 +39,7 @@
   --app-shadow-lg: 0 10px 40px -10px rgba(0,0,0,0.4);
 }
 
-/* Base */
+/* Base – mobil yatay kaymayı önle */
 .app-shell {
   font-family: 'Outfit', system-ui, sans-serif;
   min-height: 100vh;
@@ -47,6 +48,8 @@
   color: var(--app-text);
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 /* Top bar */
@@ -131,7 +134,7 @@
 .app-bar__actions #header-notifications-panel [class*="text-zinc-400"] { color: var(--app-text-muted); }
 .app-bar__actions #header-notifications-panel a:hover { background: var(--app-accent-soft); }
 
-/* Desktop rail (sidebar) — Yeni panel: sadece ikon, 64px, açık zemin */
+/* Desktop rail (eski 64px ikon çubuğu — artık admin’de kullanılmıyor, diğer paneller için bırakıldı) */
 .app-rail {
   display: none;
 }
@@ -194,6 +197,114 @@
   .app-rail__grow { flex: 1; }
   .app-rail__logout { display: flex; width: 100%; margin: 0; padding: 0; }
   .app-rail__logout .app-rail__item { width: 100%; }
+}
+
+/* Admin: tam sol sidebar — tüm menü tek listede, ikon + metin */
+.app-admin-sidebar {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .app-admin-sidebar {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--app-sidebar-w);
+    background: var(--app-surface);
+    border-right: 1px solid var(--app-border);
+    z-index: 40;
+    overflow: hidden;
+  }
+  .app-admin-sidebar__inner {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+  .app-admin-sidebar__nav {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0.5rem 0.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .app-admin-sidebar__link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--app-radius);
+    color: var(--app-text-muted);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: background 0.15s, color 0.15s;
+    border: none;
+    background: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    position: relative;
+  }
+  .app-admin-sidebar__link:hover {
+    background: var(--app-accent-soft);
+    color: var(--app-accent);
+  }
+  .app-admin-sidebar__link.is-active {
+    background: var(--app-accent-soft);
+    color: var(--app-accent);
+    font-weight: 600;
+  }
+  .app-admin-sidebar__icon {
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .app-admin-sidebar__icon svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  .app-admin-sidebar__label {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .app-admin-sidebar__badge {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.75rem;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--app-accent);
+  }
+  .app-admin-sidebar__footer {
+    flex-shrink: 0;
+    padding: 0.5rem 0.25rem;
+    border-top: 1px solid var(--app-border);
+  }
+  .app-admin-sidebar__link--logout {
+    color: var(--app-text-muted);
+  }
+  .app-admin-sidebar__link--logout:hover {
+    color: var(--app-accent);
+  }
+  .app-shell.has-sidebar .app-bar {
+    margin-left: var(--app-sidebar-w);
+  }
+  .app-shell.has-sidebar .app-main {
+    margin-left: var(--app-sidebar-w);
+  }
 }
 
 /* Main content — simetrik hizalama: bar ve içerik aynı yatay padding */
@@ -723,7 +834,14 @@
   .app-shell .admin-card.p-6 { padding: 1.75rem 2rem; }
 }
 
-/* ——— Tablolar ——— */
+/* ——— Tablolar (mobilde yatay kaydırma için .table-responsive kullanın) ——— */
+.app-shell .app-main__inner .table-responsive,
+.app-shell .table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+  margin-bottom: 1rem;
+}
 .app-shell .app-main__inner table,
 .app-shell table {
   width: 100%;

@@ -20,52 +20,68 @@
         table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
         img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
         body { margin: 0 !important; padding: 0 !important; width: 100% !important; }
-        .wrapper { width: 100%; table-layout: fixed; background-color: #f1f5f9; }
+        .wrapper { width: 100%; table-layout: fixed; background-color: #f8fafc; }
         .content { max-width: 600px; margin: 0 auto; }
-        .brand { font-size: 22px; font-weight: 700; color: #059669; text-decoration: none; }
-        .footer-text { font-size: 12px; color: #64748b; }
-        .footer-link { color: #059669; text-decoration: none; }
-        .button { display: inline-block; padding: 14px 28px; background-color: #059669; color: #ffffff !important; text-decoration: none; font-weight: 600; font-size: 15px; border-radius: 8px; }
+        .email-card { border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.06); }
+        .header-bg { background-color: #059669; }
+        .footer-bg { background-color: #f1f5f9; }
+        @media only screen and (max-width: 600px) {
+            .content, .inner-content { width: 100% !important; max-width: 100% !important; }
+            .mobile-pad { padding-left: 24px !important; padding-right: 24px !important; }
+        }
     </style>
 </head>
-<body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-    <table role="presentation" class="wrapper" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f1f5f9;">
+<body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+    <table role="presentation" class="wrapper" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f8fafc;">
         <tr>
-            <td align="center" style="padding: 40px 20px;">
-                <table role="presentation" class="content" width="600" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%;">
+            <td align="center" style="padding: 48px 24px;">
+                <table role="presentation" class="content email-card" width="600" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px;">
+                    {{-- Üst vurgu şeridi (marka rengi - düz renk e-posta uyumluluğu için) --}}
+                    <tr>
+                        <td style="height: 6px; font-size: 0; line-height: 0; background-color: #059669;">&nbsp;</td>
+                    </tr>
                     {{-- Header (logo + marka) --}}
                     <tr>
-                        <td style="padding: 32px 40px 24px; background-color: #ffffff; border-radius: 12px 12px 0 0; border-bottom: 1px solid #e2e8f0;">
+                        <td class="mobile-pad" style="padding: 28px 40px 24px; background-color: #ffffff;">
                             @php
                                 $logoPath = \App\Models\Setting::get('site_logo', '');
                                 $logoUrl = $logoPath ? asset('storage/' . $logoPath) : null;
-                                $siteName = config('seo.site_name', 'Nakliyepark');
+                                $siteName = config('seo.site_name', 'NakliyePark');
                             @endphp
-                            <a href="{{ url('/') }}" class="brand" style="font-size: 22px; font-weight: 700; color: #059669; text-decoration: none; display: inline-flex; align-items: center; gap: 12px;">
+                            <a href="{{ url('/') }}" style="font-size: 0; text-decoration: none; display: inline-flex; align-items: center; gap: 12px;">
                                 @if($logoUrl)
                                     <img src="{{ $logoUrl }}" alt="{{ $siteName }}" width="140" height="44" style="display: block; max-height: 44px; width: auto; object-fit: contain;">
                                 @else
-                                    <span>{{ $siteName }}</span>
+                                    <span style="font-size: 22px; font-weight: 700; color: #059669; letter-spacing: -0.02em;">{{ $siteName }}</span>
                                 @endif
                             </a>
                         </td>
                     </tr>
                     {{-- Body --}}
                     <tr>
-                        <td style="padding: 32px 40px; background-color: #ffffff;">
+                        <td class="mobile-pad" style="padding: 0 40px 36px; background-color: #ffffff;">
                             @yield('body')
                         </td>
                     </tr>
                     {{-- Footer --}}
                     <tr>
-                        <td style="padding: 24px 40px 32px; background-color: #ffffff; border-radius: 0 0 12px 12px; border-top: 1px solid #e2e8f0;">
-                            <p class="footer-text" style="margin: 0; font-size: 12px; color: #64748b; line-height: 1.5;">
-                                Bu e-posta {{ config('seo.site_name', 'NakliyePark') }} tarafından gönderilmiştir.<br>
-                                <a href="{{ url('/') }}" class="footer-link" style="color: #059669; text-decoration: none;">Siteyi ziyaret et</a>
-                                @if(!empty($contact_email = \App\Models\Setting::get('contact_email')))
-                                    &nbsp;·&nbsp;<a href="mailto:{{ $contact_email }}" class="footer-link" style="color: #059669; text-decoration: none;">İletişim</a>
-                                @endif
-                            </p>
+                        <td class="footer-bg mobile-pad" style="padding: 24px 40px 28px; border-radius: 0 0 16px 16px;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td style="border-top: 1px solid #e2e8f0; padding-top: 20px;">
+                                        <p style="margin: 0 0 8px; font-size: 12px; color: #64748b; line-height: 1.5;">
+                                            Bu e-posta <strong style="color: #475569;">{{ config('seo.site_name', 'NakliyePark') }}</strong> tarafından gönderilmiştir.
+                                        </p>
+                                        <p style="margin: 0; font-size: 12px;">
+                                            <a href="{{ url('/') }}" style="color: #059669; text-decoration: none; font-weight: 500;">Siteyi ziyaret et</a>
+                                            @if(!empty($contact_email = \App\Models\Setting::get('contact_email')))
+                                                <span style="color: #cbd5e1;"> · </span>
+                                                <a href="mailto:{{ $contact_email }}" style="color: #059669; text-decoration: none; font-weight: 500;">İletişim</a>
+                                            @endif
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
                 </table>
