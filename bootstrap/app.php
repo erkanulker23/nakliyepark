@@ -14,6 +14,15 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'nakliyeci/odeme/callback',
         ]);
+        // Giriş yapmış kullanıcı guest sayfalara (login, register vb.) giderse yönlendir; /yonetici/admin guest değil, orada kontrol controller'da
+        $middleware->redirectUsersTo(function (\Illuminate\Http\Request $request) {
+            $intended = $request->session()->get('url.intended');
+            return $intended && $intended !== $request->url() ? $intended : '/';
+        });
+        // Giriş yapmamış kullanıcı /admin/* isterse admin giriş sayfasına, diğer korumalı sayfalara /login
+        $middleware->redirectGuestsTo(function (\Illuminate\Http\Request $request) {
+            return $request->is('admin', 'admin/*') ? route('admin.login') : route('login');
+        });
         $middleware->alias([
             'role' => \App\Http\Middleware\EnsureRole::class,
             'not.nakliyeci' => \App\Http\Middleware\EnsureNotNakliyeci::class,
@@ -45,12 +54,12 @@ return Application::configure(basePath: dirname(__DIR__))
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'CSRF token süresi doldu. Lütfen sayfayı yenileyip tekrar deneyin.'], 419);
             }
-            // Logout isteğinde token süresi dolmuşsa yine de çıkış yap
+            // Logout isteğinde token süresi dolmuşsa yine de çıkış yap; mesaj gösterme (zaten oturum kapalı, ana sayfada "giriş yapmadım" hissi yaratmasın)
             if ($request->isMethod('POST') && $request->is('logout')) {
                 \Illuminate\Support\Facades\Auth::logout();
                 $request->session()->invalidate();
                 $request->session()->regenerateToken();
-                return redirect('/')->with('info', 'Oturum süresi dolduğu için çıkış yapıldı.');
+                return redirect('/');
             }
             // Admin login (POST): giriş sayfasına taze form ile yönlendir (bilgi mesajı, hata değil)
             if ($request->isMethod('POST') && ($request->routeIs('admin.login.submit') || $request->is('yonetici/admin'))) {

@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Cache;
 
 class Setting extends Model
 {
@@ -11,7 +10,7 @@ class Setting extends Model
 
     public static function get(string $key, mixed $default = null): mixed
     {
-        $item = Cache::remember("setting.{$key}", 300, fn () => self::query()->where('key', $key)->first());
+        $item = self::query()->where('key', $key)->first();
         return $item ? $item->value : $default;
     }
 
@@ -21,7 +20,6 @@ class Setting extends Model
             ['key' => $key],
             ['value' => is_array($value) || is_object($value) ? json_encode($value) : (string) $value, 'group' => $group]
         );
-        Cache::forget("setting.{$key}");
     }
 
     public static function getMany(array $keys): array

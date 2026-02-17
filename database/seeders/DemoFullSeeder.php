@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\BlogCategory;
-use App\Models\BlogPost;
 use App\Models\Company;
 use App\Models\Ihale;
 use App\Models\Teklif;
@@ -67,9 +65,6 @@ class DemoFullSeeder extends Seeder
 
         // 40 İhale + her birine 2-6 teklif
         $this->ensureIhalelerVeTeklifler($musteriler, $firmalar);
-
-        // 10 Blog yazısı
-        $this->ensureBlogYazilari();
 
         // 60 Defter kaydı (yük ilanı)
         $this->ensureDefterKayitlari($firmalar);
@@ -211,53 +206,6 @@ class DemoFullSeeder extends Seeder
                 );
             }
         }
-    }
-
-    private function ensureBlogYazilari(): void
-    {
-        $categories = $this->ensureBlogCategories();
-        $titles = [
-            'Ev Taşırken Dikkat Edilmesi Gerekenler',
-            'Nakliyat Fiyatları Nasıl Hesaplanır?',
-            'Şehirler Arası Taşınma Rehberi',
-            'Evden Eve Nakliyatta Sigorta Neden Önemli?',
-            'Taşınma Öncesi Yapılacaklar Listesi',
-            'Ofis Taşımacılığında Dikkat Edilecek Noktalar',
-            'Eşya Paketleme ve Ambalaj İpuçları',
-            'Nakliye Firması Seçerken Nelere Dikkat Etmeli?',
-            'Depolama Hizmeti Ne Zaman Tercih Edilmeli?',
-            'Parça Eşya Taşımacılığı Avantajları',
-        ];
-        foreach ($titles as $idx => $title) {
-            $slug = Str::slug($title);
-            BlogPost::firstOrCreate(
-                ['slug' => $slug],
-                [
-                    'category_id' => $categories[array_rand($categories)]->id,
-                    'title' => $title,
-                    'meta_title' => $title . ' | NakliyePark',
-                    'excerpt' => substr('Nakliyat ve taşınma hakkında faydalı bilgiler. ' . $title, 0, 160),
-                    'meta_description' => $title . ' - NakliyePark blog.',
-                    'content' => "<p>Bu yazıda " . $title . " konusunu ele alıyoruz.</p><p>Nakliyat sürecinde planlama, güvenilir firma seçimi ve doğru paketleme büyük önem taşır. NakliyePark üzerinden birden fazla firmadan teklif alarak en uygun hizmeti seçebilirsiniz.</p><p>Detaylı bilgi için firmalarımızla iletişime geçebilirsiniz.</p>",
-                    'published_at' => now()->subDays(rand(1, 60)),
-                    'featured' => $idx < 3,
-                ]
-            );
-        }
-    }
-
-    private function ensureBlogCategories(): array
-    {
-        $names = ['Nakliyat Rehberi', 'Taşınma İpuçları', 'Sektör'];
-        $created = [];
-        foreach ($names as $i => $name) {
-            $slug = Str::slug($name);
-            $created[] = BlogCategory::firstOrCreate(
-                ['slug' => $slug],
-                ['name' => $name, 'description' => $name . ' kategorisi', 'sort_order' => $i]
-            );
-        }
-        return $created;
     }
 
     private function ensureDefterKayitlari(array $firmalar): void

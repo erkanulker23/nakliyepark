@@ -6,6 +6,12 @@
 @section('content')
 <div class="w-full max-w-sm">
     <div class="card p-6 sm:p-8">
+        @if(!isset($admin_login))
+        <div class="flex rounded-xl bg-zinc-100 dark:bg-zinc-800 p-1 mb-6" role="tablist">
+            <a href="{{ route('login') }}" class="flex-1 py-2.5 text-center text-sm font-medium rounded-lg transition-colors {{ !request('tab') || request('tab') === 'musteri' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white' }}">Müşteri girişi</a>
+            <a href="{{ route('login', ['tab' => 'nakliyeci']) }}" class="flex-1 py-2.5 text-center text-sm font-medium rounded-lg transition-colors {{ request('tab') === 'nakliyeci' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white' }}">Nakliyeci girişi</a>
+        </div>
+        @endif
         <h1 class="text-xl font-semibold text-zinc-900 dark:text-white mb-1">@isset($admin_login) Yönetici / Admin girişi @else Giriş yap @endisset</h1>
         <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-6">@isset($admin_login) Yönetim paneline erişmek için giriş yapın. @else Hesabınızla devam edin. @endisset</p>
 

@@ -51,17 +51,22 @@
                 </button>
                 @auth
                     @if(auth()->user()->isAdmin())
-                        <a href="{{ route('admin.dashboard') }}" class="btn-ghost rounded-lg hidden sm:inline-flex">Admin</a>
-                    @elseif(auth()->user()->isNakliyeci())
-                        <a href="{{ route('nakliyeci.company.edit') }}" class="btn-ghost rounded-lg hidden sm:inline-flex">Firmam</a>
-                    @elseif(auth()->user()->isMusteri())
-                        <a href="{{ route('musteri.dashboard') }}" class="btn-ghost rounded-lg hidden sm:inline-flex">İhalelerim</a>
+                        {{-- Admin: frontend'de giriş bilgisi gösterme --}}
+                        <a href="{{ route('login') }}" class="btn-secondary rounded-lg hidden sm:inline-flex">Giriş</a>
+                        <a href="{{ route('register') }}" class="btn-secondary rounded-lg hidden sm:inline-flex">Üye ol</a>
+                        <a href="{{ route('ihale.create') }}" class="hidden sm:inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-xl font-semibold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 shadow-lg shadow-orange-500/25 transition-all">İhale başlat</a>
+                    @else
+                        @if(auth()->user()->isNakliyeci())
+                            <a href="{{ route('nakliyeci.company.edit') }}" class="btn-ghost rounded-lg hidden sm:inline-flex">Firmam</a>
+                        @elseif(auth()->user()->isMusteri())
+                            <a href="{{ route('musteri.dashboard') }}" class="btn-ghost rounded-lg hidden sm:inline-flex">İhalelerim</a>
+                        @endif
+                        @include('layouts.partials.notifications-dropdown')
                     @endif
-                    @include('layouts.partials.notifications-dropdown')
                 @else
                     <a href="{{ route('login') }}" class="btn-secondary rounded-lg hidden sm:inline-flex">Giriş</a>
                     <a href="{{ route('register') }}" class="btn-secondary rounded-lg hidden sm:inline-flex">Üye ol</a>
-                    <a href="{{ route('register', ['role' => 'nakliyeci']) }}" class="btn-primary rounded-lg">Hizmet ver</a>
+                    <a href="{{ route('ihale.create') }}" class="hidden sm:inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-xl font-semibold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 shadow-lg shadow-orange-500/25 transition-all">İhale başlat</a>
                 @endauth
             </div>
         </div>
@@ -72,11 +77,11 @@
             @endif
             <a href="{{ route('defter.index') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Defter</a>
             <a href="{{ route('pazaryeri.index') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Pazaryeri</a>
-            @guest
+            @if(!auth()->check() || (auth()->user() && auth()->user()->isAdmin()))
             <a href="{{ route('login') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Giriş</a>
             <a href="{{ route('register') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Üye ol</a>
-            <a href="{{ route('register', ['role' => 'nakliyeci']) }}" class="rounded-lg text-xs whitespace-nowrap py-2.5 px-3 bg-emerald-600 text-white font-medium hover:bg-emerald-700">Hizmet ver</a>
-            @endguest
+            <a href="{{ route('ihale.create') }}" class="rounded-lg text-xs whitespace-nowrap py-2.5 px-3 font-semibold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400">İhale başlat</a>
+            @endif
             <a href="{{ route('tools.volume') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Hacim</a>
             <a href="{{ route('tools.distance') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Mesafe</a>
             <a href="{{ route('tools.checklist') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Kontrol listesi</a>

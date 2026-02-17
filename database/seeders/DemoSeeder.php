@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\BlogPost;
 use App\Models\Company;
 use App\Models\Faq;
 use App\Models\Ihale;
@@ -131,20 +130,6 @@ class DemoSeeder extends Seeder
                 continue;
             }
             YukIlani::create($d);
-        }
-
-        // Blog yazıları
-        $blog = [
-            ['title' => 'Ev Taşırken Dikkat Edilmesi Gerekenler', 'slug' => 'ev-tasirken-dikkat-edilmesi-gerekenler', 'excerpt' => 'Taşınma öncesi ve sonrası yapılacaklar listesi.', 'content' => "Taşınmadan önce eşyalarınızı kategorilere ayırın. Kırılacak eşyaları özel kutularda paketleyin. Nakliye firması ile taşınma tarihini netleştirin. Sigorta seçeneklerini değerlendirin.\n\nTaşınma günü su, elektrik ve doğalgaz aboneliklerini yeni adrese taşıyın. Eşya listesini kontrol ederek teslim alın.", 'published_at' => now()->subDays(5)],
-            ['title' => 'Nakliyat Fiyatları Nasıl Hesaplanır?', 'slug' => 'nakliyat-fiyatlari-nasil-hesaplanir', 'excerpt' => 'Hacim, mesafe ve ek hizmetlerin fiyata etkisi.', 'content' => "Nakliyat fiyatları genelde taşınacak hacim (m³), mesafe ve ek hizmetlere (paketleme, sigorta) göre belirlenir.\n\nNakliyePark üzerinden ücretsiz ihale açarak birkaç firmadan teklif alabilir, en uygun fiyatı seçebilirsiniz.", 'published_at' => now()->subDays(3)],
-            ['title' => 'Şehirler Arası Taşınma Rehberi', 'slug' => 'sehirler-arasi-tasinma-rehberi', 'excerpt' => 'İller arası nakliyette bilmeniz gerekenler.', 'content' => "Şehirler arası taşımada süre ve güzergah önemlidir. Firmalar genelde tek gün veya iki günlük program sunar.\n\nBüyük eşyalar için modüler asansör veya vinç talebi önceden bildirilmelidir.", 'published_at' => now()->subDay()],
-        ];
-
-        foreach ($blog as $b) {
-            BlogPost::updateOrCreate(
-                ['slug' => $b['slug']],
-                $b
-            );
         }
 
         // SSS

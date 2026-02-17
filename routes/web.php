@@ -105,8 +105,8 @@ Route::get('/mesafeli-satis-sozlesmesi', [LegalController::class, 'mesafeliSatis
 Route::get('/on-bilgilendirme-formu', [LegalController::class, 'onBilgilendirme'])->name('legal.on-bilgilendirme');
 Route::get('/iade-kosullari', [LegalController::class, 'iadeKosullari'])->name('legal.iade-kosullari');
 
-// Admin girişi: ayrı throttle (dakikada 20 istek) — 429 önlemek için normal girişten ayrı
-Route::middleware(['guest', 'throttle:20,1'])->group(function () {
+// Admin girişi: guest zorunlu değil (eski oturum çerezi olsa bile form gösterilir), sadece throttle
+Route::middleware(['throttle:20,1'])->group(function () {
     Route::get('/yonetici/admin', [LoginController::class, 'showAdminLoginForm'])->name('admin.login');
     Route::post('/yonetici/admin', [LoginController::class, 'loginAdmin'])->name('admin.login.submit');
 });

@@ -38,6 +38,7 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call(DemoSeeder::class);
+        $this->call(BlogPostSeeder::class);
         $this->call(NakliyatFirmalariSeeder::class);
         $this->call(FaqSeeder::class);
         $this->call(DemoIhaleSeeder::class);

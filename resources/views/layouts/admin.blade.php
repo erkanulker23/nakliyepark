@@ -9,6 +9,13 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>@yield('title', 'Admin') - NakliyePark</title>
+    {{-- Kritik stil: CSS gelmeden önce arka plan (Vite/build sonrası ana CSS bunları override eder) --}}
+    <style>
+        .app-shell { background: #f8fafc; color: #0f172a; min-height: 100vh; }
+        .app-shell .app-main { background: #f8fafc; }
+        html.app-dark .app-shell { background: #0f172a; color: #f1f5f9; }
+        html.app-dark .app-shell .app-main { background: #0f172a; }
+    </style>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>

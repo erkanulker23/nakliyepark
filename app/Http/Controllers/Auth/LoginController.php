@@ -24,6 +24,10 @@ class LoginController extends Controller
 
     public function showAdminLoginForm(Request $request)
     {
+        // Zaten admin olarak giriş yapmışsa panele yönlendir (guest middleware kullanılmadığı için burada kontrol)
+        if (Auth::check() && Auth::user()->isAdmin()) {
+            return redirect()->route('admin.dashboard');
+        }
         $request->session()->put('url.intended', route('admin.dashboard'));
         // CSRF token'ı yenile - form açıldığında fresh token olsun
         $request->session()->regenerateToken();

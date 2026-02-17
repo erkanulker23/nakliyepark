@@ -57,9 +57,9 @@ class AppServiceProvider extends ServiceProvider
                     'header_notifications' => \App\Models\AdminNotification::latest()->take(25)->get(),
                     'header_notifications_url' => route('admin.notifications.index'),
                     'header_unread_count' => \App\Models\AdminNotification::whereNull('read_at')->count(),
-                    'pending_companies_count' => \Illuminate\Support\Facades\Cache::remember('admin.pending_companies', 30, fn () => \App\Models\Company::whereNull('approved_at')->count()),
-                    'pending_ihaleler_count' => \Illuminate\Support\Facades\Cache::remember('admin.pending_ihaleler', 30, fn () => \App\Models\Ihale::where('status', 'pending')->count()),
-                    'teklif_pending_count' => \Illuminate\Support\Facades\Cache::remember('admin.teklif_pending', 30, fn () => \App\Models\Teklif::whereNotNull('pending_amount')->count()),
+                    'pending_companies_count' => \App\Models\Company::whereNull('approved_at')->count(),
+                    'pending_ihaleler_count' => \App\Models\Ihale::where('status', 'pending')->count(),
+                    'teklif_pending_count' => \App\Models\Teklif::whereNotNull('pending_amount')->count(),
                 ]);
                 return;
             }

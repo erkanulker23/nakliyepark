@@ -312,6 +312,7 @@
   flex: 1;
   min-width: 0;
   overflow-x: hidden;
+  background: var(--app-bg);
   padding: 1rem;
   padding-bottom: calc(var(--app-bottom-h) + 1rem);
   padding-bottom: calc(var(--app-bottom-h) + env(safe-area-inset-bottom, 0px) + 1rem);

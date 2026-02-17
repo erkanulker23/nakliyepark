@@ -52,6 +52,11 @@
     @php
         $toastType = session('success') ? 'success' : (session('error') ? 'error' : (session('info') ? 'info' : null));
         $toastMessage = session('success') ?: session('error') ?: session('info');
+        // Giriş yapmamış kullanıcıya "oturum süresi doldu / tekrar giriş yapın" gibi mesajları gösterme (yanlış anlaşılmayı önle)
+        if (!auth()->check() && $toastMessage && (str_contains($toastMessage, 'oturum') || str_contains($toastMessage, 'süresi doldu') || str_contains($toastMessage, 'tekrar giriş') || str_contains($toastMessage, 'çıkış yapın'))) {
+            $toastType = null;
+            $toastMessage = null;
+        }
     @endphp
     @if($toastType && $toastMessage)
         <div id="toast-initial" role="alert" class="toast toast-enter pointer-events-auto fixed top-20 right-4 left-4 sm:left-auto sm:max-w-sm z-[100] shadow-lg rounded-xl flex items-start gap-3 px-4 py-3
