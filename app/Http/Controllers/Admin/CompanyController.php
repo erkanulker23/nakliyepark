@@ -291,4 +291,27 @@ class CompanyController extends Controller
         Log::channel('admin_actions')->info('Admin company gallery image approved', ['admin_id' => auth()->id(), 'company_id' => $company->id, 'image_id' => $id]);
         return back()->with('success', 'Galeri fotoğrafı onaylandı.');
     }
+
+    /** Galerideki tüm onay bekleyen fotoğrafları onayla. */
+    public function approveAllGalleryImages(Request $request, Company $company)
+    {
+        $this->authorize('update', $company);
+        $count = $company->vehicleImages()->whereNull('approved_at')->update(['approved_at' => now()]);
+        Log::channel('admin_actions')->info('Admin company gallery approve all', ['admin_id' => auth()->id(), 'company_id' => $company->id, 'count' => $count]);
+        return back()->with('success', $count > 0 ? "{$count} galeri fotoğrafı onaylandı." : 'Onay bekleyen fotoğraf yok.');
+    }
+
+    /** Galeriden fotoğrafı kaldır (sil). */
+    public function destroyGalleryImage(Request $request, Company $company, int $id)
+    {
+        $this->authorize('update', $company);
+        $image = $company->vehicleImages()->findOrFail($id);
+        $path = $image->path;
+        $image->delete();
+        if ($path && Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
+        }
+        Log::channel('admin_actions')->info('Admin company gallery image removed', ['admin_id' => auth()->id(), 'company_id' => $company->id, 'image_id' => $id]);
+        return back()->with('success', 'Galeri fotoğrafı kaldırıldı.');
+    }
 }

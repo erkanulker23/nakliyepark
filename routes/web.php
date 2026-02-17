@@ -229,7 +229,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/companies/{company}/reject', [AdminCompanyController::class, 'reject'])->name('companies.reject');
     Route::patch('/companies/{company}/package', [AdminCompanyController::class, 'updatePackage'])->name('companies.update-package');
     Route::post('/companies/{company}/logo/approve', [AdminCompanyController::class, 'approveLogo'])->name('companies.approve-logo');
-    Route::post('/companies/{company}/galeri/{id}/approve', [AdminCompanyController::class, 'approveGalleryImage'])->name('companies.approve-gallery-image');
+    Route::post('/companies/{company}/galeri/approve-all', [AdminCompanyController::class, 'approveAllGalleryImages'])->name('companies.approve-gallery-all');
+Route::post('/companies/{company}/galeri/{id}/approve', [AdminCompanyController::class, 'approveGalleryImage'])->name('companies.approve-gallery-image');
+Route::delete('/companies/{company}/galeri/{id}', [AdminCompanyController::class, 'destroyGalleryImage'])->name('companies.destroy-gallery-image');
     Route::get('/ihaleler', [AdminIhaleController::class, 'index'])->name('ihaleler.index');
     Route::post('/ihaleler/bulk-publish', [AdminIhaleController::class, 'bulkPublish'])->name('ihaleler.bulk-publish');
     Route::post('/ihaleler/bulk-close', [AdminIhaleController::class, 'bulkClose'])->name('ihaleler.bulk-close');

@@ -357,6 +357,19 @@
                                         <p id="lightbox-caption" class="text-center text-sm text-white/80 mt-1 min-h-[1.25rem]"></p>
                                     </div>
                                 </dialog>
+                                {{-- Sayfa yüklenirken veya bfcache ile geri gelindiğinde lightbox kapalı olsun (siyah ekran önlenir) --}}
+                                <script>
+                                (function(){
+                                    var d = document.getElementById('gallery-lightbox');
+                                    var img = document.getElementById('lightbox-img');
+                                    function ensureClosed() {
+                                        if (d && typeof d.close === 'function') d.close();
+                                        if (img) img.removeAttribute('src');
+                                    }
+                                    ensureClosed();
+                                    window.addEventListener('pageshow', function(e) { if (e.persisted) ensureClosed(); });
+                                })();
+                                </script>
                             @else
                                 <div class="flex flex-col items-center justify-center py-12 px-4 rounded-xl bg-zinc-50/60 dark:bg-zinc-800/30 border border-dashed border-zinc-200 dark:border-zinc-700/50">
                                     <span class="w-14 h-14 rounded-2xl bg-zinc-200/60 dark:bg-zinc-700/50 flex items-center justify-center text-zinc-400 dark:text-zinc-500 mb-3">
@@ -510,23 +523,19 @@
     var captionEl = document.getElementById('lightbox-caption');
     var counterEl = document.getElementById('lightbox-counter');
     var thumbs = document.querySelectorAll('.company-gallery-thumb');
-    var total = thumbs.length;
+    var total = thumbs ? thumbs.length : 0;
     var currentIndex = 0;
 
-    function ensureClosed() {
-        if (lb && typeof lb.close === 'function') {
-            lb.close();
-            if (img) img.removeAttribute('src');
-        }
-    }
+    if (!lb || !img) return;
 
-    // Sayfa yüklendiğinde ve bfcache ile geri gelindiğinde lightbox kapalı olsun (siyah ekran önlenir)
+    function ensureClosed() {
+        if (lb && typeof lb.close === 'function') lb.close();
+        if (img) img.removeAttribute('src');
+    }
     ensureClosed();
-    window.addEventListener('pageshow', function(e) {
-        if (e.persisted) ensureClosed();
-    });
 
     function items() {
+        if (!thumbs || !thumbs.length) return [];
         return Array.prototype.map.call(thumbs, function(t){
             return { src: t.dataset.src, caption: t.dataset.caption || '' };
         });
@@ -534,31 +543,37 @@
     var data = items();
 
     function open(index) {
-        if (total === 0) return;
+        if (total === 0 || !lb || !img) return;
         currentIndex = (index + total) % total;
         var item = data[currentIndex];
         if (!item || !item.src) return;
         img.src = item.src;
         img.alt = item.caption || 'Galeri';
-        captionEl.textContent = item.caption || '';
-        counterEl.textContent = (currentIndex + 1) + ' / ' + total;
+        if (captionEl) captionEl.textContent = item.caption || '';
+        if (counterEl) counterEl.textContent = (currentIndex + 1) + ' / ' + total;
         lb.showModal();
     }
     function close() {
-        lb.close();
-        img.removeAttribute('src');
+        if (lb && typeof lb.close === 'function') lb.close();
+        if (img) img.removeAttribute('src');
     }
 
-    thumbs.forEach(function(btn, i){
-        btn.addEventListener('click', function(){ open(i); });
-    });
-    document.getElementById('lightbox-backdrop').addEventListener('click', close);
-    document.getElementById('lightbox-close').addEventListener('click', close);
-    document.getElementById('lightbox-prev').addEventListener('click', function(e){ e.stopPropagation(); open(currentIndex - 1); });
-    document.getElementById('lightbox-next').addEventListener('click', function(e){ e.stopPropagation(); open(currentIndex + 1); });
+    if (thumbs) {
+        for (var i = 0; i < thumbs.length; i++) {
+            thumbs[i].addEventListener('click', function(ix){ return function(){ open(ix); }; }(i));
+        }
+    }
+    var backdrop = document.getElementById('lightbox-backdrop');
+    if (backdrop) backdrop.addEventListener('click', close);
+    var closeBtn = document.getElementById('lightbox-close');
+    if (closeBtn) closeBtn.addEventListener('click', close);
+    var prevBtn = document.getElementById('lightbox-prev');
+    if (prevBtn) prevBtn.addEventListener('click', function(e){ e.stopPropagation(); open(currentIndex - 1); });
+    var nextBtn = document.getElementById('lightbox-next');
+    if (nextBtn) nextBtn.addEventListener('click', function(e){ e.stopPropagation(); open(currentIndex + 1); });
 
     document.addEventListener('keydown', function(e){
-        if (!lb.open) return;
+        if (!lb || !lb.open) return;
         if (e.key === 'Escape') { close(); return; }
         if (e.key === 'ArrowLeft') open(currentIndex - 1);
         if (e.key === 'ArrowRight') open(currentIndex + 1);

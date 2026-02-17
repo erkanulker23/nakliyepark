@@ -3,7 +3,9 @@ const urlsToCache = ['/', '/css/app.css', '/build/assets/app.js', '/build/assets
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache)).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then((cache) =>
+      Promise.allSettled(urlsToCache.map((url) => cache.add(url).catch(() => {})))
+    ).then(() => self.skipWaiting())
   );
 });
 
@@ -21,9 +23,10 @@ self.addEventListener('fetch', (event) => {
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
       return fetch(event.request).then((response) => {
-        const clone = response.clone();
-        if (response.status === 200 && event.request.url.startsWith(self.location.origin))
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        if (response.ok && event.request.url.startsWith(self.location.origin)) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone)).catch(() => {});
+        }
         return response;
       });
     })

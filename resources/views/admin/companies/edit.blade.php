@@ -232,19 +232,20 @@
     </div>
 
     <script>
-    (function() {
+    document.addEventListener('DOMContentLoaded', function() {
         var provincesUrl = '{{ route("api.turkey.provinces") }}';
         var districtsUrl = '{{ route("api.turkey.districts") }}';
         var fallbackProvinces = @json(array_keys(config('turkey_city_coordinates', [])));
         var currentCity = {{ json_encode(old('city', $company->city)) }};
         var currentDistrict = {{ json_encode(old('district', $company->district)) }};
-        var districtStore = [];
         var provSel = document.getElementById('company_province_id');
         var distSel = document.getElementById('company_district_id');
         var cityInp = document.getElementById('company_city');
         var distInp = document.getElementById('company_district');
+        if (!provSel || !distSel || !cityInp || !distInp) return;
+
         function selectByText(sel, text) {
-            if (!text) return;
+            if (!text || !sel) return;
             for (var i = 0; i < sel.options.length; i++) {
                 if (sel.options[i].text === text) { sel.selectedIndex = i; return; }
             }
@@ -253,13 +254,17 @@
             if (provSel.selectedIndex > 0) cityInp.value = provSel.options[provSel.selectedIndex].text;
             if (distSel.selectedIndex > 0) distInp.value = distSel.options[distSel.selectedIndex].text;
         }
+        function clearProvincesKeepFirst() {
+            while (provSel.options.length > 1) provSel.remove(1);
+        }
         function loadDistricts(provinceId) {
             if (!provinceId) return;
             distSel.innerHTML = '<option value="">Yükleniyor...</option>';
             fetch(districtsUrl + '?province_id=' + encodeURIComponent(provinceId)).then(function(r) { return r.json(); }).then(function(res) {
-                districtStore = res.data || [];
+                var data = res.data;
+                if (Object.prototype.toString.call(data) === '[object Object]') data = Object.values(data);
                 distSel.innerHTML = '<option value="">İlçe seçin</option>';
-                (res.data || []).forEach(function(d) { distSel.appendChild(new Option(d.name, d.id)); });
+                (data || []).forEach(function(d) { distSel.appendChild(new Option(d.name, d.id)); });
                 selectByText(distSel, currentDistrict);
                 syncHidden();
             }).catch(function() {
@@ -268,9 +273,12 @@
             });
         }
         function fillProvincesFromApi() {
+            clearProvincesKeepFirst();
             fetch(provincesUrl).then(function(r) { return r.json(); }).then(function(res) {
-                if (res.data && res.data.length) {
-                    res.data.forEach(function(p) { provSel.appendChild(new Option(p.name, p.id)); });
+                var data = res.data;
+                if (Object.prototype.toString.call(data) === '[object Object]') data = Object.values(data);
+                if (data && data.length) {
+                    data.forEach(function(p) { provSel.appendChild(new Option(p.name, p.id)); });
                     selectByText(provSel, currentCity);
                     if (provSel.value) loadDistricts(provSel.value);
                     else syncHidden();
@@ -280,6 +288,7 @@
             }).catch(function() { fillProvincesFallback(); });
         }
         function fillProvincesFallback() {
+            clearProvincesKeepFirst();
             fallbackProvinces.forEach(function(name) { provSel.appendChild(new Option(name, name)); });
             selectByText(provSel, currentCity);
             syncHidden();
@@ -290,14 +299,14 @@
             distSel.innerHTML = '<option value="">Önce il seçin</option>';
             distInp.value = '';
             if (this.value) {
-                var isId = /^\d+$/.test(this.value);
+                var isId = /^\d+$/.test(String(this.value));
                 if (isId) loadDistricts(this.value);
                 else { cityInp.value = this.value; syncHidden(); }
             } else cityInp.value = '';
             syncHidden();
         });
         distSel.addEventListener('change', syncHidden);
-    })();
+    });
     (function() {
         var tabs = document.querySelectorAll('.company-edit-tab');
         var panes = document.querySelectorAll('.company-edit-pane');
@@ -343,24 +352,36 @@
 
     {{-- Galeri onayları --}}
     @if($company->vehicleImages->count() > 0)
+        @php $unapprovedCount = $company->vehicleImages->whereNull('approved_at')->count(); @endphp
         <div class="mt-6 admin-card p-6">
             <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">Firma galerisi</h3>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Onaylanan fotoğraflar firma sayfasında gösterilir.</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Onaylanan fotoğraflar firma sayfasında gösterilir. Tek tek onaylayabilir, hepsini toplu onaylayabilir veya istemediğiniz görseli kaldırabilirsiniz.</p>
+            @if($unapprovedCount > 0)
+                <form method="POST" action="{{ route('admin.companies.approve-gallery-all', $company) }}" class="inline mb-4">
+                    @csrf
+                    <button type="submit" class="admin-btn-primary text-sm">Hepsini onayla ({{ $unapprovedCount }} fotoğraf)</button>
+                </form>
+            @endif
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 @foreach($company->vehicleImages as $img)
-                    <div class="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-600">
+                    <div class="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-600 group relative">
                         <a href="{{ asset('storage/'.$img->path) }}" target="_blank" class="block aspect-square bg-slate-100 dark:bg-slate-800">
                             <img src="{{ asset('storage/'.$img->path) }}" alt="" class="w-full h-full object-cover">
                         </a>
-                        <div class="p-2 flex items-center justify-between gap-2 flex-wrap">
+                        <div class="p-2 flex items-center justify-between gap-2 flex-wrap bg-slate-50 dark:bg-slate-800/50">
                             @if($img->approved_at)
                                 <span class="text-xs font-medium text-emerald-600 dark:text-emerald-400">Yayında</span>
                             @else
                                 <form method="POST" action="{{ route('admin.companies.approve-gallery-image', [$company, $img->id]) }}" class="inline">
                                     @csrf
-                                    <button type="submit" class="text-xs font-medium text-emerald-600 hover:underline">Onayla</button>
+                                    <button type="submit" class="text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:underline">Onayla</button>
                                 </form>
                             @endif
+                            <form method="POST" action="{{ route('admin.companies.destroy-gallery-image', [$company, $img->id]) }}" class="inline" onsubmit="return confirm('Bu fotoğrafı galeriden kaldırmak istediğinize emin misiniz?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-xs font-medium text-red-600 dark:text-red-400 hover:underline">Kaldır</button>
+                            </form>
                         </div>
                     </div>
                 @endforeach
