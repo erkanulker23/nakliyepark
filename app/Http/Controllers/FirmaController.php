@@ -49,7 +49,7 @@ class FirmaController extends Controller
         if (! $company->approved_at || $company->blocked_at) {
             abort(404);
         }
-        $company->load('user', 'reviews.user', 'contracts', 'vehicleImages', 'documents');
+        $company->load('user', 'reviews.user', 'contracts', 'approvedVehicleImages', 'documents');
         $reviewAvg = round($company->reviews->avg('rating') ?? 0, 1);
         $reviewCount = $company->reviews->count();
         $completedJobsCount = $company->teklifler()->where('status', 'accepted')->count();

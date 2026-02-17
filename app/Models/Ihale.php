@@ -19,6 +19,11 @@ class Ihale extends Model
         return 'slug';
     }
 
+    public function getRouteKey(): mixed
+    {
+        return $this->slug ?: $this->getKey();
+    }
+
     protected static $slugServiceLabels = [
         self::SERVICE_EVDEN_EVE => 'evden-eve-nakliyat',
         self::SERVICE_SEHIRLERARASI => 'sehirlerarasi-nakliyat',
@@ -89,6 +94,20 @@ class Ihale extends Model
     public function isGuest(): bool
     {
         return $this->user_id === null;
+    }
+
+    /** Nereden: il, ilçe, mahalle (dolu olanlar virgülle birleşik). */
+    public function getFromLocationTextAttribute(): string
+    {
+        $parts = array_filter([$this->from_city, $this->from_district, $this->from_neighborhood]);
+        return $parts !== [] ? implode(', ', $parts) : (string) ($this->from_city ?? '');
+    }
+
+    /** Nereye: il, ilçe, mahalle (dolu olanlar virgülle birleşik). */
+    public function getToLocationTextAttribute(): string
+    {
+        $parts = array_filter([$this->to_city, $this->to_district, $this->to_neighborhood]);
+        return $parts !== [] ? implode(', ', $parts) : (string) ($this->to_city ?? '');
     }
 
     protected function casts(): array

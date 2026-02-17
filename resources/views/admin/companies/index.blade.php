@@ -8,9 +8,14 @@
     <form method="get" action="{{ route('admin.companies.index') }}" class="flex flex-wrap items-center gap-2 sm:flex-nowrap">
         <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Firma, şehir veya e-posta ara..." class="admin-input py-2 w-56 text-sm">
         <select name="approved" class="admin-input py-2 w-40 text-sm">
-            <option value="">Tüm durumlar</option>
+            <option value="">Onay: Tümü</option>
             <option value="1" {{ ($filters['approved'] ?? '') === '1' ? 'selected' : '' }}>Onaylı</option>
             <option value="0" {{ ($filters['approved'] ?? '') === '0' ? 'selected' : '' }}>Onay bekliyor</option>
+        </select>
+        <select name="blocked" class="admin-input py-2 w-36 text-sm">
+            <option value="">Üyelik: Tümü</option>
+            <option value="0" {{ ($filters['blocked'] ?? '') === '0' ? 'selected' : '' }}>Aktif</option>
+            <option value="1" {{ ($filters['blocked'] ?? '') === '1' ? 'selected' : '' }}>Askıda</option>
         </select>
         <select name="package" class="admin-input py-2 w-36 text-sm">
             <option value="">Tüm paketler</option>
@@ -72,6 +77,9 @@
                         <strong>{{ $c->acceptedTeklifler()->count() }}</strong> iş · {{ number_format($c->total_earnings, 0, ',', '.') }} ₺ kazanç · {{ number_format($c->total_commission, 0, ',', '.') }} ₺ komisyon
                     </td>
                     <td>
+                        @if($c->blocked_at)
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300" title="{{ $c->blocked_reason ?? 'Üyelik askıda' }}">Askıda</span>
+                        @endif
                         @if($c->approved_at)
                             <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">Onaylı</span>
                         @else

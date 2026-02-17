@@ -45,7 +45,7 @@
     </div>
     @else
     <div class="admin-card p-6">
-        <p class="text-sm text-slate-500 mb-2">İhale: {{ $teklif->ihale->from_city }} → {{ $teklif->ihale->to_city }} · Firma: {{ $teklif->company->name }}</p>
+        <p class="text-sm text-slate-500 mb-2">İhale: {{ $teklif->ihale->from_location_text }} → {{ $teklif->ihale->to_location_text }} · Firma: {{ $teklif->company->name }}</p>
         <p class="text-xs text-amber-600 dark:text-amber-400 mb-4">Bu işlem firma ve müşteriyi etkiler. Tutar veya durum değişikliği yaparken dikkatli olun.</p>
         <form method="POST" action="{{ route('admin.teklifler.update', $teklif) }}" class="space-y-5">
             @csrf

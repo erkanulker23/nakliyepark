@@ -60,7 +60,7 @@
                         </td>
                         <td>
                             @if($log->ihale_id && $log->ihale)
-                                <a href="{{ route('admin.ihaleler.show', $log->ihale) }}" class="text-sky-600 hover:underline">{{ $log->ihale->from_city }} → {{ $log->ihale->to_city }}</a>
+                                <a href="{{ route('admin.ihaleler.show', $log->ihale) }}" class="text-sky-600 hover:underline">{{ $log->ihale->from_location_text }} → {{ $log->ihale->to_location_text }}</a>
                             @else
                                 —
                             @endif

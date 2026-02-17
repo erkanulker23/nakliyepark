@@ -34,6 +34,7 @@
                         <a href="{{ route('tools.road-distance') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Karayolu mesafe</a>
                         <a href="{{ route('tools.checklist') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Taşınma kontrol listesi</a>
                         <a href="{{ route('tools.moving-calendar') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Taşınma takvimi</a>
+                        <a href="{{ route('tools.price-estimator') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Tahmini fiyat</a>
                         @if($show_firmalar_page ?? true)
                         <a href="{{ route('firmalar.map') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Nakliyeci bul</a>
                         @endif
@@ -54,10 +55,6 @@
                         <a href="{{ route('musteri.dashboard') }}" class="btn-ghost rounded-lg hidden sm:inline-flex">İhalelerim</a>
                     @endif
                     @include('layouts.partials.notifications-dropdown')
-                    <form method="POST" action="{{ route('logout') }}" class="inline">
-                        @csrf
-                        <button type="submit" class="btn-ghost rounded-lg text-zinc-500">Çıkış</button>
-                    </form>
                 @else
                     <a href="{{ route('login') }}" class="btn-secondary rounded-lg hidden sm:inline-flex">Giriş</a>
                     <a href="{{ route('register') }}" class="btn-primary rounded-lg">Hizmet ver</a>
@@ -76,6 +73,7 @@
             <a href="{{ route('tools.road-distance') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Karayolu</a>
             <a href="{{ route('tools.checklist') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Kontrol listesi</a>
             <a href="{{ route('tools.moving-calendar') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Takvim</a>
+            <a href="{{ route('tools.price-estimator') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Tahmini fiyat</a>
             @if($show_firmalar_page ?? true)
             <a href="{{ route('firmalar.map') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Nakliyeci bul</a>
             @endif

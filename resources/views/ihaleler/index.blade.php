@@ -120,13 +120,13 @@
                             <div class="p-5 sm:p-6 flex-1 flex flex-col relative">
                                 {{-- Rota çizgisi: Nereden ——— Nereye --}}
                                 <div class="flex items-center gap-2 sm:gap-3">
-                                    <span class="text-sm font-bold text-zinc-800 dark:text-zinc-200 shrink-0 max-w-[28%] sm:max-w-[35%] truncate" title="{{ $ihale->from_city }}">{{ $ihale->from_city }}</span>
+                                    <span class="text-sm font-bold text-zinc-800 dark:text-zinc-200 shrink-0 max-w-[28%] sm:max-w-[35%] truncate" title="{{ $ihale->from_location_text }}">{{ $ihale->from_location_text }}</span>
                                     <span class="flex-1 flex items-center gap-0.5 min-w-0" aria-hidden="true">
                                         <span class="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" title="Çıkış"></span>
                                         <span class="flex-1 h-px bg-gradient-to-r from-zinc-300 via-zinc-400 to-zinc-300 dark:from-zinc-600 dark:via-zinc-500 dark:to-zinc-600 mx-0.5"></span>
                                         <span class="w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0" title="Varış"></span>
                                     </span>
-                                    <span class="text-sm font-bold text-zinc-800 dark:text-zinc-200 shrink-0 max-w-[28%] sm:max-w-[35%] truncate text-right" title="{{ $ihale->to_city }}">{{ $ihale->to_city }}</span>
+                                    <span class="text-sm font-bold text-zinc-800 dark:text-zinc-200 shrink-0 max-w-[28%] sm:max-w-[35%] truncate text-right" title="{{ $ihale->to_location_text }}">{{ $ihale->to_location_text }}</span>
                                 </div>
                                 <div class="mt-3 flex items-center justify-between gap-3">
                                     @if($ihale->service_type)

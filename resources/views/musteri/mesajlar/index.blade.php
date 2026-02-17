@@ -20,7 +20,7 @@
                             <span class="font-medium text-slate-800 dark:text-slate-200">{{ $m->company->name ?? 'Firma' }}</span>
                             <span class="text-slate-400 mx-2">·</span>
                             <a href="{{ route('musteri.ihaleler.show', $m->ihale) }}" class="text-sm text-sky-600 hover:text-sky-700 dark:text-sky-400">
-                                {{ $m->ihale->from_city }} → {{ $m->ihale->to_city }}
+                                {{ $m->ihale->from_location_text }} → {{ $m->ihale->to_location_text }}
                             </a>
                         </div>
                         <span class="text-xs text-slate-400">{{ $m->created_at->format('d.m.Y H:i') }}</span>

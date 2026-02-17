@@ -18,15 +18,16 @@ class EnsureEmailVerifiedForPanel
             return redirect()->route('login');
         }
 
-        if ($request->user()->isAdmin()) {
+        $user = $request->user();
+        // Test ortamı: bu e-postalar için doğrulama zorunlu değil
+        $testEmails = ['firma@nakliyepark.test', 'musteri@nakliyepark.test'];
+        $skipVerification = $user->isAdmin() || in_array($user->email, $testEmails, true);
+
+        if ($skipVerification || $user->hasVerifiedEmail()) {
             return $next($request);
         }
 
-        if (! $request->user()->hasVerifiedEmail()) {
-            return redirect()->route('verification.notice')
-                ->with('warning', 'Panel erişimi için lütfen e-posta adresinizi doğrulayın. Gelen kutunuzu ve istenmeyen posta klasörünüzü kontrol edin.');
-        }
-
-        return $next($request);
+        return redirect()->route('verification.notice')
+            ->with('warning', 'Panel erişimi için lütfen e-posta adresinizi doğrulayın. Gelen kutunuzu ve istenmeyen posta klasörünüzü kontrol edin.');
     }
 }

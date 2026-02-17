@@ -39,6 +39,7 @@
                     <li><a href="{{ route('tools.road-distance') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Karayolu mesafe</a></li>
                     <li><a href="{{ route('tools.checklist') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Taşınma kontrol listesi</a></li>
                     <li><a href="{{ route('tools.moving-calendar') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Taşınma takvimi</a></li>
+                    <li><a href="{{ route('tools.price-estimator') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Tahmini fiyat</a></li>
                 </ul>
             </div>
             <div>

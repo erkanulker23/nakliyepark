@@ -11,7 +11,7 @@
 
     <div class="admin-card p-6 mb-6">
         <dl class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-            <div><span class="text-slate-500">İhale:</span> <a href="{{ route('admin.ihaleler.show', $dispute->ihale) }}" class="text-sky-600 hover:underline">{{ $dispute->ihale->from_city }} → {{ $dispute->ihale->to_city }}</a></div>
+            <div><span class="text-slate-500">İhale:</span> <a href="{{ route('admin.ihaleler.show', $dispute->ihale) }}" class="text-sky-600 hover:underline">{{ $dispute->ihale->from_location_text }} → {{ $dispute->ihale->to_location_text }}</a></div>
             <div><span class="text-slate-500">Firma:</span> {{ $dispute->company->name ?? '-' }}</div>
             <div><span class="text-slate-500">Açan:</span> {{ $dispute->openedByUser->name ?? '-' }} ({{ $dispute->opened_by_type }})</div>
             <div><span class="text-slate-500">Sebep:</span> {{ \App\Models\Dispute::reasonLabels()[$dispute->reason] ?? $dispute->reason }}</div>

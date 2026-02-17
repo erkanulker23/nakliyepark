@@ -11,7 +11,13 @@
         <a href="{{ route('nakliyeci.pazaryeri.create') }}" class="admin-btn-primary inline-flex">+ İlan ekle</a>
     </div>
     <div class="space-y-4">
-        @forelse($listings as $item)
+        @if($listings->isEmpty())
+            <div class="admin-card p-12 text-center text-slate-500">
+                Henüz pazaryeri ilanınız yok. <a href="{{ route('nakliyeci.pazaryeri.create') }}" class="text-emerald-600 hover:underline">İlk ilanı ekleyin</a> — satılık veya kiralık araç ilanı verebilirsiniz.
+            </div>
+        @endif
+        @if(!$listings->isEmpty())
+            @foreach($listings as $item)
             <div class="admin-card p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4">
                 <div class="flex-1 min-w-0">
                     <div class="flex flex-wrap items-center gap-2">
@@ -40,11 +46,8 @@
                     </form>
                 </div>
             </div>
-        @empty
-            <div class="admin-card p-12 text-center text-slate-500">
-                Henüz pazaryeri ilanınız yok. <a href="{{ route('nakliyeci.pazaryeri.create') }}" class="text-emerald-600 hover:underline">İlk ilanı ekleyin</a> — satılık veya kiralık araç ilanı verebilirsiniz.
-            </div>
-        @endforelse
+            @endforeach
+        @endif
     </div>
 </div>
 @endsection

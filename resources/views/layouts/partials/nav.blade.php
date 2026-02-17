@@ -15,10 +15,6 @@
                 @if(auth()->user()->isMusteri())
                     <a href="{{ route('musteri.dashboard') }}" class="btn-touch text-sm text-slate-600 dark:text-slate-400">Panelim</a>
                 @endif
-                <form method="POST" action="{{ route('logout') }}" class="inline">
-                    @csrf
-                    <button type="submit" class="btn-touch text-sm text-slate-500">Çıkış</button>
-                </form>
             @else
                 <a href="{{ route('login') }}" class="btn-touch text-sm bg-slate-100 dark:bg-slate-800 rounded-xl">Giriş</a>
                 <a href="{{ route('register') }}" class="btn-touch text-sm bg-sky-500 text-white rounded-xl">Kayıt</a>

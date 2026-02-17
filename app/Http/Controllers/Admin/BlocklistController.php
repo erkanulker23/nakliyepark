@@ -112,25 +112,44 @@ class BlocklistController extends Controller
         return back()->with('success', 'Kullanıcı engeli kaldırıldı.');
     }
 
-    public function blockCompany(Company $company)
+    public function blockCompany(Request $request, Company $company)
     {
-        $company->update(['blocked_at' => now()]);
-        Log::channel('admin_actions')->info('Admin company blocked', [
+        $request->validate([
+            'blocked_reason' => 'nullable|string|max:500',
+            'blocked_reason_type' => 'nullable|string|in:borc,sozlesme_ihlali,diger',
+        ]);
+        $reasonType = $request->input('blocked_reason_type');
+        $reasonText = trim((string) $request->input('blocked_reason', ''));
+        if ($reasonType) {
+            $reason = Company::blockedReasonLabel($reasonType);
+            if ($reasonText !== '') {
+                $reason .= ': ' . $reasonText;
+            }
+        } else {
+            $reason = $reasonText;
+        }
+        $reason = $reason !== '' ? $reason : null;
+        $company->update([
+            'blocked_at' => now(),
+            'blocked_reason' => $reason ?: null,
+        ]);
+        Log::channel('admin_actions')->info('Admin company blocked (üyelik askıya alındı)', [
             'admin_id' => auth()->id(),
             'company_id' => $company->id,
             'company_name' => $company->name,
+            'blocked_reason' => $reason,
         ]);
-        return back()->with('success', 'Firma engellendi.');
+        return back()->with('success', 'Nakliyeci üyeliği askıya alındı.');
     }
 
     public function unblockCompany(Company $company)
     {
-        $company->update(['blocked_at' => null]);
-        Log::channel('admin_actions')->info('Admin company unblocked', [
+        $company->update(['blocked_at' => null, 'blocked_reason' => null]);
+        Log::channel('admin_actions')->info('Admin company unblocked (askı kaldırıldı)', [
             'admin_id' => auth()->id(),
             'company_id' => $company->id,
             'company_name' => $company->name,
         ]);
-        return back()->with('success', 'Firma engeli kaldırıldı.');
+        return back()->with('success', 'Üyelik askısı kaldırıldı.');
     }
 }

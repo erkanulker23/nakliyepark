@@ -22,7 +22,7 @@
                     <tr class="group">
                         <td>
                             @if($ihale)
-                                <a href="{{ route('nakliyeci.ihaleler.show', $ihale) }}" class="font-medium text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">{{ $ihale->from_city }} → {{ $ihale->to_city }}</a>
+                                <a href="{{ route('nakliyeci.ihaleler.show', $ihale) }}" class="font-medium text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">{{ $ihale->from_location_text }} → {{ $ihale->to_location_text }}</a>
                                 <span class="block text-sm text-slate-500">{{ $ihale->volume_m3 }} m³ · {{ $ihale->move_date?->format('d.m.Y') ?? '-' }}</span>
                             @else
                                 <span class="text-slate-500">—</span>

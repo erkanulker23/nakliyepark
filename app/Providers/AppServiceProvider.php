@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
@@ -16,6 +17,14 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // İhale route binding: slug veya id ile çözümle (degerlendir ve diğer /ihale/{ihale} rotaları)
+        Route::bind('ihale', function (string $value) {
+            if (is_numeric($value)) {
+                return \App\Models\Ihale::findOrFail((int) $value);
+            }
+            return \App\Models\Ihale::where('slug', $value)->firstOrFail();
+        });
+
         if (Schema::hasTable('settings')) {
             $this->applyMailSettingsFromDatabase();
             $this->applyOpenAiSettingsFromDatabase();

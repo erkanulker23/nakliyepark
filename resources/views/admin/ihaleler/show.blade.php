@@ -2,7 +2,7 @@
 
 @section('title', 'İhale detay')
 @section('page_heading', 'İhale detay')
-@section('page_subtitle', $ihale->from_city . ' → ' . $ihale->to_city)
+@section('page_subtitle', $ihale->from_location_text . ' → ' . $ihale->to_location_text)
 
 @section('content')
 <div class="space-y-6">
@@ -44,7 +44,7 @@
     <div class="admin-card p-6 grid md:grid-cols-2 gap-6">
         <div>
             <h3 class="font-semibold text-slate-800 mb-2">Güzergah</h3>
-            <p class="text-slate-600">{{ $ihale->from_city }} → {{ $ihale->to_city }}</p>
+            <p class="text-slate-600">{{ $ihale->from_location_text }} → {{ $ihale->to_location_text }}</p>
             <p class="text-sm text-slate-500 mt-1">{{ $ihale->distance_km ?? '-' }} km · {{ $ihale->volume_m3 ?? '0' }} m³</p>
             @if($ihale->from_address || $ihale->to_address)
                 <p class="text-sm text-slate-500 mt-1">{{ $ihale->from_address }} → {{ $ihale->to_address }}</p>

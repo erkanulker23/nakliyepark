@@ -489,13 +489,13 @@
                             <div class="p-5 sm:p-6 flex-1 flex flex-col">
                                 {{-- Rota çizgisi: Nereden ——— Nereye --}}
                                 <div class="flex items-center gap-2 sm:gap-3">
-                                    <span class="text-sm font-bold text-zinc-800 dark:text-zinc-200 shrink-0 max-w-[28%] sm:max-w-[35%] truncate" title="{{ $ihale->from_city }}">{{ $ihale->from_city }}</span>
+                                    <span class="text-sm font-bold text-zinc-800 dark:text-zinc-200 shrink-0 max-w-[28%] sm:max-w-[35%] truncate" title="{{ $ihale->from_location_text }}">{{ $ihale->from_location_text }}</span>
                                     <span class="flex-1 flex items-center gap-0.5 min-w-0" aria-hidden="true">
                                         <span class="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" title="Çıkış"></span>
                                         <span class="flex-1 h-px bg-gradient-to-r from-zinc-300 via-zinc-400 to-zinc-300 dark:from-zinc-600 dark:via-zinc-500 dark:to-zinc-600 mx-0.5"></span>
                                         <span class="w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0" title="Varış"></span>
                                     </span>
-                                    <span class="text-sm font-bold text-zinc-800 dark:text-zinc-200 shrink-0 max-w-[28%] sm:max-w-[35%] truncate text-right" title="{{ $ihale->to_city }}">{{ $ihale->to_city }}</span>
+                                    <span class="text-sm font-bold text-zinc-800 dark:text-zinc-200 shrink-0 max-w-[28%] sm:max-w-[35%] truncate text-right" title="{{ $ihale->to_location_text }}">{{ $ihale->to_location_text }}</span>
                                 </div>
                                 <div class="mt-3 flex items-center justify-between gap-3">
                                     @if($ihale->service_type)
@@ -708,7 +708,7 @@ $haritadaGoster = $firmalarHaritada->map(fn($c) => ['id' => $c->id, 'name' => $c
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             @foreach($firmalar as $firma)
                 <a href="{{ route('firmalar.show', $firma) }}" class="group flex items-center gap-4 p-5 sm:p-6 rounded-2xl border-2 border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 shadow-sm hover:shadow-lg hover:border-emerald-300 dark:hover:border-emerald-700/50 hover:bg-emerald-50/30 dark:hover:bg-zinc-800/80 transition-all duration-300">
-                    @if($firma->logo)
+                    @if($firma->logo && $firma->logo_approved_at)
                         <img src="{{ asset('storage/'.$firma->logo) }}" alt="{{ $firma->name }}" class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover shrink-0 border border-zinc-200/60 dark:border-zinc-700 shadow-sm">
                     @else
                         <span class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-emerald-500 flex items-center justify-center text-2xl font-bold text-white shrink-0 shadow-sm">{{ mb_substr($firma->name, 0, 1) }}</span>

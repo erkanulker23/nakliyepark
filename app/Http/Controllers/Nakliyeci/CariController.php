@@ -17,6 +17,8 @@ class CariController extends Controller
         $toplamKazanc = $company->total_earnings;
         $toplamKomisyon = $company->total_commission;
         $netKazanc = $toplamKazanc - $toplamKomisyon;
-        return view('nakliyeci.cari.index', compact('company', 'isler', 'toplamKazanc', 'toplamKomisyon', 'netKazanc'));
+        $odenenKomisyon = $company->paid_commission;
+        $kalanBorc = $company->outstanding_commission;
+        return view('nakliyeci.cari.index', compact('company', 'isler', 'toplamKazanc', 'toplamKomisyon', 'netKazanc', 'odenenKomisyon', 'kalanBorc'));
     }
 }

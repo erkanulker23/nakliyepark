@@ -20,8 +20,12 @@
         <aside id="musteri-sidebar" class="admin-sidebar fixed lg:sticky top-0 left-0 z-40 w-64 border-r border-slate-700/50 shadow-xl lg:shadow-none transition-transform duration-200 ease-out">
             <div class="admin-sidebar-header flex items-center justify-between h-16 px-5 border-b border-slate-700/50">
                 <a href="{{ route('musteri.dashboard') }}" class="admin-sidebar-logo flex items-center gap-3 font-semibold min-w-0">
-                    @php $musteriAdi = auth()->user()->name ?? 'Müşteri'; $musteriBasHarf = mb_substr($musteriAdi, 0, 1); @endphp
-                    <span class="musteri-logo-icon w-9 h-9 rounded-xl bg-sky-600 flex items-center justify-center text-white text-sm font-bold shadow-lg shrink-0">{{ mb_strtoupper($musteriBasHarf) ?: 'M' }}</span>
+                    @php $musteriAdi = auth()->user()->name ?? 'Müşteri'; $musteriBasHarf = mb_substr($musteriAdi, 0, 1); $musteriAvatar = auth()->user()->avatar ?? null; @endphp
+                    @if($musteriAvatar)
+                        <img src="{{ asset('storage/' . $musteriAvatar) }}" alt="" class="w-9 h-9 rounded-xl object-cover shadow-lg shrink-0">
+                    @else
+                        <span class="musteri-logo-icon w-9 h-9 rounded-xl bg-sky-600 flex items-center justify-center text-white text-sm font-bold shadow-lg shrink-0">{{ mb_strtoupper($musteriBasHarf) ?: 'M' }}</span>
+                    @endif
                     <span class="truncate">{{ $musteriAdi }}</span>
                 </a>
                 <button type="button" id="sidebar-close" class="admin-sidebar-close lg:hidden p-2 text-slate-400 hover:text-white rounded-lg" aria-label="Menüyü kapat">

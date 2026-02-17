@@ -8,7 +8,7 @@
     <div class="admin-card p-6 space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-slate-600 dark:text-slate-400">
             <div><span class="font-medium text-slate-700 dark:text-slate-300">Kullanıcı:</span> {{ $review->user->name ?? '-' }}</div>
-            <div><span class="font-medium text-slate-700 dark:text-slate-300">İhale:</span> {{ $review->ihale ? ($review->ihale->from_city . ' → ' . $review->ihale->to_city) : '-' }}</div>
+            <div><span class="font-medium text-slate-700 dark:text-slate-300">İhale:</span> {{ $review->ihale ? ($review->ihale->from_location_text . ' → ' . $review->ihale->to_location_text) : '-' }}</div>
             <div><span class="font-medium text-slate-700 dark:text-slate-300">Tarih:</span> {{ $review->created_at->format('d.m.Y H:i') }}</div>
         </div>
 

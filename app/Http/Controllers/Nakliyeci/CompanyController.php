@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Company;
 use App\Services\AdminNotifier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class CompanyController extends Controller
 {
@@ -60,6 +61,7 @@ class CompanyController extends Controller
             return redirect()->route('nakliyeci.company.create');
         }
         $this->authorize('update', $company);
+        $company->load('vehicleImages');
         return view('nakliyeci.company.edit', compact('company'));
     }
 
@@ -88,9 +90,10 @@ class CompanyController extends Controller
             'seo_meta_keywords' => 'nullable|string|max:500',
             'services' => 'nullable|array',
             'services.*' => 'nullable|string|in:evden_eve_nakliyat,sehirlerarasi_nakliyat,ofis_tasima,esya_depolama,uluslararasi_nakliyat',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
-        $company->update([
+        $data = [
             'name' => $request->name,
             'tax_number' => $request->tax_number,
             'tax_office' => $request->tax_office,
@@ -106,9 +109,27 @@ class CompanyController extends Controller
             'seo_meta_title' => $request->seo_meta_title,
             'seo_meta_description' => $request->seo_meta_description,
             'seo_meta_keywords' => $request->seo_meta_keywords,
-            'approved_at' => null, // Güncelleme sonrası admin onayı gerekir
-        ]);
+            'approved_at' => null,
+        ];
 
-        return redirect()->route('nakliyeci.company.edit')->with('success', 'Firma bilgileriniz güncellendi. Değişiklikler admin onayından sonra yayına alınacaktır.');
+        if ($request->hasFile('logo')) {
+            if ($company->logo) {
+                Storage::disk('public')->delete($company->logo);
+            }
+            $path = $request->file('logo')->store('company-logos/' . $company->id, 'public');
+            $data['logo'] = $path;
+            $data['logo_approved_at'] = null;
+            AdminNotifier::notify('company_logo_uploaded', "Firma logosu yüklendi: {$company->name}", 'Logo onay bekliyor', ['url' => route('admin.companies.edit', $company)]);
+        }
+
+        $company->update($data);
+
+        $message = 'Firma bilgileriniz güncellendi.';
+        if ($request->hasFile('logo')) {
+            $message .= ' Logo admin onayından sonra yayına alınacaktır.';
+        } else {
+            $message .= ' Değişiklikler admin onayından sonra yayına alınacaktır.';
+        }
+        return redirect()->route('nakliyeci.company.edit')->with('success', $message);
     }
 }

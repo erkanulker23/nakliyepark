@@ -137,7 +137,7 @@
                                 @foreach($sonIhaleler as $ihale)
                                     <li>
                                         <a href="{{ route('ihaleler.show', $ihale) }}" class="hover:text-amber-600 dark:hover:text-amber-400">
-                                            {{ $ihale->from_city }} → {{ $ihale->to_city }} arası evden eve nakliyat →
+                                            {{ $ihale->from_location_text }} → {{ $ihale->to_location_text }} arası evden eve nakliyat →
                                         </a>
                                     </li>
                                 @endforeach
@@ -226,22 +226,12 @@
                                             @endif
                                         </span>
                                     </div>
+                                    <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300 mt-1">{{ $ilan->from_city }} → {{ $ilan->to_city }}</p>
                                     @if($ilan->description)
-                                        <p class="text-sm text-zinc-600 dark:text-zinc-400 mt-1">{{ $ilan->description }}</p>
+                                        <p class="text-sm text-zinc-600 dark:text-zinc-400 mt-2 leading-relaxed">{{ nl2br(e($ilan->description)) }}</p>
                                     @endif
-                                    <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300 mt-2">
-                                        {{ $ilan->from_city }} → {{ $ilan->to_city }}
-                                        @if($ilan->load_date)
-                                            <span class="text-zinc-500 dark:text-zinc-400 font-normal"> · Yük: {{ $ilan->load_date->format('d.m.Y') }}</span>
-                                        @endif
-                                        @if($ilan->volume_m3)
-                                            <span class="text-amber-600 dark:text-amber-400"> · {{ number_format($ilan->volume_m3, 1) }} m³</span>
-                                        @endif
-                                    </p>
                                     @php
                                         $ilanShareTitle = 'Nakliyat Defteri - Yük İlanı: ' . $ilan->company->name . ' — ' . $ilan->from_city . ' → ' . $ilan->to_city;
-                                        if ($ilan->load_date) { $ilanShareTitle .= ' · Yük: ' . $ilan->load_date->format('d.m.Y'); }
-                                        if ($ilan->volume_m3) { $ilanShareTitle .= ' · ' . number_format((float) $ilan->volume_m3, 1, ',', '') . ' m³'; }
                                     @endphp
                                     <span class="inline-block mt-3">
                                         @include('partials.defter-share-buttons', ['url' => route('defter.show', $ilan), 'title' => $ilanShareTitle, 'label' => 'Paylaş'])
@@ -276,16 +266,24 @@
                                 </div>
                             @endif
 
-                            {{-- Yanıtla (sadece nakliyeci, kendi ilanı değilse) --}}
+                            {{-- Yanıtla (sadece nakliyeci, kendi ilanı değilse) — tıklanınca açılır --}}
                             @auth
                                 @if(auth()->user()->isNakliyeci() && auth()->user()->company?->isApproved() && $ilan->company_id !== auth()->user()->company?->id)
                                     <div class="mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-700">
-                                        <form method="POST" action="{{ route('nakliyeci.ledger.reply.store', $ilan) }}" class="flex flex-col sm:flex-row gap-2">
-                                            @csrf
-                                            <label class="sr-only" for="yanit-{{ $ilan->id }}">Yanıtınız</label>
-                                            <textarea id="yanit-{{ $ilan->id }}" name="body" rows="2" class="input-touch text-sm flex-1 resize-none" placeholder="Bu ilana yanıt yazın (örn. bu güzergahta boşum, yük birleştirebiliriz...)" maxlength="2000" required>{{ old('body') }}</textarea>
-                                            <button type="submit" class="btn-primary shrink-0 self-end sm:self-auto py-2.5 px-4 text-sm">Gönder</button>
-                                        </form>
+                                        <details class="yanit-details group">
+                                            <summary class="inline-flex items-center gap-2 cursor-pointer list-none py-2 px-4 rounded-lg border border-amber-400 dark:border-amber-500 bg-amber-50 dark:bg-amber-900/20 text-sm font-medium text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors w-fit">
+                                                <span class="inline-block transition-transform group-open:rotate-90" aria-hidden="true">▶</span>
+                                                Yanıt yaz
+                                            </summary>
+                                            <div class="mt-3 pl-5">
+                                                <form method="POST" action="{{ route('nakliyeci.ledger.reply.store', $ilan) }}" class="flex flex-col sm:flex-row gap-2">
+                                                    @csrf
+                                                    <label class="sr-only" for="yanit-{{ $ilan->id }}">Yanıtınız</label>
+                                                    <textarea id="yanit-{{ $ilan->id }}" name="body" rows="2" class="input-touch text-sm flex-1 resize-none" placeholder="Bu ilana yanıt yazın (örn. bu güzergahta boşum, yük birleştirebiliriz...)" maxlength="2000" required>{{ old('body') }}</textarea>
+                                                    <button type="submit" class="btn-primary shrink-0 self-end sm:self-auto py-2.5 px-4 text-sm">Gönder</button>
+                                                </form>
+                                            </div>
+                                        </details>
                                     </div>
                                 @endif
                             @else
@@ -380,29 +378,10 @@
                                 @error('to_city')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label for="defter-load_date" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Yük tarihi</label>
-                                <input type="date" id="defter-load_date" name="load_date" value="{{ old('load_date') }}" class="input-touch py-2.5 text-sm">
-                                @error('load_date')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
-                            </div>
-                            <div>
-                                <label for="defter-volume_m3" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Hacim (m³)</label>
-                                <input type="number" id="defter-volume_m3" name="volume_m3" value="{{ old('volume_m3') }}" step="0.01" min="0" class="input-touch py-2.5 text-sm" placeholder="Örn. 50">
-                                @error('volume_m3')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
-                            </div>
-                        </div>
-                        <div>
-                            <label for="defter-load_type" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Yük tipi</label>
-                            <input type="text" id="defter-load_type" name="load_type" value="{{ old('load_type') }}" class="input-touch py-2.5 text-sm" placeholder="Palet, koli vb.">
-                        </div>
-                        <div>
-                            <label for="defter-vehicle_type" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Araç tipi</label>
-                            <input type="text" id="defter-vehicle_type" name="vehicle_type" value="{{ old('vehicle_type') }}" class="input-touch py-2.5 text-sm" placeholder="Kamyon, TIR vb.">
-                        </div>
                         <div>
                             <label for="defter-description" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Açıklama</label>
-                            <textarea id="defter-description" name="description" rows="3" class="input-touch text-sm resize-none" placeholder="Detay varsa yazın">{{ old('description') }}</textarea>
+                            <textarea id="defter-description" name="description" rows="6" class="input-touch text-sm w-full min-h-[140px] resize-y" placeholder="Yük veya boş dönüşünüzü kısaca anlatın: nereden–nereye, tarih, hacim, yük tipi, araç tipi veya iletişim bilgisi gibi detayları yazabilirsiniz." maxlength="2000">{{ old('description') }}</textarea>
+                            @error('description')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                         </div>
                         <div class="flex flex-wrap gap-3 pt-2">
                             <button type="submit" class="btn-primary py-2.5 px-5 text-sm">Deftere yaz</button>

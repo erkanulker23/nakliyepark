@@ -75,7 +75,7 @@
                             <span class="text-slate-300">—</span>
                         @endif
                     </td>
-                    <td class="font-medium">{{ $i->from_city }} → {{ $i->to_city }}</td>
+                    <td class="font-medium">{{ $i->from_location_text }} → {{ $i->to_location_text }}</td>
                     <td>{{ $i->user?->name ?? $i->guest_contact_name ?? 'Misafir' }}</td>
                     <td class="text-slate-600">
                         @if($i->move_date || $i->move_date_end)

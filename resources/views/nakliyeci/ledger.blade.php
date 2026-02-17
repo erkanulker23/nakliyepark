@@ -17,24 +17,13 @@
         <div class="divide-y divide-slate-200 dark:divide-slate-600">
             @forelse($ilanlar as $ilan)
                 <article class="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                    <div class="flex justify-between items-start gap-2">
-                        <div class="min-w-0">
-                            <p class="font-semibold text-slate-800 dark:text-slate-200">{{ $ilan->from_city }} → {{ $ilan->to_city }}</p>
-                            <p class="text-sm text-slate-500">{{ $ilan->company->name }}</p>
-                            @if($ilan->load_date)
-                                <p class="text-xs text-slate-400 mt-1">{{ $ilan->load_date->format('d.m.Y') }}</p>
-                            @endif
-                        </div>
-                        @if($ilan->volume_m3)
-                            <span class="text-sm font-medium text-emerald-600 dark:text-emerald-400 shrink-0">{{ $ilan->volume_m3 }} m³</span>
+                    <div class="min-w-0">
+                        <p class="font-semibold text-slate-800 dark:text-slate-200">{{ $ilan->from_city }} → {{ $ilan->to_city }}</p>
+                        <p class="text-sm text-slate-500">{{ $ilan->company->name }}</p>
+                        @if($ilan->description)
+                            <p class="text-sm text-slate-600 dark:text-slate-400 mt-2 leading-relaxed line-clamp-3">{{ $ilan->description }}</p>
                         @endif
                     </div>
-                    @if($ilan->load_type || $ilan->vehicle_type)
-                        <p class="text-xs text-slate-500 mt-2">{{ $ilan->load_type }} · {{ $ilan->vehicle_type }}</p>
-                    @endif
-                    @if($ilan->description)
-                        <p class="text-sm text-slate-600 dark:text-slate-400 mt-2 line-clamp-2">{{ $ilan->description }}</p>
-                    @endif
                     <div class="mt-2 flex flex-wrap items-center gap-3">
                         <a href="{{ route('defter.show', $ilan) }}" class="text-sm text-sky-600 dark:text-sky-400 hover:underline">Defterde görüntüle ve yanıtla →</a>
                     </div>

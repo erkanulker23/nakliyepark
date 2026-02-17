@@ -53,6 +53,30 @@ class IhaleController extends Controller
         return redirect()->route('musteri.ihaleler.show', $ihale)->with('success', 'Teklif kabul edildi. Firma ile iletişime geçebilirsiniz.');
     }
 
+    /** Teklifi reddet (gerekçe isteğe bağlı, firmaya iletilebilir) */
+    public function rejectTeklif(Request $request, Ihale $ihale, Teklif $teklif)
+    {
+        $this->authorize('view', $ihale);
+        if ($teklif->ihale_id !== $ihale->id) {
+            abort(404);
+        }
+        if ($teklif->status !== 'pending') {
+            return back()->with('error', 'Bu teklif zaten kabul veya reddedilmiş.');
+        }
+        $request->validate([
+            'reject_reason' => 'nullable|string|max:1000',
+        ]);
+
+        $teklif->update([
+            'status' => 'rejected',
+            'reject_reason' => $request->filled('reject_reason') ? $request->reject_reason : null,
+        ]);
+
+        \App\Models\AuditLog::log('teklif_rejected', Teklif::class, (int) $teklif->id, null, ['ihale_id' => $ihale->id, 'company_id' => $teklif->company_id]);
+
+        return redirect()->route('musteri.ihaleler.show', $ihale)->with('success', 'Teklif reddedildi.');
+    }
+
     /** Teklif kabulünü geri al (sadece kabulden sonra 10 dakika içinde) */
     public function undoAcceptTeklif(Request $request, Ihale $ihale, Teklif $teklif)
     {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Nakliyeci;
 
 use App\Http\Controllers\Controller;
+use App\Services\AdminNotifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -51,10 +52,14 @@ class GaleriController extends Controller
                 'path' => $path,
                 'caption' => $caption,
                 'sort_order' => ++$maxOrder,
+                'approved_at' => null,
             ]);
             $uploaded++;
         }
-        $message = $uploaded === 1 ? 'Fotoğraf eklendi.' : "{$uploaded} fotoğraf eklendi.";
+        if ($uploaded > 0) {
+            AdminNotifier::notify('company_gallery_uploaded', "Firma galerisine {$uploaded} fotoğraf eklendi: {$company->name}", 'Galeri onay bekliyor', ['url' => route('admin.companies.edit', $company)]);
+        }
+        $message = $uploaded === 1 ? 'Fotoğraf eklendi. Admin onayından sonra firma sayfanızda görünecektir.' : "{$uploaded} fotoğraf eklendi. Admin onayından sonra firma sayfanızda görünecektir.";
         return redirect()->route('nakliyeci.galeri.index')->with('success', $message);
     }
 

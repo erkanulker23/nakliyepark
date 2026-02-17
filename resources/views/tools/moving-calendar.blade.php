@@ -8,16 +8,16 @@
     <header class="mb-6 sm:mb-8">
         <h1 class="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">Taşınma Takvimi</h1>
         <p class="mt-1.5 text-sm text-zinc-500 dark:text-zinc-400">Taşınma tarihinizi girin; hangi işlemleri ne zaman yapmanız gerektiğini görün.</p>
-        <p class="mt-3 text-zinc-600 dark:text-zinc-400 text-base max-w-2xl">Taşınma takvimi, taşınma gününüze göre ev sahibine bildirim, abonelik iptali, adres güncellemesi ve paketleme gibi yapılacak işlemleri tarih bazlı planlamanıza yardımcı olur. Ücretsiz taşınma planlayıcı ile hiçbir adımı atlamayın.</p>
+        <p class="mt-3 text-zinc-600 dark:text-zinc-400 text-base">Taşınma takvimi, taşınma gününüze göre ev sahibine bildirim, abonelik iptali, adres güncellemesi ve paketleme gibi yapılacak işlemleri tarih bazlı planlamanıza yardımcı olur. Ücretsiz taşınma planlayıcı ile hiçbir adımı atlamayın.</p>
     </header>
 
-    <div class="max-w-2xl">
+    <div>
         <div class="card rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm p-5 sm:p-6 mb-6">
             <label for="move-date" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Taşınma tarihi *</label>
             <input type="date" id="move-date" class="input-touch w-full sm:w-auto border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl py-2.5">
         </div>
 
-        <div id="calendar-timeline" class="space-y-4 hidden">
+        <div id="calendar-timeline" class="grid grid-cols-2 md:grid-cols-1 gap-4 hidden">
             @foreach($phases as $phase => $tasks)
                 <div class="card rounded-2xl border border-zinc-200/80 dark:border-zinc-800 overflow-hidden" data-phase="{{ $phase }}">
                     <div class="p-4 sm:p-5 bg-gradient-to-r from-amber-50 to-white dark:from-amber-950/20 dark:to-zinc-900 border-b border-zinc-100 dark:border-zinc-800">

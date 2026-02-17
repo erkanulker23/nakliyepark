@@ -39,7 +39,7 @@
             @forelse($teklifler as $t)
                 <tr>
                     <td>
-                        <a href="{{ route('admin.ihaleler.show', $t->ihale) }}" class="text-indigo-600 hover:underline font-medium">{{ $t->ihale->from_city }} → {{ $t->ihale->to_city }}</a>
+                        <a href="{{ route('admin.ihaleler.show', $t->ihale) }}" class="text-indigo-600 hover:underline font-medium">{{ $t->ihale->from_location_text }} → {{ $t->ihale->to_location_text }}</a>
                         <br>
                         <a href="{{ route('ihaleler.show', $t->ihale) }}" target="_blank" rel="noopener" class="text-slate-500 hover:underline text-xs">İhale sayfasına git</a>
                     </td>

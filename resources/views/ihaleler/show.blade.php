@@ -2,9 +2,9 @@
 
 @php
     $ihaleServiceLabel = ($ihale->service_type === 'evden_eve_nakliyat') ? 'Evden Eve Nakliyat' : 'Yük Taşıma';
-    $ihaleMetaDesc = $ihale->from_city . ' - ' . $ihale->to_city . ' arası ' . $ihaleServiceLabel . ' ihalesi. NakliyePark üzerinden teklif verin veya talebinizi oluşturun.';
+    $ihaleMetaDesc = $ihale->from_location_text . ' - ' . $ihale->to_location_text . ' arası ' . $ihaleServiceLabel . ' ihalesi. NakliyePark üzerinden teklif verin veya talebinizi oluşturun.';
 @endphp
-@section('title', $ihale->from_city . ' - ' . $ihale->to_city . ' Arası ' . $ihaleServiceLabel)
+@section('title', $ihale->from_location_text . ' - ' . $ihale->to_location_text . ' Arası ' . $ihaleServiceLabel)
 @section('meta_description', $ihaleMetaDesc)
 @section('canonical_url', route('ihaleler.show', $ihale))
 
@@ -12,7 +12,7 @@
     $breadcrumbItems = [
         ['name' => 'Anasayfa', 'url' => route('home')],
         ['name' => 'Açık ihaleler', 'url' => route('ihaleler.index')],
-        ['name' => $ihale->from_city . ' - ' . $ihale->to_city, 'url' => null],
+        ['name' => $ihale->from_location_text . ' - ' . $ihale->to_location_text, 'url' => null],
     ];
 @endphp
 @include('partials.structured-data-breadcrumb')
@@ -88,7 +88,7 @@
             <nav class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mb-3">
                 <a href="{{ route('ihaleler.index') }}" class="text-emerald-600 dark:text-emerald-400 hover:underline">Açık ihaleler</a>
                 <span class="mx-1.5">/</span>
-                <span class="text-zinc-700 dark:text-zinc-300">{{ $ihale->from_city }} → {{ $ihale->to_city }}</span>
+                <span class="text-zinc-700 dark:text-zinc-300">{{ $ihale->from_location_text }} → {{ $ihale->to_location_text }}</span>
             </nav>
             <div class="flex flex-wrap items-center gap-3 sm:gap-4">
                 <div class="flex items-center gap-2 min-w-0 flex-1">
@@ -96,7 +96,7 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
                     </span>
                     <div class="min-w-0">
-                        <p class="font-bold text-zinc-900 dark:text-white text-lg sm:text-xl truncate">{{ $ihale->from_city }} → {{ $ihale->to_city }}</p>
+                        <p class="font-bold text-zinc-900 dark:text-white text-lg sm:text-xl truncate">{{ $ihale->from_location_text }} → {{ $ihale->to_location_text }}</p>
                         <p class="text-sm text-zinc-600 dark:text-zinc-400">{{ $serviceLabel }}</p>
                     </div>
                 </div>
@@ -167,7 +167,7 @@
                             </span>
                             <div class="min-w-0 flex-1">
                                 <h3 class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Çıkış yeri</h3>
-                                <p class="font-semibold text-zinc-900 dark:text-white break-words">{{ implode(', ', array_filter([$ihale->from_city, $ihale->from_district, $ihale->from_neighborhood])) ?: '-' }}</p>
+                                <p class="font-semibold text-zinc-900 dark:text-white break-words">{{ $ihale->from_location_text ?: '-' }}</p>
                                 @if($ihale->from_address)<p class="text-sm text-zinc-600 dark:text-zinc-400 mt-1 break-words">{{ $ihale->from_address }}</p>@endif
                             </div>
                         </div>
@@ -177,7 +177,7 @@
                             </span>
                             <div class="min-w-0 flex-1">
                                 <h3 class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Varış yeri</h3>
-                                <p class="font-semibold text-zinc-900 dark:text-white break-words">{{ implode(', ', array_filter([$ihale->to_city, $ihale->to_district, $ihale->to_neighborhood])) ?: '-' }}</p>
+                                <p class="font-semibold text-zinc-900 dark:text-white break-words">{{ $ihale->to_location_text ?: '-' }}</p>
                                 @if($ihale->to_address)<p class="text-sm text-zinc-600 dark:text-zinc-400 mt-1 break-words">{{ $ihale->to_address }}</p>@endif
                             </div>
                         </div>
@@ -258,7 +258,7 @@
                                         <div class="flex items-center gap-3 min-w-0 flex-1 group">
                                             @endif
                                             <span class="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0 group-hover:bg-emerald-500/10 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors overflow-hidden">
-                                                @if($teklif->company->logo)
+                                                @if($teklif->company->logo && $teklif->company->logo_approved_at)
                                                     <img src="{{ asset('storage/'.$teklif->company->logo) }}" alt="{{ $teklif->company->name }}" class="w-12 h-12 rounded-xl object-cover">
                                                 @else
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
@@ -282,7 +282,7 @@
                                     <div class="flex items-center gap-2 shrink-0 sm:pl-2">
                                         @if($canSeeAmount)
                                             <span class="inline-flex items-center gap-1.5 font-bold text-lg text-emerald-600 dark:text-emerald-400">
-                                                <svg class="w-5 h-5 text-emerald-500/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                <svg class="w-5 h-5 text-emerald-500/80" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"/></svg>
                                                 {{ number_format($teklif->amount, 0, ',', '.') }} ₺
                                             </span>
                                         @else
@@ -344,10 +344,34 @@
             {{-- Sağ sidebar (masaüstünde sadece) --}}
             <div class="ihale-sidebar-wrap">
                 <div class="space-y-5" style="position: sticky; top: 6rem;">
-                    {{-- Özet: Mesafe, Tarih, Büyüklük, Hacim --}}
+                    {{-- Özet: Adresler, Mesafe, Tarih, Büyüklük, Hacim --}}
                     <div class="rounded-2xl bg-white dark:bg-zinc-900/95 border border-slate-100 dark:border-zinc-800/80 p-5">
                         <h3 class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-3">Özet</h3>
                         <dl class="space-y-3">
+                            <div class="flex items-start gap-3">
+                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-500/10 text-red-600 dark:text-red-400">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+                                </span>
+                                <div class="min-w-0 flex-1">
+                                    <dt class="text-xs text-zinc-500 dark:text-zinc-400">Eşyanın alınacağı</dt>
+                                    <dd class="font-semibold text-zinc-900 dark:text-white text-sm">
+                                        @php $fromParts = array_filter([$ihale->from_city, $ihale->from_district]); @endphp
+                                        {{ !empty($fromParts) ? implode(', ', $fromParts) : '—' }}
+                                    </dd>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+                                </span>
+                                <div class="min-w-0 flex-1">
+                                    <dt class="text-xs text-zinc-500 dark:text-zinc-400">Eşyanın gideceği</dt>
+                                    <dd class="font-semibold text-zinc-900 dark:text-white text-sm">
+                                        @php $toParts = array_filter([$ihale->to_city, $ihale->to_district, $ihale->to_neighborhood]); @endphp
+                                        {{ !empty($toParts) ? implode(', ', $toParts) : '—' }}
+                                    </dd>
+                                </div>
+                            </div>
                             <div class="flex items-center gap-3">
                                 <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-violet-500/10 text-violet-600 dark:text-violet-400">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6H20M4 12H20M4 18H20"/></svg>

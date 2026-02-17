@@ -6,6 +6,7 @@ use App\Models\Ihale;
 use App\Models\IhalePhoto;
 use App\Models\RoomTemplate;
 use App\Models\User;
+use App\Models\UserNotification;
 use App\Notifications\IhalePublishedNotification;
 use App\Notifications\NewIhaleAdminNotification;
 use App\Services\AdminNotifier;
@@ -46,6 +47,13 @@ class WizardController extends Controller
 
         AdminNotifier::notify('ihale_created', "Yeni ihale (yayında): {$ihale->from_city} → {$ihale->to_city} (Üye)", 'Yeni ihale', ['url' => route('admin.ihaleler.show', $ihale)]);
 
+        UserNotification::notify(
+            $ihale->user,
+            'ihale_created',
+            'İhale talebiniz alındı. İhaleniz onaydan sonra yayına girecek ve firmalardan teklif alabileceksiniz.',
+            'İhale talebiniz alındı',
+            ['url' => route('musteri.ihaleler.show', $ihale)]
+        );
         \App\Services\SafeNotificationService::sendToUser($ihale->user, new IhalePublishedNotification($ihale), 'wizard_ihale_published');
 
         $admins = User::where('role', 'admin')->get();
@@ -64,6 +72,6 @@ class WizardController extends Controller
             }
         }
 
-        return redirect()->route('musteri.dashboard')->with('success', 'İhale başarıyla oluşturuldu. Firmalardan teklif bekleyebilirsiniz.');
+        return redirect()->route('musteri.dashboard')->with('success', 'İhale talebiniz alındı. İhaleniz onaydan sonra yayına girecek ve firmalardan teklif alabileceksiniz.');
     }
 }

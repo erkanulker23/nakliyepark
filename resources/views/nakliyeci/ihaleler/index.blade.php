@@ -24,7 +24,7 @@
                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                         <td>
                             <a href="{{ route('nakliyeci.ihaleler.show', $ihale) }}" class="font-medium text-emerald-600 dark:text-emerald-400 hover:underline">
-                                {{ $ihale->from_city }} → {{ $ihale->to_city }}
+                                {{ $ihale->from_location_text }} → {{ $ihale->to_location_text }}
                             </a>
                         </td>
                         <td class="text-slate-600 dark:text-slate-400">{{ $ihale->volume_m3 }} m³</td>

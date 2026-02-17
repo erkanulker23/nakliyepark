@@ -34,6 +34,13 @@ class CompanyController extends Controller
                 $query->whereNull('approved_at');
             }
         }
+        if ($request->filled('blocked')) {
+            if ($request->blocked === '1') {
+                $query->whereNotNull('blocked_at');
+            } else {
+                $query->whereNull('blocked_at');
+            }
+        }
         if ($request->filled('package')) {
             $query->where('package', $request->package);
         }
@@ -47,7 +54,7 @@ class CompanyController extends Controller
         }
 
         $companies = $query->paginate(15)->withQueryString();
-        $filters = $request->only(['q', 'approved', 'package', 'sort', 'dir']);
+        $filters = $request->only(['q', 'approved', 'blocked', 'package', 'sort', 'dir']);
         $paketler = config('nakliyepark.nakliyeci_paketler', []);
 
         return view('admin.companies.index', compact('companies', 'filters', 'paketler'));
@@ -56,7 +63,7 @@ class CompanyController extends Controller
     public function edit(Company $company)
     {
         $this->authorize('update', $company);
-        $company->load('user');
+        $company->load('user', 'vehicleImages');
         $paketler = config('nakliyepark.nakliyeci_paketler', []);
         return view('admin.companies.edit', compact('company', 'paketler'));
     }
@@ -156,5 +163,27 @@ class CompanyController extends Controller
         $company->update(['package' => $request->package ?: null]);
         \App\Models\AuditLog::log('company_package_changed', Company::class, (int) $company->id, ['package' => $oldPackage], ['package' => $company->package]);
         return back()->with('success', 'Firma paketi güncellendi.');
+    }
+
+    /** Firma logosunu onayla (nakliyeci yükledikten sonra). */
+    public function approveLogo(Company $company)
+    {
+        $this->authorize('update', $company);
+        if (! $company->logo) {
+            return back()->with('error', 'Firmada yüklü logo yok.');
+        }
+        $company->update(['logo_approved_at' => now()]);
+        Log::channel('admin_actions')->info('Admin company logo approved', ['admin_id' => auth()->id(), 'company_id' => $company->id]);
+        return back()->with('success', 'Logo onaylandı. Firma sayfasında görünecek.');
+    }
+
+    /** Galeri fotoğrafını onayla. */
+    public function approveGalleryImage(Request $request, Company $company, int $id)
+    {
+        $this->authorize('update', $company);
+        $image = $company->vehicleImages()->findOrFail($id);
+        $image->update(['approved_at' => now()]);
+        Log::channel('admin_actions')->info('Admin company gallery image approved', ['admin_id' => auth()->id(), 'company_id' => $company->id, 'image_id' => $id]);
+        return back()->with('success', 'Galeri fotoğrafı onaylandı.');
     }
 }

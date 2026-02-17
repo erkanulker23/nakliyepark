@@ -33,22 +33,12 @@
                             @endif
                         </span>
                     </div>
+                    <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300 mt-1">{{ $ilan->from_city }} → {{ $ilan->to_city }}</p>
                     @if($ilan->description)
-                        <p class="text-sm text-zinc-600 dark:text-zinc-400 mt-1">{{ $ilan->description }}</p>
+                        <p class="text-sm text-zinc-600 dark:text-zinc-400 mt-2 leading-relaxed">{{ nl2br(e($ilan->description)) }}</p>
                     @endif
-                    <p class="text-sm font-medium text-zinc-700 dark:text-zinc-300 mt-2">
-                        {{ $ilan->from_city }} → {{ $ilan->to_city }}
-                        @if($ilan->load_date)
-                            <span class="text-zinc-500 dark:text-zinc-400 font-normal"> · Yük: {{ $ilan->load_date->format('d.m.Y') }}</span>
-                        @endif
-                        @if($ilan->volume_m3)
-                            <span class="text-amber-600 dark:text-amber-400"> · {{ number_format($ilan->volume_m3, 1) }} m³</span>
-                        @endif
-                    </p>
                     @php
                         $ilanShareTitle = 'Nakliyat Defteri - Yük İlanı: ' . $ilan->company->name . ' — ' . $ilan->from_city . ' → ' . $ilan->to_city;
-                        if ($ilan->load_date) { $ilanShareTitle .= ' · Yük: ' . $ilan->load_date->format('d.m.Y'); }
-                        if ($ilan->volume_m3) { $ilanShareTitle .= ' · ' . number_format((float) $ilan->volume_m3, 1, ',', '') . ' m³'; }
                     @endphp
                     <div class="mt-3">
                         @include('partials.defter-share-buttons', ['url' => route('defter.show', $ilan), 'title' => $ilanShareTitle, 'label' => 'Paylaş'])
@@ -85,12 +75,20 @@
             @auth
                 @if(auth()->user()->isNakliyeci() && auth()->user()->company?->isApproved() && $ilan->company_id !== auth()->user()->company?->id)
                     <div class="mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-700">
-                        <form method="POST" action="{{ route('nakliyeci.ledger.reply.store', $ilan) }}" class="flex flex-col sm:flex-row gap-2">
-                            @csrf
-                            <label class="sr-only" for="yanit-body">Yanıtınız</label>
-                            <textarea id="yanit-body" name="body" rows="2" class="input-touch text-sm flex-1 resize-none" placeholder="Bu ilana yanıt yazın..." maxlength="2000" required>{{ old('body') }}</textarea>
-                            <button type="submit" class="btn-primary shrink-0 self-end sm:self-auto py-2.5 px-4 text-sm">Gönder</button>
-                        </form>
+                        <details class="yanit-details group" {{ old('body') ? 'open' : '' }}>
+                            <summary class="inline-flex items-center gap-2 cursor-pointer list-none py-2 px-4 rounded-lg border border-amber-400 dark:border-amber-500 bg-amber-50 dark:bg-amber-900/20 text-sm font-medium text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors w-fit">
+                                <span class="inline-block transition-transform group-open:rotate-90" aria-hidden="true">▶</span>
+                                Yanıt yaz
+                            </summary>
+                            <div class="mt-3 pl-5">
+                                <form method="POST" action="{{ route('nakliyeci.ledger.reply.store', $ilan) }}" class="flex flex-col sm:flex-row gap-2">
+                                    @csrf
+                                    <label class="sr-only" for="yanit-body">Yanıtınız</label>
+                                    <textarea id="yanit-body" name="body" rows="2" class="input-touch text-sm flex-1 resize-none" placeholder="Bu ilana yanıt yazın..." maxlength="2000" required>{{ old('body') }}</textarea>
+                                    <button type="submit" class="btn-primary shrink-0 self-end sm:self-auto py-2.5 px-4 text-sm">Gönder</button>
+                                </form>
+                            </div>
+                        </details>
                     </div>
                 @endif
             @else

@@ -16,7 +16,7 @@
             <a href="{{ route('musteri.ihaleler.show', $ihale) }}" class="block p-4 sm:p-5">
             <div class="flex justify-between items-start">
                 <div>
-                    <p class="font-medium text-slate-800 dark:text-slate-100">{{ $ihale->from_city }} → {{ $ihale->to_city }}</p>
+                    <p class="font-medium text-slate-800 dark:text-slate-100">{{ $ihale->from_location_text }} → {{ $ihale->to_location_text }}</p>
                     <p class="text-sm text-slate-500">{{ $ihale->volume_m3 }} m³
                         @if($ihale->move_date || $ihale->move_date_end)
                             · @if($ihale->move_date_end && $ihale->move_date != $ihale->move_date_end){{ $ihale->move_date->format('d.m.Y') }} – {{ $ihale->move_date_end->format('d.m.Y') }}@else{{ $ihale->move_date?->format('d.m.Y') ?? $ihale->move_date_end?->format('d.m.Y') }}@endif

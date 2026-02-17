@@ -53,8 +53,10 @@ use App\Http\Controllers\Nakliyeci\IhaleController as NakliyeciIhaleController;
 use App\Http\Controllers\Nakliyeci\LedgerController as NakliyeciLedgerController;
 use App\Http\Controllers\Nakliyeci\LocationController as NakliyeciLocationController;
 use App\Http\Controllers\Nakliyeci\NotificationController as NakliyeciNotificationController;
+use App\Http\Controllers\Nakliyeci\OdemeController as NakliyeciOdemeController;
 use App\Http\Controllers\Nakliyeci\PazaryeriController as NakliyeciPazaryeriController;
 use App\Http\Controllers\Nakliyeci\PaketlerController as NakliyeciPaketlerController;
+use App\Http\Controllers\Nakliyeci\ProfileController as NakliyeciProfileController;
 use App\Http\Controllers\Nakliyeci\TeklifController as NakliyeciTeklifController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\TurkeyLocationController;
@@ -83,9 +85,13 @@ Route::post('/ihale/olustur', [GuestWizardController::class, 'store'])->middlewa
 Route::get('/araclar/hacim', [ToolController::class, 'volume'])->name('tools.volume');
 Route::get('/araclar/hacim/embed', [ToolController::class, 'volumeEmbed'])->name('tools.volume.embed');
 Route::get('/araclar/mesafe', [ToolController::class, 'distance'])->name('tools.distance');
+Route::get('/araclar/mesafe/embed', [ToolController::class, 'distanceEmbed'])->name('tools.distance.embed');
 Route::get('/araclar/karayolu-mesafe', [ToolController::class, 'roadDistance'])->name('tools.road-distance');
+Route::get('/araclar/karayolu-mesafe/embed', [ToolController::class, 'roadDistanceEmbed'])->name('tools.road-distance.embed');
 Route::get('/araclar/tasinma-kontrol-listesi', [ToolController::class, 'checklist'])->name('tools.checklist');
 Route::get('/araclar/tasinma-takvimi', [ToolController::class, 'movingCalendar'])->name('tools.moving-calendar');
+Route::get('/araclar/tahmini-fiyat', [ToolController::class, 'priceEstimator'])->name('tools.price-estimator');
+Route::get('/araclar/tahmini-fiyat/embed', [ToolController::class, 'priceEstimatorEmbed'])->name('tools.price-estimator.embed');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/iletisim', [ContactController::class, 'index'])->name('contact.index');
@@ -124,10 +130,12 @@ Route::middleware(['auth', 'verified.panel', 'role:musteri'])->prefix('musteri')
     Route::get('/dashboard', [MusteriDashboardController::class, 'index'])->name('dashboard');
     Route::get('/bilgilerim', [MusteriProfileController::class, 'edit'])->name('bilgilerim.edit');
     Route::put('/bilgilerim', [MusteriProfileController::class, 'update'])->name('bilgilerim.update');
+    Route::post('/bilgilerim/sifre-sifirlama-gonder', [MusteriProfileController::class, 'sendPasswordResetLink'])->middleware('throttle:3,10')->name('bilgilerim.send-reset-link');
     Route::get('/teklifler', [MusteriTeklifController::class, 'index'])->name('teklifler.index');
     Route::get('/mesajlar', [MusteriMesajController::class, 'index'])->name('mesajlar.index');
     Route::get('/ihaleler/{ihale}', [MusteriIhaleController::class, 'show'])->name('ihaleler.show');
     Route::post('/ihaleler/{ihale}/teklif/{teklif}/kabul', [MusteriIhaleController::class, 'acceptTeklif'])->name('ihaleler.accept-teklif');
+    Route::post('/ihaleler/{ihale}/teklif/{teklif}/reddet', [MusteriIhaleController::class, 'rejectTeklif'])->name('ihaleler.reject-teklif');
     Route::post('/ihaleler/{ihale}/teklif/{teklif}/kabul-geri-al', [MusteriIhaleController::class, 'undoAcceptTeklif'])->name('ihaleler.undo-accept');
     Route::post('/ihaleler/{ihale}/teklif/{teklif}/mesaj', [MusteriIhaleController::class, 'storeContactMessage'])->name('ihaleler.contact-message');
     Route::post('/ihaleler/{ihale}/uyusmazlik', [MusteriIhaleController::class, 'storeDispute'])->name('ihaleler.dispute.store');
@@ -142,6 +150,9 @@ Route::middleware(['auth', 'verified.panel'])->group(function () {
 
 Route::middleware(['auth', 'verified.panel', 'role:nakliyeci'])->prefix('nakliyeci')->name('nakliyeci.')->group(function () {
     Route::get('/dashboard', [NakliyeciDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/bilgilerim', [NakliyeciProfileController::class, 'edit'])->name('bilgilerim.edit');
+    Route::put('/bilgilerim', [NakliyeciProfileController::class, 'update'])->name('bilgilerim.update');
+    Route::post('/bilgilerim/sifre-sifirlama-gonder', [NakliyeciProfileController::class, 'sendPasswordResetLink'])->middleware('throttle:3,10')->name('bilgilerim.send-reset-link');
     Route::get('/company/create', [NakliyeciCompanyController::class, 'create'])->name('company.create');
     Route::post('/company', [NakliyeciCompanyController::class, 'store'])->name('company.store');
     Route::get('/company/edit', [NakliyeciCompanyController::class, 'edit'])->name('company.edit');
@@ -165,6 +176,9 @@ Route::middleware(['auth', 'verified.panel', 'role:nakliyeci'])->prefix('nakliye
     Route::get('/cari', [NakliyeciCariController::class, 'index'])->name('cari.index');
     Route::get('/borc', [NakliyeciBorcController::class, 'index'])->name('borc.index');
     Route::get('/paketler', [NakliyeciPaketlerController::class, 'index'])->name('paketler.index');
+    Route::post('/odeme/borc', [NakliyeciOdemeController::class, 'startBorc'])->name('odeme.start-borc');
+    Route::post('/odeme/paket', [NakliyeciOdemeController::class, 'startPackage'])->name('odeme.start-package');
+    Route::match(['get', 'post'], '/odeme/callback', [NakliyeciOdemeController::class, 'callback'])->name('odeme.callback');
     Route::get('/ihaleler', [NakliyeciIhaleController::class, 'index'])->name('ihaleler.index');
     Route::get('/ihaleler/{ihale}', [NakliyeciIhaleController::class, 'show'])->name('ihaleler.show');
     Route::post('/ihaleler/teklif', [NakliyeciIhaleController::class, 'storeTeklif'])->middleware('throttle:20,1')->name('ihaleler.teklif.store');
@@ -204,6 +218,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/companies/{company}/approve', [AdminCompanyController::class, 'approve'])->name('companies.approve');
     Route::post('/companies/{company}/reject', [AdminCompanyController::class, 'reject'])->name('companies.reject');
     Route::patch('/companies/{company}/package', [AdminCompanyController::class, 'updatePackage'])->name('companies.update-package');
+    Route::post('/companies/{company}/logo/approve', [AdminCompanyController::class, 'approveLogo'])->name('companies.approve-logo');
+    Route::post('/companies/{company}/galeri/{id}/approve', [AdminCompanyController::class, 'approveGalleryImage'])->name('companies.approve-gallery-image');
     Route::get('/ihaleler', [AdminIhaleController::class, 'index'])->name('ihaleler.index');
     Route::post('/ihaleler/bulk-publish', [AdminIhaleController::class, 'bulkPublish'])->name('ihaleler.bulk-publish');
     Route::post('/ihaleler/bulk-close', [AdminIhaleController::class, 'bulkClose'])->name('ihaleler.bulk-close');

@@ -120,25 +120,25 @@
         </ul>
     </div>
 
-    {{-- Engelli firmalar --}}
+    {{-- Üyeliği askıda firmalar --}}
     <div class="admin-card p-6">
-        <h2 class="text-lg font-semibold text-slate-800 mb-3">Engelli firmalar</h2>
-        <p class="text-sm text-slate-500 mb-3">Firma engellemek için <a href="{{ route('admin.companies.index') }}" class="text-emerald-600 hover:underline">Firmalar</a> sayfasından ilgili firmaya girip &quot;Engelle&quot; butonunu kullanın.</p>
+        <h2 class="text-lg font-semibold text-slate-800 mb-3">Üyeliği askıda firmalar</h2>
+        <p class="text-sm text-slate-500 mb-3">Nakliyeci üyeliğini askıya almak için <a href="{{ route('admin.companies.index') }}" class="text-emerald-600 hover:underline">Firmalar</a> sayfasından ilgili firmaya girip &quot;Üyeliği askıya al&quot; bölümünü kullanın (borç, sözleşme ihlali vb.).</p>
         <ul class="space-y-1 text-sm">
             @forelse($blockedCompanies as $c)
-                <li class="flex items-center justify-between py-1.5 border-b border-slate-100 last:border-0">
+                <li class="flex items-center justify-between py-1.5 border-b border-slate-100 last:border-0 flex-wrap gap-1">
                     <span class="font-medium text-slate-800">{{ $c->name }}</span>
-                    <span class="text-slate-500">{{ $c->user->email ?? '-' }} · {{ $c->blocked_at?->format('d.m.Y') }}</span>
+                    <span class="text-slate-500">{{ $c->user->email ?? '-' }} · {{ $c->blocked_at?->format('d.m.Y') }}{{ $c->blocked_reason ? ' · ' . \Illuminate\Support\Str::limit($c->blocked_reason, 40) : '' }}</span>
                     <div class="flex items-center gap-2">
                         <a href="{{ route('admin.companies.edit', $c) }}" class="text-indigo-600 hover:underline">Düzenle</a>
                         <form method="POST" action="{{ route('admin.blocklist.unblock-company', $c) }}" class="inline">
                             @csrf
-                            <button type="submit" class="text-emerald-600 hover:underline">Engeli kaldır</button>
+                            <button type="submit" class="text-emerald-600 hover:underline">Askıyı kaldır</button>
                         </form>
                     </div>
                 </li>
             @empty
-                <li class="text-slate-500">Engelli firma yok.</li>
+                <li class="text-slate-500">Üyeliği askıda firma yok.</li>
             @endforelse
         </ul>
     </div>

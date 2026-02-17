@@ -58,7 +58,7 @@
                 @foreach($firmalar as $firma)
                     <a href="{{ route('firmalar.show', $firma) }}" class="group flex flex-col rounded-2xl bg-white dark:bg-zinc-900/80 border border-zinc-200/70 dark:border-zinc-800/70 p-5 sm:p-6 hover:border-emerald-300/70 dark:hover:border-emerald-700/50 hover:shadow-md hover:shadow-zinc-200/50 dark:hover:shadow-none transition-all duration-200">
                         <div class="flex gap-4">
-                            @if($firma->logo && trim($firma->logo) !== '')
+                            @if($firma->logo && $firma->logo_approved_at && trim($firma->logo) !== '')
                                 <img src="{{ asset('storage/'.$firma->logo) }}" alt="{{ $firma->name }}" class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover shrink-0 border border-zinc-100 dark:border-zinc-800 shadow-sm">
                             @else
                                 <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-emerald-500 flex items-center justify-center text-2xl sm:text-3xl font-bold text-white shrink-0 shadow-sm" aria-hidden="true">

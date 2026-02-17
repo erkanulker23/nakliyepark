@@ -98,7 +98,7 @@
         <ul class="space-y-3 text-sm">
             @forelse($recentIhaleler as $i)
                 <li class="py-2 border-b border-slate-100 dark:border-slate-700 last:border-0">
-                    <a href="{{ route('admin.ihaleler.show', $i) }}" class="text-emerald-600 dark:text-emerald-400 hover:underline font-medium">{{ $i->from_city }} → {{ $i->to_city }}</a>
+                    <a href="{{ route('admin.ihaleler.show', $i) }}" class="text-emerald-600 dark:text-emerald-400 hover:underline font-medium">{{ $i->from_location_text }} → {{ $i->to_location_text }}</a>
                     <span class="text-slate-500 dark:text-slate-400">({{ $i->user?->name ?? 'Misafir' }})</span>
                 </li>
             @empty

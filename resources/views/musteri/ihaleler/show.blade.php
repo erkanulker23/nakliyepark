@@ -1,15 +1,15 @@
 @extends('layouts.musteri')
 
-@section('title', 'İhale detay - ' . $ihale->from_city . ' → ' . $ihale->to_city)
+@section('title', 'İhale detay - ' . $ihale->from_location_text . ' → ' . $ihale->to_location_text)
 @section('page_heading', 'İhale detayı')
-@section('page_subtitle', $ihale->from_city . ' → ' . $ihale->to_city)
+@section('page_subtitle', $ihale->from_location_text . ' → ' . $ihale->to_location_text)
 
 @section('content')
 <div class="max-w-3xl">
     <div class="admin-card p-6 mb-6">
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
-                <h1 class="text-xl font-bold text-slate-800 dark:text-slate-100">{{ $ihale->from_city }} → {{ $ihale->to_city }}</h1>
+                <h1 class="text-xl font-bold text-slate-800 dark:text-slate-100">{{ $ihale->from_location_text }} → {{ $ihale->to_location_text }}</h1>
                 <p class="text-sm text-slate-500 mt-1">
                     {{ $ihale->volume_m3 }} m³
                     @if($ihale->move_date || $ihale->move_date_end)
@@ -85,25 +85,45 @@
         @endif
         <ul class="space-y-4">
             @forelse($ihale->teklifler as $t)
-                <li class="flex flex-wrap items-center justify-between gap-4 py-4 border-b border-slate-100 dark:border-slate-700 last:border-0">
-                    <div>
+                <li class="flex flex-wrap items-start justify-between gap-4 py-4 border-b border-slate-100 dark:border-slate-700 last:border-0">
+                    <div class="min-w-0">
                         <p class="font-medium text-slate-800 dark:text-slate-100">{{ $t->company->name ?? '-' }}</p>
                         <p class="text-lg font-bold text-slate-800 dark:text-slate-100">{{ number_format($t->amount, 0, ',', '.') }} ₺</p>
                         @if($t->message)
                             <p class="text-sm text-slate-500 mt-1">{{ $t->message }}</p>
                         @endif
                         <p class="text-xs text-slate-400 mt-1">{{ $t->created_at->format('d.m.Y H:i') }}</p>
+                        @if($t->status === 'rejected' && $t->reject_reason)
+                            <p class="text-xs text-slate-500 mt-2"><span class="font-medium">Red gerekçesi:</span> {{ $t->reject_reason }}</p>
+                        @endif
                     </div>
-                    <div>
+                    <div class="flex flex-col items-end gap-2">
                         @if($t->status === 'accepted')
                             <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">Kabul edildi</span>
                         @elseif($t->status === 'rejected')
                             <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">Reddedildi</span>
                         @elseif(!$acceptedTeklif && $ihale->status === 'published')
-                            <form method="POST" action="{{ route('musteri.ihaleler.accept-teklif', [$ihale, $t]) }}" class="inline" onsubmit="return confirm('Bu teklifi kabul etmek istediğinize emin misiniz? Diğer teklifler reddedilir.');">
-                                @csrf
-                                <button type="submit" class="admin-btn-primary text-sm py-2 px-4 rounded-lg">Teklifi kabul et</button>
-                            </form>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <form method="POST" action="{{ route('musteri.ihaleler.accept-teklif', [$ihale, $t]) }}" class="inline" onsubmit="return confirm('Bu teklifi kabul etmek istediğinize emin misiniz? Diğer teklifler reddedilir.');">
+                                    @csrf
+                                    <button type="submit" class="admin-btn-primary text-sm py-2 px-4 rounded-lg">Teklifi kabul et</button>
+                                </form>
+                                <button type="button" class="reject-teklif-toggle admin-btn-secondary text-sm py-2 px-4 rounded-lg" data-teklif-id="{{ $t->id }}" aria-expanded="false">Teklifi reddet</button>
+                            </div>
+                            <div id="reject-form-{{ $t->id }}" class="reject-form w-full max-w-md mt-2 {{ session('reject_teklif_id') == $t->id ? '' : 'hidden' }}">
+                                <form method="POST" action="{{ route('musteri.ihaleler.reject-teklif', [$ihale, $t]) }}" class="p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-600 space-y-2">
+                                    @csrf
+                                    <label for="reject_reason_{{ $t->id }}" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Red gerekçesi (isteğe bağlı, firmaya iletilebilir)</label>
+                                    <textarea id="reject_reason_{{ $t->id }}" name="reject_reason" rows="2" class="admin-input w-full text-sm" placeholder="Neden reddediyorsunuz? (opsiyonel)" maxlength="1000">{{ old('reject_reason') }}</textarea>
+                                    @error('reject_reason')
+                                        <p class="text-sm text-red-500">{{ $message }}</p>
+                                    @enderror
+                                    <div class="flex gap-2">
+                                        <button type="submit" class="admin-btn-danger text-sm py-1.5 px-3 rounded-lg">Reddet</button>
+                                        <button type="button" class="reject-teklif-cancel admin-btn-secondary text-sm py-1.5 px-3 rounded-lg" data-teklif-id="{{ $t->id }}">İptal</button>
+                                    </div>
+                                </form>
+                            </div>
                         @else
                             <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600">Beklemede</span>
                         @endif
@@ -115,4 +135,33 @@
         </ul>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.querySelectorAll('.reject-teklif-toggle').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var id = this.getAttribute('data-teklif-id');
+        var form = document.getElementById('reject-form-' + id);
+        if (!form) return;
+        var isHidden = form.classList.contains('hidden');
+        document.querySelectorAll('.reject-form').forEach(function(f) { f.classList.add('hidden'); });
+        document.querySelectorAll('.reject-teklif-toggle').forEach(function(b) { b.setAttribute('aria-expanded', 'false'); });
+        if (isHidden) {
+            form.classList.remove('hidden');
+            btn.setAttribute('aria-expanded', 'true');
+            form.querySelector('textarea')?.focus();
+        }
+    });
+});
+document.querySelectorAll('.reject-teklif-cancel').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var id = this.getAttribute('data-teklif-id');
+        var form = document.getElementById('reject-form-' + id);
+        if (form) form.classList.add('hidden');
+        var toggle = document.querySelector('.reject-teklif-toggle[data-teklif-id="' + id + '"]');
+        if (toggle) toggle.setAttribute('aria-expanded', 'false');
+    });
+});
+</script>
+@endpush
 @endsection

@@ -44,6 +44,11 @@
             text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600">
             Komisyon
         </button>
+        <button type="button" role="tab" id="tab-payment" aria-selected="false" aria-controls="panel-payment" data-tab="payment"
+            class="settings-tab px-4 py-3 text-sm font-medium border-b-2 -mb-px border-transparent transition-colors rounded-t-lg
+            text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600">
+            Ödeme / Sanal POS
+        </button>
         <button type="button" role="tab" id="tab-style" aria-selected="false" aria-controls="panel-style" data-tab="style"
             class="settings-tab px-4 py-3 text-sm font-medium border-b-2 -mb-px border-transparent transition-colors rounded-t-lg
             text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600">
@@ -199,6 +204,7 @@
                     'road_distance' => ['label' => 'Karayolu Mesafe', 'route' => route('tools.road-distance')],
                     'checklist' => ['label' => 'Taşınma Kontrol Listesi', 'route' => route('tools.checklist')],
                     'moving_calendar' => ['label' => 'Taşınma Takvimi', 'route' => route('tools.moving-calendar')],
+                    'price_estimator' => ['label' => 'Tahmini Fiyat Hesaplama', 'route' => route('tools.price-estimator')],
                 ] as $slug => $info)
                 <div class="admin-card p-5">
                     <h4 class="font-medium text-slate-800 dark:text-slate-200 mb-1">{{ $info['label'] }}</h4>
@@ -317,6 +323,43 @@
             </form>
             <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Önce mail ayarlarını kaydedin, sonra test edin.</p>
         </div>
+        </div>
+    </div>
+
+    {{-- Tab: Ödeme / Sanal POS (iyzico) --}}
+    <div role="tabpanel" id="panel-payment" class="settings-tab-panel" aria-labelledby="tab-payment" hidden>
+        <div class="admin-card p-6 max-w-2xl">
+            <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-2">Sanal POS (iyzico)</h3>
+            <p class="text-slate-600 dark:text-slate-400 text-sm mb-5">Nakliyeciler borç ödemesi ve paket satın alımını kredi kartı ile yapabilsin. iyzico API anahtarı ve secret key bilgilerini <a href="https://merchant.iyzipay.com" target="_blank" rel="noopener" class="text-emerald-600 hover:underline">iyzico Merchant Panel</a> üzerinden alabilirsiniz. Sandbox (test) ortamında deneyebilirsiniz.</p>
+            <form method="POST" action="{{ route('admin.settings.update') }}" class="space-y-4">
+                @csrf
+                <input type="hidden" name="settings_section" value="payment">
+                <div class="admin-form-group">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="hidden" name="payment_enabled" value="0">
+                        <input type="checkbox" name="payment_enabled" value="1" {{ old('payment_enabled', $settings['payment_enabled'] ?? '0') === '1' ? 'checked' : '' }} class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                        <span class="admin-label mb-0">Ödemeleri aç (nakliyeci borç ve paket ödemesi)</span>
+                    </label>
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-label">iyzico API Key</label>
+                    <input type="text" name="iyzico_api_key" value="{{ old('iyzico_api_key', $settings['iyzico_api_key'] ?? '') }}" class="admin-input" placeholder="sandbox-xxx veya canlı API key" autocomplete="off">
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-label">iyzico Secret Key</label>
+                    <input type="password" name="iyzico_secret_key" value="" class="admin-input" placeholder="Değiştirmek için yazın (boş bırakırsanız mevcut kalır)" autocomplete="new-password">
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Güvenlik için mevcut secret key gösterilmez. Yeni key girmek için bu alanı doldurun.</p>
+                </div>
+                <div class="admin-form-group">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="hidden" name="iyzico_sandbox" value="0">
+                        <input type="checkbox" name="iyzico_sandbox" value="1" {{ old('iyzico_sandbox', $settings['iyzico_sandbox'] ?? '1') === '1' ? 'checked' : '' }} class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                        <span class="admin-label mb-0">Sandbox (test) kullan</span>
+                    </label>
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Sandbox kapalıyken canlı ödeme alınır. Test için işaretli bırakın.</p>
+                </div>
+                <button type="submit" class="admin-btn-primary">Ödeme ayarlarını kaydet</button>
+            </form>
         </div>
     </div>
 

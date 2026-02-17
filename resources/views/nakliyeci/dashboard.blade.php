@@ -5,6 +5,15 @@
 @section('page_subtitle', $company->name)
 
 @section('content')
+@if($company->isBlocked())
+    <div class="mb-6 rounded-lg px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200">
+        <p class="font-semibold">Üyeliğiniz askıya alındı</p>
+        @if($company->blocked_reason)
+            <p class="text-sm mt-1 opacity-90">Sebep: {{ $company->blocked_reason }}</p>
+        @endif
+        <p class="text-sm mt-1">Teklif veremez ve firmanız sitede listelenmez. Sorunuz varsa destek ile iletişime geçin.</p>
+    </div>
+@endif
 <div class="nakliyeci-stats grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
     <div class="admin-card nakliyeci-stat-card p-5 sm:p-6 flex items-start gap-4">
         <div class="nakliyeci-stat-icon rounded-xl p-3 {{ $company->isApproved() ? 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400' : 'bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400' }}">
@@ -61,7 +70,7 @@
             <article class="flex justify-between items-center py-3 border-b border-slate-200 dark:border-slate-600 last:border-0 gap-3">
                 <div class="min-w-0 flex-1">
                     @if($ihale)
-                        <a href="{{ route('nakliyeci.ihaleler.show', $ihale) }}" class="font-medium text-slate-800 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 block truncate">{{ $ihale->from_city }} → {{ $ihale->to_city }}</a>
+                        <a href="{{ route('nakliyeci.ihaleler.show', $ihale) }}" class="font-medium text-slate-800 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 block truncate">{{ $ihale->from_location_text }} → {{ $ihale->to_location_text }}</a>
                     @else
                         <span class="font-medium text-slate-500">—</span>
                     @endif
@@ -102,12 +111,14 @@
         <a href="{{ route('nakliyeci.ihaleler.index') }}" class="text-sm text-emerald-600 dark:text-emerald-400 hover:underline font-medium">Tümü →</a>
     </div>
     <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">Tek tıkla teklif verebilir veya detay için satıra tıklayın.</p>
-    @if($company->isApproved())
+    @if($company->isBlocked())
+        <p class="text-slate-500 text-sm py-2">Üyeliğiniz askıda olduğu için yeni teklif veremezsiniz.</p>
+    @elseif($company->isApproved())
         @forelse($yayindakiIhaleler as $ihale)
             @php $benimTeklif = $ihale->teklifler()->where('company_id', $company->id)->first(); @endphp
             <article class="nakliyeci-ihale-row flex flex-wrap items-center gap-4 py-4 border-b border-slate-200 dark:border-slate-600 last:border-0">
                 <div class="flex-1 min-w-[200px]">
-                    <a href="{{ route('nakliyeci.ihaleler.show', $ihale) }}" class="font-medium text-slate-800 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400">{{ $ihale->from_city }} → {{ $ihale->to_city }}</a>
+                    <a href="{{ route('nakliyeci.ihaleler.show', $ihale) }}" class="font-medium text-slate-800 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400">{{ $ihale->from_location_text }} → {{ $ihale->to_location_text }}</a>
                     <p class="text-sm text-slate-500 mt-0.5">{{ $ihale->volume_m3 }} m³ · {{ $ihale->move_date?->format('d.m.Y') ?? '-' }}</p>
                 </div>
                 @if($benimTeklif)

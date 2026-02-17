@@ -26,29 +26,10 @@
                     @error('to_city')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div class="admin-form-group">
-                    <label class="admin-label">Yük tarihi</label>
-                    <input type="date" name="load_date" value="{{ old('load_date') }}" class="admin-input">
-                    @error('load_date')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
-                </div>
-                <div class="admin-form-group">
-                    <label class="admin-label">Hacim (m³)</label>
-                    <input type="number" name="volume_m3" value="{{ old('volume_m3') }}" step="0.01" min="0" class="admin-input" placeholder="Örn. 50">
-                    @error('volume_m3')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
-                </div>
-            </div>
-            <div class="admin-form-group">
-                <label class="admin-label">Yük tipi</label>
-                <input type="text" name="load_type" value="{{ old('load_type') }}" class="admin-input" placeholder="Palet, koli, adet vb.">
-            </div>
-            <div class="admin-form-group">
-                <label class="admin-label">Araç tipi</label>
-                <input type="text" name="vehicle_type" value="{{ old('vehicle_type') }}" class="admin-input" placeholder="Kamyon, TIR vb.">
-            </div>
             <div class="admin-form-group">
                 <label class="admin-label">Açıklama</label>
-                <textarea name="description" rows="3" class="admin-input" placeholder="Detay varsa yazın">{{ old('description') }}</textarea>
+                <textarea name="description" rows="6" class="admin-input min-h-[140px] resize-y" placeholder="Yük veya boş dönüşünüzü kısaca anlatın: nereden–nereye, tarih, hacim, yük tipi, araç tipi veya iletişim bilgisi gibi detayları yazabilirsiniz." maxlength="2000">{{ old('description') }}</textarea>
+                @error('description')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
             </div>
             <div class="flex flex-wrap gap-3">
                 <button type="submit" class="admin-btn-primary">Deftere yaz</button>

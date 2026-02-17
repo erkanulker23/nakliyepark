@@ -7,7 +7,7 @@
 @section('content')
 <div class="max-w-4xl">
     <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <p class="text-sm text-slate-500">Firmanıza ait fotoğrafları ekleyin. Müşteriler profilinizde görebilir.</p>
+        <p class="text-sm text-slate-500">Firmanıza ait fotoğrafları ekleyin. Her fotoğraf admin onayından sonra firma sayfanızda yayınlanır.</p>
         <a href="{{ route('nakliyeci.galeri.create') }}" class="admin-btn-primary inline-flex">+ Fotoğraf ekle</a>
     </div>
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -16,6 +16,13 @@
                 <a href="{{ asset('storage/'.$img->path) }}" target="_blank" class="block aspect-square bg-slate-100 dark:bg-slate-800">
                     <img src="{{ asset('storage/'.$img->path) }}" alt="{{ $img->caption ?? 'Galeri' }}" class="w-full h-full object-cover">
                 </a>
+                <div class="p-2 flex items-center justify-between gap-2 border-t border-slate-200 dark:border-slate-600">
+                    @if($img->isApproved())
+                        <span class="text-xs font-medium text-emerald-600 dark:text-emerald-400">Yayında</span>
+                    @else
+                        <span class="text-xs font-medium text-amber-600 dark:text-amber-400">Onay bekliyor</span>
+                    @endif
+                </div>
                 @if($img->caption)
                     <p class="p-2 text-sm text-slate-600 dark:text-slate-400 truncate">{{ $img->caption }}</p>
                 @endif

@@ -53,7 +53,7 @@
             <div class="border border-slate-200 rounded-lg p-4 mb-4 last:mb-0">
                 <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
                     <h3 class="font-medium text-slate-800">
-                        {{ $ihale->from_city }} → {{ $ihale->to_city }}
+                        {{ $ihale->from_location_text }} → {{ $ihale->to_location_text }}
                         @if($ihale->move_date)
                             <span class="text-slate-500 font-normal">· {{ $ihale->move_date->format('d.m.Y') }}</span>
                         @endif

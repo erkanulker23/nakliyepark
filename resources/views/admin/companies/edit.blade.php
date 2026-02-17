@@ -13,16 +13,41 @@
         <a href="{{ route('admin.companies.index') }}" class="text-slate-600 dark:text-slate-400 hover:underline text-sm">Firmalar listesine dön</a>
     </div>
     @if($company->isBlocked())
-        <div class="admin-alert-error rounded-lg px-4 py-3">Bu firma engelli. Engeli kaldırmak için aşağıdaki butonu kullanın.</div>
+        <div class="admin-alert-error rounded-lg px-4 py-3">
+            <strong>Üyelik askıda.</strong>
+            @if($company->blocked_reason)
+                <span class="block mt-1 text-sm">Sebep: {{ $company->blocked_reason }}</span>
+            @endif
+            Askıyı kaldırmak için aşağıdaki butonu kullanın.
+        </div>
         <form method="POST" action="{{ route('admin.blocklist.unblock-company', $company) }}" class="inline">
             @csrf
-            <button type="submit" class="admin-btn-primary">Engeli kaldır</button>
+            <button type="submit" class="admin-btn-primary">Üyelik askısını kaldır</button>
         </form>
     @else
-        <form method="POST" action="{{ route('admin.blocklist.block-company', $company) }}" class="inline" onsubmit="return confirm('Bu firmayı engellemek istediğinize emin misiniz?');">
-            @csrf
-            <button type="submit" class="admin-btn-danger">Firmayı engelle</button>
-        </form>
+        <div class="admin-card p-4 mb-4 border border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/20 rounded-lg">
+            <h3 class="font-medium text-slate-800 dark:text-slate-200 mb-2">Nakliyeci üyeliğini askıya al</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mb-3">Borç, sözleşme ihlali veya diğer sebeplerle üyeliği askıya alabilirsiniz. Askıda firma sitede görünmez ve teklif veremez.</p>
+            <form method="POST" action="{{ route('admin.blocklist.block-company', $company) }}" class="space-y-3" onsubmit="return confirm('Bu nakliyecinin üyeliğini askıya almak istediğinize emin misiniz?');">
+                @csrf
+                <div class="flex flex-wrap gap-4 items-end">
+                    <div class="min-w-[180px]">
+                        <label class="admin-label text-xs">Sebep türü</label>
+                        <select name="blocked_reason_type" class="admin-input py-2 w-full">
+                            <option value="">— Seçin (isteğe bağlı) —</option>
+                            @foreach(\App\Models\Company::blockedReasonLabels() as $key => $label)
+                                <option value="{{ $key }}">{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="flex-1 min-w-[200px]">
+                        <label class="admin-label text-xs">Açıklama (isteğe bağlı)</label>
+                        <input type="text" name="blocked_reason" class="admin-input py-2 w-full" placeholder="Örn: Ödenmemiş komisyon, detay..." maxlength="500">
+                    </div>
+                    <button type="submit" class="admin-btn-danger">Üyeliği askıya al</button>
+                </div>
+            </form>
+        </div>
     @endif
     <div class="admin-card p-6">
         {{-- Sekmeler --}}
@@ -254,6 +279,52 @@
         if (document.querySelector('#tab-seo .text-red-500')) showTab('seo');
     })();
     </script>
+
+    {{-- Logo onayı --}}
+    @if($company->logo)
+        <div class="mt-6 admin-card p-6">
+            <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">Firma logosu</h3>
+            <div class="flex flex-wrap items-center gap-4">
+                <img src="{{ asset('storage/'.$company->logo) }}" alt="{{ $company->name }} logo" class="w-24 h-24 rounded-xl object-cover border border-slate-200 dark:border-slate-600">
+                @if($company->logo_approved_at)
+                    <span class="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">Yayında</span>
+                @else
+                    <form method="POST" action="{{ route('admin.companies.approve-logo', $company) }}" class="inline">
+                        @csrf
+                        <button type="submit" class="admin-btn-primary text-sm">Logoyu onayla</button>
+                    </form>
+                @endif
+            </div>
+        </div>
+    @endif
+
+    {{-- Galeri onayları --}}
+    @if($company->vehicleImages->count() > 0)
+        <div class="mt-6 admin-card p-6">
+            <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">Firma galerisi</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Onaylanan fotoğraflar firma sayfasında gösterilir.</p>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                @foreach($company->vehicleImages as $img)
+                    <div class="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-600">
+                        <a href="{{ asset('storage/'.$img->path) }}" target="_blank" class="block aspect-square bg-slate-100 dark:bg-slate-800">
+                            <img src="{{ asset('storage/'.$img->path) }}" alt="" class="w-full h-full object-cover">
+                        </a>
+                        <div class="p-2 flex items-center justify-between gap-2 flex-wrap">
+                            @if($img->approved_at)
+                                <span class="text-xs font-medium text-emerald-600 dark:text-emerald-400">Yayında</span>
+                            @else
+                                <form method="POST" action="{{ route('admin.companies.approve-gallery-image', [$company, $img->id]) }}" class="inline">
+                                    @csrf
+                                    <button type="submit" class="text-xs font-medium text-emerald-600 hover:underline">Onayla</button>
+                                </form>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
     <div class="mt-6 admin-card p-6">
         <h3 class="font-semibold text-slate-800 mb-3">İstatistikler</h3>
         <ul class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">

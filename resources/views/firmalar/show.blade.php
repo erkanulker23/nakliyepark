@@ -3,7 +3,7 @@
 @section('title', $company->seo_meta_title ?: ($company->name . ' - Nakliye Firması'))
 @section('meta_description', $company->seo_meta_description ?: ($company->name . ' - ' . ($company->city ? $company->city . ' ' : '') . 'nakliye firması. Hizmetler, iletişim ve değerlendirmeler. NakliyePark üzerinden teklif alın.'))
 @section('canonical_url', route('firmalar.show', $company))
-@section('og_image', $company->logo ? asset('storage/'.$company->logo) : null)
+@section('og_image', ($company->logo && $company->logo_approved_at) ? asset('storage/'.$company->logo) : null)
 
 @php
     $breadcrumbItems = [
@@ -32,7 +32,7 @@
         <div class="rounded-2xl sm:rounded-3xl bg-white/90 dark:bg-zinc-900/80 border border-zinc-200/60 dark:border-zinc-800/60 overflow-hidden">
             <div class="p-6 sm:p-8 lg:p-10">
                 <div class="flex flex-col sm:flex-row sm:items-start gap-6 lg:gap-8">
-                    @if($company->logo)
+                    @if($company->logo && $company->logo_approved_at)
                         <img src="{{ asset('storage/'.$company->logo) }}" alt="{{ $company->name }}" class="w-28 h-28 sm:w-36 sm:h-36 rounded-2xl object-cover border-2 border-zinc-200/60 dark:border-zinc-700/60 shrink-0 shadow-lg ring-2 ring-white/20 dark:ring-zinc-800/50">
                     @else
                         <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-3xl sm:text-4xl font-bold text-white shrink-0 shadow-lg shadow-emerald-500/25 ring-2 ring-white/20">
@@ -282,9 +282,9 @@
                             <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Taşıma araçları ve görseller</p>
                         </div>
                         <div class="p-5 sm:p-6">
-                            @if($company->vehicleImages->count() > 0)
+                            @if($company->approvedVehicleImages->count() > 0)
                                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-                                    @foreach($company->vehicleImages as $img)
+                                    @foreach($company->approvedVehicleImages as $img)
                                         <a href="{{ asset('storage/'.$img->path) }}" target="_blank" rel="noopener" class="block rounded-xl overflow-hidden aspect-square group border border-zinc-200/50 dark:border-zinc-700/50 hover:border-sky-300/60 dark:hover:border-sky-600/50 hover:shadow-lg hover:shadow-sky-500/10 transition-all duration-300 ring-0 focus:ring-2 focus:ring-sky-400/30 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-900">
                                             <div class="relative w-full h-full bg-zinc-100 dark:bg-zinc-800">
                                                 <img src="{{ asset('storage/'.$img->path) }}" alt="{{ $img->caption ?? 'Galeri' }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">

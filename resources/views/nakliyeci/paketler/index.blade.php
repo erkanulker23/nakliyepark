@@ -28,11 +28,21 @@
                     </ul>
                 @endif
                 <div class="mt-auto pt-6">
-                    <button type="button" class="admin-btn-primary w-full" disabled>Satın al (yakında)</button>
+                    @if($paymentEnabled ?? false)
+                        <form method="POST" action="{{ route('nakliyeci.odeme.start-package') }}" class="w-full">
+                            @csrf
+                            <input type="hidden" name="package_id" value="{{ $paket['id'] ?? '' }}">
+                            <button type="submit" class="admin-btn-primary w-full">Satın al</button>
+                        </form>
+                    @else
+                        <button type="button" class="admin-btn-primary w-full" disabled>Satın al (ödeme kapalı)</button>
+                    @endif
                 </div>
             </div>
         @endforeach
     </div>
-    <p class="mt-8 text-sm text-slate-500 dark:text-slate-400 text-center">Ödeme entegrasyonu eklendiğinde paket satın alınabilecektir. Sorularınız için destek ekibimizle iletişime geçebilirsiniz.</p>
+    @if(!($paymentEnabled ?? false))
+        <p class="mt-8 text-sm text-slate-500 dark:text-slate-400 text-center">Ödeme ayarları admin panelinden açıldığında paket satın alınabilecektir.</p>
+    @endif
 </div>
 @endsection

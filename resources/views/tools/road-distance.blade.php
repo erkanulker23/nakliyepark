@@ -60,6 +60,15 @@
         </div>
     </div>
 
+    <section class="mt-8 pt-8 border-t border-zinc-200 dark:border-zinc-800 max-w-3xl mx-auto" aria-labelledby="embed-baslik-road">
+        <h2 id="embed-baslik-road" class="text-lg font-semibold text-zinc-900 dark:text-white mb-2">Bu aracı sitenize ekleyin</h2>
+        <p class="text-sm text-zinc-600 dark:text-zinc-400 mb-3">Aşağıdaki iframe kodunu kendi sitenize yapıştırarak karayolu mesafe hesaplama aracını gösterebilirsiniz.</p>
+        <div class="rounded-xl bg-zinc-900 dark:bg-zinc-950 p-4 overflow-x-auto">
+            <code class="text-sm text-emerald-300 font-mono whitespace-pre break-all">&lt;iframe src="{{ $embedUrl ?? url(route('tools.road-distance.embed')) }}" width="100%" height="520" frameborder="0" scrolling="no" title="Karayolu Mesafe Hesaplama - NakliyePark"&gt;&lt;/iframe&gt;</code>
+        </div>
+        <p class="text-xs text-zinc-500 dark:text-zinc-500 mt-2">İsterseniz <code class="px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-zinc-700 text-xs">width</code> ve <code class="px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-zinc-700 text-xs">height</code> değerlerini ihtiyacınıza göre değiştirin.</p>
+    </section>
+
     @if(!empty($toolContent))
     <section class="mt-6 pt-4 border-t border-slate-200 dark:border-slate-600" aria-labelledby="nasil-calisir-road">
         <h2 id="nasil-calisir-road" class="text-base font-semibold text-slate-800 dark:text-slate-100 mb-3">Karayolu mesafe nasıl hesaplanır?</h2>

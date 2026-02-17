@@ -17,7 +17,7 @@
                 <li class="admin-card p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4">
                     <div class="min-w-0">
                         <a href="{{ route('musteri.ihaleler.show', $t->ihale) }}" class="font-medium text-sky-600 hover:text-sky-700 dark:text-sky-400">
-                            {{ $t->ihale->from_city ?? '-' }} → {{ $t->ihale->to_city ?? '-' }}
+                            {{ $t->ihale->from_location_text ?? '-' }} → {{ $t->ihale->to_location_text ?? '-' }}
                         </a>
                         <p class="text-sm text-slate-500 mt-0.5">{{ $t->company->name ?? 'Firma' }} · {{ number_format($t->amount, 0, ',', '.') }} ₺</p>
                         @if($t->message)

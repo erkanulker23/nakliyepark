@@ -13,9 +13,30 @@
     @endif
 
     <div class="admin-card p-6">
-        <form method="POST" action="{{ route('nakliyeci.company.update') }}" class="space-y-5">
+        <form method="POST" action="{{ route('nakliyeci.company.update') }}" enctype="multipart/form-data" class="space-y-5">
             @csrf
             @method('PUT')
+            {{-- Firma logosu (admin onayı gerekir) --}}
+            <div class="border-b border-slate-200 dark:border-slate-600 pb-6 mb-6">
+                <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-2">Firma logosu</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">Logo yükleyebilirsiniz. Yayına alınması admin onayına bağlıdır.</p>
+                @if($company->logo)
+                    <div class="flex flex-wrap items-center gap-4 mb-3">
+                        <img src="{{ asset('storage/'.$company->logo) }}" alt="Mevcut logo" class="w-24 h-24 rounded-xl object-cover border border-slate-200 dark:border-slate-600">
+                        @if(!$company->logo_approved_at)
+                            <span class="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">Onay bekliyor</span>
+                        @else
+                            <span class="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">Yayında</span>
+                        @endif
+                    </div>
+                @endif
+                <div class="admin-form-group">
+                    <label class="admin-label">Yeni logo yükle</label>
+                    <input type="file" name="logo" accept="image/jpeg,image/png,image/jpg,image/webp" class="admin-input">
+                    <p class="text-xs text-slate-500 mt-1">JPG, PNG veya WebP. En fazla 2 MB. Admin onayından sonra firma sayfanızda görünür.</p>
+                    @error('logo')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                </div>
+            </div>
             <div class="admin-form-group">
                 <label class="admin-label">Firma adı *</label>
                 <input type="text" name="name" value="{{ old('name', $company->name) }}" required class="admin-input">
@@ -121,6 +142,36 @@
                 <a href="{{ route('nakliyeci.dashboard') }}" class="admin-btn-secondary">Panele dön</a>
             </div>
         </form>
+    </div>
+
+    {{-- Firma galerisi (admin onayı gerekir) --}}
+    <div class="mt-6 admin-card p-6">
+        <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-2">Firma galerisi</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Araç veya iş fotoğraflarınızı ekleyin. Her fotoğraf admin onayından sonra firma sayfanızda yayınlanır.</p>
+        <div class="flex flex-wrap items-center gap-3 mb-4">
+            <a href="{{ route('nakliyeci.galeri.create') }}" class="admin-btn-primary inline-flex">+ Fotoğraf ekle</a>
+            <a href="{{ route('nakliyeci.galeri.index') }}" class="admin-btn-secondary text-sm">Galeriyi yönet</a>
+        </div>
+        @if($company->vehicleImages->count() > 0)
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                @foreach($company->vehicleImages as $img)
+                    <div class="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-600">
+                        <a href="{{ asset('storage/'.$img->path) }}" target="_blank" class="block aspect-square bg-slate-100 dark:bg-slate-800">
+                            <img src="{{ asset('storage/'.$img->path) }}" alt="{{ $img->caption ?? 'Galeri' }}" class="w-full h-full object-cover">
+                        </a>
+                        <div class="p-2 flex items-center justify-between gap-2">
+                            @if($img->isApproved())
+                                <span class="text-xs font-medium text-emerald-600 dark:text-emerald-400">Yayında</span>
+                            @else
+                                <span class="text-xs font-medium text-amber-600 dark:text-amber-400">Onay bekliyor</span>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @else
+            <p class="text-sm text-slate-500 py-4">Henüz galeri fotoğrafı yok. &quot;Fotoğraf ekle&quot; ile ekleyebilirsiniz.</p>
+        @endif
     </div>
 
     <div class="mt-6 admin-card p-6">

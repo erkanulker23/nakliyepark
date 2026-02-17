@@ -31,7 +31,14 @@ class ToolController extends Controller
         $metaTitle = Setting::get('tool_distance_meta_title') ?: 'Mesafe Hesaplama - NakliyePark';
         $metaDescription = Setting::get('tool_distance_meta_description') ?: 'Başlangıç ve varış ili seçerek nakliye mesafesini tahmini olarak hesaplayın. Harita üzerinde kuş uçuşu km görüntüleyin.';
         $toolContent = Setting::get('tool_distance_content', '');
-        return view('tools.distance', compact('metaTitle', 'metaDescription', 'toolContent'));
+        $embedUrl = url(route('tools.distance.embed'));
+
+        return view('tools.distance', compact('metaTitle', 'metaDescription', 'toolContent', 'embedUrl'));
+    }
+
+    public function distanceEmbed()
+    {
+        return view('tools.distance-embed');
     }
 
     public function roadDistance()
@@ -39,7 +46,14 @@ class ToolController extends Controller
         $metaTitle = Setting::get('tool_road_distance_meta_title') ?: 'Karayolu Mesafe Hesaplama - NakliyePark';
         $metaDescription = Setting::get('tool_road_distance_meta_description') ?: 'İl bazlı karayolu mesafesini tahmini hesaplayın. Nakliye planlaması için km bilgisi alın.';
         $toolContent = Setting::get('tool_road_distance_content', '');
-        return view('tools.road-distance', compact('metaTitle', 'metaDescription', 'toolContent'));
+        $embedUrl = url(route('tools.road-distance.embed'));
+
+        return view('tools.road-distance', compact('metaTitle', 'metaDescription', 'toolContent', 'embedUrl'));
+    }
+
+    public function roadDistanceEmbed()
+    {
+        return view('tools.road-distance-embed');
     }
 
     public function checklist()
@@ -72,6 +86,24 @@ class ToolController extends Controller
             ],
         ];
         return view('tools.checklist', compact('metaTitle', 'metaDescription', 'toolContent', 'items'));
+    }
+
+    public function priceEstimator()
+    {
+        $metaTitle = Setting::get('tool_price_estimator_meta_title') ?: 'Tahmini Fiyat Hesaplama - NakliyePark';
+        $metaDescription = Setting::get('tool_price_estimator_meta_description') ?: 'Km, eşya durumu ve kat bilgisine göre nakliye tahmini fiyatı hesaplayın. İhaleye benzer tüm bilgileri girin, anlık tahmin alın.';
+        $toolContent = Setting::get('tool_price_estimator_content', '');
+        $config = config('price_estimator');
+        $embedUrl = url(route('tools.price-estimator.embed'));
+
+        return view('tools.price-estimator', compact('metaTitle', 'metaDescription', 'toolContent', 'config', 'embedUrl'));
+    }
+
+    public function priceEstimatorEmbed()
+    {
+        $config = config('price_estimator');
+
+        return view('tools.price-estimator-embed', compact('config'));
     }
 
     public function movingCalendar()

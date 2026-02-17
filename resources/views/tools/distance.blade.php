@@ -58,6 +58,15 @@
         </div>
     </div>
 
+    <section class="mt-8 pt-8 border-t border-zinc-200 dark:border-zinc-800 max-w-3xl mx-auto" aria-labelledby="embed-baslik-dist">
+        <h2 id="embed-baslik-dist" class="text-lg font-semibold text-zinc-900 dark:text-white mb-2">Bu aracı sitenize ekleyin</h2>
+        <p class="text-sm text-zinc-600 dark:text-zinc-400 mb-3">Aşağıdaki iframe kodunu kendi sitenize yapıştırarak mesafe hesaplama aracını gösterebilirsiniz.</p>
+        <div class="rounded-xl bg-zinc-900 dark:bg-zinc-950 p-4 overflow-x-auto">
+            <code class="text-sm text-emerald-300 font-mono whitespace-pre break-all">&lt;iframe src="{{ $embedUrl ?? url(route('tools.distance.embed')) }}" width="100%" height="520" frameborder="0" scrolling="no" title="Mesafe Hesaplama - NakliyePark"&gt;&lt;/iframe&gt;</code>
+        </div>
+        <p class="text-xs text-zinc-500 dark:text-zinc-500 mt-2">İsterseniz <code class="px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-zinc-700 text-xs">width</code> ve <code class="px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-zinc-700 text-xs">height</code> değerlerini ihtiyacınıza göre değiştirin.</p>
+    </section>
+
     <section class="mt-8 pt-6 border-t border-zinc-200 dark:border-zinc-800" aria-labelledby="nasil-calisir-dist">
         <h2 id="nasil-calisir-dist" class="text-lg font-semibold text-zinc-900 dark:text-white mb-3">Mesafe hesaplama nasıl çalışır?</h2>
         <div class="prose prose-sm prose-zinc dark:prose-invert max-w-none text-zinc-600 dark:text-zinc-400">

@@ -14,6 +14,9 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(RoomTemplateSeeder::class);
 
+        // Sunucu admini: bu e-posta varsa her zaman admin kalsın
+        User::where('email', 'erkanulker0@gmail.com')->update(['role' => 'admin']);
+
         if (User::where('email', 'admin@nakliyepark.test')->doesntExist()) {
             User::factory()->create([
                 'name' => 'Admin',
@@ -25,6 +28,7 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call(DemoSeeder::class);
+        $this->call(NakliyatFirmalariSeeder::class);
         $this->call(FaqSeeder::class);
         $this->call(DemoIhaleSeeder::class);
         $this->call(DemoFullSeeder::class);
@@ -33,5 +37,6 @@ class DatabaseSeeder extends Seeder
         $this->call(DefterReklamiSeeder::class);
         $this->call(DefterYanitiSeeder::class);
         $this->call(SponsorSeeder::class);
+        $this->call(DemoMesajSeeder::class);
     }
 }

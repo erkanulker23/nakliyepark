@@ -14,9 +14,13 @@ class LedgerController extends Controller
     public function index(Request $request)
     {
         $ilanlar = YukIlani::with('company')
-            ->where('status', 'active')
-            ->where('company_id', '!=', $request->user()->company?->id ?? 0)
-            ->latest()
+            ->where('yuk_ilanlari.status', 'active')
+            ->where('yuk_ilanlari.company_id', '!=', $request->user()->company?->id ?? 0)
+            ->join('companies', 'companies.id', '=', 'yuk_ilanlari.company_id')
+            ->orderByRaw("EXISTS (SELECT 1 FROM payment_requests pr WHERE pr.company_id = yuk_ilanlari.company_id AND pr.type = 'paket' AND pr.status = 'completed') DESC")
+            ->orderByRaw('CASE WHEN companies.package = ? THEN 0 WHEN companies.package = ? THEN 1 WHEN companies.package = ? THEN 2 ELSE 3 END', ['kurumsal', 'profesyonel', 'baslangic'])
+            ->latest('yuk_ilanlari.created_at')
+            ->select('yuk_ilanlari.*')
             ->paginate(15);
 
         return view('nakliyeci.ledger', compact('ilanlar'));

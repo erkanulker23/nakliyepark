@@ -2,7 +2,7 @@
 
 @section('title', 'İhale düzenle')
 @section('page_heading', 'İhale düzenle')
-@section('page_subtitle', $ihale->from_city . ' → ' . $ihale->to_city)
+@section('page_subtitle', $ihale->from_location_text . ' → ' . $ihale->to_location_text)
 
 @section('content')
 <div class="max-w-4xl">

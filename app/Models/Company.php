@@ -51,7 +51,7 @@ class Company extends Model
         'user_id', 'name', 'slug', 'tax_number', 'tax_office', 'address', 'city', 'district',
         'live_latitude', 'live_longitude', 'live_location_updated_at', 'map_visible',
         'phone', 'phone_2', 'whatsapp', 'email',
-        'description', 'logo', 'services', 'approved_at', 'package', 'blocked_at',
+        'description', 'logo', 'logo_approved_at', 'services', 'approved_at', 'package', 'blocked_at', 'blocked_reason',
         'email_verified_at', 'phone_verified_at', 'official_company_verified_at',
         'seo_meta_title', 'seo_meta_description', 'seo_meta_keywords',
     ];
@@ -64,6 +64,7 @@ class Company extends Model
             'phone_verified_at' => 'datetime',
             'official_company_verified_at' => 'datetime',
             'blocked_at' => 'datetime',
+            'logo_approved_at' => 'datetime',
             'live_location_updated_at' => 'datetime',
             'map_visible' => 'boolean',
             'services' => 'array',
@@ -100,6 +101,12 @@ class Company extends Model
         return $this->hasMany(CompanyVehicleImage::class)->orderBy('sort_order');
     }
 
+    /** Sadece admin onaylı galeri görselleri (firma sayfasında gösterilir). */
+    public function approvedVehicleImages(): HasMany
+    {
+        return $this->hasMany(CompanyVehicleImage::class)->whereNotNull('approved_at')->orderBy('sort_order');
+    }
+
     public function documents(): HasMany
     {
         return $this->hasMany(CompanyDocument::class)->orderBy('sort_order');
@@ -109,6 +116,21 @@ class Company extends Model
     public function isBlocked(): bool
     {
         return $this->blocked_at !== null;
+    }
+
+    /** Üyelik askıya alma sebepleri (admin panelinde kullanılır). */
+    public static function blockedReasonLabels(): array
+    {
+        return [
+            'borc' => 'Borç',
+            'sozlesme_ihlali' => 'Sözleşme ihlali',
+            'diger' => 'Diğer',
+        ];
+    }
+
+    public static function blockedReasonLabel(?string $key): string
+    {
+        return self::blockedReasonLabels()[$key] ?? $key;
     }
 
     public function user(): BelongsTo
@@ -232,5 +254,22 @@ class Company extends Model
     public function getTotalCommissionAttribute(): float
     {
         return round($this->total_earnings * ($this->commission_rate / 100), 2);
+    }
+
+    public function commissionPayments(): HasMany
+    {
+        return $this->hasMany(CompanyCommissionPayment::class);
+    }
+
+    /** Ödenen komisyon toplamı (kredi kartı ile yapılan ödemeler). */
+    public function getPaidCommissionAttribute(): float
+    {
+        return (float) $this->commissionPayments()->sum('amount');
+    }
+
+    /** Kalan borç (toplam komisyon - ödenen). */
+    public function getOutstandingCommissionAttribute(): float
+    {
+        return max(0, round($this->total_commission - $this->paid_commission, 2));
     }
 }

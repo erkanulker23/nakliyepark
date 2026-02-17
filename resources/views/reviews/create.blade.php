@@ -6,7 +6,7 @@
 @section('content')
 <div class="px-4 py-6 max-w-lg mx-auto">
     <h1 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Taşıma Değerlendirmesi</h1>
-    <p class="text-sm text-slate-500 mb-6">{{ $company->name }} — {{ $ihale->from_city }} → {{ $ihale->to_city }}</p>
+    <p class="text-sm text-slate-500 mb-6">{{ $company->name }} — {{ $ihale->from_location_text }} → {{ $ihale->to_location_text }}</p>
 
     <form method="POST" action="{{ route('review.store') }}" enctype="multipart/form-data" class="space-y-4">
         @csrf

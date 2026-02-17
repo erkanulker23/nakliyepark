@@ -41,7 +41,7 @@
                     <tr>
                         <td class="whitespace-nowrap">{{ $d->created_at->format('d.m.Y H:i') }}</td>
                         <td>
-                            <a href="{{ route('admin.ihaleler.show', $d->ihale) }}" class="text-sky-600 hover:underline">{{ $d->ihale->from_city }} → {{ $d->ihale->to_city }}</a>
+                            <a href="{{ route('admin.ihaleler.show', $d->ihale) }}" class="text-sky-600 hover:underline">{{ $d->ihale->from_location_text }} → {{ $d->ihale->to_location_text }}</a>
                         </td>
                         <td>{{ $d->company->name ?? '-' }}</td>
                         <td>{{ $d->openedByUser->name ?? '-' }} <span class="text-slate-400 text-xs">({{ $d->opened_by_type }})</span></td>

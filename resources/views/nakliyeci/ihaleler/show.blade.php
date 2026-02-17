@@ -1,8 +1,8 @@
 @extends('layouts.nakliyeci')
 
-@section('title', $ihale->from_city . ' → ' . $ihale->to_city)
+@section('title', $ihale->from_location_text . ' → ' . $ihale->to_location_text)
 @section('page_heading', 'İhale detayı')
-@section('page_subtitle', $ihale->from_city . ' → ' . $ihale->to_city)
+@section('page_subtitle', $ihale->from_location_text . ' → ' . $ihale->to_location_text)
 
 @section('content')
 <div class="max-w-3xl space-y-6">
@@ -14,7 +14,7 @@
     <div class="admin-card p-6">
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
-                <h1 class="text-xl font-bold text-slate-800 dark:text-slate-200">{{ $ihale->from_city }} → {{ $ihale->to_city }}</h1>
+                <h1 class="text-xl font-bold text-slate-800 dark:text-slate-200">{{ $ihale->from_location_text }} → {{ $ihale->to_location_text }}</h1>
                 <p class="text-sm text-slate-500 mt-1">
                     {{ $ihale->volume_m3 }} m³
                     @if($ihale->move_date)
@@ -33,14 +33,14 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div class="admin-card p-6">
             <h2 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">Çıkış yeri</h2>
-            <p class="font-medium text-slate-800 dark:text-slate-200">{{ $ihale->from_district ? $ihale->from_district . ', ' : '' }}{{ $ihale->from_city }}</p>
+            <p class="font-medium text-slate-800 dark:text-slate-200">{{ $ihale->from_location_text ?: '-' }}</p>
             @if($ihale->from_address)
                 <p class="text-sm text-slate-500 mt-1">{{ $ihale->from_address }}</p>
             @endif
         </div>
         <div class="admin-card p-6">
             <h2 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">Varış yeri</h2>
-            <p class="font-medium text-slate-800 dark:text-slate-200">{{ $ihale->to_district ? $ihale->to_district . ', ' : '' }}{{ $ihale->to_city }}</p>
+            <p class="font-medium text-slate-800 dark:text-slate-200">{{ $ihale->to_location_text ?: '-' }}</p>
             @if($ihale->to_address)
                 <p class="text-sm text-slate-500 mt-1">{{ $ihale->to_address }}</p>
             @endif

@@ -60,6 +60,10 @@ class SettingController extends Controller
             'show_firmalar_page' => Setting::get('show_firmalar_page', '1'),
             'openai_api_key_set' => ! empty(Setting::get('openai_api_key', '')),
             'openai_blog_model' => Setting::get('openai_blog_model', env('OPENAI_BLOG_MODEL', 'gpt-4o-mini')),
+            'payment_enabled' => Setting::get('payment_enabled', '0'),
+            'iyzico_api_key' => Setting::get('iyzico_api_key', ''),
+            'iyzico_secret_key' => Setting::get('iyzico_secret_key', ''),
+            'iyzico_sandbox' => Setting::get('iyzico_sandbox', '1'),
         ];
         $mailTemplateKeys = [
             'admin_new_ihale',
@@ -116,6 +120,10 @@ class SettingController extends Controller
             'contact_hours' => 'nullable|string|max:255',
             'openai_api_key' => 'nullable|string|max:500',
             'openai_blog_model' => 'nullable|string|max:100',
+            'payment_enabled' => 'nullable|in:0,1',
+            'iyzico_api_key' => 'nullable|string|max:255',
+            'iyzico_secret_key' => 'nullable|string|max:255',
+            'iyzico_sandbox' => 'nullable|in:0,1',
         ]);
 
         // Sadece ilgili sekme alanlarını güncelle (tab sistemi)
@@ -197,6 +205,17 @@ class SettingController extends Controller
             return back()->with('success', 'API ayarları kaydedildi.');
         }
 
+        if ($section === 'payment') {
+            Setting::set('payment_enabled', $request->boolean('payment_enabled') ? '1' : '0', 'payment');
+            Setting::set('iyzico_api_key', $request->input('iyzico_api_key') ?? '', 'payment');
+            $secret = $request->input('iyzico_secret_key');
+            if ($secret !== null && $secret !== '') {
+                Setting::set('iyzico_secret_key', $secret, 'payment');
+            }
+            Setting::set('iyzico_sandbox', $request->boolean('iyzico_sandbox') ? '1' : '0', 'payment');
+            return back()->with('success', 'Ödeme ayarları kaydedildi.');
+        }
+
         Log::channel('admin_actions')->info('Admin settings updated', [
             'admin_id' => auth()->id(),
             'section' => $section ?? 'multiple',
@@ -250,6 +269,7 @@ class SettingController extends Controller
             'tool_road_distance_meta_title', 'tool_road_distance_meta_description', 'tool_road_distance_content',
             'tool_checklist_meta_title', 'tool_checklist_meta_description', 'tool_checklist_content',
             'tool_moving_calendar_meta_title', 'tool_moving_calendar_meta_description', 'tool_moving_calendar_content',
+            'tool_price_estimator_meta_title', 'tool_price_estimator_meta_description', 'tool_price_estimator_content',
         ];
         $rules = [];
         foreach ($keys as $key) {

@@ -6,6 +6,7 @@ use App\Models\Ihale;
 use App\Models\IhalePhoto;
 use App\Models\RoomTemplate;
 use App\Models\User;
+use App\Models\UserNotification;
 use App\Notifications\IhaleCreatedNotification;
 use App\Notifications\NewIhaleAdminNotification;
 use App\Models\ConsentLog;
@@ -146,9 +147,16 @@ class GuestWizardController extends Controller
 
         AdminNotifier::notify('ihale_created', "Yeni ihale: {$ihale->from_city} → {$ihale->to_city}" . ($ihale->user_id ? " (Üye)" : " (Misafir)"), 'Yeni ihale', ['url' => route('admin.ihaleler.show', $ihale)]);
 
-        // Müşteriye / misafire e-posta: talebiniz alındı (hata olursa log, işlem geri alınmaz)
+        // Müşteriye panel bildirimi + e-posta: talebiniz alındı
         if ($ihale->user_id) {
             $ihale->load('user');
+            UserNotification::notify(
+                $ihale->user,
+                'ihale_created',
+                "İhale talebiniz alındı. İhaleniz onaydan sonra yayına girecek ve firmalardan teklif alabileceksiniz.",
+                'İhale talebiniz alındı',
+                ['url' => route('musteri.ihaleler.show', $ihale)]
+            );
             \App\Services\SafeNotificationService::sendToUser($ihale->user, new IhaleCreatedNotification($ihale), 'ihale_created_musteri');
         } elseif ($ihale->guest_contact_email) {
             \App\Services\SafeNotificationService::sendToEmail($ihale->guest_contact_email, new IhaleCreatedNotification($ihale), 'ihale_created_guest');
@@ -169,7 +177,7 @@ class GuestWizardController extends Controller
 
         if ($request->user()) {
             if ($request->user()->isMusteri()) {
-                return redirect()->route('musteri.dashboard')->with('success', 'İhale talebiniz alındı. Admin onayından sonra yayına girecek ve firmalardan teklif alabileceksiniz.');
+                return redirect()->route('musteri.dashboard')->with('success', 'İhale talebiniz alındı. İhaleniz onaydan sonra yayına girecek ve firmalardan teklif alabileceksiniz.');
             }
             return redirect()->route('home')->with('success', 'İhale talebiniz alındı. Onaylandıktan sonra firmalar size dönüş yapacaktır.');
         }

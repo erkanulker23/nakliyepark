@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Nakliyeci;
 
 use App\Http\Controllers\Controller;
+use App\Services\IyzicoPaymentService;
 use Illuminate\Http\Request;
 
 class BorcController extends Controller
@@ -13,7 +14,8 @@ class BorcController extends Controller
         if (! $company) {
             return redirect()->route('nakliyeci.company.create')->with('error', 'Önce firma bilgilerinizi girin.');
         }
-        $komisyonBorcu = $company->total_commission;
-        return view('nakliyeci.borc.index', compact('company', 'komisyonBorcu'));
+        $komisyonBorcu = $company->outstanding_commission;
+        $paymentEnabled = IyzicoPaymentService::isEnabled();
+        return view('nakliyeci.borc.index', compact('company', 'komisyonBorcu', 'paymentEnabled'));
     }
 }
