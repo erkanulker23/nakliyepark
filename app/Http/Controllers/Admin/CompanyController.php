@@ -129,12 +129,11 @@ class CompanyController extends Controller
             }
         }
 
-        // Firma onayı (yayında mı): sadece approved_at güncellenir; doğrulama rozetleri ayrı alanlardan gelir
-        if ($request->has('approved')) {
-            $approved = $request->boolean('approved');
-            $company->update(['approved_at' => $approved ? now() : null]);
+        // Firma onayı: checkbox işaretliyse onayla; işaretsiz gönderimde approved_at'e dokunma (yanlışlıkla onayı kaldırmayı önlemek için). Onay kaldırmak için "Reddet" butonu kullanılır.
+        if ($request->filled('approved')) {
+            $company->update(['approved_at' => now()]);
 
-            if (!$wasApproved && $approved && $company->user) {
+            if (!$wasApproved && $company->user) {
                 SafeNotificationService::sendToUser(
                     $company->user,
                     new CompanyApprovedNotification($company),

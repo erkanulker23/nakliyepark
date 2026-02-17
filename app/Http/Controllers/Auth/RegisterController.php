@@ -24,6 +24,11 @@ class RegisterController extends Controller
 
     public function register(Request $request)
     {
+        // Form first_name + last_name ile geliyorsa name oluştur (JS kapalıyken de çalışsın)
+        if (! $request->filled('name') && ($request->filled('first_name') || $request->filled('last_name'))) {
+            $request->merge(['name' => trim($request->input('first_name', '') . ' ' . $request->input('last_name', ''))]);
+        }
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
@@ -65,7 +70,8 @@ class RegisterController extends Controller
         event(new Registered($user));
 
         \App\Services\SafeNotificationService::sendToUser($user, new \App\Notifications\WelcomeNotification($user->role), 'welcome_after_register');
-        AdminNotifier::notify('user_registered', "Yeni kayıt: {$user->name} ({$user->email}) - Rol: {$user->role}", 'Yeni üye', ['url' => route('admin.users.edit', $user)]);
+        $adminTitle = $user->isNakliyeci() ? 'Yeni nakliyeci üye' : 'Yeni üye';
+        AdminNotifier::notify('user_registered', "Yeni kayıt: {$user->name} ({$user->email}) - Rol: {$user->role}", $adminTitle, ['url' => route('admin.users.edit', $user)]);
         Auth::login($user);
 
         if ($user->isNakliyeci()) {

@@ -60,7 +60,8 @@
                     @include('layouts.partials.notifications-dropdown')
                 @else
                     <a href="{{ route('login') }}" class="btn-secondary rounded-lg hidden sm:inline-flex">Giriş</a>
-                    <a href="{{ route('register') }}" class="btn-primary rounded-lg">Hizmet ver</a>
+                    <a href="{{ route('register') }}" class="btn-secondary rounded-lg hidden sm:inline-flex">Üye ol</a>
+                    <a href="{{ route('register', ['role' => 'nakliyeci']) }}" class="btn-primary rounded-lg">Hizmet ver</a>
                 @endauth
             </div>
         </div>
@@ -71,6 +72,11 @@
             @endif
             <a href="{{ route('defter.index') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Defter</a>
             <a href="{{ route('pazaryeri.index') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Pazaryeri</a>
+            @guest
+            <a href="{{ route('login') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Giriş</a>
+            <a href="{{ route('register') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Üye ol</a>
+            <a href="{{ route('register', ['role' => 'nakliyeci']) }}" class="rounded-lg text-xs whitespace-nowrap py-2.5 px-3 bg-emerald-600 text-white font-medium hover:bg-emerald-700">Hizmet ver</a>
+            @endguest
             <a href="{{ route('tools.volume') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Hacim</a>
             <a href="{{ route('tools.distance') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Mesafe</a>
             <a href="{{ route('tools.checklist') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Kontrol listesi</a>

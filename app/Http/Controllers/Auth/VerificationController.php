@@ -15,10 +15,13 @@ class VerificationController extends Controller
     public function notice(Request $request)
     {
         $user = $request->user();
-        if ($user && $user->hasVerifiedEmail()) {
-            return $user->isNakliyeci()
-                ? redirect()->route('nakliyeci.dashboard')
-                : ($user->isMusteri() ? redirect()->route('musteri.dashboard') : redirect('/'));
+        if ($user) {
+            $user->refresh();
+            if ($user->hasVerifiedEmail()) {
+                return $user->isNakliyeci()
+                    ? redirect()->route('nakliyeci.dashboard')
+                    : ($user->isMusteri() ? redirect()->route('musteri.dashboard') : redirect('/'));
+            }
         }
         return view('auth.verify');
     }
@@ -51,7 +54,7 @@ class VerificationController extends Controller
 
     private function redirectAfterVerify($user, bool $alreadyVerified): \Illuminate\Http\RedirectResponse
     {
-        $message = $alreadyVerified ? 'E-posta adresiniz zaten doğrulanmış.' : 'E-posta adresiniz doğrulandı.';
+        $message = $alreadyVerified ? 'E-posta adresiniz zaten doğrulanmış.' : 'E-postanız doğrulanmıştır.';
         if ($user->isNakliyeci()) {
             return redirect()->route('nakliyeci.dashboard')->with('success', $message);
         }

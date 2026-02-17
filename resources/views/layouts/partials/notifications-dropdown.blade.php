@@ -10,7 +10,7 @@
         <div class="px-3 py-2 border-b border-zinc-100 dark:border-zinc-800 sticky top-0 bg-white dark:bg-zinc-900">
             <span class="font-semibold text-zinc-900 dark:text-white text-sm">Bildirimler</span>
         </div>
-        @forelse($header_notifications ?? [] as $n)
+        @forelse(($header_notifications ?? []) as $n)
             <a href="{{ !empty($n->data['url']) ? $n->data['url'] : $header_notifications_url }}" class="block px-3 py-2.5 text-left hover:bg-zinc-50 dark:hover:bg-zinc-800/80 {{ empty($n->read_at) ? 'bg-amber-50/50 dark:bg-amber-900/10' : '' }}" role="menuitem">
                 <p class="font-medium text-zinc-900 dark:text-white text-sm truncate">{{ $n->title ?? 'Bildirim' }}</p>
                 <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 line-clamp-2">{{ $n->message ?? '' }}</p>

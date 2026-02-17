@@ -1,209 +1,258 @@
 /* ============================================
-   NakliyePark Admin Panel - Kapsamlı Tema
-   Açık ve koyu modda tutarlı okunabilirlik
+   NakliyePark Admin Panel - Modern Tema
+   Temiz, okunaklı, mobil uyumlu
    ============================================ */
 
-/* --- Body & Ana Yapı --- */
+:root {
+  --admin-sidebar-bg: #0f172a;
+  --admin-sidebar-border: rgba(51, 65, 85, 0.6);
+  --admin-sidebar-text: #cbd5e1;
+  --admin-sidebar-text-hover: #f8fafc;
+  --admin-sidebar-active-bg: #059669;
+  --admin-sidebar-active-text: #fff;
+  --admin-main-bg: #f8fafc;
+  --admin-card-bg: #fff;
+  --admin-card-border: #e2e8f0;
+  --admin-header-bg: #fff;
+  --admin-header-border: #e2e8f0;
+  --admin-radius: 12px;
+  --admin-radius-sm: 8px;
+  --admin-touch: 44px;
+}
+
+.admin-dark {
+  --admin-sidebar-bg: #0f172a;
+  --admin-main-bg: #0f172a;
+  --admin-card-bg: #1e293b;
+  --admin-card-border: #334155;
+  --admin-header-bg: #1e293b;
+  --admin-header-border: #334155;
+}
+
+/* --- Body --- */
 .admin-body {
-  font-family: var(--font-sans), system-ui, sans-serif;
+  font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 html:not(.admin-dark) .admin-body {
-  background: #f8fafc;
+  background: var(--admin-main-bg);
   color: #1e293b;
 }
 .admin-dark .admin-body {
-  background: #0f172a;
+  background: var(--admin-main-bg);
   color: #e2e8f0;
 }
 
 /* --- Sidebar --- */
 .admin-sidebar {
   min-height: 100vh;
-  transition: background 0.2s ease, border-color 0.2s ease;
-}
-html:not(.admin-dark) .admin-sidebar,
-.admin-dark .admin-sidebar {
-  background: linear-gradient(180deg, #0f172a 0%, #020617 100%);
-  border-right: 1px solid #334155;
+  background: var(--admin-sidebar-bg);
+  border-right: 1px solid var(--admin-sidebar-border);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 .admin-sidebar .admin-sidebar-header {
-  border-bottom: 1px solid #334155;
+  border-bottom: 1px solid var(--admin-sidebar-border);
+  min-height: var(--admin-touch);
 }
 .admin-sidebar .admin-sidebar-logo {
-  color: #fff !important;
+  color: var(--admin-sidebar-text-hover) !important;
+  font-weight: 600;
+  font-size: 1.0625rem;
 }
 .admin-sidebar .admin-sidebar-logo .w-9 {
   background: #059669 !important;
   color: #fff !important;
+  border-radius: 10px;
 }
 .admin-sidebar .admin-sidebar-close {
-  color: #94a3b8 !important;
+  min-width: var(--admin-touch);
+  min-height: var(--admin-touch);
+  color: var(--admin-sidebar-text);
 }
 .admin-sidebar .admin-sidebar-close:hover {
-  color: #fff !important;
+  color: var(--admin-sidebar-text-hover);
   background: rgba(255, 255, 255, 0.08);
+  border-radius: var(--admin-radius-sm);
 }
 .admin-sidebar .nav-link {
-  color: #cbd5e1;
-  transition: all 0.15s ease;
+  color: var(--admin-sidebar-text);
+  transition: background 0.15s ease, color 0.15s ease;
+  min-height: 44px;
+  padding: 0.625rem 0.75rem;
+  border-radius: var(--admin-radius-sm);
+  font-size: 0.9375rem;
 }
 .admin-sidebar .nav-link:hover {
-  background: rgba(5, 150, 105, 0.15);
-  color: #fff;
+  background: rgba(5, 150, 105, 0.18);
+  color: var(--admin-sidebar-text-hover);
 }
 .admin-sidebar .nav-link.active {
-  background: #059669;
-  color: #fff;
-  border-left: 3px solid #34d399;
+  background: var(--admin-sidebar-active-bg);
+  color: var(--admin-sidebar-active-text);
 }
 .admin-sidebar .admin-sidebar-label {
   color: #64748b !important;
-}
-@media (max-width: 1023px) {
-  .admin-sidebar.open { transform: translateX(0); }
-  .admin-sidebar { transform: translateX(-100%); }
+  font-size: 0.6875rem;
+  letter-spacing: 0.05em;
+  margin-top: 0.5rem;
 }
 
-/* --- Main Content Area --- */
-html:not(.admin-dark) .admin-main-wrap {
-  background: #f1f5f9;
-  color: #1e293b;
+/* Mobil: sidebar overlay */
+@media (max-width: 1023px) {
+  .admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 50;
+    width: 280px;
+    max-width: 85vw;
+    transform: translateX(-100%);
+    box-shadow: none;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .admin-sidebar.open {
+    transform: translateX(0);
+    box-shadow: 16px 0 48px rgba(0, 0, 0, 0.3);
+  }
+  .admin-sidebar .nav-link {
+    min-height: 48px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+  }
 }
-.admin-dark .admin-main-wrap {
-  background: #0f172a;
-  color: #e2e8f0;
+
+/* --- Overlay --- */
+#sidebar-overlay {
+  transition: opacity 0.2s ease;
+}
+#sidebar-overlay:not(.opacity-0) {
+  backdrop-filter: blur(2px);
+}
+
+/* --- Main --- */
+.admin-main-wrap {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* --- Header --- */
+.admin-header {
+  min-height: var(--admin-touch);
+  padding-left: 1rem;
+  padding-right: 1rem;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+@media (min-width: 640px) {
+  .admin-header { padding-left: 1.5rem; padding-right: 1.5rem; }
+}
+@media (min-width: 1024px) {
+  .admin-header { padding-left: 2rem; padding-right: 2rem; }
+}
 html:not(.admin-dark) .admin-header {
-  background: #fff;
-  border-bottom: 1px solid #e2e8f0;
+  background: var(--admin-header-bg);
+  border-bottom: 1px solid var(--admin-header-border);
   color: #334155;
 }
 .admin-dark .admin-header {
-  background: #1e293b;
-  border-bottom: 1px solid #334155;
+  background: var(--admin-header-bg);
+  border-bottom: 1px solid var(--admin-header-border);
 }
 .admin-page-title {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 700;
-  margin-bottom: 0.25rem;
+  line-height: 1.3;
 }
-html:not(.admin-dark) .admin-page-title {
-  color: #0f172a;
-}
-.admin-dark .admin-page-title {
-  color: #f8fafc;
-}
+html:not(.admin-dark) .admin-page-title { color: #0f172a; }
+.admin-dark .admin-page-title { color: #f8fafc; }
 .admin-page-subtitle {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
+  margin-top: 0.125rem;
 }
-html:not(.admin-dark) .admin-page-subtitle {
-  color: #64748b;
-}
-.admin-dark .admin-page-subtitle {
-  color: #94a3b8;
-}
+html:not(.admin-dark) .admin-page-subtitle { color: #64748b; }
+.admin-dark .admin-page-subtitle { color: #94a3b8; }
 .admin-header-btn {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--admin-radius-sm);
   transition: background 0.15s, color 0.15s;
 }
-html:not(.admin-dark) .admin-header a,
-html:not(.admin-dark) .admin-header button {
-  color: #475569;
-}
-html:not(.admin-dark) .admin-header a:hover,
-html:not(.admin-dark) .admin-header button:hover {
+html:not(.admin-dark) .admin-header-btn:hover {
+  background: #f1f5f9;
   color: #0f172a;
 }
-.admin-dark .admin-header a,
-.admin-dark .admin-header button {
-  color: #94a3b8;
-}
-.admin-dark .admin-header a:hover,
-.admin-dark .admin-header button:hover {
+.admin-dark .admin-header-btn:hover {
+  background: #334155;
   color: #f8fafc;
 }
-.admin-dark .admin-header #sidebar-open:hover,
-.admin-dark .admin-header #admin-dark-toggle:hover {
-  background: #334155 !important;
-  color: #f8fafc !important;
+
+/* --- Content area --- */
+.admin-main-wrap > div.flex-1 {
+  padding: 1rem;
+  flex: 1;
+}
+@media (min-width: 640px) {
+  .admin-main-wrap > div.flex-1 { padding: 1.5rem; }
+}
+@media (min-width: 1024px) {
+  .admin-main-wrap > div.flex-1 { padding: 2rem; }
 }
 
-/* --- Kartlar --- */
+/* --- Cards --- */
 .admin-card {
-  border-radius: 12px;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06);
-  transition: box-shadow 0.15s;
+  border-radius: var(--admin-radius);
+  border: 1px solid var(--admin-card-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s ease;
 }
 html:not(.admin-dark) .admin-card {
-  background: #fff;
-  border: 1px solid #e2e8f0;
+  background: var(--admin-card-bg);
 }
 .admin-dark .admin-card {
-  background: #1e293b;
-  border: 1px solid #334155;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.2);
+  background: var(--admin-card-bg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+.admin-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+.admin-dark .admin-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
-/* Kart içi metin - tüm admin sayfalarında okunabilirlik */
+/* Kart metin */
 html:not(.admin-dark) .admin-card .text-slate-800,
-html:not(.admin-dark) .admin-main-wrap .text-slate-800 {
-  color: #1e293b !important;
-}
+html:not(.admin-dark) .admin-main-wrap .text-slate-800 { color: #1e293b !important; }
 .admin-dark .admin-card .text-slate-800,
-.admin-dark .admin-main-wrap .text-slate-800 {
-  color: #f1f5f9 !important;
-}
+.admin-dark .admin-main-wrap .text-slate-800 { color: #f1f5f9 !important; }
 html:not(.admin-dark) .admin-card .text-slate-700,
-html:not(.admin-dark) .admin-main-wrap .text-slate-700 {
-  color: #334155 !important;
-}
+html:not(.admin-dark) .admin-main-wrap .text-slate-700 { color: #334155 !important; }
 .admin-dark .admin-card .text-slate-700,
-.admin-dark .admin-main-wrap .text-slate-700 {
-  color: #e2e8f0 !important;
-}
+.admin-dark .admin-main-wrap .text-slate-700 { color: #e2e8f0 !important; }
 html:not(.admin-dark) .admin-card .text-slate-600,
-html:not(.admin-dark) .admin-main-wrap .text-slate-600 {
-  color: #475569 !important;
-}
+html:not(.admin-dark) .admin-main-wrap .text-slate-600 { color: #475569 !important; }
 .admin-dark .admin-card .text-slate-600,
-.admin-dark .admin-main-wrap .text-slate-600 {
-  color: #94a3b8 !important;
-}
+.admin-dark .admin-main-wrap .text-slate-600 { color: #94a3b8 !important; }
 html:not(.admin-dark) .admin-card .text-slate-500,
-html:not(.admin-dark) .admin-main-wrap .text-slate-500 {
-  color: #64748b !important;
-}
+html:not(.admin-dark) .admin-main-wrap .text-slate-500 { color: #64748b !important; }
 .admin-dark .admin-card .text-slate-500,
-.admin-dark .admin-main-wrap .text-slate-500 {
-  color: #94a3b8 !important;
-}
-html:not(.admin-dark) .admin-card .text-slate-400,
-html:not(.admin-dark) .admin-main-wrap .text-slate-400 {
-  color: #64748b !important;
-}
-.admin-dark .admin-card .text-slate-400,
-.admin-dark .admin-main-wrap .text-slate-400 {
-  color: #64748b !important;
-}
-
-/* Kart border override */
+.admin-dark .admin-main-wrap .text-slate-500 { color: #94a3b8 !important; }
 .admin-dark .admin-card .border-slate-200,
-.admin-dark .admin-main-wrap .border-slate-200 {
-  border-color: #334155 !important;
-}
-.admin-dark .admin-card .border-slate-100 {
-  border-color: #334155 !important;
-}
+.admin-dark .admin-main-wrap .border-slate-200 { border-color: #334155 !important; }
+.admin-dark .admin-card .border-slate-100 { border-color: #334155 !important; }
 
-/* --- Tablolar --- */
+/* --- Tables --- */
 .admin-table th {
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   padding: 0.875rem 1rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--admin-card-border);
 }
 html:not(.admin-dark) .admin-table th {
   color: #475569;
@@ -218,6 +267,7 @@ html:not(.admin-dark) .admin-table th {
   padding: 1rem;
   border-bottom: 1px solid #f1f5f9;
   vertical-align: middle;
+  font-size: 0.9375rem;
 }
 html:not(.admin-dark) .admin-table td {
   color: #334155;
@@ -227,36 +277,50 @@ html:not(.admin-dark) .admin-table td {
   color: #e2e8f0;
   border-color: #334155;
 }
+.admin-table tbody tr {
+  transition: background 0.1s ease;
+}
 .admin-table tbody tr:hover {
   background: #f8fafc;
 }
 .admin-dark .admin-table tbody tr:hover {
-  background: #334155;
+  background: rgba(51, 65, 85, 0.4);
 }
 
-/* Tablo içi linkler */
-html:not(.admin-dark) .admin-table a {
-  color: #2563eb;
-}
-html:not(.admin-dark) .admin-table a:hover {
-  color: #1d4ed8;
-  text-decoration: underline;
-}
-.admin-dark .admin-table a {
-  color: #60a5fa;
-}
-.admin-dark .admin-table a:hover {
-  color: #93c5fd;
-  text-decoration: underline;
+/* Mobil tablo: yatay kaydırma */
+@media (max-width: 768px) {
+  .admin-card.overflow-hidden {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .admin-table {
+    min-width: 600px;
+  }
+  .admin-table th,
+  .admin-table td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.875rem;
+  }
 }
 
-/* --- Butonlar --- */
+/* Tablo linkleri */
+html:not(.admin-dark) .admin-table a { color: #2563eb; }
+html:not(.admin-dark) .admin-table a:hover { color: #1d4ed8; text-decoration: underline; }
+.admin-dark .admin-table a { color: #60a5fa; }
+.admin-dark .admin-table a:hover { color: #93c5fd; text-decoration: underline; }
+
+/* --- Buttons --- */
 .admin-btn-primary {
   padding: 0.5rem 1rem;
-  border-radius: 8px;
+  min-height: 44px;
+  border-radius: var(--admin-radius-sm);
   font-weight: 500;
-  font-size: 0.875rem;
-  transition: background 0.15s;
+  font-size: 0.9375rem;
+  transition: background 0.15s, transform 0.1s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 html:not(.admin-dark) .admin-btn-primary {
   background: #059669;
@@ -277,10 +341,15 @@ html:not(.admin-dark) .admin-btn-primary:hover {
 
 .admin-btn-secondary {
   padding: 0.5rem 1rem;
-  border-radius: 8px;
+  min-height: 44px;
+  border-radius: var(--admin-radius-sm);
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   transition: background 0.15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 html:not(.admin-dark) .admin-btn-secondary {
   background: #f1f5f9;
@@ -303,9 +372,10 @@ html:not(.admin-dark) .admin-btn-secondary:hover {
 
 .admin-btn-danger {
   padding: 0.5rem 1rem;
-  border-radius: 8px;
+  min-height: 44px;
+  border-radius: var(--admin-radius-sm);
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   transition: background 0.15s;
 }
 html:not(.admin-dark) .admin-btn-danger {
@@ -327,21 +397,19 @@ html:not(.admin-dark) .admin-btn-danger:hover {
   color: #fff;
 }
 
-/* --- Form Elemanları --- */
+/* --- Form --- */
 .admin-input {
   width: 100%;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
+  padding: 0.625rem 0.875rem;
+  min-height: 44px;
+  border-radius: var(--admin-radius-sm);
+  font-size: 0.9375rem;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 html:not(.admin-dark) .admin-input {
   background: #fff;
   border: 1px solid #e2e8f0;
   color: #1e293b;
-}
-html:not(.admin-dark) .admin-input::placeholder {
-  color: #94a3b8;
 }
 html:not(.admin-dark) .admin-input:focus {
   outline: none;
@@ -353,52 +421,25 @@ html:not(.admin-dark) .admin-input:focus {
   border: 1px solid #475569;
   color: #f8fafc;
 }
-.admin-dark .admin-input::placeholder {
-  color: #64748b;
-}
 .admin-dark .admin-input:focus {
   outline: none;
   border-color: #059669;
   box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2);
 }
-.admin-dark .admin-input option {
-  background: #1e293b;
-  color: #f8fafc;
-}
-.admin-dark .admin-input[type="file"]::file-selector-button {
-  background: #334155;
-  color: #e2e8f0;
-  border: 0;
-  margin-right: 0.75rem;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
 .admin-label {
   display: block;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 500;
   margin-bottom: 0.375rem;
 }
-html:not(.admin-dark) .admin-label {
-  color: #475569;
-}
-.admin-dark .admin-label {
-  color: #94a3b8;
-}
-
-.admin-form-group {
-  margin-bottom: 1.25rem;
-}
-
-/* input-touch sınıfı kullanan sayfalar için (reviews, faq, vb.) */
+html:not(.admin-dark) .admin-label { color: #475569; }
+.admin-dark .admin-label { color: #94a3b8; }
+.admin-form-group { margin-bottom: 1.25rem; }
 .admin-main-wrap .input-touch {
   min-height: 44px;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: var(--admin-radius-sm);
+  font-size: 0.9375rem;
 }
 html:not(.admin-dark) .admin-main-wrap .input-touch {
   background: #fff;
@@ -410,28 +451,9 @@ html:not(.admin-dark) .admin-main-wrap .input-touch {
   border: 1px solid #475569 !important;
   color: #f8fafc !important;
 }
-.admin-dark .admin-main-wrap .input-touch::placeholder {
-  color: #64748b;
-}
 
-/* --- Durum Badge'leri --- */
-.admin-badge-success {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.375rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-html:not(.admin-dark) .admin-badge-success {
-  background: #d1fae5;
-  color: #065f46;
-}
-.admin-dark .admin-badge-success {
-  background: rgba(16, 185, 129, 0.2);
-  color: #6ee7b7;
-}
-
+/* --- Badges --- */
+.admin-badge-success,
 .admin-badge-warning {
   display: inline-flex;
   align-items: center;
@@ -440,33 +462,19 @@ html:not(.admin-dark) .admin-badge-success {
   font-size: 0.75rem;
   font-weight: 500;
 }
-html:not(.admin-dark) .admin-badge-warning {
-  background: #fef3c7;
-  color: #92400e;
-}
-.admin-dark .admin-badge-warning {
-  background: rgba(245, 158, 11, 0.2);
-  color: #fcd34d;
-}
-
-/* Mevcut badge sınıfları için override */
-html:not(.admin-dark) .bg-emerald-100 { background: #d1fae5 !important; }
-html:not(.admin-dark) .text-emerald-800 { color: #065f46 !important; }
+html:not(.admin-dark) .admin-badge-success { background: #d1fae5; color: #065f46; }
+.admin-dark .admin-badge-success { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+html:not(.admin-dark) .admin-badge-warning { background: #fef3c7; color: #92400e; }
+.admin-dark .admin-badge-warning { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
 .admin-dark .bg-emerald-100 { background: rgba(16, 185, 129, 0.2) !important; }
 .admin-dark .text-emerald-800 { color: #6ee7b7 !important; }
-html:not(.admin-dark) .bg-amber-100 { background: #fef3c7 !important; }
-html:not(.admin-dark) .text-amber-800 { color: #92400e !important; }
 .admin-dark .bg-amber-100 { background: rgba(245, 158, 11, 0.2) !important; }
 .admin-dark .text-amber-800 { color: #fcd34d !important; }
-html:not(.admin-dark) .bg-red-100 { background: #fee2e2 !important; }
-html:not(.admin-dark) .text-red-800 { color: #991b1b !important; }
 .admin-dark .bg-red-100 { background: rgba(220, 38, 38, 0.2) !important; }
 .admin-dark .text-red-800 { color: #fca5a5 !important; }
-html:not(.admin-dark) .bg-slate-100 { background: #f1f5f9 !important; }
-html:not(.admin-dark) .text-slate-600 { color: #475569 !important; }
 .admin-dark .bg-slate-100 { background: #334155 !important; }
 
-/* Link renkleri */
+/* --- Links --- */
 .admin-dashboard-link {
   color: #059669;
   font-weight: 500;
@@ -475,148 +483,76 @@ html:not(.admin-dark) .text-slate-600 { color: #475569 !important; }
   color: #047857;
   text-decoration: underline;
 }
-.admin-dark .admin-dashboard-link {
-  color: #34d399;
-}
-.admin-dark .admin-dashboard-link:hover {
-  color: #6ee7b7;
-}
+.admin-dark .admin-dashboard-link { color: #34d399; }
+.admin-dark .admin-dashboard-link:hover { color: #6ee7b7; }
+html:not(.admin-dark) .admin-main-wrap a.text-indigo-600 { color: #2563eb !important; }
+.admin-dark .admin-main-wrap a.text-indigo-600 { color: #60a5fa !important; }
+html:not(.admin-dark) .admin-main-wrap a.text-emerald-600 { color: #059669 !important; }
+.admin-dark .admin-main-wrap a.text-emerald-600 { color: #34d399 !important; }
+html:not(.admin-dark) .admin-main-wrap a.text-slate-500 { color: #64748b !important; }
+.admin-dark .admin-main-wrap a.text-slate-500 { color: #94a3b8 !important; }
 
-/* Düzenle / Firma sayfasına git vb. linkler */
-html:not(.admin-dark) .admin-main-wrap a.text-indigo-600 {
-  color: #2563eb !important;
-}
-html:not(.admin-dark) .admin-main-wrap a.text-indigo-600:hover {
-  color: #1d4ed8 !important;
-}
-.admin-dark .admin-main-wrap a.text-indigo-600 {
-  color: #60a5fa !important;
-}
-
-html:not(.admin-dark) .admin-main-wrap a.text-emerald-600 {
-  color: #059669 !important;
-}
-.admin-dark .admin-main-wrap a.text-emerald-600 {
-  color: #34d399 !important;
-}
-
-/* "Temizle" linki */
-html:not(.admin-dark) .admin-main-wrap a.text-slate-500 {
-  color: #64748b !important;
-}
-.admin-dark .admin-main-wrap a.text-slate-500 {
-  color: #94a3b8 !important;
-}
-
-/* --- Bildirimler --- */
+/* --- Alerts --- */
 .admin-alert {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   padding: 1rem 1.25rem;
-  border-radius: 12px;
+  border-radius: var(--admin-radius);
   font-size: 0.9375rem;
   font-weight: 500;
   border: 1px solid;
 }
-.admin-alert-icon {
-  flex-shrink: 0;
-}
-.admin-alert-text {
-  flex: 1;
-}
-
 .admin-alert-success {
   background: #ecfdf5;
   border-color: #10b981;
   color: #065f46;
 }
-.admin-alert-success .admin-alert-icon {
-  color: #059669;
-}
+.admin-alert-success .admin-alert-icon { color: #059669; }
 .admin-dark .admin-alert-success {
   background: #064e3b;
   border-color: #059669;
   color: #6ee7b7;
 }
-.admin-dark .admin-alert-success .admin-alert-icon {
-  color: #34d399;
-}
-
 .admin-alert-error {
   background: #fef2f2;
   border-color: #ef4444;
   color: #991b1b;
-}
-.admin-alert-error .admin-alert-icon {
-  color: #dc2626;
 }
 .admin-dark .admin-alert-error {
   background: #7f1d1d;
   border-color: #dc2626;
   color: #fecaca;
 }
-.admin-dark .admin-alert-error .admin-alert-icon {
-  color: #f87171;
-}
-
-/* Validation hata metni */
-html:not(.admin-dark) .text-red-500,
-html:not(.admin-dark) .text-red-600 {
-  color: #dc2626 !important;
-}
 .admin-dark .text-red-500,
-.admin-dark .text-red-600 {
-  color: #f87171 !important;
-}
+.admin-dark .text-red-600 { color: #f87171 !important; }
 
-/* --- Settings sekme --- */
-.settings-tab {
-  cursor: pointer;
-}
-.settings-tab-panel {
-  display: none;
-}
-.settings-tab-panel.active {
-  display: block;
-}
+/* --- Settings tabs --- */
+.settings-tab { cursor: pointer; }
+.settings-tab-panel { display: none; }
+.settings-tab-panel.active { display: block; }
 .admin-dark .settings-tab.border-emerald-500 {
   background: #1e293b !important;
   border-color: #059669 !important;
   color: #34d399 !important;
 }
-.admin-dark .settings-tab:not(.border-emerald-500):hover {
-  color: #e2e8f0 !important;
-}
 
 /* --- Pagination --- */
-.admin-dark .admin-main-wrap nav[role="navigation"] {
-  border-color: #334155 !important;
-}
+.admin-dark .admin-main-wrap nav[role="navigation"] { border-color: #334155 !important; }
 .admin-dark .admin-main-wrap nav[role="navigation"] a,
-.admin-dark .admin-main-wrap nav[role="navigation"] span {
-  color: #94a3b8 !important;
-}
+.admin-dark .admin-main-wrap nav[role="navigation"] span { color: #94a3b8 !important; }
 .admin-dark .admin-main-wrap nav[role="navigation"] a:hover {
   color: #f8fafc !important;
   background: #334155 !important;
 }
-.admin-dark .admin-main-wrap nav[role="navigation"] .text-gray-500 {
-  color: #94a3b8 !important;
-}
 
-/* Dashboard özet bar - koyu modda daha okunaklı */
 .admin-dark .admin-main-wrap .bg-slate-100 {
   background: #1e293b !important;
   border-color: #334155 !important;
 }
-
-/* Okunmamış bildirim satırı */
 .admin-dark .admin-table tbody tr.bg-emerald-50\/50 {
   background: rgba(16, 185, 129, 0.1) !important;
 }
-
-/* text-slate-700 badge (bildirim tipi) */
 .admin-dark .admin-main-wrap .bg-slate-100.text-slate-700 {
   color: #cbd5e1 !important;
 }

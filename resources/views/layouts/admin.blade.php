@@ -186,7 +186,7 @@
                     <a href="{{ route('admin.profile.edit') }}" class="text-sm text-slate-500 hover:text-slate-800 dark:hover:text-emerald-400 font-medium">Profil</a>
                 </div>
             </header>
-            <div class="flex-1 p-6 lg:p-8">
+            <div class="flex-1 p-4 sm:p-6 lg:p-8">
                 @if(session('success'))
                     <div class="admin-alert admin-alert-success mb-6" role="alert">
                         <span class="admin-alert-icon" aria-hidden="true">

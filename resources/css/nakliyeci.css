@@ -1,6 +1,6 @@
-/* Nakliyeci panel - açık modda okunabilirlik */
+/* Nakliyeci panel - okunaklılık ve mobil deneyim */
 
-/* Açık mod: sidebar logo ve linkler koyu renk */
+/* Açık mod: sidebar logo ve linkler */
 html:not(.admin-dark) .admin-sidebar .admin-sidebar-logo {
   color: #065f46 !important;
 }
@@ -8,42 +8,21 @@ html:not(.admin-dark) .admin-sidebar .admin-sidebar-logo span:first-child {
   background: #059669 !important;
   color: #fff !important;
 }
-
-/* Ana alan açık modda net metin renkleri */
-html:not(.admin-dark) .admin-main-wrap .admin-page-title {
-  color: #0f172a;
-}
-html:not(.admin-dark) .admin-main-wrap .admin-page-subtitle {
-  color: #475569;
-}
+html:not(.admin-dark) .admin-main-wrap .admin-page-title { color: #0f172a; }
+html:not(.admin-dark) .admin-main-wrap .admin-page-subtitle { color: #475569; }
 html:not(.admin-dark) .admin-main-wrap .admin-card,
 html:not(.admin-dark) .admin-main-wrap .admin-card p,
-html:not(.admin-dark) .admin-main-wrap .admin-card li {
-  color: #334155;
-}
+html:not(.admin-dark) .admin-main-wrap .admin-card li { color: #334155; }
 html:not(.admin-dark) .admin-main-wrap .admin-card .font-semibold,
 html:not(.admin-dark) .admin-main-wrap .admin-card .font-medium,
-html:not(.admin-dark) .admin-main-wrap .admin-card strong {
-  color: #0f172a;
-}
-html:not(.admin-dark) .admin-main-wrap .admin-label {
-  color: #475569;
-}
-html:not(.admin-dark) .admin-main-wrap .admin-table th {
-  color: #475569;
-  background: #f8fafc;
-}
-html:not(.admin-dark) .admin-main-wrap .admin-table td {
-  color: #334155;
-}
-html:not(.admin-dark) .admin-header .admin-page-title {
-  color: #0f172a;
-}
-html:not(.admin-dark) .admin-header .admin-page-subtitle {
-  color: #64748b;
-}
+html:not(.admin-dark) .admin-main-wrap .admin-card strong { color: #0f172a; }
+html:not(.admin-dark) .admin-main-wrap .admin-label { color: #475569; }
+html:not(.admin-dark) .admin-main-wrap .admin-table th { color: #475569; background: #f8fafc; }
+html:not(.admin-dark) .admin-main-wrap .admin-table td { color: #334155; }
+html:not(.admin-dark) .admin-header .admin-page-title { color: #0f172a; }
+html:not(.admin-dark) .admin-header .admin-page-subtitle { color: #64748b; }
 
-/* --- Firma paneli: modern stat kartları --- */
+/* Stat kartları */
 .nakliyeci-stat-card {
   transition: transform 0.15s ease, box-shadow 0.2s ease;
 }
@@ -54,17 +33,62 @@ html:not(.admin-dark) .admin-header .admin-page-subtitle {
 .admin-dark .nakliyeci-stat-card:hover {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
-.nakliyeci-stat-icon {
-  flex-shrink: 0;
+.nakliyeci-stat-icon { flex-shrink: 0; }
+
+/* Tablo link vurgusu */
+.admin-main-wrap .admin-table tbody tr.group:hover td a { text-decoration: underline; }
+.admin-main-wrap .admin-table .admin-btn-primary { transition: opacity 0.15s; }
+.admin-main-wrap .admin-table .admin-btn-primary:hover { opacity: 0.9; }
+
+/* ========== Mobil: nakliyeci panel ========== */
+@media (max-width: 1023px) {
+  /* Sidebar genişlik ve dokunma alanları */
+  .admin-sidebar {
+    width: 288px;
+    max-width: 88vw;
+  }
+  .admin-sidebar .nav-link {
+    min-height: 48px;
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+    border-radius: 10px;
+  }
+  .admin-sidebar .admin-sidebar-header {
+    min-height: 56px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  /* Header: tam genişlik menü butonu */
+  .admin-header {
+    min-height: 56px;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  .admin-header .admin-header-btn {
+    min-width: 48px;
+    min-height: 48px;
+  }
+  /* İçerik alanı mobil padding */
+  .admin-main-wrap > div.flex-1 {
+    padding: 1rem;
+  }
+  /* Kart ve butonlar mobil */
+  .nakliyeci-stat-card {
+    padding: 1rem !important;
+  }
+  .admin-btn-primary,
+  .admin-btn-secondary {
+    min-height: 48px;
+    padding: 0.75rem 1.25rem;
+    font-size: 1rem;
+  }
 }
 
-/* Tablo satırları - teklifler/ihaleler link vurgusu */
-.admin-main-wrap .admin-table tbody tr.group:hover td a {
-  text-decoration: underline;
-}
-.admin-main-wrap .admin-table .admin-btn-primary {
-  transition: opacity 0.15s;
-}
-.admin-main-wrap .admin-table .admin-btn-primary:hover {
-  opacity: 0.9;
+@media (max-width: 640px) {
+  .admin-main-wrap > div.flex-1 {
+    padding: 0.75rem;
+  }
+  .admin-page-title {
+    font-size: 1rem;
+  }
 }

@@ -191,7 +191,6 @@
                 </div>
                 <div class="admin-form-group">
                     <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="hidden" name="approved" value="0">
                         <input type="checkbox" name="approved" value="1" {{ old('approved', $company->approved_at ? '1' : '0') === '1' ? 'checked' : '' }} class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
                         <span class="admin-label mb-0">Firma onaylı (sitede yayınlansın)</span>
                     </label>

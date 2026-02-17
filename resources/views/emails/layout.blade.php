@@ -39,12 +39,14 @@
                             @php
                                 $logoPath = \App\Models\Setting::get('site_logo', '');
                                 $logoUrl = $logoPath ? asset('storage/' . $logoPath) : null;
+                                $siteName = config('seo.site_name', 'Nakliyepark');
                             @endphp
                             <a href="{{ url('/') }}" class="brand" style="font-size: 22px; font-weight: 700; color: #059669; text-decoration: none; display: inline-flex; align-items: center; gap: 12px;">
                                 @if($logoUrl)
-                                    <img src="{{ $logoUrl }}" alt="{{ config('seo.site_name', 'NakliyePark') }}" width="140" height="44" style="display: block; max-height: 44px; width: auto; object-fit: contain;">
+                                    <img src="{{ $logoUrl }}" alt="{{ $siteName }}" width="140" height="44" style="display: block; max-height: 44px; width: auto; object-fit: contain;">
+                                @else
+                                    <span>{{ $siteName }}</span>
                                 @endif
-                                <span>{{ config('seo.site_name', 'NakliyePark') }}</span>
                             </a>
                         </td>
                     </tr>

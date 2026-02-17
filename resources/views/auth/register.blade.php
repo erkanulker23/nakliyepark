@@ -22,12 +22,13 @@
     <div id="step1" class="step-panel">
         <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Deftere yazın, teklif verin. Her gün 2.500’den fazla işin paylaşıldığı bu platforma katılın. İş fırsatlarını kaçırmayın.</p>
         <div class="space-y-3 mb-6">
+            @php $defaultRole = request('role', old('role', 'musteri')); $defaultRole = in_array($defaultRole, ['musteri', 'nakliyeci'], true) ? $defaultRole : 'musteri'; @endphp
             <label class="flex items-center gap-4 p-4 rounded-xl border-2 border-slate-200 dark:border-slate-600 cursor-pointer hover:border-emerald-300 transition-colors has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50 dark:has-[:checked]:bg-emerald-900/20">
-                <input type="radio" name="role" value="musteri" {{ old('role', 'musteri') === 'musteri' ? 'checked' : '' }} class="w-4 h-4 text-emerald-500">
+                <input type="radio" name="role" value="musteri" {{ $defaultRole === 'musteri' ? 'checked' : '' }} class="w-4 h-4 text-emerald-500">
                 <span class="font-medium text-zinc-900 dark:text-white">Müşteri üyeliği</span>
             </label>
             <label class="flex items-center gap-4 p-4 rounded-xl border-2 border-slate-200 dark:border-slate-600 cursor-pointer hover:border-emerald-300 transition-colors has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50 dark:has-[:checked]:bg-emerald-900/20">
-                <input type="radio" name="role" value="nakliyeci" {{ old('role') === 'nakliyeci' ? 'checked' : '' }} class="w-4 h-4 text-emerald-500">
+                <input type="radio" name="role" value="nakliyeci" {{ $defaultRole === 'nakliyeci' ? 'checked' : '' }} class="w-4 h-4 text-emerald-500">
                 <span class="font-medium text-zinc-900 dark:text-white">Nakliyeci üyeliği</span>
             </label>
         </div>
@@ -46,7 +47,7 @@
 
         <form method="POST" action="{{ route('register') }}" id="register-form" class="space-y-4">
             @csrf
-            <input type="hidden" name="role" id="form-role" value="{{ old('role', 'musteri') }}">
+            <input type="hidden" name="role" id="form-role" value="{{ $defaultRole }}">
 
             @php
                 $nameParts = explode(' ', old('name', ''), 2);

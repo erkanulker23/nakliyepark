@@ -110,7 +110,7 @@
                     </button>
                 </div>
             </header>
-            <div class="flex-1 p-6 lg:p-8">
+            <div class="flex-1 p-4 sm:p-6 lg:p-8">
                 @if(session('success'))
                     <div class="admin-alert-success mb-6 rounded-lg border px-4 py-3 text-sm font-medium">
                         {{ session('success') }}
