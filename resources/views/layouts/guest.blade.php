@@ -53,6 +53,9 @@
                 <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-600 text-white font-bold text-base">N</span>
                 <span class="font-semibold text-zinc-900 dark:text-white text-lg">NakliyePark</span>
             @endif
+            @if(config('app.beta', true))
+                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30">Beta</span>
+            @endif
         </a>
         @yield('content')
     </main>

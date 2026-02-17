@@ -51,6 +51,9 @@
             </div>
         </div>
         <div class="mt-8 sm:mt-10 pt-6 sm:pt-8 border-t border-zinc-200 dark:border-zinc-800">
+            @if(config('app.beta', true))
+                <p class="text-xs sm:text-sm text-amber-600 dark:text-amber-400 mb-2">NakliyePark şu an <strong>beta</strong> sürümündedir. Geliştirme devam ediyor; geri bildiriminiz bizim için değerli.</p>
+            @endif
             <p class="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">NakliyePark — Akıllı nakliye ihalesi ve yük borsası. Üye olmadan ihale başlatabilirsiniz.</p>
         </div>
     </div>

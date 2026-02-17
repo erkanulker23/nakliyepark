@@ -15,6 +15,9 @@
                     <span class="site-brand-fallback flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-600 text-white font-bold text-base shadow-sm">N</span>
                     <span class="site-brand-text font-semibold text-zinc-900 dark:text-white text-lg tracking-tight">NakliyePark</span>
                 @endif
+                @if(config('app.beta', true))
+                    <span class="beta-badge hidden sm:inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30" title="Bu sürüm beta aşamasındadır">Beta</span>
+                @endif
             </a>
             <nav class="hidden lg:flex items-center gap-0.5">
                 <a href="{{ route('ihaleler.index') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400">İhaleler</a>

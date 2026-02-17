@@ -14,7 +14,17 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(RoomTemplateSeeder::class);
 
-        // Sunucu admini: bu e-posta varsa her zaman admin kalsın
+        // Süper admin: proje kurulumunda otomatik oluşturulur (.env: SUPER_ADMIN_PASSWORD)
+        $superAdminPassword = env('SUPER_ADMIN_PASSWORD', 'password');
+        User::firstOrCreate(
+            ['email' => 'erkanulker0@gmail.com'],
+            [
+                'name' => 'Erkan Ülker',
+                'role' => 'admin',
+                'password' => bcrypt($superAdminPassword),
+                'email_verified_at' => now(),
+            ]
+        );
         User::where('email', 'erkanulker0@gmail.com')->update(['role' => 'admin']);
 
         if (User::where('email', 'admin@nakliyepark.test')->doesntExist()) {

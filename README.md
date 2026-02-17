@@ -59,7 +59,24 @@ npm run dev   # bir terminalde
 php artisan serve  # başka terminalde
 ```
 
-## Varsayılan Admin
+## Giriş Noktaları (Ayrı)
+
+| Rol | URL | Açıklama |
+|-----|-----|----------|
+| **Yönetici** | `/yonetici/admin` | Admin paneli girişi |
+| **Müşteri / Nakliyeci** | `/login` | Ana site girişi |
+
+## Süper Admin
+
+**erkanulker0@gmail.com** proje kurulumunda otomatik süper admin olarak oluşturulur:
+
+1. **db:seed ile:** `php artisan db:seed` çalıştırıldığında oluşturulur. Şifre: `.env` içinde `SUPER_ADMIN_PASSWORD` (yoksa `password`).
+2. **Komut ile:** Kullanıcı yoksa `--password` ile yeni süper admin oluşturulur:
+   ```bash
+   php artisan admin:ensure erkanulker0@gmail.com --password=GizliSifrem123
+   ```
+
+## Varsayılan Test Admin
 
 - **E-posta:** admin@nakliyepark.test  
 - **Şifre:** password  
