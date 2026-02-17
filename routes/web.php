@@ -202,6 +202,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/', fn () => redirect()->route('admin.dashboard'));
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::resource('users', AdminUserController::class)->only(['index', 'edit', 'update', 'destroy']);
+    Route::post('/users/{user}/approve', [AdminUserController::class, 'approve'])->name('users.approve');
     Route::get('/musteriler', [AdminMusteriController::class, 'index'])->name('musteriler.index');
     Route::get('/musteriler/{user}', [AdminMusteriController::class, 'show'])->name('musteriler.show');
     Route::get('/consent-logs', [AdminConsentLogController::class, 'index'])->name('consent-logs.index');

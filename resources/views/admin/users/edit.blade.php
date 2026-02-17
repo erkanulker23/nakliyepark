@@ -6,18 +6,51 @@
 
 @section('content')
 <div class="max-w-2xl space-y-4">
-    @if($user->isBlocked())
-        <div class="admin-alert-error rounded-lg px-4 py-3">Bu kullanıcı engelli. Engeli kaldırmak için aşağıdaki butonu kullanın.</div>
-        <form method="POST" action="{{ route('admin.blocklist.unblock-user', $user) }}" class="inline">
-            @csrf
-            <button type="submit" class="admin-btn-primary">Engeli kaldır</button>
-        </form>
-    @elseif($user->id !== auth()->id())
-        <form method="POST" action="{{ route('admin.blocklist.block-user', $user) }}" class="inline" onsubmit="return confirm('Bu kullanıcıyı engellemek istediğinize emin misiniz?');">
-            @csrf
-            <button type="submit" class="admin-btn-danger">Kullanıcıyı engelle</button>
-        </form>
-    @endif
+    {{-- Onay & Engelleme --}}
+    <div class="admin-card p-4 flex flex-wrap items-center gap-4">
+        <div class="flex flex-wrap items-center gap-3">
+            <span class="text-sm text-zinc-600 dark:text-zinc-400">E-posta doğrulandı:</span>
+            @if($user->email_verified_at)
+                <span class="text-sm font-medium text-emerald-600 dark:text-emerald-400">Evet</span>
+            @else
+                <span class="text-sm text-amber-600 dark:text-amber-400">Hayır</span>
+                <form method="POST" action="{{ route('admin.users.approve', $user) }}" class="inline">
+                    @csrf
+                    <button type="submit" class="admin-btn-primary text-sm">Kullanıcıyı onayla (E-posta doğrula)</button>
+                </form>
+            @endif
+        </div>
+        @if($user->isNakliyeci() && $user->company)
+            <span class="text-zinc-300 dark:text-zinc-600">|</span>
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="text-sm text-zinc-600 dark:text-zinc-400">Firma:</span>
+                <a href="{{ route('admin.companies.edit', $user->company) }}" class="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline">{{ $user->company->name }}</a>
+                @if($user->company->approved_at)
+                    <span class="text-sm text-emerald-600 dark:text-emerald-400">(Onaylı)</span>
+                @else
+                    <form method="POST" action="{{ route('admin.companies.approve', $user->company) }}" class="inline">
+                        @csrf
+                        <button type="submit" class="admin-btn-primary text-sm">Firmayı onayla</button>
+                    </form>
+                @endif
+            </div>
+        @endif
+        <span class="text-zinc-300 dark:text-zinc-600">|</span>
+        @if($user->isBlocked())
+            <div class="flex items-center gap-2">
+                <span class="text-sm text-red-600 dark:text-red-400 font-medium">Engelli</span>
+                <form method="POST" action="{{ route('admin.blocklist.unblock-user', $user) }}" class="inline">
+                    @csrf
+                    <button type="submit" class="admin-btn-primary text-sm">Engeli kaldır</button>
+                </form>
+            </div>
+        @elseif($user->id !== auth()->id())
+            <form method="POST" action="{{ route('admin.blocklist.block-user', $user) }}" class="inline" onsubmit="return confirm('Bu kullanıcıyı engellemek istediğinize emin misiniz?');">
+                @csrf
+                <button type="submit" class="admin-btn-danger text-sm">Kullanıcıyı engelle</button>
+            </form>
+        @endif
+    </div>
     <div class="admin-card p-6">
         <form method="POST" action="{{ route('admin.users.update', $user) }}" class="space-y-5">
             @csrf
