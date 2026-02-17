@@ -9,10 +9,12 @@
             <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
             <span class="text-[10px] sm:text-xs">İhaleler</span>
         </a>
-        {{-- İhale oluştur: vurgulu, yükseltilmiş buton (FAB tarzı) --}}
-        <a href="{{ route('ihale.create') }}" class="flex flex-col items-center justify-center gap-0.5 min-w-[56px] min-h-[48px] -mt-4 rounded-2xl bg-gradient-to-b from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white shadow-lg shadow-emerald-500/35 hover:shadow-xl hover:shadow-emerald-500/40 active:scale-95 transition-all duration-200 ring-4 ring-white dark:ring-zinc-900/95 {{ request()->routeIs('ihale.create') || request()->routeIs('ihale.store') ? 'ring-2 ring-emerald-400' : '' }}" aria-current="{{ request()->routeIs('ihale.create') ? 'page' : null }}">
-            <svg class="w-7 h-7 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-            <span class="text-[10px] sm:text-xs font-semibold">İhale Başlat</span>
+        {{-- İhale oluştur: belirgin FAB, + simgesi, farklı tasarım --}}
+        <a href="{{ route('ihale.create') }}" class="group flex flex-col items-center justify-center gap-1 min-w-[64px] min-h-[56px] -mt-5 rounded-2xl bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 hover:from-emerald-400 hover:via-emerald-500 hover:to-teal-600 text-white shadow-xl shadow-emerald-600/45 hover:shadow-2xl hover:shadow-emerald-500/50 hover:-translate-y-0.5 active:scale-95 transition-all duration-200 ring-4 ring-white dark:ring-zinc-900/95 border-2 border-white/30 dark:border-white/10 {{ request()->routeIs('ihale.create') || request()->routeIs('ihale.store') ? 'ring-2 ring-emerald-400 ring-offset-2 ring-offset-white dark:ring-offset-zinc-900' : '' }}" aria-current="{{ request()->routeIs('ihale.create') ? 'page' : null }}">
+            <span class="flex items-center justify-center w-9 h-9 rounded-xl bg-white/20 backdrop-blur-sm group-hover:bg-white/30 transition-colors">
+                <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            </span>
+            <span class="text-[10px] sm:text-xs font-bold tracking-wide">+ İhale Başlat</span>
         </a>
         @if($show_firmalar_page ?? true)
         <a href="{{ route('firmalar.index') }}" class="bottom-nav-item flex flex-col items-center justify-center gap-0.5 min-w-[52px] min-h-[44px] rounded-xl text-zinc-500 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 active:bg-emerald-500/10 {{ request()->routeIs('firmalar.*') ? 'text-emerald-600 dark:text-emerald-400 font-medium' : '' }}" aria-current="{{ request()->routeIs('firmalar.*') ? 'page' : null }}">
@@ -20,13 +22,5 @@
             <span class="text-[10px] sm:text-xs">Firmalar</span>
         </a>
         @endif
-        <a href="{{ route('defter.index') }}" class="bottom-nav-item flex flex-col items-center justify-center gap-0.5 min-w-[52px] min-h-[44px] rounded-xl text-zinc-500 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 active:bg-emerald-500/10 {{ request()->routeIs('defter.*') ? 'text-emerald-600 dark:text-emerald-400 font-medium' : '' }}" aria-current="{{ request()->routeIs('defter.*') ? 'page' : null }}">
-            <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-            <span class="text-[10px] sm:text-xs">Defter</span>
-        </a>
-        <a href="{{ route('pazaryeri.index') }}" class="bottom-nav-item flex flex-col items-center justify-center gap-0.5 min-w-[52px] min-h-[44px] rounded-xl text-zinc-500 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 active:bg-emerald-500/10 {{ request()->routeIs('pazaryeri.*') ? 'text-emerald-600 dark:text-emerald-400 font-medium' : '' }}" aria-current="{{ request()->routeIs('pazaryeri.*') ? 'page' : null }}">
-            <svg class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
-            <span class="text-[10px] sm:text-xs">Pazaryeri</span>
-        </a>
     </div>
 </nav>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BlockedEmail;
 use App\Models\BlockedIp;
 use App\Models\BlockedPhone;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -117,13 +118,25 @@ class LoginController extends Controller
             ]);
         }
 
-        if (! Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
-            Log::warning('Admin login failed (wrong credentials)', [
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user) {
+            Log::warning('Admin login failed (unknown email)', [
                 'email' => $request->email,
                 'ip' => $request->ip(),
             ]);
             throw ValidationException::withMessages([
-                'email' => [__('auth.failed')],
+                'email' => ['Bu e-posta adresi ile kayıtlı kullanıcı bulunamadı.'],
+            ]);
+        }
+
+        if (! Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+            Log::warning('Admin login failed (wrong password)', [
+                'email' => $request->email,
+                'ip' => $request->ip(),
+            ]);
+            throw ValidationException::withMessages([
+                'password' => ['Şifre hatalı.'],
             ]);
         }
 
