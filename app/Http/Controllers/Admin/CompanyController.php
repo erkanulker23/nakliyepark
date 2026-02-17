@@ -102,6 +102,21 @@ class CompanyController extends Controller
         $wasApproved = $company->approved_at !== null;
         $company->load('user');
         $company->update($data);
+
+        // Firma e-postası değiştiyse, giriş için kullanılan User e-postasını da güncelle (nakliyeci yeni e-posta ile giriş yapabilsin)
+        if ($request->has('email') && $company->user) {
+            $newEmail = $request->input('email');
+            if (is_string($newEmail) && trim($newEmail) !== '' && $company->user->email !== trim($newEmail)) {
+                $company->user->update(['email' => trim($newEmail)]);
+                Log::channel('admin_actions')->info('Admin synced company email to user', [
+                    'admin_id' => auth()->id(),
+                    'company_id' => $company->id,
+                    'user_id' => $company->user->id,
+                    'new_email' => trim($newEmail),
+                ]);
+            }
+        }
+
         if ($request->has('approved')) {
             $approved = $request->boolean('approved');
             $company->update([
