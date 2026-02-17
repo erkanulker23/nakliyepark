@@ -1,0 +1,5 @@
+; Bu dosyayı .user.ini olarak kopyalayıp public/ içinde kullanabilirsiniz
+; (Sadece sunucu .user.ini destekliyorsa geçerlidir.)
+; 413 / Request Entity Too Large için:
+; upload_max_filesize = 10M
+; post_max_size = 50M

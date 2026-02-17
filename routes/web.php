@@ -222,6 +222,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('/companies/{company}', [AdminCompanyController::class, 'update'])->name('companies.update');
     Route::delete('/companies/{company}', [AdminCompanyController::class, 'destroy'])->name('companies.destroy');
     Route::post('/companies/{company}/approve', [AdminCompanyController::class, 'approve'])->name('companies.approve');
+    Route::post('/companies/{company}/approve-pending', [AdminCompanyController::class, 'approvePendingChanges'])->name('companies.approve-pending');
     Route::post('/companies/{company}/reject', [AdminCompanyController::class, 'reject'])->name('companies.reject');
     Route::patch('/companies/{company}/package', [AdminCompanyController::class, 'updatePackage'])->name('companies.update-package');
     Route::post('/companies/{company}/logo/approve', [AdminCompanyController::class, 'approveLogo'])->name('companies.approve-logo');

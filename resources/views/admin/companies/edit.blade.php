@@ -49,6 +49,30 @@
             </form>
         </div>
     @endif
+    @if($company->hasPendingChanges())
+        @php $p = $company->pending_changes; @endphp
+        <div class="admin-card p-5 mb-4 border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/20 rounded-lg">
+            <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-2 flex items-center gap-2">
+                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </span>
+                Nakliyecinin gönderdiği bekleyen değişiklikler
+            </h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">Gönderim: {{ $company->pending_changes_at?->format('d.m.Y H:i') }}. Aşağıdaki değişiklikler onaylanana kadar firma sayfası mevcut haliyle yayında.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm mb-4">
+                @if(isset($p['name']))<div><span class="text-slate-500">Firma adı:</span> <strong>{{ $p['name'] }}</strong></div>@endif
+                @if(isset($p['city']) || isset($p['district']))<div><span class="text-slate-500">Şehir / İlçe:</span> {{ trim(($p['city'] ?? '') . (isset($p['district']) && $p['district'] ? ', ' . $p['district'] : '')) ?: '—' }}</div>@endif
+                @if(isset($p['phone']))<div><span class="text-slate-500">Telefon:</span> {{ $p['phone'] }}</div>@endif
+                @if(isset($p['email']))<div><span class="text-slate-500">E-posta:</span> {{ $p['email'] }}</div>@endif
+                @if(!empty($p['remove_logo']))<div class="sm:col-span-2"><span class="text-red-600 dark:text-red-400 font-medium">Nakliyeci logoyu kaldırmak istiyor.</span></div>@endif
+                @if(!empty($p['logo']))<div class="sm:col-span-2"><span class="text-slate-500">Yeni logo:</span> <img src="{{ asset('storage/'.$p['logo']) }}" alt="Bekleyen logo" class="inline-block w-16 h-16 rounded-lg object-cover border border-slate-200 dark:border-slate-600 mt-1"></div>@endif
+            </div>
+            <form method="POST" action="{{ route('admin.companies.approve-pending', $company) }}" class="inline" onsubmit="return confirm('Bu değişiklikleri onaylayıp yayına almak istediğinize emin misiniz?');">
+                @csrf
+                <button type="submit" class="admin-btn-primary">Değişiklikleri onayla ve yayına al</button>
+            </form>
+        </div>
+    @endif
     <div class="admin-card p-6">
         {{-- Sekmeler --}}
         <div class="border-b border-slate-200 dark:border-slate-600 mb-6" role="tablist">

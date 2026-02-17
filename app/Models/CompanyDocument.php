@@ -22,11 +22,14 @@ class CompanyDocument extends Model
     public function getTypeLabelAttribute(): string
     {
         return match ($this->type) {
-            'k1' => 'K1 Belgesi',
-            'gb' => 'GB (Yeşil Kart)',
-            'sigorta' => 'Sigorta',
-            'ruhsat' => 'Ruhsat',
-            default => $this->title ?? ucfirst($this->type),
+            'k1' => 'K1 belgesi',
+            'marka_tescil' => 'Marka tescil belgesi',
+            'ode' => 'ODE belgesi',
+            'psikoteknik' => 'Psikoteknik belgesi',
+            'faaliyet' => 'Faaliyet belgesi',
+            'vergi_levhasi' => 'Vergi levhası',
+            'ticaret_odasi' => 'Ticaret odası',
+            default => $this->title ?? str_replace('_', ' ', ucfirst($this->type ?? '')),
         };
     }
 }

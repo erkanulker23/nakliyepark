@@ -11,6 +11,11 @@
             Firma bilgileriniz admin onayı bekliyor. Onaylandıktan sonra ilanlarınız yayında görünecek ve teklif verebileceksiniz.
         </div>
     @endif
+    @if($company->hasPendingChanges())
+        <div class="mb-6 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50/80 dark:bg-amber-900/20 px-4 py-3 text-sm text-amber-800 dark:text-amber-200">
+            <strong>Bekleyen değişiklikleriniz</strong> admin onayına gönderildi ({{ $company->pending_changes_at?->format('d.m.Y H:i') }}). Onaylanana kadar firma sayfanız <strong>mevcut haliyle</strong> yayında kalacaktır. Aşağıda gönderdiğiniz son talebi düzenleyebilirsiniz.
+        </div>
+    @endif
 
     <div class="admin-card p-6">
         <form method="POST" action="{{ route('nakliyeci.company.update') }}" enctype="multipart/form-data" class="space-y-5">
@@ -19,85 +24,96 @@
             {{-- Firma logosu (admin onayı gerekir) --}}
             <div class="border-b border-slate-200 dark:border-slate-600 pb-6 mb-6">
                 <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-2">Firma logosu</h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">Logo yükleyebilirsiniz. Yayına alınması admin onayına bağlıdır.</p>
-                @if($company->logo)
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-2">Önerilen boyut: <strong>400×400 piksel</strong> (kare), en az 200×200. Dosya boyutu en fazla <strong>2 MB</strong>. JPG, PNG veya WebP.</p>
+                @php
+                    $currentLogo = (isset($company->pending_changes['remove_logo']) && $company->pending_changes['remove_logo']) ? null : ($company->pending_changes['logo'] ?? $company->logo);
+                @endphp
+                @if($currentLogo)
                     <div class="flex flex-wrap items-center gap-4 mb-3">
-                        <img src="{{ asset('storage/'.$company->logo) }}" alt="Mevcut logo" class="w-24 h-24 rounded-xl object-cover border border-slate-200 dark:border-slate-600">
-                        @if(!$company->logo_approved_at)
+                        <img src="{{ asset('storage/'.$currentLogo) }}" alt="Mevcut / bekleyen logo" class="w-24 h-24 rounded-xl object-cover border border-slate-200 dark:border-slate-600">
+                        @if(isset($company->pending_changes['logo']) && $company->pending_changes['logo'])
+                            <span class="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">Bekleyen (onay sonrası yayınlanacak)</span>
+                        @elseif(isset($company->pending_changes['remove_logo']) && $company->pending_changes['remove_logo'])
+                            <span class="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">Silme talebi (onay bekliyor)</span>
+                        @elseif(!$company->logo_approved_at)
                             <span class="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">Onay bekliyor</span>
                         @else
                             <span class="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">Yayında</span>
                         @endif
                     </div>
+                    <label class="flex items-center gap-2 cursor-pointer mb-3">
+                        <input type="checkbox" name="remove_logo" value="1" class="rounded border-slate-300 text-red-600 focus:ring-red-500 w-4 h-4" {{ old('remove_logo') || (isset($company->pending_changes['remove_logo']) && $company->pending_changes['remove_logo']) ? 'checked' : '' }}>
+                        <span class="text-sm text-slate-700 dark:text-slate-300">Mevcut logoyu sil (admin onayından sonra kaldırılır)</span>
+                    </label>
                 @endif
                 <div class="admin-form-group">
                     <label class="admin-label">Yeni logo yükle</label>
                     <input type="file" name="logo" accept="image/jpeg,image/png,image/jpg,image/webp" class="admin-input">
-                    <p class="text-xs text-slate-500 mt-1">JPG, PNG veya WebP. En fazla 2 MB. Admin onayından sonra firma sayfanızda görünür.</p>
+                    <p class="text-xs text-slate-500 mt-1">Boyut: 400×400 px (kare) önerilir, en az 200×200. Max 2 MB. JPG, PNG veya WebP.</p>
                     @error('logo')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
             </div>
             <div class="admin-form-group">
                 <label class="admin-label">Firma adı *</label>
-                <input type="text" name="name" value="{{ old('name', $company->name) }}" required class="admin-input">
+                <input type="text" name="name" value="{{ old('name', $company->pending_changes['name'] ?? $company->name) }}" required class="admin-input">
                 @error('name')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div class="admin-form-group">
                     <label class="admin-label">Vergi no</label>
-                    <input type="text" name="tax_number" value="{{ old('tax_number', $company->tax_number) }}" class="admin-input">
+                    <input type="text" name="tax_number" value="{{ old('tax_number', $company->pending_changes['tax_number'] ?? $company->tax_number) }}" class="admin-input">
                     @error('tax_number')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div class="admin-form-group">
                     <label class="admin-label">Vergi / Veri dairesi</label>
-                    <input type="text" name="tax_office" value="{{ old('tax_office', $company->tax_office) }}" class="admin-input" placeholder="Örn: Kadıköy VD">
+                    <input type="text" name="tax_office" value="{{ old('tax_office', $company->pending_changes['tax_office'] ?? $company->tax_office) }}" class="admin-input" placeholder="Örn: Kadıköy VD">
                     @error('tax_office')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div class="admin-form-group">
                     <label class="admin-label">Şehir</label>
-                    <input type="text" name="city" value="{{ old('city', $company->city) }}" class="admin-input">
+                    <input type="text" name="city" value="{{ old('city', $company->pending_changes['city'] ?? $company->city) }}" class="admin-input">
                     @error('city')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div class="admin-form-group">
                     <label class="admin-label">İlçe</label>
-                    <input type="text" name="district" value="{{ old('district', $company->district) }}" class="admin-input">
+                    <input type="text" name="district" value="{{ old('district', $company->pending_changes['district'] ?? $company->district) }}" class="admin-input">
                     @error('district')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
             </div>
             <div class="admin-form-group">
                 <label class="admin-label">Adres</label>
-                <textarea name="address" rows="2" class="admin-input">{{ old('address', $company->address) }}</textarea>
+                <textarea name="address" rows="2" class="admin-input">{{ old('address', $company->pending_changes['address'] ?? $company->address) }}</textarea>
                 @error('address')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div class="admin-form-group">
                     <label class="admin-label">Telefon</label>
-                    <input type="text" name="phone" value="{{ old('phone', $company->phone) }}" class="admin-input" placeholder="5XX XXX XX XX">
+                    <input type="text" name="phone" value="{{ old('phone', $company->pending_changes['phone'] ?? $company->phone) }}" class="admin-input" placeholder="5XX XXX XX XX">
                     @error('phone')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div class="admin-form-group">
                     <label class="admin-label">İkinci telefon</label>
-                    <input type="text" name="phone_2" value="{{ old('phone_2', $company->phone_2) }}" class="admin-input">
+                    <input type="text" name="phone_2" value="{{ old('phone_2', $company->pending_changes['phone_2'] ?? $company->phone_2) }}" class="admin-input">
                     @error('phone_2')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div class="admin-form-group">
                     <label class="admin-label">WhatsApp</label>
-                    <input type="text" name="whatsapp" value="{{ old('whatsapp', $company->whatsapp) }}" class="admin-input" placeholder="5XX XXX XX XX">
+                    <input type="text" name="whatsapp" value="{{ old('whatsapp', $company->pending_changes['whatsapp'] ?? $company->whatsapp) }}" class="admin-input" placeholder="5XX XXX XX XX">
                     @error('whatsapp')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div class="admin-form-group">
                     <label class="admin-label">E-posta</label>
-                    <input type="email" name="email" value="{{ old('email', $company->email) }}" class="admin-input" placeholder="info@firma.com">
+                    <input type="email" name="email" value="{{ old('email', $company->pending_changes['email'] ?? $company->email) }}" class="admin-input" placeholder="info@firma.com">
                     @error('email')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
             </div>
             <div class="admin-form-group">
                 <label class="admin-label">Açıklama</label>
-                <textarea name="description" rows="4" class="admin-input">{{ old('description', $company->description) }}</textarea>
+                <textarea name="description" rows="4" class="admin-input">{{ old('description', $company->pending_changes['description'] ?? $company->description) }}</textarea>
                 @error('description')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
             </div>
 
@@ -108,7 +124,7 @@
                     @foreach(\App\Models\Company::serviceLabels() as $key => $label)
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input type="checkbox" name="services[]" value="{{ $key }}" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-                                {{ in_array($key, old('services', $company->services ?? [])) ? 'checked' : '' }}>
+                                {{ in_array($key, old('services', $company->pending_changes['services'] ?? $company->services ?? [])) ? 'checked' : '' }}>
                             <span class="text-sm text-slate-700 dark:text-slate-300">{{ $label }}</span>
                         </label>
                     @endforeach
@@ -121,22 +137,22 @@
                 <p class="text-sm text-slate-500 mb-3">Firmanızın arama sonuçlarında nasıl görüneceğini belirleyin.</p>
                 <div class="admin-form-group">
                     <label class="admin-label">Meta başlık</label>
-                    <input type="text" name="seo_meta_title" value="{{ old('seo_meta_title', $company->seo_meta_title) }}" class="admin-input" placeholder="Arama sonuçlarında görünecek başlık">
+                    <input type="text" name="seo_meta_title" value="{{ old('seo_meta_title', $company->pending_changes['seo_meta_title'] ?? $company->seo_meta_title) }}" class="admin-input" placeholder="Arama sonuçlarında görünecek başlık">
                     @error('seo_meta_title')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div class="admin-form-group">
                     <label class="admin-label">Meta açıklama</label>
-                    <textarea name="seo_meta_description" rows="2" maxlength="500" class="admin-input" placeholder="Arama sonuçlarında görünecek kısa açıklama">{{ old('seo_meta_description', $company->seo_meta_description) }}</textarea>
+                    <textarea name="seo_meta_description" rows="2" maxlength="500" class="admin-input" placeholder="Arama sonuçlarında görünecek kısa açıklama">{{ old('seo_meta_description', $company->pending_changes['seo_meta_description'] ?? $company->seo_meta_description) }}</textarea>
                     @error('seo_meta_description')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div class="admin-form-group">
                     <label class="admin-label">Meta anahtar kelimeler</label>
-                    <input type="text" name="seo_meta_keywords" value="{{ old('seo_meta_keywords', $company->seo_meta_keywords) }}" class="admin-input" placeholder="nakliye, ev taşıma, ...">
+                    <input type="text" name="seo_meta_keywords" value="{{ old('seo_meta_keywords', $company->pending_changes['seo_meta_keywords'] ?? $company->seo_meta_keywords) }}" class="admin-input" placeholder="nakliye, ev taşıma, ...">
                     @error('seo_meta_keywords')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
             </div>
 
-            <p class="text-xs text-slate-500">Güncelleme sonrası değişiklikler admin onayından geçecektir.</p>
+            <p class="text-xs text-slate-500">Kaydettiğinizde değişiklikler admin onayına gönderilir. Firma sayfanız mevcut haliyle yayında kalır; onay sonrası güncellenir.</p>
             <div class="flex flex-wrap gap-3 pt-2">
                 <button type="submit" class="admin-btn-primary">Kaydet</button>
                 <a href="{{ route('nakliyeci.dashboard') }}" class="admin-btn-secondary">Panele dön</a>

@@ -10,6 +10,7 @@ use App\Services\AdminNotifier;
 use App\Services\SafeNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class CompanyController extends Controller
 {
@@ -191,6 +192,58 @@ class CompanyController extends Controller
             'company_name' => $company->name,
         ]);
         return back()->with('success', 'Firma onayı kaldırıldı.');
+    }
+
+    /** Nakliyecinin gönderdiği bekleyen değişiklikleri onayla; firma yayında kalır, değişiklikler yayına alınır. */
+    public function approvePendingChanges(Company $company)
+    {
+        $this->authorize('update', $company);
+        if (! $company->hasPendingChanges()) {
+            return back()->with('error', 'Bekleyen değişiklik yok.');
+        }
+        $pending = $company->pending_changes;
+        $data = [
+            'name' => $pending['name'] ?? $company->name,
+            'tax_number' => $pending['tax_number'] ?? $company->tax_number,
+            'tax_office' => $pending['tax_office'] ?? $company->tax_office,
+            'address' => $pending['address'] ?? $company->address,
+            'city' => $pending['city'] ?? $company->city,
+            'district' => $pending['district'] ?? $company->district,
+            'phone' => $pending['phone'] ?? $company->phone,
+            'phone_2' => $pending['phone_2'] ?? $company->phone_2,
+            'whatsapp' => $pending['whatsapp'] ?? $company->whatsapp,
+            'email' => $pending['email'] ?? $company->email,
+            'description' => $pending['description'] ?? $company->description,
+            'services' => $pending['services'] ?? $company->services ?? [],
+            'seo_meta_title' => $pending['seo_meta_title'] ?? $company->seo_meta_title,
+            'seo_meta_description' => $pending['seo_meta_description'] ?? $company->seo_meta_description,
+            'seo_meta_keywords' => $pending['seo_meta_keywords'] ?? $company->seo_meta_keywords,
+        ];
+        if (! empty($pending['remove_logo'])) {
+            if ($company->logo) {
+                Storage::disk('public')->delete($company->logo);
+            }
+            $data['logo'] = null;
+            $data['logo_approved_at'] = null;
+        } elseif (! empty($pending['logo'])) {
+            if ($company->logo && $company->logo !== $pending['logo']) {
+                Storage::disk('public')->delete($company->logo);
+            }
+            $data['logo'] = $pending['logo'];
+            $data['logo_approved_at'] = now();
+        }
+        $company->update($data);
+        if (isset($pending['name'])) {
+            $company->slug = $company->generateSlug();
+            $company->saveQuietly();
+        }
+        $company->update(['pending_changes' => null, 'pending_changes_at' => null]);
+        Log::channel('admin_actions')->info('Admin approved company pending changes', [
+            'admin_id' => auth()->id(),
+            'company_id' => $company->id,
+            'company_name' => $company->name,
+        ]);
+        return back()->with('success', 'Firmanın gönderdiği değişiklikler onaylandı ve yayına alındı.');
     }
 
     /** Listeden hızlı paket atama (AJAX veya form submit). */

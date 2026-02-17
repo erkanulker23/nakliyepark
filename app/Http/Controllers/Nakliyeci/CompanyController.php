@@ -93,7 +93,8 @@ class CompanyController extends Controller
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
-        $data = [
+        // Bekleyen değişikliklere kaydet; ana kayıt ve approved_at değişmez, firma yayında kalır
+        $pending = [
             'name' => $request->name,
             'tax_number' => $request->tax_number,
             'tax_office' => $request->tax_office,
@@ -109,25 +110,30 @@ class CompanyController extends Controller
             'seo_meta_title' => $request->seo_meta_title,
             'seo_meta_description' => $request->seo_meta_description,
             'seo_meta_keywords' => $request->seo_meta_keywords,
-            'approved_at' => null,
         ];
 
-        if ($request->hasFile('logo')) {
-            if ($company->logo) {
-                Storage::disk('public')->delete($company->logo);
+        if ($request->boolean('remove_logo')) {
+            if ($company->hasPendingChanges() && !empty($company->pending_changes['logo'])) {
+                Storage::disk('public')->delete($company->pending_changes['logo']);
             }
-            $path = $request->file('logo')->store('company-logos/' . $company->id, 'public');
-            $data['logo'] = $path;
-            $data['logo_approved_at'] = now(); // Logo yüklendiğinde hemen yayında gösterilsin
-            AdminNotifier::notify('company_logo_uploaded', "Firma logosu yüklendi: {$company->name}", 'Yeni logo', ['url' => route('admin.companies.edit', $company)]);
+            $pending['remove_logo'] = true;
+            $pending['logo'] = null;
+        } elseif ($request->hasFile('logo')) {
+            $pendingDir = 'company-logos/' . $company->id . '/pending';
+            if ($company->hasPendingChanges() && !empty($company->pending_changes['logo'])) {
+                Storage::disk('public')->delete($company->pending_changes['logo']);
+            }
+            $path = $request->file('logo')->store($pendingDir, 'public');
+            $pending['logo'] = $path;
         }
 
-        $company->update($data);
+        $company->update([
+            'pending_changes' => $pending,
+            'pending_changes_at' => now(),
+        ]);
 
-        $message = 'Firma bilgileriniz güncellendi.';
-        if ($request->hasFile('logo')) {
-            $message .= ' Logo firma sayfanızda görünecektir.';
-        }
-        return redirect()->route('nakliyeci.company.edit')->with('success', $message);
+        AdminNotifier::notify('company_pending_changes', "Firma güncelleme talebi: {$company->name} – Bekleyen değişiklikler onayınızı bekliyor.", 'Bekleyen firma değişiklikleri', ['url' => route('admin.companies.edit', $company)]);
+
+        return redirect()->route('nakliyeci.company.edit')->with('success', 'Değişiklikleriniz kaydedildi. Admin onayından sonra yayına alınacaktır. Firma sayfanız mevcut haliyle yayında.');
     }
 }

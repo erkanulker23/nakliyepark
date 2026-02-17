@@ -54,6 +54,7 @@ class Company extends Model
         'description', 'logo', 'logo_approved_at', 'services', 'approved_at', 'package', 'blocked_at', 'blocked_reason',
         'email_verified_at', 'phone_verified_at', 'official_company_verified_at',
         'seo_meta_title', 'seo_meta_description', 'seo_meta_keywords',
+        'pending_changes', 'pending_changes_at',
     ];
 
     protected function casts(): array
@@ -68,7 +69,14 @@ class Company extends Model
             'live_location_updated_at' => 'datetime',
             'map_visible' => 'boolean',
             'services' => 'array',
+            'pending_changes' => 'array',
+            'pending_changes_at' => 'datetime',
         ];
+    }
+
+    public function hasPendingChanges(): bool
+    {
+        return !empty($this->pending_changes) && is_array($this->pending_changes);
     }
 
     /** Haritada görünür ve son 2 saat içinde konum güncellenmiş mi */

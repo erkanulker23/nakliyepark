@@ -2,7 +2,7 @@
 
 @section('title', 'Evrak yükle')
 @section('page_heading', 'Şirket evrakı yükle')
-@section('page_subtitle', 'K1, GB, sigorta, ruhsat vb.')
+@section('page_subtitle', 'K1, marka tescil, ODE, psikoteknik, faaliyet, vergi levhası, ticaret odası')
 
 @section('content')
 <div class="max-w-xl">

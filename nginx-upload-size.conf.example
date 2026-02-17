@@ -1,0 +1,17 @@
+# 413 Request Entity Too Large hatasını önlemek için nginx yükleme limiti
+# Galeri, logo ve diğer dosya yüklemeleri için gerekli.
+#
+# Kullanım:
+# 1. Bu dosyay sunucunuza kopyalayın (örn. /etc/nginx/conf.d/upload-size.conf)
+# 2. Veya mevcut server { } bloğunuzun içine aşağıdaki satırı ekleyin:
+#
+#    client_max_body_size 50M;
+#
+# 3. Nginx'i test edip yeniden yükleyin:
+#    nginx -t && systemctl reload nginx
+#
+# PHP tarafında da (php.ini veya .user.ini) şunlar yeterli olmalı:
+#   upload_max_filesize = 10M
+#   post_max_size = 50M
+
+client_max_body_size 50M;

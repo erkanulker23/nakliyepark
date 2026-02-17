@@ -9,11 +9,13 @@ use Illuminate\Support\Facades\Storage;
 class EvraklarController extends Controller
 {
     public const TYPES = [
-        'k1' => 'K1 Belgesi',
-        'gb' => 'GB (Yeşil Kart)',
-        'sigorta' => 'Sigorta',
-        'ruhsat' => 'Ruhsat',
-        'diger' => 'Diğer',
+        'k1' => 'K1 belgesi',
+        'marka_tescil' => 'Marka tescil belgesi',
+        'ode' => 'ODE belgesi',
+        'psikoteknik' => 'Psikoteknik belgesi',
+        'faaliyet' => 'Faaliyet belgesi',
+        'vergi_levhasi' => 'Vergi levhası',
+        'ticaret_odasi' => 'Ticaret odası',
     ];
 
     public function index(Request $request)
