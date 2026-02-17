@@ -26,5 +26,21 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // CSRF token hatası için özel işleme
+        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, \Illuminate\Http\Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'CSRF token süresi doldu. Lütfen sayfayı yenileyip tekrar deneyin.'], 419);
+            }
+            
+            // Login sayfalarına özel yönlendirme
+            if ($request->is('yonetici/admin') || $request->is('login')) {
+                return redirect()->back()
+                    ->withInput($request->except('_token'))
+                    ->with('error', 'Oturum süresi doldu. Lütfen tekrar giriş yapın.');
+            }
+            
+            return redirect()->back()
+                ->withInput($request->except('_token'))
+                ->with('error', 'Sayfa süresi doldu. Lütfen sayfayı yenileyip tekrar deneyin.');
+        });
     })->create();

@@ -14,14 +14,19 @@ use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
-    public function showLoginForm()
+    public function showLoginForm(Request $request)
     {
+        // CSRF token'ı yenile - form açıldığında fresh token olsun
+        $request->session()->regenerateToken();
+        
         return view('auth.login');
     }
 
     public function showAdminLoginForm(Request $request)
     {
         $request->session()->put('url.intended', route('admin.dashboard'));
+        // CSRF token'ı yenile - form açıldığında fresh token olsun
+        $request->session()->regenerateToken();
 
         return view('auth.login', ['admin_login' => true]);
     }
