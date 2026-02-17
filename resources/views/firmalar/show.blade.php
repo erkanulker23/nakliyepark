@@ -283,22 +283,48 @@
                         </div>
                         <div class="p-5 sm:p-6">
                             @if($company->approvedVehicleImages->count() > 0)
-                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-                                    @foreach($company->approvedVehicleImages as $img)
-                                        <a href="{{ asset('storage/'.$img->path) }}" target="_blank" rel="noopener" class="block rounded-xl overflow-hidden aspect-square group border border-zinc-200/50 dark:border-zinc-700/50 hover:border-sky-300/60 dark:hover:border-sky-600/50 hover:shadow-lg hover:shadow-sky-500/10 transition-all duration-300 ring-0 focus:ring-2 focus:ring-sky-400/30 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-900">
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4" id="company-gallery">
+                                    @foreach($company->approvedVehicleImages as $i => $img)
+                                        <button type="button" class="company-gallery-thumb w-full text-left rounded-xl overflow-hidden aspect-square group border border-zinc-200/50 dark:border-zinc-700/50 hover:border-emerald-400/60 dark:hover:border-emerald-500/50 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-900 cursor-pointer"
+                                            data-index="{{ $i }}"
+                                            data-src="{{ asset('storage/'.$img->path) }}"
+                                            data-caption="{{ $img->caption ?? '' }}"
+                                            aria-label="Görseli büyüt ({{ $i + 1 }}/{{ $company->approvedVehicleImages->count() }})">
                                             <div class="relative w-full h-full bg-zinc-100 dark:bg-zinc-800">
-                                                <img src="{{ asset('storage/'.$img->path) }}" alt="{{ $img->caption ?? 'Galeri' }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                                                <span class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                                                <span class="absolute bottom-2 right-2 w-8 h-8 rounded-lg bg-white/90 dark:bg-zinc-800/90 flex items-center justify-center text-zinc-600 dark:text-zinc-300 opacity-0 group-hover:opacity-100 scale-90 group-hover:scale-100 transition-all duration-300">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+                                                <img src="{{ asset('storage/'.$img->path) }}" alt="{{ $img->caption ?? 'Galeri' }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy">
+                                                <span class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                                                <span class="absolute inset-0 flex items-center justify-center">
+                                                    <span class="w-12 h-12 rounded-full bg-white/95 dark:bg-zinc-800/95 flex items-center justify-center text-zinc-700 dark:text-zinc-200 opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-300 shadow-lg">
+                                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
+                                                    </span>
                                                 </span>
                                             </div>
                                             @if($img->caption)
-                                                <p class="p-2.5 text-xs text-zinc-600 dark:text-zinc-400 text-center bg-zinc-50/90 dark:bg-zinc-800/90 border-t border-zinc-200/50 dark:border-zinc-700/50">{{ $img->caption }}</p>
+                                                <p class="p-2.5 text-xs text-zinc-600 dark:text-zinc-400 text-center bg-zinc-50/90 dark:bg-zinc-800/90 border-t border-zinc-200/50 dark:border-zinc-700/50 truncate">{{ $img->caption }}</p>
                                             @endif
-                                        </a>
+                                        </button>
                                     @endforeach
                                 </div>
+                                {{-- Lightbox --}}
+                                <dialog id="gallery-lightbox" class="fixed inset-0 z-[200] w-full h-full max-w-none max-h-none m-0 p-0 flex flex-col bg-black/95 backdrop-blur-sm border-0 rounded-none text-left shadow-2xl [&::backdrop]:bg-black/80 [&::backdrop]:backdrop-blur-sm" aria-label="Galeri lightbox">
+                                    <div class="absolute inset-0" id="lightbox-backdrop" aria-hidden="true"></div>
+                                    <button type="button" id="lightbox-close" class="absolute top-4 right-4 z-10 w-11 h-11 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-white/50" aria-label="Kapat">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    </button>
+                                    <button type="button" id="lightbox-prev" class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-white/50" aria-label="Önceki">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                                    </button>
+                                    <button type="button" id="lightbox-next" class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-white/50" aria-label="Sonraki">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                    </button>
+                                    <div class="flex-1 flex items-center justify-center p-4 pt-16 pb-24 min-h-0">
+                                        <img id="lightbox-img" src="" alt="" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl">
+                                    </div>
+                                    <div class="absolute bottom-0 left-0 right-0 p-4 pb-safe bg-gradient-to-t from-black/80 to-transparent">
+                                        <p id="lightbox-counter" class="text-center text-sm text-white/90 font-medium"></p>
+                                        <p id="lightbox-caption" class="text-center text-sm text-white/80 mt-1 min-h-[1.25rem]"></p>
+                                    </div>
+                                </dialog>
                             @else
                                 <div class="flex flex-col items-center justify-center py-12 px-4 rounded-xl bg-zinc-50/60 dark:bg-zinc-800/30 border border-dashed border-zinc-200 dark:border-zinc-700/50">
                                     <span class="w-14 h-14 rounded-2xl bg-zinc-200/60 dark:bg-zinc-700/50 flex items-center justify-center text-zinc-400 dark:text-zinc-500 mb-3">
@@ -442,4 +468,54 @@
     </div>
     @endif
 </div>
+
+@if($company->approvedVehicleImages->count() > 0)
+@push('scripts')
+<script>
+(function(){
+    var lb = document.getElementById('gallery-lightbox');
+    var img = document.getElementById('lightbox-img');
+    var captionEl = document.getElementById('lightbox-caption');
+    var counterEl = document.getElementById('lightbox-counter');
+    var thumbs = document.querySelectorAll('.company-gallery-thumb');
+    var total = thumbs.length;
+    var currentIndex = 0;
+
+    function items() {
+        return Array.prototype.map.call(thumbs, function(t){
+            return { src: t.dataset.src, caption: t.dataset.caption || '' };
+        });
+    }
+    var data = items();
+
+    function open(index) {
+        currentIndex = (index + total) % total;
+        img.src = data[currentIndex].src;
+        img.alt = data[currentIndex].caption || 'Galeri';
+        captionEl.textContent = data[currentIndex].caption || '';
+        counterEl.textContent = (currentIndex + 1) + ' / ' + total;
+        lb.showModal();
+    }
+    function close() {
+        lb.close();
+    }
+
+    thumbs.forEach(function(btn, i){
+        btn.addEventListener('click', function(){ open(i); });
+    });
+    document.getElementById('lightbox-backdrop').addEventListener('click', close);
+    document.getElementById('lightbox-close').addEventListener('click', close);
+    document.getElementById('lightbox-prev').addEventListener('click', function(e){ e.stopPropagation(); open(currentIndex - 1); });
+    document.getElementById('lightbox-next').addEventListener('click', function(e){ e.stopPropagation(); open(currentIndex + 1); });
+
+    document.addEventListener('keydown', function(e){
+        if (!lb.open) return;
+        if (e.key === 'Escape') { close(); return; }
+        if (e.key === 'ArrowLeft') open(currentIndex - 1);
+        if (e.key === 'ArrowRight') open(currentIndex + 1);
+    });
+})();
+</script>
+@endpush
+@endif
 @endsection

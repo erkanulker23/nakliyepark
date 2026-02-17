@@ -9,7 +9,7 @@
     <meta name="robots" content="noindex, nofollow">
     <meta name="googlebot" content="noindex, nofollow">
     <meta name="yandex" content="noindex, nofollow">
-    <title>@yield('title', 'Firma Paneli') - NakliyePark</title>
+    <title>@yield('title', optional(auth()->user()->company)->name ?: 'Firma Paneli') - NakliyePark</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
@@ -21,9 +21,9 @@
         {{-- Sol menü - Firma paneli --}}
         <aside id="admin-sidebar" class="admin-sidebar fixed lg:sticky top-0 left-0 z-40 w-64 border-r border-slate-700/50 shadow-xl lg:shadow-none transition-transform duration-200 ease-out">
             <div class="admin-sidebar-header flex items-center justify-between h-16 px-5 border-b border-slate-700/50">
-                <a href="{{ route('nakliyeci.dashboard') }}" class="admin-sidebar-logo flex items-center gap-3 font-semibold">
-                    <span class="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center text-white text-sm font-bold shadow-lg">N</span>
-                    <span>Firma Paneli</span>
+                <a href="{{ route('nakliyeci.dashboard') }}" class="admin-sidebar-logo flex items-center gap-3 font-semibold min-w-0">
+                    <span class="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center text-white text-sm font-bold shadow-lg shrink-0">N</span>
+                    <span class="truncate">{{ optional(auth()->user()->company)->name ?: 'Firma Paneli' }}</span>
                 </a>
                 <button type="button" id="sidebar-close" class="admin-sidebar-close lg:hidden p-2 text-slate-400 hover:text-white rounded-lg" aria-label="Menüyü kapat">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>

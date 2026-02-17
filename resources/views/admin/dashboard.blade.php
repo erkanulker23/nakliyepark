@@ -4,6 +4,129 @@
 @section('page_heading', 'Kontrol Paneli')
 
 @section('content')
+@php
+    $hasAnyPending = $pendingCompanies->isNotEmpty() || $companiesWithPendingChanges->isNotEmpty() || $pendingIhaleler->isNotEmpty() || $tekliflerWithPendingUpdate->isNotEmpty() || $galleryImagesPendingCount > 0;
+@endphp
+@if($hasAnyPending)
+<div class="admin-card p-6 rounded-2xl mb-8 border-2 border-amber-200 dark:border-amber-800/60 bg-amber-50/50 dark:bg-amber-950/20">
+    <h2 class="font-semibold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+        <span class="w-9 h-9 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </span>
+        Onay bekleyenler
+    </h2>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-5">
+        @if($pendingCompanies->isNotEmpty())
+        <div class="rounded-xl border border-amber-200/80 dark:border-amber-800/50 bg-white dark:bg-slate-900/80 p-4">
+            <h3 class="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-2 flex items-center gap-1.5">
+                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-bold">{{ $pendingCompaniesCount }}</span>
+                Firma onayı (yeni)
+            </h3>
+            <ul class="space-y-1.5 text-sm">
+                @foreach($pendingCompanies->take(5) as $c)
+                    <li class="flex justify-between items-center gap-2">
+                        <span class="font-medium text-slate-800 dark:text-slate-200 truncate">{{ $c->name }}</span>
+                        <a href="{{ route('admin.companies.edit', $c) }}" class="shrink-0 text-amber-600 dark:text-amber-400 hover:underline font-medium">Onayla →</a>
+                    </li>
+                @endforeach
+            </ul>
+            @if($pendingCompaniesCount > 5)
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">+{{ $pendingCompaniesCount - 5 }} daha</p>
+            @endif
+            <a href="{{ route('admin.companies.index') }}" class="inline-block mt-2 text-xs font-medium text-amber-600 dark:text-amber-400 hover:underline">Tüm firmalar →</a>
+        </div>
+        @endif
+
+        @if($companiesWithPendingChanges->isNotEmpty())
+        <div class="rounded-xl border border-amber-200/80 dark:border-amber-800/50 bg-white dark:bg-slate-900/80 p-4">
+            <h3 class="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-2 flex items-center gap-1.5">
+                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-bold">{{ $companiesWithPendingChangesCount }}</span>
+                Firma güncelleme talebi
+            </h3>
+            <ul class="space-y-1.5 text-sm">
+                @foreach($companiesWithPendingChanges->take(5) as $c)
+                    <li class="flex justify-between items-center gap-2">
+                        <span class="font-medium text-slate-800 dark:text-slate-200 truncate">{{ $c->name }}</span>
+                        <a href="{{ route('admin.companies.edit', $c) }}" class="shrink-0 text-amber-600 dark:text-amber-400 hover:underline font-medium">İncele →</a>
+                    </li>
+                @endforeach
+            </ul>
+            @if($companiesWithPendingChangesCount > 5)
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">+{{ $companiesWithPendingChangesCount - 5 }} daha</p>
+            @endif
+            <a href="{{ route('admin.companies.index') }}" class="inline-block mt-2 text-xs font-medium text-amber-600 dark:text-amber-400 hover:underline">Tüm firmalar →</a>
+        </div>
+        @endif
+
+        @if($pendingIhaleler->isNotEmpty())
+        <div class="rounded-xl border border-amber-200/80 dark:border-amber-800/50 bg-white dark:bg-slate-900/80 p-4">
+            <h3 class="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-2 flex items-center gap-1.5">
+                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-bold">{{ $pendingIhalelerCount }}</span>
+                İhale onayı
+            </h3>
+            <ul class="space-y-1.5 text-sm">
+                @foreach($pendingIhaleler->take(5) as $i)
+                    <li class="flex justify-between items-center gap-2">
+                        <span class="text-slate-800 dark:text-slate-200 truncate">{{ $i->from_city ?? '?' }} → {{ $i->to_city ?? '?' }}</span>
+                        <a href="{{ route('admin.ihaleler.show', $i) }}" class="shrink-0 text-amber-600 dark:text-amber-400 hover:underline font-medium">Onayla →</a>
+                    </li>
+                @endforeach
+            </ul>
+            @if($pendingIhalelerCount > 5)
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">+{{ $pendingIhalelerCount - 5 }} daha</p>
+            @endif
+            <a href="{{ route('admin.ihaleler.index', ['status' => 'pending']) }}" class="inline-block mt-2 text-xs font-medium text-amber-600 dark:text-amber-400 hover:underline">Tüm ihaleler →</a>
+        </div>
+        @endif
+
+        @if($tekliflerWithPendingUpdate->isNotEmpty())
+        <div class="rounded-xl border border-amber-200/80 dark:border-amber-800/50 bg-white dark:bg-slate-900/80 p-4">
+            <h3 class="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-2 flex items-center gap-1.5">
+                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-bold">{{ $tekliflerWithPendingUpdateCount }}</span>
+                Teklif güncelleme talebi
+            </h3>
+            <ul class="space-y-1.5 text-sm">
+                @foreach($tekliflerWithPendingUpdate->take(5) as $t)
+                    <li class="flex justify-between items-center gap-2">
+                        <span class="text-slate-800 dark:text-slate-200 truncate">{{ $t->company->name ?? 'Firma' }} – {{ number_format($t->pending_amount ?? 0, 0, ',', '.') }} ₺</span>
+                        <a href="{{ route('admin.teklifler.edit', $t) }}" class="shrink-0 text-amber-600 dark:text-amber-400 hover:underline font-medium">İncele →</a>
+                    </li>
+                @endforeach
+            </ul>
+            @if($tekliflerWithPendingUpdateCount > 5)
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">+{{ $tekliflerWithPendingUpdateCount - 5 }} daha</p>
+            @endif
+            <a href="{{ route('admin.teklifler.index') }}" class="inline-block mt-2 text-xs font-medium text-amber-600 dark:text-amber-400 hover:underline">Tüm teklifler →</a>
+        </div>
+        @endif
+
+        @if($galleryImagesPendingCount > 0)
+        <div class="rounded-xl border border-amber-200/80 dark:border-amber-800/50 bg-white dark:bg-slate-900/80 p-4">
+            <h3 class="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-2 flex items-center gap-1.5">
+                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-500/30 text-amber-700 dark:text-amber-300 text-xs font-bold">{{ $galleryImagesPendingCount }}</span>
+                Galeri görseli onayı
+            </h3>
+            @if($companiesWithUnapprovedImages->isNotEmpty())
+                <ul class="space-y-1.5 text-sm">
+                    @foreach($companiesWithUnapprovedImages->take(5) as $c)
+                        <li>
+                            <a href="{{ route('admin.companies.edit', $c) }}" class="text-amber-600 dark:text-amber-400 hover:underline font-medium">{{ $c->name }} →</a>
+                        </li>
+                    @endforeach
+                </ul>
+                @if($companiesWithUnapprovedImages->count() > 5)
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">+{{ $companiesWithUnapprovedImages->count() - 5 }} firma daha</p>
+                @endif
+            @else
+                <p class="text-sm text-slate-600 dark:text-slate-400">{{ $galleryImagesPendingCount }} görsel firma düzenleme sayfalarından onaylanabilir.</p>
+            @endif
+            <a href="{{ route('admin.companies.index') }}" class="inline-block mt-2 text-xs font-medium text-amber-600 dark:text-amber-400 hover:underline">Firmalar →</a>
+        </div>
+        @endif
+    </div>
+</div>
+@endif
+
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
     <div class="p-6 rounded-2xl border-0 bg-gradient-to-br from-indigo-500 to-indigo-600 text-white shadow-lg shadow-indigo-500/20">
         <div class="flex items-center justify-between">
