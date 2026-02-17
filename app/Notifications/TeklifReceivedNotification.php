@@ -50,12 +50,12 @@ class TeklifReceivedNotification extends Notification implements ShouldQueue
             return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $customBody])->priority(1);
         }
 
-        return (new MailMessage)
-            ->subject($subject)
-            ->greeting('Merhaba!')
-            ->line($companyName . ' ihalenize **' . $amount . ' ₺** teklif verdi.')
-            ->action('Teklifi görüntüle', $route)
-            ->line('Diğer firmalardan da teklif gelebilir; hepsini karşılaştırıp birini seçebilirsiniz.')
-            ->priority(1);
+        $body = MailTemplateService::buildBodyHtml([
+            'Merhaba!',
+            e($companyName) . ' ihalenize <strong>' . e($amount) . ' ₺</strong> teklif verdi.',
+            'Diğer firmalardan da teklif gelebilir; hepsini karşılaştırıp birini seçebilirsiniz.',
+        ], [['url' => $route, 'text' => 'Teklifi görüntüle']]);
+
+        return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $body])->priority(1);
     }
 }

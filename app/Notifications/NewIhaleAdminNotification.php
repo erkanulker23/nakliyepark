@@ -43,12 +43,12 @@ class NewIhaleAdminNotification extends Notification implements ShouldQueue
             return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $customBody])->priority(1);
         }
 
-        return (new MailMessage)
-            ->subject($subject)
-            ->greeting('Yeni ihale talebi')
-            ->line("Yeni bir nakliye talebi oluşturuldu ({$guestOrMember}).")
-            ->line($this->ihale->from_city . ' → ' . $this->ihale->to_city)
-            ->action('İhaleyi incele', $url)
-            ->priority(1);
+        $body = MailTemplateService::buildBodyHtml([
+            'Yeni ihale talebi',
+            'Yeni bir nakliye talebi oluşturuldu (' . e($guestOrMember) . ').',
+            e($this->ihale->from_city) . ' → ' . e($this->ihale->to_city),
+        ], [['url' => $url, 'text' => 'İhaleyi incele']]);
+
+        return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $body])->priority(1);
     }
 }

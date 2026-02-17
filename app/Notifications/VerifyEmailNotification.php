@@ -37,13 +37,13 @@ class VerifyEmailNotification extends Notification
             return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $customBody])->priority(1);
         }
 
-        return (new MailMessage)
-            ->subject($subject)
-            ->greeting('Merhaba ' . $notifiable->name . '!')
-            ->line('Hesabınızı oluşturdunuz. E-posta adresinizi doğrulamak için aşağıdaki butona tıklayın.')
-            ->action('E-postamı doğrula', $verificationUrl)
-            ->line('Bu link 60 dakika geçerlidir. Eğer hesap oluşturmadıysanız bu e-postayı dikkate almayın.')
-            ->priority(1);
+        $body = MailTemplateService::buildBodyHtml([
+            'Merhaba ' . e($notifiable->name) . '!',
+            'Hesabınızı oluşturdunuz. E-posta adresinizi doğrulamak için aşağıdaki butona tıklayın.',
+            'Bu link 60 dakika geçerlidir. Eğer hesap oluşturmadıysanız bu e-postayı dikkate almayın.',
+        ], [['url' => $verificationUrl, 'text' => 'E-postamı doğrula']]);
+
+        return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $body])->priority(1);
     }
 
     protected function verificationUrl(object $notifiable): string

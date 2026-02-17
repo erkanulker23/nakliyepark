@@ -42,20 +42,22 @@ class CompanyApprovedNotification extends Notification implements ShouldQueue
             return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $customBody])->priority(1);
         }
 
-        $mail = (new MailMessage)
-            ->subject($subject)
-            ->greeting('Merhaba ' . $notifiable->name . '!')
-            ->line('Firmanız "' . $this->company->name . '" başarıyla onaylandı.')
-            ->line('Artık ihalelere teklif verebilir ve müşterilerle iletişime geçebilirsiniz.');
-
+        $paragraphs = [
+            'Merhaba ' . e($notifiable->name) . '!',
+            'Firmanız "' . e($this->company->name) . '" başarıyla onaylandı.',
+            'Artık ihalelere teklif verebilir ve müşterilerle iletişime geçebilirsiniz.',
+        ];
         if ($companyUrl) {
-            $mail->line('Firma sayfanız:')
-                ->action('Firma sayfasını görüntüle', $companyUrl);
+            $paragraphs[] = 'Firma sayfanız:';
         }
+        $paragraphs[] = 'Teşekkür ederiz!';
+        $buttons = [];
+        if ($companyUrl) {
+            $buttons[] = ['url' => $companyUrl, 'text' => 'Firma sayfasını görüntüle'];
+        }
+        $buttons[] = ['url' => $dashboardUrl, 'text' => 'Panele git'];
+        $body = MailTemplateService::buildBodyHtml($paragraphs, $buttons);
 
-        $mail->action('Panele git', $dashboardUrl)
-            ->line('Teşekkür ederiz!');
-
-        return $mail->priority(1);
+        return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $body])->priority(1);
     }
 }

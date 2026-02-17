@@ -42,12 +42,12 @@ class IhalePreferredCompanyPublishedNotification extends Notification implements
             return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $customBody])->priority(1);
         }
 
-        return (new MailMessage)
-            ->subject($subject)
-            ->greeting('Merhaba!')
-            ->line('Bir müşteri sizi tercih ederek taşınma talebi oluşturdu. İhale onaylandı ve yayına alındı.')
-            ->line('Hemen teklif vererek müşteriye ulaşabilirsiniz.')
-            ->action('İhaleye git ve teklif ver', $route)
-            ->priority(1);
+        $body = MailTemplateService::buildBodyHtml([
+            'Merhaba!',
+            'Bir müşteri sizi tercih ederek taşınma talebi oluşturdu. İhale onaylandı ve yayına alındı.',
+            'Hemen teklif vererek müşteriye ulaşabilirsiniz.',
+        ], [['url' => $route, 'text' => 'İhaleye git ve teklif ver']]);
+
+        return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $body])->priority(1);
     }
 }

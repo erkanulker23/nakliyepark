@@ -45,14 +45,13 @@ class ContactMessageToCompanyNotification extends Notification implements Should
             return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $customBody])->priority(1);
         }
 
-        return (new MailMessage)
-            ->subject($subject)
-            ->greeting('Merhaba!')
-            ->line($fromName . ' sizinle iletişime geçmek istiyor (kabul ettiğiniz teklif üzerinden).')
-            ->line('**Mesaj:**')
-            ->line($this->contactMessage->message)
-            ->line('Müşteri ile iletişim bilgileriniz üzerinden iletişime geçebilirsiniz.')
-            ->action('Tekliflerim', $route)
-            ->priority(1);
+        $body = MailTemplateService::buildBodyHtml([
+            'Merhaba!',
+            e($fromName) . ' sizinle iletişime geçmek istiyor (kabul ettiğiniz teklif üzerinden).',
+            '<strong>Mesaj:</strong><br>' . nl2br(e($this->contactMessage->message)),
+            'Müşteri ile iletişim bilgileriniz üzerinden iletişime geçebilirsiniz.',
+        ], [['url' => $route, 'text' => 'Tekliflerim']]);
+
+        return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $body])->priority(1);
     }
 }

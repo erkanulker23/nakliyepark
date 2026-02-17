@@ -41,19 +41,15 @@ class WelcomeNotification extends Notification implements ShouldQueue
             return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $customBody])->priority(1);
         }
 
-        $mail = (new MailMessage)
-            ->subject($subject)
-            ->greeting('Merhaba ' . $notifiable->name . '!')
-            ->line('NakliyePark ailesine hoş geldiniz.');
+        $line2 = $this->role === 'nakliyeci'
+            ? 'Firma bilgilerinizi tamamlayıp onay aldıktan sonra ihalelere teklif verebilirsiniz.'
+            : 'Nakliye talebi oluşturarak firmalardan teklif alabilirsiniz.';
+        $body = MailTemplateService::buildBodyHtml([
+            'Merhaba ' . e($notifiable->name) . '!',
+            'NakliyePark ailesine hoş geldiniz.',
+            $line2,
+        ], [['url' => $dashboardUrl, 'text' => 'Panele git']]);
 
-        if ($this->role === 'nakliyeci') {
-            $mail->line('Firma bilgilerinizi tamamlayıp onay aldıktan sonra ihalelere teklif verebilirsiniz.')
-                ->action('Panele git', $dashboardUrl);
-        } else {
-            $mail->line('Nakliye talebi oluşturarak firmalardan teklif alabilirsiniz.')
-                ->action('Panele git', $dashboardUrl);
-        }
-
-        return $mail->priority(1);
+        return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $body])->priority(1);
     }
 }

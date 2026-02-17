@@ -116,15 +116,23 @@
         </h2>
         <ul class="space-y-3 text-sm">
             @forelse($recentUsers as $u)
-                <li class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700 last:border-0">
-                    <span class="font-medium text-slate-800 dark:text-slate-200">{{ $u->name }}</span>
-                    <span class="text-slate-500 dark:text-slate-400 text-xs">{{ $u->email }}</span>
+                <li class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700 last:border-0 gap-2">
+                    <span class="font-medium text-slate-800 dark:text-slate-200 truncate">{{ $u->name }}</span>
+                    <span class="flex items-center gap-2 shrink-0">
+                        <span class="text-slate-500 dark:text-slate-400 text-xs hidden sm:inline">{{ $u->email }}</span>
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium
+                            @if($u->role === 'admin') bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300
+                            @elseif($u->role === 'nakliyeci') bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-300
+                            @else bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 @endif">
+                            {{ $u->role === 'nakliyeci' ? 'Nakliyeci' : ($u->role === 'musteri' ? 'Müşteri' : 'Admin') }}
+                        </span>
+                    </span>
                 </li>
             @empty
                 <li class="text-slate-500 dark:text-slate-400">Henüz kullanıcı yok.</li>
             @endforelse
         </ul>
-        <a href="{{ route('admin.musteriler.index') }}" class="inline-flex items-center gap-1 mt-4 text-sm admin-dashboard-link hover:underline font-medium">Tümü →</a>
+        <a href="{{ route('admin.users.index') }}" class="inline-flex items-center gap-1 mt-4 text-sm admin-dashboard-link hover:underline font-medium">Tüm kullanıcılar →</a>
     </div>
 </div>
 

@@ -44,17 +44,14 @@ class IhaleCreatedNotification extends Notification implements ShouldQueue
             return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $customBody])->priority(1);
         }
 
-        $mail = (new MailMessage)
-            ->subject($subject)
-            ->greeting('Merhaba!')
-            ->line('Nakliye talebiniz başarıyla alındı.')
-            ->line('İnceleme sonrası talebiniz yayına alınacak ve nakliye firmaları size teklif gönderebilecek.')
-            ->priority(1);
+        $paragraphs = [
+            'Merhaba!',
+            'Nakliye talebiniz başarıyla alındı.',
+            'İnceleme sonrası talebiniz yayına alınacak ve nakliye firmaları size teklif gönderebilecek.',
+        ];
+        $buttons = $route ? [['url' => $route, 'text' => 'Talebinizi görüntüle']] : null;
+        $body = MailTemplateService::buildBodyHtml($paragraphs, $buttons);
 
-        if ($route) {
-            $mail->action('Talebinizi görüntüle', $route);
-        }
-
-        return $mail;
+        return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $body])->priority(1);
     }
 }

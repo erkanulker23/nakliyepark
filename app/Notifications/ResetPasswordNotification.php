@@ -43,13 +43,13 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
             return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $customBody])->priority(1);
         }
 
-        return (new MailMessage)
-            ->subject($subject)
-            ->greeting('Merhaba!')
-            ->line('Hesabınız için şifre sıfırlama talebinde bulundunuz.')
-            ->action('Şifremi sıfırla', $url)
-            ->line('Bu link ' . $expire . ' dakika geçerlidir.')
-            ->line('Eğer bu talebi siz yapmadıysanız, bu e-postayı dikkate almayın.')
-            ->priority(1);
+        $body = MailTemplateService::buildBodyHtml([
+            'Merhaba!',
+            'Hesabınız için şifre sıfırlama talebinde bulundunuz.',
+            'Bu link ' . $expire . ' dakika geçerlidir.',
+            'Eğer bu talebi siz yapmadıysanız, bu e-postayı dikkate almayın.',
+        ], [['url' => $url, 'text' => 'Şifremi sıfırla']]);
+
+        return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $body])->priority(1);
     }
 }

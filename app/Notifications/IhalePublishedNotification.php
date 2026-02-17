@@ -46,12 +46,12 @@ class IhalePublishedNotification extends Notification implements ShouldQueue
             return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $customBody])->priority(1);
         }
 
-        return (new MailMessage)
-            ->subject($subject)
-            ->greeting('Merhaba!')
-            ->line('İhale talebiniz onaylandı ve yayına alındı.')
-            ->line('Nakliye firmaları artık size teklif gönderebilir. Gelen teklifleri panelinizden takip edebilirsiniz.')
-            ->action('İhalemi görüntüle', $route)
-            ->priority(1);
+        $body = MailTemplateService::buildBodyHtml([
+            'Merhaba!',
+            'İhale talebiniz onaylandı ve yayına alındı.',
+            'Nakliye firmaları artık size teklif gönderebilir. Gelen teklifleri panelinizden takip edebilirsiniz.',
+        ], [['url' => $route, 'text' => 'İhalemi görüntüle']]);
+
+        return (new MailMessage)->subject($subject)->view('emails.custom-body', ['body' => $body])->priority(1);
     }
 }
