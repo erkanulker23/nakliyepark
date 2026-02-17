@@ -105,7 +105,8 @@ Route::middleware(['guest', 'throttle:20,1'])->group(function () {
     Route::post('/yonetici/admin', [LoginController::class, 'loginAdmin'])->name('admin.login.submit');
 });
 
-Route::middleware(['guest', 'throttle:6,1'])->group(function () {
+// Login, kayıt, şifremi unuttum: dakikada 10 istek (429 önlemek için 6'dan artırıldı)
+Route::middleware(['guest', 'throttle:10,1'])->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');

@@ -14,6 +14,11 @@
                 {{ session('status') }}
             </div>
         @endif
+        @if(session('error'))
+            <div class="mb-4 rounded-xl bg-red-50 text-red-800 px-4 py-3 text-sm border border-red-200 dark:bg-red-900/20 dark:border-red-800 dark:text-red-200">
+                {{ session('error') }}
+            </div>
+        @endif
         @if($errors->any())
             <div class="mb-4 rounded-xl bg-red-50 text-red-800 px-4 py-3 text-sm border border-red-200 dark:bg-red-900/20 dark:border-red-800 dark:text-red-200">
                 {{ $errors->first('email') }}

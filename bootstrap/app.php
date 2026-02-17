@@ -26,6 +26,20 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+        // 429 Rate limit: Kullanıcıya anlamlı mesaj göster, form sayfasına yönlendir
+        $exceptions->render(function (\Illuminate\Http\Exceptions\ThrottleRequestsException $e, \Illuminate\Http\Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => __('passwords.throttled', ['seconds' => $e->getHeaders()['Retry-After'] ?? 60]),
+                ], 429);
+            }
+            $seconds = (int) ($e->getHeaders()['Retry-After'] ?? 60);
+            $message = __('passwords.throttled', ['seconds' => $seconds]);
+            return redirect()->back()
+                ->withInput($request->except('password', '_token'))
+                ->withErrors(['email' => $message]);
+        });
+
         // CSRF token hatası için özel işleme
         $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, \Illuminate\Http\Request $request) {
             if ($request->expectsJson()) {

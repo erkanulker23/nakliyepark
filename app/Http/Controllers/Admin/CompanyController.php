@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Company;
+use App\Notifications\CompanyApprovedNotification;
 use App\Services\AdminNotifier;
+use App\Services\SafeNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -27,10 +29,19 @@ class CompanyController extends Controller
                     });
             });
         }
-        if ($request->filled('approved')) {
+        
+        // Varsayılan olarak onay bekleyen firmaları göster (eğer hiç filtre yoksa)
+        if ($request->has('approved')) {
+            // Kullanıcı açıkça bir seçim yapmış
             if ($request->approved === '1') {
                 $query->whereNotNull('approved_at');
-            } else {
+            } elseif ($request->approved === '0') {
+                $query->whereNull('approved_at');
+            }
+            // Eğer approved boş string ise (Tümü seçilmiş), filtreleme yapma
+        } else {
+            // Hiç filtre yoksa ve query string boşsa, varsayılan olarak onay bekleyen firmaları göster
+            if (!$request->hasAny(['q', 'blocked', 'package', 'sort', 'dir'])) {
                 $query->whereNull('approved_at');
             }
         }
@@ -55,6 +66,12 @@ class CompanyController extends Controller
 
         $companies = $query->paginate(15)->withQueryString();
         $filters = $request->only(['q', 'approved', 'blocked', 'package', 'sort', 'dir']);
+        
+        // Eğer hiç filtre yoksa ve varsayılan olarak onay bekleyenleri gösteriyorsak, filters'a ekle
+        if (!$request->hasAny(['q', 'approved', 'blocked', 'package', 'sort', 'dir'])) {
+            $filters['approved'] = '0';
+        }
+        
         $paketler = config('nakliyepark.nakliyeci_paketler', []);
 
         return view('admin.companies.index', compact('companies', 'filters', 'paketler'));
@@ -96,6 +113,8 @@ class CompanyController extends Controller
             'seo_meta_title', 'seo_meta_description', 'seo_meta_keywords',
         ]);
         $data['services'] = $request->input('services', []);
+        $wasApproved = $company->approved_at !== null;
+        $company->load('user');
         $company->update($data);
         if ($request->has('approved')) {
             $approved = $request->boolean('approved');
@@ -105,6 +124,15 @@ class CompanyController extends Controller
                 'phone_verified_at' => $approved ? now() : null,
                 'official_company_verified_at' => $approved ? now() : null,
             ]);
+            
+            // Eğer daha önce onaylanmamışsa ve şimdi onaylandıysa, kullanıcıya e-posta gönder
+            if (!$wasApproved && $approved && $company->user) {
+                SafeNotificationService::sendToUser(
+                    $company->user,
+                    new CompanyApprovedNotification($company),
+                    'Company approved via update'
+                );
+            }
         }
         return redirect()->route('admin.companies.edit', $company)->with('success', 'Firma güncellendi.');
     }
@@ -121,6 +149,8 @@ class CompanyController extends Controller
 
     public function approve(Company $company)
     {
+        $wasApproved = $company->approved_at !== null;
+        $company->load('user');
         $now = now();
         $company->update([
             'approved_at' => $now,
@@ -134,6 +164,16 @@ class CompanyController extends Controller
             'company_name' => $company->name,
         ]);
         AdminNotifier::notify('company_approved', "Firma onaylandı: {$company->name}", 'Firma onayı', ['url' => route('admin.companies.edit', $company)]);
+        
+        // Eğer daha önce onaylanmamışsa, kullanıcıya e-posta gönder
+        if (!$wasApproved && $company->user) {
+            SafeNotificationService::sendToUser(
+                $company->user,
+                new CompanyApprovedNotification($company),
+                'Company approved notification'
+            );
+        }
+        
         return back()->with('success', 'Firma onaylandı.');
     }
 
