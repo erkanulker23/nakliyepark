@@ -92,6 +92,7 @@ Route::get('/araclar/tasinma-kontrol-listesi', [ToolController::class, 'checklis
 Route::get('/araclar/tasinma-takvimi', [ToolController::class, 'movingCalendar'])->name('tools.moving-calendar');
 Route::get('/araclar/tahmini-fiyat', [ToolController::class, 'priceEstimator'])->name('tools.price-estimator');
 Route::get('/araclar/tahmini-fiyat/embed', [ToolController::class, 'priceEstimatorEmbed'])->name('tools.price-estimator.embed');
+Route::get('/firma-sorgula', [ToolController::class, 'companyLookup'])->name('tools.company-lookup');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/iletisim', [ContactController::class, 'index'])->name('contact.index');

@@ -39,6 +39,7 @@
                         <a href="{{ route('tools.moving-calendar') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Taşınma takvimi</a>
                         <a href="{{ route('tools.price-estimator') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Tahmini fiyat</a>
                         @if($show_firmalar_page ?? true)
+                        <a href="{{ route('tools.company-lookup') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Firma sorgula</a>
                         <a href="{{ route('firmalar.map') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Nakliyeci bul</a>
                         @endif
                     </div>
@@ -78,6 +79,7 @@
             <a href="{{ route('tools.moving-calendar') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Takvim</a>
             <a href="{{ route('tools.price-estimator') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Tahmini fiyat</a>
             @if($show_firmalar_page ?? true)
+            <a href="{{ route('tools.company-lookup') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Firma sorgula</a>
             <a href="{{ route('firmalar.map') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Nakliyeci bul</a>
             @endif
         </div>

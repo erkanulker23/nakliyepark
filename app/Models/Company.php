@@ -177,6 +177,36 @@ class Company extends Model
         return $this->approved_at !== null;
     }
 
+    /**
+     * Türkiye telefon/cep numarasını arama için 10 haneli forma getirir.
+     * 0532 123 45 67, 905321234567, 5321234567 -> 5321234567
+     * Geçersiz veya çok kısa ise null döner.
+     */
+    public static function normalizePhoneForSearch(?string $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+        $digits = preg_replace('/\D/', '', $value);
+        if ($digits === '') {
+            return null;
+        }
+        $len = strlen($digits);
+        if ($len === 12 && str_starts_with($digits, '90')) {
+            return substr($digits, 2);
+        }
+        if ($len === 11 && $digits[0] === '0') {
+            return substr($digits, 1);
+        }
+        if ($len === 10) {
+            return $digits;
+        }
+        if ($len > 10) {
+            return substr($digits, -10);
+        }
+        return null;
+    }
+
     public function isEmailVerified(): bool
     {
         return $this->email_verified_at !== null;

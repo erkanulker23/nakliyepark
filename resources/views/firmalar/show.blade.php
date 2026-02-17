@@ -481,6 +481,9 @@
     var total = thumbs.length;
     var currentIndex = 0;
 
+    // Sayfa yüklendiğinde lightbox kapalı olsun (tarayıcı/bfcache vb. nedeniyle açık kalmayı önle)
+    if (lb && typeof lb.close === 'function') lb.close();
+
     function items() {
         return Array.prototype.map.call(thumbs, function(t){
             return { src: t.dataset.src, caption: t.dataset.caption || '' };

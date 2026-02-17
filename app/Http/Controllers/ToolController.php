@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\Setting;
+use Illuminate\Http\Request;
 
 class ToolController extends Controller
 {
@@ -159,5 +161,37 @@ class ToolController extends Controller
             'Taşınma günü' => 0,
         ];
         return view('tools.moving-calendar', compact('metaTitle', 'metaDescription', 'toolContent', 'phases', 'phaseOffsets'));
+    }
+
+    /**
+     * Firma sorgula: cep veya telefon numarasına göre onaylı firma listesi.
+     * URL: /firma-sorgula?phone=532...
+     */
+    public function companyLookup(Request $request)
+    {
+        $metaTitle = Setting::get('tool_company_lookup_meta_title') ?: 'Firma Sorgula - NakliyePark';
+        $metaDescription = Setting::get('tool_company_lookup_meta_description') ?: 'Nakliye firmasının cep veya sabit telefon numarasına göre firma sayfasını bulun.';
+        $toolContent = Setting::get('tool_company_lookup_content', '');
+        $companies = collect();
+        $searchPhone = $request->input('phone') ?: $request->input('q');
+        $searchPhone = is_string($searchPhone) ? trim($searchPhone) : '';
+
+        if ($searchPhone !== '') {
+            $normalized = Company::normalizePhoneForSearch($searchPhone);
+            if ($normalized !== null) {
+                $companies = Company::query()
+                    ->whereNotNull('approved_at')
+                    ->whereNull('blocked_at')
+                    ->get()
+                    ->filter(function (Company $company) use ($normalized) {
+                        return Company::normalizePhoneForSearch($company->phone) === $normalized
+                            || Company::normalizePhoneForSearch($company->phone_2) === $normalized
+                            || Company::normalizePhoneForSearch($company->whatsapp) === $normalized;
+                    })
+                    ->values();
+            }
+        }
+
+        return view('tools.company-lookup', compact('metaTitle', 'metaDescription', 'toolContent', 'companies', 'searchPhone'));
     }
 }
