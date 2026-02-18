@@ -46,17 +46,6 @@
     @if(!empty($custom_header_html ?? null)){!! $custom_header_html !!}@endif
 </head>
 <body class="site-selection min-h-screen font-sans safe-top safe-bottom">
-    {{-- Oturum tutarsızlığı debug: sunucunun gördüğü auth durumu (F12 > Console'da "[NakliyePark Auth]" ara) --}}
-    @if(config('app.debug') || config('session.debug'))
-    <script>
-    (function(){
-        var loggedIn = {{ auth()->check() ? 'true' : 'false' }};
-        var role = {!! json_encode(auth()->check() && auth()->user() ? auth()->user()->role : '') !!};
-        var path = {!! json_encode(request()->path()) !!};
-        console.log('[NakliyePark Auth] path=' + path + ' logged_in=' + loggedIn + ' role=' + role);
-    })();
-    </script>
-    @endif
     @include('layouts.partials.header')
     {{-- Toast: sabit konum, sayfa düzenini bozmaz, animasyonlu --}}
     <div id="toast-container" class="fixed top-20 right-4 left-4 sm:left-auto sm:max-w-sm z-[100] flex flex-col gap-2 pointer-events-none" aria-live="polite"></div>

@@ -19,6 +19,7 @@
                     <span class="beta-badge hidden sm:inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold uppercase tracking-wider bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30" title="Bu sürüm beta aşamasındadır">Beta</span>
                 @endif
             </a>
+            {{-- Masaüstü: tam nav + dropdown --}}
             <nav class="hidden lg:flex items-center gap-0.5">
                 <a href="{{ route('ihaleler.index') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400">İhaleler</a>
                 @if($show_firmalar_page ?? true)
@@ -44,7 +45,7 @@
                     </div>
                 </div>
             </nav>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1 sm:gap-2 relative z-[50]">
                 <button type="button" id="theme-toggle" class="btn-ghost rounded-lg p-2.5 text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400" aria-label="Açık/Koyu mod" title="Açık/Koyu mod">
                     <svg id="theme-icon-light" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
                     <svg id="theme-icon-dark" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
@@ -71,32 +72,20 @@
                 @endauth
             </div>
         </div>
-        <div class="lg:hidden flex items-center gap-1 pb-3 overflow-x-auto -mb-px scrollbar-hide snap-x snap-mandatory scroll-smooth touch-pan-x" style="-webkit-overflow-scrolling: touch;">
-            <a href="{{ route('ihaleler.index') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">İhaleler</a>
+        {{-- Mobil: yatay kaydırmalı link satırı (JS yok) --}}
+        <nav class="lg:hidden flex overflow-x-auto gap-1 py-2 -mx-3 px-3 sm:-mx-6 sm:px-6 scrollbar-hide border-t border-zinc-200/80 dark:border-zinc-800/80 mt-1" aria-label="Sayfa linkleri" style="-webkit-overflow-scrolling: touch;">
+            <a href="{{ route('ihaleler.index') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400 shrink-0 py-2 text-sm">İhaleler</a>
             @if($show_firmalar_page ?? true)
-            <a href="{{ route('firmalar.index') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Firmalar</a>
+            <a href="{{ route('firmalar.index') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400 shrink-0 py-2 text-sm">Firmalar</a>
             @endif
-            <a href="{{ route('defter.index') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Defter</a>
-            <a href="{{ route('pazaryeri.index') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Pazaryeri</a>
-            @auth
-            @if(auth()->user()->isAdmin())
-            <a href="{{ route('admin.dashboard') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Admin</a>
-            @endif
-            @endauth
-            @if(!auth()->check() || (auth()->user() && auth()->user()->isAdmin()))
-            <a href="{{ route('login') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Giriş</a>
-            <a href="{{ route('register') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Üye ol</a>
-            <a href="{{ route('ihale.create') }}" class="rounded-lg text-xs whitespace-nowrap py-2.5 px-3 font-semibold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400">İhale başlat</a>
-            @endif
-            <a href="{{ route('tools.volume') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Hacim</a>
-            <a href="{{ route('tools.distance') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Mesafe</a>
-            <a href="{{ route('tools.checklist') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Kontrol listesi</a>
-            <a href="{{ route('tools.moving-calendar') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Takvim</a>
-            <a href="{{ route('tools.price-estimator') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Tahmini fiyat</a>
+            <a href="{{ route('defter.index') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400 shrink-0 py-2 text-sm">Defter</a>
+            <a href="{{ route('pazaryeri.index') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400 shrink-0 py-2 text-sm">Pazaryeri</a>
+            <a href="{{ route('tools.volume') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400 shrink-0 py-2 text-sm">Hacim</a>
+            <a href="{{ route('tools.distance') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400 shrink-0 py-2 text-sm">Mesafe</a>
+            <a href="{{ route('tools.price-estimator') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400 shrink-0 py-2 text-sm">Tahmini fiyat</a>
             @if($show_firmalar_page ?? true)
-            <a href="{{ route('tools.company-lookup') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Firma sorgula</a>
-            <a href="{{ route('firmalar.map') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Nakliyeci bul</a>
+            <a href="{{ route('firmalar.map') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400 shrink-0 py-2 text-sm">Nakliyeci bul</a>
             @endif
-        </div>
+        </nav>
     </div>
 </header>

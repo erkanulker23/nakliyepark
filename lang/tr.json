@@ -1,8 +1,8 @@
 {
-    "Showing": "Gösterilen",
+    "Showing": "",
     "to": " - ",
     "of": " / ",
-    "results": " sonuç",
+    "results": " sonuç gösteriliyor",
     "Pagination Navigation": "Sayfalama",
     "Go to page :page": ":page. sayfaya git"
 }
