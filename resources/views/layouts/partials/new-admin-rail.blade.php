@@ -1,7 +1,7 @@
 @php $active = fn($r) => request()->routeIs($r) ? ' is-active' : ''; @endphp
 <aside class="app-rail" aria-label="Menü">
     {{-- Diğer menü: flyout body’de, bu buton açar --}}
-    <button type="button" class="js-toggle-admin-flyout app-rail__item{{ request()->routeIs('admin.yuk-ilanlari.*','admin.defter-api.*','admin.reklam-alanlari.*','admin.reviews.*','admin.blog.*','admin.blog-categories.*','admin.faq.*','admin.homepage-editor.*','admin.sponsors.*','admin.room-templates.*','admin.consent-logs.*','admin.blocklist.*','admin.sitemap.*','admin.settings.*','admin.site-contact-messages.*') ? ' is-active' : '' }}" data-tooltip="Diğer menü" aria-haspopup="true" aria-expanded="false">
+    <button type="button" class="js-toggle-admin-flyout app-rail__item{{ request()->routeIs('admin.yuk-ilanlari.*','admin.reklam-alanlari.*','admin.reviews.*','admin.blog.*','admin.blog-categories.*','admin.faq.*','admin.homepage-editor.*','admin.sponsors.*','admin.consent-logs.*','admin.blocklist.*','admin.sitemap.*','admin.settings.*','admin.site-contact-messages.*') ? ' is-active' : '' }}" data-tooltip="Diğer menü" aria-haspopup="true" aria-expanded="false">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
     </button>
     <a href="{{ route('admin.dashboard') }}" class="app-rail__item{{ $active('admin.dashboard') }}" data-tooltip="Kontrol Paneli">

@@ -18,7 +18,7 @@ class IhaleController extends Controller
     public function index(Request $request)
     {
         $query = Ihale::with('user')->latest();
-        if (! $request->filled('date_from') && ! $request->filled('date_to') && ! $request->filled('q') && ! $request->filled('status') && ! $request->filled('from_city') && ! $request->filled('to_city') && ! $request->filled('service_type')) {
+        if (! $request->filled('date_from') && ! $request->filled('date_to') && ! $request->filled('q') && ! $request->filled('status') && ! $request->filled('from_city') && ! $request->filled('from_district') && ! $request->filled('to_city') && ! $request->filled('to_district') && ! $request->filled('service_type')) {
             $query->where('created_at', '>=', now()->subDays(30));
         }
         if ($request->filled('date_from')) {
@@ -48,14 +48,20 @@ class IhaleController extends Controller
         if ($request->filled('from_city')) {
             $query->where('from_city', 'like', '%' . $request->from_city . '%');
         }
+        if ($request->filled('from_district')) {
+            $query->where('from_district', 'like', '%' . $request->from_district . '%');
+        }
         if ($request->filled('to_city')) {
             $query->where('to_city', 'like', '%' . $request->to_city . '%');
+        }
+        if ($request->filled('to_district')) {
+            $query->where('to_district', 'like', '%' . $request->to_district . '%');
         }
         if ($request->filled('service_type')) {
             $query->where('service_type', $request->service_type);
         }
         $ihaleler = $query->paginate(20)->withQueryString();
-        $filters = $request->only(['q', 'status', 'from_city', 'to_city', 'service_type', 'date_from', 'date_to']);
+        $filters = $request->only(['q', 'status', 'from_city', 'from_district', 'to_city', 'to_district', 'service_type', 'date_from', 'date_to']);
         return view('admin.ihaleler.index', compact('ihaleler', 'filters'));
     }
 
@@ -216,6 +222,27 @@ class IhaleController extends Controller
             });
         }
         return back()->with('success', count($ihaleler) . ' ihale kapatıldı.');
+    }
+
+    /** Toplu sil */
+    public function bulkDelete(Request $request)
+    {
+        $ids = $request->input('ids');
+        if (is_string($ids)) {
+            $ids = array_values(array_filter(array_map('intval', explode(',', $ids))));
+            $request->merge(['ids' => $ids]);
+        }
+        $request->validate(['ids' => 'required|array', 'ids.*' => 'integer|exists:ihaleler,id']);
+        $ihaleler = Ihale::whereIn('id', $request->ids)->get();
+        $count = 0;
+        foreach ($ihaleler as $ihale) {
+            $before = $ihale->only(['id', 'user_id', 'status', 'from_city', 'to_city', 'created_at']);
+            $ihale->delete();
+            AuditLog::adminAction('admin_ihale_deleted', Ihale::class, (int) $ihale->id, $before, ['deleted_at' => now()->toIso8601String()], 'Toplu silme');
+            Log::channel('admin_actions')->info('Admin ihale deleted (bulk)', ['admin_id' => auth()->id(), 'ihale_id' => $ihale->id]);
+            $count++;
+        }
+        return back()->with('success', "{$count} ihale silindi.");
     }
 
     /** Nakliyeci teklifini iptal et (rejected) */

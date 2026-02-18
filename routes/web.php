@@ -15,7 +15,6 @@ use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\IhaleController as AdminIhaleController;
 use App\Http\Controllers\Admin\MusteriController as AdminMusteriController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
-use App\Http\Controllers\Admin\RoomTemplateController as AdminRoomTemplateController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\Admin\SponsorController as AdminSponsorController;
 use App\Http\Controllers\Admin\TeklifController as AdminTeklifController;
@@ -214,6 +213,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/', fn () => redirect()->route('admin.dashboard'));
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::resource('users', AdminUserController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+    Route::post('/users/bulk-delete', [AdminUserController::class, 'bulkDelete'])->name('users.bulk-delete');
     Route::post('/users/{user}/approve', [AdminUserController::class, 'approve'])->name('users.approve');
     Route::post('/users/{user}/send-company-reminder', [AdminUserController::class, 'sendCompanyReminder'])->name('users.send-company-reminder');
     Route::get('/musteriler', [AdminMusteriController::class, 'index'])->name('musteriler.index');
@@ -245,6 +245,7 @@ Route::delete('/companies/{company}/galeri/{id}', [AdminCompanyController::class
     Route::get('/ihaleler', [AdminIhaleController::class, 'index'])->name('ihaleler.index');
     Route::post('/ihaleler/bulk-publish', [AdminIhaleController::class, 'bulkPublish'])->name('ihaleler.bulk-publish');
     Route::post('/ihaleler/bulk-close', [AdminIhaleController::class, 'bulkClose'])->name('ihaleler.bulk-close');
+    Route::post('/ihaleler/bulk-delete', [AdminIhaleController::class, 'bulkDelete'])->name('ihaleler.bulk-delete');
     Route::get('/ihaleler/create', [AdminIhaleController::class, 'create'])->name('ihaleler.create');
     Route::post('/ihaleler', [AdminIhaleController::class, 'store'])->name('ihaleler.store');
     Route::get('/ihaleler/{ihale}', [AdminIhaleController::class, 'show'])->name('ihaleler.show');
@@ -272,7 +273,6 @@ Route::delete('/companies/{company}/galeri/{id}', [AdminCompanyController::class
     Route::resource('blog', AdminBlogPostController::class)->except(['show']);
     Route::resource('blog-categories', AdminBlogCategoryController::class)->except(['show']);
     Route::resource('faq', AdminFaqController::class);
-    Route::resource('room-templates', AdminRoomTemplateController::class);
     Route::get('/homepage-editor', [AdminHomepageEditorController::class, 'index'])->name('homepage-editor.index');
     Route::post('/homepage-editor', [AdminHomepageEditorController::class, 'update'])->name('homepage-editor.update');
     Route::resource('sponsors', AdminSponsorController::class)->except(['show']);
@@ -293,10 +293,4 @@ Route::delete('/companies/{company}/galeri/{id}', [AdminCompanyController::class
     Route::get('/site-contact-messages', [\App\Http\Controllers\Admin\SiteContactMessageController::class, 'index'])->name('site-contact-messages.index');
     Route::get('/site-contact-messages/{siteContactMessage}', [\App\Http\Controllers\Admin\SiteContactMessageController::class, 'show'])->name('site-contact-messages.show');
     Route::delete('/site-contact-messages/{siteContactMessage}', [\App\Http\Controllers\Admin\SiteContactMessageController::class, 'destroy'])->name('site-contact-messages.destroy');
-    // Defter API (harici sarı defter — evdennakliyateve.com vb.) veri çekme ve firmaya dönüştürme
-    Route::get('/defter-api', [\App\Http\Controllers\Admin\DefterApiController::class, 'index'])->name('defter-api.index');
-    Route::post('/defter-api/settings', [\App\Http\Controllers\Admin\DefterApiController::class, 'updateSettings'])->name('defter-api.settings');
-    Route::post('/defter-api/fetch', [\App\Http\Controllers\Admin\DefterApiController::class, 'fetch'])->name('defter-api.fetch');
-    Route::post('/defter-api/entries/{entry}/import', [\App\Http\Controllers\Admin\DefterApiController::class, 'importAsCompany'])->name('defter-api.import');
-    Route::post('/defter-api/import-selected', [\App\Http\Controllers\Admin\DefterApiController::class, 'importSelected'])->name('defter-api.import-selected');
 });

@@ -20,8 +20,18 @@
         <input type="date" name="date_from" value="{{ $filters['date_from'] ?? '' }}" class="input-touch w-auto min-w-[130px] rounded-xl text-sm" aria-label="Başlangıç">
         <input type="date" name="date_to" value="{{ $filters['date_to'] ?? '' }}" class="input-touch w-auto min-w-[130px] rounded-xl text-sm" aria-label="Bitiş">
         <input type="text" name="q" value="{{ $filters['q'] ?? '' }}" placeholder="Ara..." class="input-touch flex-1 min-w-[160px] max-w-xs rounded-xl text-sm">
-        <input type="text" name="from_city" value="{{ $filters['from_city'] ?? '' }}" placeholder="Nereden" class="input-touch w-auto min-w-[100px] rounded-xl text-sm">
-        <input type="text" name="to_city" value="{{ $filters['to_city'] ?? '' }}" placeholder="Nereye" class="input-touch w-auto min-w-[100px] rounded-xl text-sm">
+        <select name="from_city" id="filter-from-city" class="input-touch w-auto min-w-[120px] rounded-xl text-sm" aria-label="Nereden (il)">
+            <option value="">Nereden (il)</option>
+        </select>
+        <select name="from_district" id="filter-from-district" class="input-touch w-auto min-w-[120px] rounded-xl text-sm" aria-label="Nereden (ilçe)">
+            <option value="">İlçe</option>
+        </select>
+        <select name="to_city" id="filter-to-city" class="input-touch w-auto min-w-[120px] rounded-xl text-sm" aria-label="Nereye (il)">
+            <option value="">Nereye (il)</option>
+        </select>
+        <select name="to_district" id="filter-to-district" class="input-touch w-auto min-w-[120px] rounded-xl text-sm" aria-label="Nereye (ilçe)">
+            <option value="">İlçe</option>
+        </select>
         <select name="status" class="input-touch w-auto min-w-[130px] rounded-xl text-sm">
             <option value="">Tüm durumlar</option>
             <option value="pending" {{ ($filters['status'] ?? '') === 'pending' ? 'selected' : '' }}>Onay bekliyor</option>
@@ -51,6 +61,11 @@
         <input type="hidden" name="ids" id="bulk-ids-close" value="">
         <button type="submit" class="btn-secondary rounded-xl text-sm py-2 px-3" onclick="setBulkIds('bulk-ids-close'); return document.getElementById('bulk-ids-close').value;">Seçilenleri kapat</button>
     </form>
+    <form method="POST" action="{{ route('admin.ihaleler.bulk-delete') }}" id="form-bulk-delete" class="inline" onsubmit="setBulkIds('bulk-ids-delete'); return document.getElementById('bulk-ids-delete').value && confirm('Seçilen ihaleleri silmek istediğinize emin misiniz?');">
+        @csrf
+        <input type="hidden" name="ids" id="bulk-ids-delete" value="">
+        <button type="submit" class="btn-secondary rounded-xl text-sm py-2 px-3 text-red-600 dark:text-red-400">Seçilenleri sil</button>
+    </form>
     <span class="text-sm text-[var(--panel-text-muted)]">Toplu işlem için kartları işaretleyin.</span>
 </div>
 
@@ -59,9 +74,7 @@
         <div class="panel-card p-5 sm:p-6 rounded-2xl border border-[var(--panel-border)] bg-[var(--panel-surface)] shadow-sm">
             <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                 <div class="flex items-start gap-3 min-w-0 flex-1">
-                    @if($i->status === 'pending' || $i->status === 'published')
-                        <input type="checkbox" class="bulk-ihale-id mt-1 rounded border-slate-300 text-[var(--panel-primary)] focus:ring-[var(--panel-primary)]" value="{{ $i->id }}" data-status="{{ $i->status }}" aria-label="Seç">
-                    @endif
+                    <input type="checkbox" class="bulk-ihale-id mt-1 rounded border-slate-300 text-[var(--panel-primary)] focus:ring-[var(--panel-primary)]" value="{{ $i->id }}" data-status="{{ $i->status }}" aria-label="Seç">
                     <div class="min-w-0">
                         <h3 class="text-lg font-bold text-[var(--panel-text)]">
                             {{ $i->from_location_text }} → {{ $i->to_location_text }}
@@ -110,6 +123,81 @@ function setBulkIds(hiddenId) {
     var ids = Array.from(document.querySelectorAll('.bulk-ihale-id:checked')).map(function(c) { return c.value; });
     document.getElementById(hiddenId).value = ids.join(',');
 }
+(function() {
+    var provincesUrl = {!! json_encode(route('api.turkey.provinces')) !!};
+    var districtsUrl = {!! json_encode(route('api.turkey.districts')) !!};
+    var fromCity = document.getElementById('filter-from-city');
+    var fromDistrict = document.getElementById('filter-from-district');
+    var toCity = document.getElementById('filter-to-city');
+    var toDistrict = document.getElementById('filter-to-district');
+    var filters = {!! json_encode($filters ?? []) !!};
+    function selectByValue(sel, val) {
+        if (!sel || !val) return;
+        for (var i = 0; i < sel.options.length; i++) {
+            if (sel.options[i].value === val) { sel.selectedIndex = i; return; }
+        }
+    }
+    function loadDistricts(sel, provinceId, targetSel, selectedVal) {
+        if (!provinceId || !targetSel) return;
+        targetSel.innerHTML = '<option value="">Yükleniyor...</option>';
+        fetch(districtsUrl + '?province_id=' + encodeURIComponent(provinceId))
+            .then(function(r) { return r.json(); })
+            .then(function(res) {
+                var data = res.data;
+                if (Object.prototype.toString.call(data) === '[object Object]') data = Object.values(data);
+                targetSel.innerHTML = '<option value="">İlçe</option>';
+                (data || []).forEach(function(d) { targetSel.appendChild(new Option(d.name, d.name)); });
+                selectByValue(targetSel, selectedVal);
+            })
+            .catch(function() { targetSel.innerHTML = '<option value="">İlçe yüklenemedi</option>'; });
+    }
+    function fillProvinces(sel, selectedVal) {
+        fetch(provincesUrl).then(function(r) { return r.json(); }).then(function(res) {
+            var data = res.data;
+            if (Object.prototype.toString.call(data) === '[object Object]') data = Object.values(data);
+            (data || []).forEach(function(p) { sel.appendChild(new Option(p.name, p.name)); });
+            selectByValue(sel, selectedVal);
+        }).catch(function() { sel.innerHTML = '<option value="">İller yüklenemedi</option>'; });
+    }
+    fillProvinces(fromCity, filters.from_city || '');
+    fillProvinces(toCity, filters.to_city || '');
+    if (filters.from_city) {
+        fetch(provincesUrl).then(function(r) { return r.json(); }).then(function(res) {
+            var data = res.data || [];
+            if (Object.prototype.toString.call(data) === '[object Object]') data = Object.values(data);
+            var p = data.find(function(x) { return x.name === filters.from_city; });
+            if (p) loadDistricts(fromCity, p.id, fromDistrict, filters.from_district || '');
+        });
+    }
+    if (filters.to_city) {
+        fetch(provincesUrl).then(function(r) { return r.json(); }).then(function(res) {
+            var data = res.data || [];
+            if (Object.prototype.toString.call(data) === '[object Object]') data = Object.values(data);
+            var p = data.find(function(x) { return x.name === filters.to_city; });
+            if (p) loadDistricts(toCity, p.id, toDistrict, filters.to_district || '');
+        });
+    }
+    fromCity.addEventListener('change', function() {
+        fromDistrict.innerHTML = '<option value="">İlçe</option>';
+        if (!this.value) return;
+        fetch(provincesUrl).then(function(r) { return r.json(); }).then(function(res) {
+            var data = res.data || [];
+            if (Object.prototype.toString.call(data) === '[object Object]') data = Object.values(data);
+            var p = data.find(function(x) { return x.name === this.value; }.bind(this));
+            if (p) loadDistricts(fromCity, p.id, fromDistrict, '');
+        }.bind(this));
+    });
+    toCity.addEventListener('change', function() {
+        toDistrict.innerHTML = '<option value="">İlçe</option>';
+        if (!this.value) return;
+        fetch(provincesUrl).then(function(r) { return r.json(); }).then(function(res) {
+            var data = res.data || [];
+            if (Object.prototype.toString.call(data) === '[object Object]') data = Object.values(data);
+            var p = data.find(function(x) { return x.name === this.value; }.bind(this));
+            if (p) loadDistricts(toCity, p.id, toDistrict, '');
+        }.bind(this));
+    });
+})();
 </script>
 @if($ihaleler->hasPages())
     <div class="mt-8">{{ $ihaleler->links() }}</div>

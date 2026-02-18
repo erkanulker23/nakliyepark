@@ -23,7 +23,7 @@
     </a>
     {{-- Menü: tüm diğer linkler flyout'ta --}}
     <div class="relative" id="admin-desktop-menu-wrap">
-        <button type="button" id="admin-desktop-menu-btn" class="nav-item w-full {{ request()->routeIs('admin.yuk-ilanlari.*', 'admin.defter-api.*', 'admin.reklam-alanlari.*', 'admin.reviews.*', 'admin.blog.*', 'admin.blog-categories.*', 'admin.faq.*', 'admin.homepage-editor.*', 'admin.sponsors.*', 'admin.room-templates.*', 'admin.consent-logs.*', 'admin.blocklist.*', 'admin.sitemap.*', 'admin.settings.*', 'admin.site-contact-messages.*') ? 'active' : '' }}" data-tooltip="Diğer menü" aria-haspopup="true" aria-expanded="false" aria-controls="admin-desktop-menu-flyout">
+        <button type="button" id="admin-desktop-menu-btn" class="nav-item w-full {{ request()->routeIs('admin.yuk-ilanlari.*', 'admin.reklam-alanlari.*', 'admin.reviews.*', 'admin.blog.*', 'admin.blog-categories.*', 'admin.faq.*', 'admin.homepage-editor.*', 'admin.sponsors.*', 'admin.consent-logs.*', 'admin.blocklist.*', 'admin.sitemap.*', 'admin.settings.*', 'admin.site-contact-messages.*') ? 'active' : '' }}" data-tooltip="Diğer menü" aria-haspopup="true" aria-expanded="false" aria-controls="admin-desktop-menu-flyout">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
         <div id="admin-desktop-menu-flyout" class="absolute left-full top-0 ml-1 w-64 max-h-[min(80vh,500px)] overflow-y-auto bg-[var(--panel-surface)] border border-[var(--panel-border)] rounded-2xl shadow-xl z-50 py-2 hidden" role="menu" aria-label="Diğer menü" aria-hidden="true">

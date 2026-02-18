@@ -11,11 +11,28 @@
     </a>
 </div>
 
+<div class="mb-4 flex flex-wrap items-center gap-3">
+    <label class="flex items-center gap-2 text-sm text-[var(--panel-text)] cursor-pointer">
+        <input type="checkbox" id="select-all-users" class="rounded border-slate-300 text-[var(--panel-primary)] focus:ring-[var(--panel-primary)]" title="Tümünü seç">
+        <span>Tümünü seç</span>
+    </label>
+    <form method="POST" action="{{ route('admin.users.bulk-delete') }}" id="form-bulk-delete-users" class="inline" onsubmit="setBulkUserIds(); return document.getElementById('bulk-user-ids').value && confirm('Seçilen kullanıcıları silmek istediğinize emin misiniz? Bu işlem geri alınamaz.');">
+        @csrf
+        <input type="hidden" name="ids" id="bulk-user-ids" value="">
+        <button type="submit" class="btn-secondary rounded-xl text-sm py-2 px-3 text-red-600 dark:text-red-400">Seçilenleri sil</button>
+    </form>
+    <span class="text-sm text-[var(--panel-text-muted)]">Toplu silme için kartları işaretleyin.</span>
+</div>
+
 <div class="space-y-4">
     @forelse($users as $u)
         <div class="panel-card p-5 sm:p-6 rounded-2xl border border-[var(--panel-border)] bg-[var(--panel-surface)] shadow-sm">
             <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                <div class="min-w-0">
+                <div class="flex items-start gap-3 min-w-0 flex-1">
+                    @if($u->id !== auth()->id())
+                        <input type="checkbox" class="bulk-user-id mt-1 rounded border-slate-300 text-[var(--panel-primary)] focus:ring-[var(--panel-primary)]" value="{{ $u->id }}" aria-label="Seç">
+                    @endif
+                    <div class="min-w-0">
                     <h3 class="text-lg font-bold text-[var(--panel-text)]">{{ $u->name }}</h3>
                     <p class="text-sm text-[var(--panel-text-muted)] mt-0.5">{{ $u->email }}</p>
                     <div class="flex flex-wrap items-center gap-2 mt-3">
@@ -34,6 +51,7 @@
                         @elseif($u->role === 'musteri')
                             <span class="text-sm text-[var(--panel-text-muted)]">{{ $u->ihaleler_count ?? 0 }} ihale</span>
                         @endif
+                    </div>
                     </div>
                 </div>
                 <div class="flex items-center gap-3 shrink-0">
@@ -55,6 +73,15 @@
     @endforelse
 </div>
 
+<script>
+document.getElementById('select-all-users')?.addEventListener('change', function() {
+    document.querySelectorAll('.bulk-user-id').forEach(function(cb) { cb.checked = this.checked; }.bind(this));
+});
+function setBulkUserIds() {
+    var ids = Array.from(document.querySelectorAll('.bulk-user-id:checked')).map(function(c) { return c.value; });
+    document.getElementById('bulk-user-ids').value = ids.join(',');
+}
+</script>
 @if($users->hasPages())
     <div class="mt-8">{{ $users->links() }}</div>
 @endif

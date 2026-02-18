@@ -6,18 +6,10 @@
 
 @section('content')
 <div class="space-y-6">
-    <div class="flex flex-wrap items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
+    <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-between gap-4">
+        <div class="flex flex-wrap items-center gap-2">
             <a href="{{ route('admin.ihaleler.index') }}" class="admin-btn-secondary text-sm">← İhalelere dön</a>
             <a href="{{ route('admin.ihaleler.edit', $ihale) }}" class="admin-btn-primary text-sm">Düzenle</a>
-            <form method="POST" action="{{ route('admin.ihaleler.destroy', $ihale) }}" class="inline" onsubmit="return confirm('Bu ihaleyi silmek istediğinize emin misiniz? Silme nedeni audit log\'a kaydedilir.');">
-                @csrf
-                @method('DELETE')
-                <input type="text" name="action_reason" class="admin-input py-1.5 w-48 text-sm mr-1" placeholder="Silme nedeni (isteğe bağlı)" maxlength="1000">
-                <button type="submit" class="admin-btn-danger text-sm">Sil</button>
-            </form>
-        </div>
-        <div class="flex flex-wrap items-center gap-2">
             @if($ihale->status === 'pending')
                 <form method="POST" action="{{ route('admin.ihaleler.update-status', $ihale) }}" class="inline">
                     @csrf
@@ -26,10 +18,12 @@
                     <button type="submit" class="admin-btn-primary text-sm">Onayla ve yayına al</button>
                 </form>
             @endif
-            <form method="POST" action="{{ route('admin.ihaleler.update-status', $ihale) }}" class="flex items-center gap-2">
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+            <form method="POST" action="{{ route('admin.ihaleler.update-status', $ihale) }}" class="inline-flex items-center gap-2">
                 @csrf
                 @method('PATCH')
-                <select name="status" class="admin-input py-2 w-auto">
+                <select name="status" class="admin-input py-2 w-auto text-sm">
                     <option value="pending" {{ $ihale->status === 'pending' ? 'selected' : '' }}>Onay bekliyor</option>
                     <option value="draft" {{ $ihale->status === 'draft' ? 'selected' : '' }}>Taslak</option>
                     <option value="published" {{ $ihale->status === 'published' ? 'selected' : '' }}>Yayında</option>
@@ -39,6 +33,12 @@
                 <button type="submit" class="admin-btn-secondary text-sm">Durum güncelle</button>
             </form>
         </div>
+        <form method="POST" action="{{ route('admin.ihaleler.destroy', $ihale) }}" class="inline-flex flex-wrap items-center gap-2" onsubmit="return confirm('Bu ihaleyi silmek istediğinize emin misiniz? Silme nedeni audit log\'a kaydedilir.');">
+            @csrf
+            @method('DELETE')
+            <input type="text" name="action_reason" class="admin-input py-1.5 w-40 sm:w-48 text-sm" placeholder="Silme nedeni (isteğe bağlı)" maxlength="1000">
+            <button type="submit" class="admin-btn-danger text-sm">Sil</button>
+        </form>
     </div>
 
     <div class="admin-card p-6 grid md:grid-cols-2 gap-6">

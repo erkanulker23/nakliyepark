@@ -121,6 +121,27 @@ class UserController extends Controller
         return back()->with('success', 'Firma oluşturma hatırlatma maili gönderildi.');
     }
 
+    /** Toplu sil */
+    public function bulkDelete(Request $request)
+    {
+        $ids = $request->input('ids');
+        if (is_string($ids)) {
+            $ids = array_values(array_filter(array_map('intval', explode(',', $ids))));
+            $request->merge(['ids' => $ids]);
+        }
+        $request->validate(['ids' => 'required|array', 'ids.*' => 'integer|exists:users,id']);
+        $authId = auth()->id();
+        $users = User::whereIn('id', $request->ids)->where('id', '!=', $authId)->get();
+        $count = 0;
+        foreach ($users as $user) {
+            $email = $user->email;
+            $user->delete();
+            Log::channel('admin_actions')->info('Admin user deleted (bulk)', ['admin_id' => $authId, 'deleted_user_email' => $email]);
+            $count++;
+        }
+        return back()->with('success', "{$count} kullanıcı silindi.");
+    }
+
     public function destroy(User $user)
     {
         if ($user->id === auth()->id()) {
