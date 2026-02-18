@@ -17,7 +17,11 @@
         @php
             $teklifCount = $ihale->teklifler()->count();
             $accepted = $ihale->acceptedTeklif;
-            $minTeklif = $ihale->teklifler()->where('status', '!=', 'rejected')->min('amount');
+            try {
+                $minTeklif = $ihale->teklifler()->where('status', '!=', 'rejected')->min('amount');
+            } catch (\Throwable $e) {
+                $minTeklif = null;
+            }
             $canClose = $ihale->status === 'published' && !$accepted;
             $canOpen = in_array($ihale->status, ['closed', 'draft'], true) && !$accepted;
             $canPause = $ihale->status === 'published' && !$accepted;

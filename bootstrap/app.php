@@ -30,6 +30,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'verified.panel' => \App\Http\Middleware\EnsureEmailVerifiedForPanel::class,
         ]);
         $middleware->web(append: [
+            \App\Http\Middleware\SessionAuthDebugLog::class,
             \App\Http\Middleware\EnsureNotBlocked::class,
             \App\Http\Middleware\SecurityHeaders::class,
         ]);

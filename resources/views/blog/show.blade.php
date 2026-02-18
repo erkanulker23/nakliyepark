@@ -96,9 +96,10 @@
                             <p class="text-lg text-zinc-600 dark:text-zinc-300 leading-relaxed mb-8 font-medium" itemprop="description">{{ $post->excerpt }}</p>
                         @endif
 
-                        <div class="prose prose-lg prose-zinc dark:prose-invert max-w-none
+                        <div class="blog-article-content prose prose-lg prose-zinc dark:prose-invert max-w-none
                             prose-headings:font-bold prose-headings:tracking-tight prose-headings:text-zinc-900 dark:prose-headings:text-white
-                            prose-p:text-zinc-600 dark:prose-p:text-zinc-300 prose-p:leading-[1.8]
+                            prose-p:text-zinc-600 dark:prose-p:text-zinc-300 prose-p:leading-[1.8] prose-p:my-4
+                            prose-ul:my-4 prose-ol:my-4 prose-li:text-zinc-600 dark:prose-li:text-zinc-300
                             prose-a:text-emerald-600 dark:prose-a:text-emerald-400 prose-a:no-underline hover:prose-a:underline
                             prose-strong:text-zinc-900 dark:prose-strong:text-white
                             prose-img:rounded-xl prose-img:shadow-md"

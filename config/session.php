@@ -156,7 +156,10 @@ return [
     |
     */
 
-    'domain' => env('SESSION_DOMAIN'),
+    'domain' => (function () {
+        $d = env('SESSION_DOMAIN');
+        return ($d === null || $d === '' || $d === 'null') ? null : $d;
+    })(),
 
     /*
     |--------------------------------------------------------------------------
@@ -213,5 +216,13 @@ return [
     */
 
     'partitioned' => env('SESSION_PARTITIONED_COOKIE', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Session Auth Debug (Log)
+    |--------------------------------------------------------------------------
+    | SESSION_DEBUG=true iken her istekte auth durumu storage/logs/laravel.log'a yazılır.
+    */
+    'debug' => env('SESSION_DEBUG', false),
 
 ];

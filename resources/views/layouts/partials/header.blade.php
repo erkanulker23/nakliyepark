@@ -51,7 +51,8 @@
                 </button>
                 @auth
                     @if(auth()->user()->isAdmin())
-                        {{-- Admin: frontend'de giriş bilgisi gösterme --}}
+                        {{-- Admin girişli: Panel linki + misafir görünümü (güvenlik için frontend'de admin belli olmasın) --}}
+                        <a href="{{ route('admin.dashboard') }}" class="btn-ghost rounded-lg hidden sm:inline-flex text-zinc-600 dark:text-zinc-400">Admin</a>
                         <a href="{{ route('login') }}" class="btn-secondary rounded-lg hidden sm:inline-flex">Giriş</a>
                         <a href="{{ route('register') }}" class="btn-secondary rounded-lg hidden sm:inline-flex">Üye ol</a>
                         <a href="{{ route('ihale.create') }}" class="hidden sm:inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-xl font-semibold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 shadow-lg shadow-orange-500/25 transition-all">İhale başlat</a>
@@ -77,6 +78,11 @@
             @endif
             <a href="{{ route('defter.index') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Defter</a>
             <a href="{{ route('pazaryeri.index') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Pazaryeri</a>
+            @auth
+            @if(auth()->user()->isAdmin())
+            <a href="{{ route('admin.dashboard') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Admin</a>
+            @endif
+            @endauth
             @if(!auth()->check() || (auth()->user() && auth()->user()->isAdmin()))
             <a href="{{ route('login') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Giriş</a>
             <a href="{{ route('register') }}" class="btn-ghost rounded-lg text-xs whitespace-nowrap py-2.5">Üye ol</a>

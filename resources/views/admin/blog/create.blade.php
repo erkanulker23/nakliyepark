@@ -83,9 +83,10 @@
             </div>
             <div class="admin-form-group">
                 <label class="admin-label">İçerik *</label>
-                <textarea name="content" id="blog-content" rows="16" required class="admin-input text-sm" placeholder="Zengin metin içerik">{{ old('content') }}</textarea>
+                <div id="blog-content-editor" class="bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-600 rounded-lg overflow-hidden min-h-[420px]" style="height: 420px;"></div>
+                <textarea name="content" id="blog-content" required class="hidden" placeholder="Zengin metin içerik">{{ old('content') }}</textarea>
                 @error('content')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
-                <p class="mt-1 text-xs text-slate-500">Zengin editör ile biçimlendirme, başlık, liste ve link ekleyebilirsiniz.</p>
+                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Başlık, kalın/italik, liste ve link ekleyebilirsiniz. İçerik frontend’de birebir aynı görünecektir.</p>
             </div>
             <div class="border-t border-slate-200 pt-5">
                 <h4 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">Kapak görseli</h4>
@@ -118,23 +119,36 @@
     </div>
 </div>
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+@endpush
+
 @push('scripts')
-<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    tinymce.init({
-        selector: '#blog-content',
-        height: 420,
-        menubar: false,
-        plugins: 'lists link image code table',
-        toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | bullist numlist | link image | code',
-        content_style: 'body { font-family: inherit; font-size: 14px; }',
-        language: 'tr',
-        promotion: false
+    var textarea = document.getElementById('blog-content');
+    var editorEl = document.getElementById('blog-content-editor');
+
+    var quill = new Quill(editorEl, {
+        theme: 'snow',
+        placeholder: 'İçerik yazın…',
+        modules: {
+            toolbar: [
+                [{ header: [1, 2, 3, false] }],
+                ['bold', 'italic'],
+                ['link'],
+                [{ list: 'ordered' }, { list: 'bullet' }]
+            ]
+        }
     });
+
+    quill.root.innerHTML = textarea.value || '';
+
     document.getElementById('blog-form').addEventListener('submit', function() {
-        if (typeof tinymce !== 'undefined') tinymce.triggerSave();
+        textarea.value = quill.root.innerHTML;
     });
+
     var btn = document.getElementById('ai-generate-btn');
     var topicInput = document.getElementById('ai-topic');
     var instructionsInput = document.getElementById('ai-instructions');
@@ -181,11 +195,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('blog-title').value = d.title || '';
                 document.getElementById('blog-slug').value = slugify(d.title) || '';
                 document.getElementById('blog-excerpt').value = d.excerpt || '';
-                if (typeof tinymce !== 'undefined' && tinymce.get('blog-content')) {
-                    tinymce.get('blog-content').setContent(d.content || '');
-                } else {
-                    document.getElementById('blog-content').value = d.content || '';
-                }
+                quill.root.innerHTML = d.content || '';
+                textarea.value = d.content || '';
                 document.getElementById('blog-meta-title').value = d.meta_title || '';
                 document.getElementById('blog-meta-description').value = d.meta_description || '';
                 errorEl.classList.add('hidden');

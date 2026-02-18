@@ -14,7 +14,7 @@ class Teklif extends Model
 
     protected $table = 'teklifler';
 
-    protected $fillable = ['ihale_id', 'company_id', 'amount', 'message', 'status', 'pending_amount', 'pending_message', 'reject_reason', 'accepted_at'];
+    protected $fillable = ['ihale_id', 'company_id', 'amount', 'message', 'status', 'pending_amount', 'pending_message', 'reject_reason', 'accepted_at', 'rejected_at'];
 
     protected function casts(): array
     {
@@ -22,6 +22,7 @@ class Teklif extends Model
             'amount' => 'decimal:2',
             'pending_amount' => 'decimal:2',
             'accepted_at' => 'datetime',
+            'rejected_at' => 'datetime',
         ];
     }
 
