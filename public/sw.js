@@ -1,7 +1,12 @@
-const CACHE_NAME = 'nakliyepark-v2';
-const urlsToCache = ['/', '/css/app.css', '/build/assets/app.js', '/build/assets/app.css'];
+const CACHE_NAME = 'nakliyepark-v3';
+const urlsToCache = ['/css/app.css', '/build/assets/app.js', '/build/assets/app.css'];
 
-// Panel sayfaları: hiç cache'lenmez ve cache'den sunulmaz (her zaman güncel layout)
+// Sayfa (HTML) istekleri asla cache'lenmez: giriş durumu her istekte sunucudan gelir
+function isDocumentRequest(request) {
+  return request.mode === 'navigate' || request.destination === 'document';
+}
+
+// Panel sayfaları: her zaman ağdan
 function isPanelUrl(url) {
   try {
     const path = new URL(url).pathname;
@@ -31,11 +36,13 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   const url = event.request.url;
 
-  if (isPanelUrl(url)) {
+  // Sayfa istekleri: her zaman ağdan, cache yok (oturum tutarlılığı)
+  if (isDocumentRequest(event.request) || isPanelUrl(url)) {
     event.respondWith(fetch(event.request));
     return;
   }
 
+  // Sadece statik asset'ler (js, css, resim) cache'lenir
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
