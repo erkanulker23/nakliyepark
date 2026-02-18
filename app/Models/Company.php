@@ -58,6 +58,8 @@ class Company extends Model
     protected $fillable = [
         'user_id', 'name', 'slug', 'tax_number', 'tax_office', 'address', 'city', 'district',
         'live_latitude', 'live_longitude', 'live_location_updated_at', 'map_visible',
+        'google_maps_url', 'google_reviews_url', 'google_rating', 'google_review_count',
+        'yandex_reviews_url', 'yandex_rating', 'yandex_review_count',
         'phone', 'phone_2', 'whatsapp', 'email',
         'description', 'logo', 'logo_approved_at', 'services', 'approved_at', 'package',         'blocked_at', 'blocked_reason', 'view_count',
         'email_verified_at', 'phone_verified_at', 'official_company_verified_at',
@@ -79,6 +81,8 @@ class Company extends Model
             'services' => 'array',
             'pending_changes' => 'array',
             'pending_changes_at' => 'datetime',
+            'google_rating' => 'decimal:1',
+            'yandex_rating' => 'decimal:1',
         ];
     }
 
@@ -284,10 +288,16 @@ class Company extends Model
         return 50;
     }
 
-    /** Bu ay limit aşılmadıysa true. */
+    /** Paketi var mı (ihalelere fiyat verebilmek için paket gerekli). */
+    public function hasPackage(): bool
+    {
+        return $this->package !== null && $this->package !== '';
+    }
+
+    /** Bu ay limit aşılmadıysa ve paketi varsa true. İhalelere fiyat verebilmek için paket zorunludur. */
     public function canSendTeklif(): bool
     {
-        return $this->teklifCountThisMonth() < $this->teklif_limit;
+        return $this->hasPackage() && $this->teklifCountThisMonth() < $this->teklif_limit;
     }
 
     /** Kabul edilmiş teklifler (iş sayısı) */

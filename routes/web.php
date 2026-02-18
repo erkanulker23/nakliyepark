@@ -29,6 +29,7 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\DefterController;
 use App\Http\Controllers\FaqController;
+use App\Http\Controllers\GeocodeController;
 use App\Http\Controllers\FirmaController;
 use App\Http\Controllers\GuestWizardController;
 use App\Http\Controllers\HomeController;
@@ -69,6 +70,7 @@ Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'ind
 // Türkiye il, ilçe, mahalle API (api.turkiyeapi.dev proxy)
 Route::get('/api/turkey/provinces', [TurkeyLocationController::class, 'provinces'])->name('api.turkey.provinces');
 Route::get('/api/turkey/districts', [TurkeyLocationController::class, 'districts'])->name('api.turkey.districts');
+Route::get('/api/geocode', GeocodeController::class)->name('api.geocode');
 
 Route::get('/ihaleler', [IhaleController::class, 'index'])->name('ihaleler.index');
 Route::get('/ihaleler/{ihale}', [IhaleController::class, 'show'])->name('ihaleler.show');
@@ -278,6 +280,7 @@ Route::delete('/companies/{company}/galeri/{id}', [AdminCompanyController::class
     Route::resource('sponsors', AdminSponsorController::class)->except(['show']);
     Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
     Route::post('/settings', [AdminSettingController::class, 'update'])->name('settings.update');
+    Route::post('/settings/manual-payment', [AdminSettingController::class, 'manualPayment'])->name('settings.manual-payment');
     Route::post('/settings/mail-templates', [AdminSettingController::class, 'updateMailTemplates'])->name('settings.update-mail-templates');
     Route::post('/settings/packages', [AdminSettingController::class, 'updatePackages'])->name('settings.update-packages');
     Route::post('/settings/tool-pages', [AdminSettingController::class, 'updateToolPages'])->name('settings.tool-pages');

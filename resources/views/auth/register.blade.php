@@ -1,50 +1,26 @@
-@extends('layouts.app')
+@extends('layouts.guest')
 
 @section('title', 'Hesap Oluştur - NakliyePark')
 @section('meta_description', 'NakliyePark hesabı oluşturun. Müşteri olarak ihale açın veya nakliye firması olarak teklif verin. Ücretsiz kayıt.')
 
 @section('content')
-<div class="page-container py-8 max-w-lg mx-auto">
+<div class="w-full max-w-md">
     <div class="card p-6 sm:p-8">
-        <div class="flex items-center justify-between gap-4 mb-2">
-        <div class="flex items-center gap-3">
-            <span class="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
-            </span>
-            <h1 class="text-xl font-semibold text-zinc-900 dark:text-white">Hesap oluştur</h1>
-        </div>
-        <button type="button" id="back-btn" class="btn-ghost w-10 h-10 rounded-xl hidden" aria-label="Geri">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-        </button>
-    </div>
-
-    {{-- Step 1: Üyelik türü --}}
-    <div id="step1" class="step-panel">
-        <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Deftere yazın, teklif verin. Her gün 2.500’den fazla işin paylaşıldığı bu platforma katılın. İş fırsatlarını kaçırmayın.</p>
-        <div class="flex rounded-xl bg-zinc-100 dark:bg-zinc-800 p-1 mb-6" role="tablist">
+        <div class="flex rounded-xl bg-zinc-100 dark:bg-zinc-800 p-1 mb-6" role="tablist" aria-label="Üyelik türü">
             @php $defaultRole = request('role', old('role', 'musteri')); $defaultRole = in_array($defaultRole, ['musteri', 'nakliyeci'], true) ? $defaultRole : 'musteri'; @endphp
-            <label class="flex-1 py-2.5 text-center text-sm font-medium rounded-lg cursor-pointer transition-colors {{ $defaultRole === 'musteri' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white' }}">
-                <input type="radio" name="role" value="musteri" {{ $defaultRole === 'musteri' ? 'checked' : '' }} class="sr-only">
+            <button type="button" role="tab" id="tab-role-musteri" aria-selected="{{ $defaultRole === 'musteri' ? 'true' : 'false' }}" data-role="musteri" tabindex="{{ $defaultRole === 'musteri' ? 0 : -1 }}"
+                class="register-role-tab flex-1 py-2.5 text-center text-sm font-medium rounded-lg transition-colors {{ $defaultRole === 'musteri' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white' }}">
                 Müşteri kaydı
-            </label>
-            <label class="flex-1 py-2.5 text-center text-sm font-medium rounded-lg cursor-pointer transition-colors {{ $defaultRole === 'nakliyeci' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white' }}">
-                <input type="radio" name="role" value="nakliyeci" {{ $defaultRole === 'nakliyeci' ? 'checked' : '' }} class="sr-only">
+            </button>
+            <button type="button" role="tab" id="tab-role-nakliyeci" aria-selected="{{ $defaultRole === 'nakliyeci' ? 'true' : 'false' }}" data-role="nakliyeci" tabindex="{{ $defaultRole === 'nakliyeci' ? 0 : -1 }}"
+                class="register-role-tab flex-1 py-2.5 text-center text-sm font-medium rounded-lg transition-colors {{ $defaultRole === 'nakliyeci' ? 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-white shadow-sm' : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white' }}">
                 Nakliyeci kaydı
-            </label>
+            </button>
         </div>
-        <button type="button" id="next-to-step2" class="btn-primary w-full gap-2">
-            Devam et
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
-        </button>
-    </div>
+        <h1 class="text-xl font-semibold text-zinc-900 dark:text-white mb-1">Hesap oluştur</h1>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Deftere yazın, teklif verin. Her gün 2.500'den fazla işin paylaşıldığı bu platforma katılın.</p>
 
-    {{-- Step 2: Kişisel bilgiler --}}
-    <div id="step2" class="step-panel hidden">
-        <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">Talep oluşturabilir, teklif alabilir ve işlemlerinizi takip edebilirsiniz.</p>
-        <div class="h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-full mb-6 overflow-hidden">
-            <div id="progress-bar" class="h-full bg-sky-600 rounded-full transition-all duration-300" style="width: 50%"></div>
-        </div>
-
+    {{-- Step 1: Sadece rol seçimi (tek sayfa: form aşağıda) --}}
         <form method="POST" action="{{ route('register') }}" id="register-form" class="space-y-4">
             @csrf
             <input type="hidden" name="role" id="form-role" value="{{ $defaultRole }}">
@@ -88,23 +64,34 @@
 
             <div>
                 <label for="password" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Şifreniz *</label>
-                <input id="password" type="password" name="password" required
-                       class="input-touch @error('password') border-red-500 @enderror" placeholder="En az 8 karakter">
+                <div class="relative">
+                    <input id="password" type="password" name="password" required
+                           class="input-touch pr-12 @error('password') border-red-500 @enderror" placeholder="En az 8 karakter">
+                    <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/30" aria-label="Şifreyi göster" data-password-toggle="password" title="Şifreyi göster">
+                        <svg class="w-5 h-5 password-eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        <svg class="w-5 h-5 password-eye-closed hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+                    </button>
+                </div>
                 @error('password')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
 
             <div>
                 <label for="password_confirmation" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Şifre (tekrar) *</label>
-                <input id="password_confirmation" type="password" name="password_confirmation" required
-                       class="input-touch" placeholder="Şifrenizi tekrar girin">
+                <div class="relative">
+                    <input id="password_confirmation" type="password" name="password_confirmation" required
+                           class="input-touch pr-12" placeholder="Şifrenizi tekrar girin">
+                    <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/30" aria-label="Şifreyi göster" data-password-toggle="password_confirmation" title="Şifreyi göster">
+                        <svg class="w-5 h-5 password-eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        <svg class="w-5 h-5 password-eye-closed hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+                    </button>
+                </div>
             </div>
 
             <button type="submit" class="btn-primary w-full gap-2">
                 Kayıt ol
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7-7 7"/></svg>
             </button>
         </form>
-    </div>
     </div>
 
     <p class="mt-6 text-center text-sm text-zinc-500">
@@ -115,65 +102,85 @@
 @push('scripts')
 <script>
 (function() {
-    const step1 = document.getElementById('step1');
-    const step2 = document.getElementById('step2');
-    const backBtn = document.getElementById('back-btn');
-    const nextBtn = document.getElementById('next-to-step2');
-    const formRole = document.getElementById('form-role');
-    const progressBar = document.getElementById('progress-bar');
-    const roleInputs = document.querySelectorAll('input[name="role"]');
+    var formRole = document.getElementById('form-role');
+    var tabs = document.querySelectorAll('.register-role-tab');
+    if (!formRole || !tabs.length) return;
 
-    function syncRole() {
-        const r = document.querySelector('input[name="role"]:checked');
-        if (r) formRole.value = r.value;
+    function setActiveRole(role) {
+        formRole.value = role;
+        tabs.forEach(function(t) {
+            var isActive = t.getAttribute('data-role') === role;
+            t.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            t.setAttribute('tabindex', isActive ? 0 : -1);
+            if (isActive) {
+                t.classList.remove('text-zinc-600', 'dark:text-zinc-400');
+                t.classList.add('bg-white', 'dark:bg-zinc-700', 'text-zinc-900', 'dark:text-white', 'shadow-sm');
+            } else {
+                t.classList.remove('bg-white', 'dark:bg-zinc-700', 'text-zinc-900', 'dark:text-white', 'shadow-sm');
+                t.classList.add('text-zinc-600', 'dark:text-zinc-400');
+            }
+        });
     }
 
-    nextBtn.addEventListener('click', function() {
-        syncRole();
-        step1.classList.add('hidden');
-        step2.classList.remove('hidden');
-        backBtn.classList.remove('hidden');
-        progressBar.style.width = '100%';
+    tabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            setActiveRole(this.getAttribute('data-role'));
+        });
+        tab.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setActiveRole(this.getAttribute('data-role'));
+            }
+        });
     });
 
-    backBtn.addEventListener('click', function() {
-        step2.classList.add('hidden');
-        step1.classList.remove('hidden');
-        backBtn.classList.add('hidden');
-        progressBar.style.width = '50%';
-    });
-
-    roleInputs.forEach(el => el.addEventListener('change', syncRole));
-
-    // Telefon alanı: sadece rakam (0-9)
-    const phoneInput = document.getElementById('phone');
+    var phoneInput = document.getElementById('phone');
     if (phoneInput) {
         phoneInput.addEventListener('input', function() {
             this.value = this.value.replace(/\D/g, '').slice(0, 10);
         });
         phoneInput.addEventListener('paste', function(e) {
             e.preventDefault();
-            const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 10);
+            var text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 10);
             this.value = text;
         });
     }
 
-    // Build name from first_name + last_name before submit if backend expects "name"
-    const form = document.getElementById('register-form');
-    form.addEventListener('submit', function() {
-        const first = document.getElementById('first_name').value.trim();
-        const last = document.getElementById('last_name').value.trim();
-        if (first || last) {
-            let nameInput = form.querySelector('input[name="name"]');
-            if (!nameInput) {
-                nameInput = document.createElement('input');
-                nameInput.type = 'hidden';
-                nameInput.name = 'name';
-                form.appendChild(nameInput);
-            }
-            nameInput.value = (first + ' ' + last).trim() || first || last;
-        }
+    document.querySelectorAll('[data-password-toggle]').forEach(function(btn) {
+        var inputId = btn.getAttribute('data-password-toggle');
+        var input = document.getElementById(inputId);
+        var openEye = btn.querySelector('.password-eye-open');
+        var closedEye = btn.querySelector('.password-eye-closed');
+        if (!input || !openEye || !closedEye) return;
+        btn.addEventListener('click', function() {
+            var isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            openEye.classList.toggle('hidden', isPassword);
+            closedEye.classList.toggle('hidden', !isPassword);
+            btn.setAttribute('aria-label', isPassword ? 'Şifreyi gizle' : 'Şifreyi göster');
+            btn.setAttribute('title', isPassword ? 'Şifreyi gizle' : 'Şifreyi göster');
+        });
     });
+
+    var form = document.getElementById('register-form');
+    if (form) {
+        form.addEventListener('submit', function() {
+            var first = document.getElementById('first_name');
+            var last = document.getElementById('last_name');
+            if (first && last) {
+                var firstVal = first.value.trim();
+                var lastVal = last.value.trim();
+                var nameInput = form.querySelector('input[name="name"]');
+                if (!nameInput) {
+                    nameInput = document.createElement('input');
+                    nameInput.type = 'hidden';
+                    nameInput.name = 'name';
+                    form.appendChild(nameInput);
+                }
+                nameInput.value = (firstVal + ' ' + lastVal).trim() || firstVal || lastVal;
+            }
+        });
+    }
 })();
 </script>
 @endpush

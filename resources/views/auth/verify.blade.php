@@ -4,7 +4,7 @@
 @section('meta_description', 'E-posta adresinizi doğrulayın.')
 
 @section('content')
-<div class="w-full max-w-sm">
+<div class="w-full max-w-md">
     <div class="card p-6 sm:p-8">
         <h1 class="text-xl font-semibold text-zinc-900 dark:text-white mb-1">E-posta doğrulama</h1>
         <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Kayıt olurken kullandığınız e-posta adresine bir doğrulama linki gönderdik. Lütfen e-postanızı kontrol edip linke tıklayın.</p>

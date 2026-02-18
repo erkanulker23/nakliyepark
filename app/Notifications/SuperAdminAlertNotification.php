@@ -35,7 +35,7 @@ class SuperAdminAlertNotification extends Notification
         $buttons = $url ? [['url' => $url, 'text' => 'İncele']] : null;
         $body = MailTemplateService::buildBodyHtml($paragraphs, $buttons);
 
-        $subject = '[' . config('seo.site_name', 'NakliyePark') . '] ' . $this->title;
+        $subject = config('seo.site_name', 'NakliyePark') . ' - ' . $this->title;
 
         return (new MailMessage)
             ->subject($subject)

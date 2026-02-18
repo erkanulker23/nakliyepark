@@ -4,7 +4,7 @@
 @section('meta_description', 'NakliyePark hesabınız için yeni şifre belirleyin.')
 
 @section('content')
-<div class="w-full max-w-sm">
+<div class="w-full max-w-md">
     <div class="card p-6 sm:p-8">
         <h1 class="text-xl font-semibold text-zinc-900 dark:text-white mb-1">Yeni şifre oluştur</h1>
         <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Hesabınız için yeni bir şifre girin.</p>

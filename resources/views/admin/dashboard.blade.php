@@ -137,17 +137,19 @@
     </div>
 </div>
 
-{{-- Özet satır --}}
+{{-- Özet satır: kullanıcılar + sayfa görüntülenmeleri --}}
 <div class="flex flex-wrap gap-3 mb-6 p-4 rounded-2xl bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-400">
     <span><strong class="text-slate-800 dark:text-slate-200">{{ $stats['users'] }}</strong> toplam kullanıcı</span>
     <span class="text-slate-400">|</span>
     <span><strong class="text-slate-800 dark:text-slate-200">{{ $stats['recent_users_7'] }}</strong> son 7 günde kayıt</span>
     <span class="text-slate-400">|</span>
     <span><strong class="text-slate-800 dark:text-slate-200">{{ $stats['companies_approved'] }}</strong> onaylı firma</span>
+    <span class="text-slate-400">|</span>
+    <span><strong class="text-slate-800 dark:text-slate-200">{{ number_format($stats['total_page_views'] ?? 0) }}</strong> toplam sayfa görüntülenmesi</span>
 </div>
 
-{{-- Kart listeler: görüntülenen firmalar & ihaleler --}}
-<div class="grid sm:grid-cols-2 gap-4 sm:gap-6 mb-6">
+{{-- Kart listeler: görüntülenen firmalar, ihaleler, blog --}}
+<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
     <div class="panel-card p-4 sm:p-5">
         <h2 class="font-semibold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
             <span class="w-8 h-8 rounded-xl bg-sky-100 dark:bg-sky-900/40 flex items-center justify-center text-sky-600 dark:text-sky-400">
@@ -185,6 +187,25 @@
             @endforelse
         </ul>
         <a href="{{ route('admin.ihaleler.index') }}" class="inline-flex items-center gap-1 mt-4 text-sm text-emerald-600 dark:text-emerald-400 hover:underline font-medium">Tüm ihaleler →</a>
+    </div>
+    <div class="panel-card p-4 sm:p-5">
+        <h2 class="font-semibold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+            <span class="w-8 h-8 rounded-xl bg-rose-100 dark:bg-rose-900/40 flex items-center justify-center text-rose-600 dark:text-rose-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            </span>
+            En çok görüntülenen blog yazıları
+        </h2>
+        <ul class="space-y-2 text-sm">
+            @forelse($mostViewedBlogPosts ?? [] as $b)
+                <li class="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700 last:border-0">
+                    <a href="{{ route('admin.blog.edit', $b) }}" class="font-medium text-slate-800 dark:text-slate-200 hover:text-emerald-600 truncate">{{ $b->title }}</a>
+                    <span class="shrink-0 text-slate-500 dark:text-slate-400 ml-2">{{ number_format($b->view_count ?? 0) }} görüntülenme</span>
+                </li>
+            @empty
+                <li class="text-slate-500 dark:text-slate-400">Henüz blog görüntülenme verisi yok.</li>
+            @endforelse
+        </ul>
+        <a href="{{ route('admin.blog.index') }}" class="inline-flex items-center gap-1 mt-4 text-sm text-emerald-600 dark:text-emerald-400 hover:underline font-medium">Tüm blog yazıları →</a>
     </div>
 </div>
 

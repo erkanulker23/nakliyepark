@@ -32,9 +32,8 @@ class HomeController extends Controller
             'defter_count' => YukIlani::where('status', 'active')->count(),
         ];
         $sonIhaleler = Ihale::where('status', 'published')->withCount('teklifler')->latest()->take(6)->get();
-        $firmalar = Company::whereNotNull('approved_at')->with('user')
-            ->orderByRaw('CASE WHEN package = ? THEN 0 WHEN package = ? THEN 1 WHEN package = ? THEN 2 ELSE 3 END', ['kurumsal', 'profesyonel', 'baslangic'])
-            ->latest()
+        $firmalar = Company::whereNotNull('approved_at')->whereNull('blocked_at')->with('user')
+            ->inRandomOrder()
             ->take(6)
             ->get();
         $firmalarHaritada = Company::visibleOnMap()->get(['id', 'slug', 'name', 'city', 'live_latitude', 'live_longitude', 'live_location_updated_at']);

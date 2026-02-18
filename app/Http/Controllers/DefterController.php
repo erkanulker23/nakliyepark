@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ihale;
+use App\Models\Setting;
 use App\Models\YukIlani;
 use Illuminate\Http\Request;
 
@@ -16,6 +17,9 @@ class DefterController extends Controller
 
     public function index(Request $request)
     {
+        if (Setting::get('show_defter_page', '1') !== '1') {
+            abort(404);
+        }
         $query = YukIlani::with(['company', 'yanitlar.company'])
             ->where('yuk_ilanlari.status', 'active')
             ->join('companies', 'companies.id', '=', 'yuk_ilanlari.company_id')
@@ -67,6 +71,9 @@ class DefterController extends Controller
     /** Tekil defter ilanı (WhatsApp paylaşım linki bu sayfaya gider) */
     public function show(YukIlani $yukIlani)
     {
+        if (Setting::get('show_defter_page', '1') !== '1') {
+            abort(404);
+        }
         if ($yukIlani->status !== 'active') {
             abort(404);
         }

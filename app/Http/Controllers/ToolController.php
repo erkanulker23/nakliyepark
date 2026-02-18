@@ -31,7 +31,7 @@ class ToolController extends Controller
     public function distance()
     {
         $metaTitle = Setting::get('tool_distance_meta_title') ?: 'Mesafe Hesaplama - NakliyePark';
-        $metaDescription = Setting::get('tool_distance_meta_description') ?: 'Başlangıç ve varış ili seçerek nakliye mesafesini tahmini olarak hesaplayın. Harita üzerinde kuş uçuşu km görüntüleyin.';
+        $metaDescription = Setting::get('tool_distance_meta_description') ?: 'İl, ilçe ve isteğe bağlı mahalle seçerek nakliye karayolu mesafesini hesaplayın. Aynı il içinde ilçeler arası mesafe de hesaplanır.';
         $toolContent = Setting::get('tool_distance_content', '');
         $embedUrl = url(route('tools.distance.embed'));
 

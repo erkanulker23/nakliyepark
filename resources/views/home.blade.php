@@ -86,7 +86,7 @@
 {{-- Hero CTA: Nakliyeci — geliştirilmiş CTA kartı --}}
 <section class="border-y border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-900/80" aria-labelledby="cta-nakliyeci-title">
     <div class="page-container py-6 sm:py-8">
-        <div class="max-w-4xl mx-auto rounded-2xl border border-emerald-200/80 dark:border-emerald-800/50 bg-white/80 dark:bg-zinc-900/80 shadow-lg shadow-emerald-500/5 dark:shadow-emerald-500/10 backdrop-blur-sm overflow-hidden">
+        <div class="max-w-4xl mx-auto rounded-2xl bg-white/80 dark:bg-zinc-900/80 shadow-lg shadow-emerald-500/5 dark:shadow-emerald-500/10 backdrop-blur-sm overflow-hidden">
             <div class="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 sm:gap-6">
                 <div class="min-w-0 flex-1">
                     <div class="flex items-start gap-3 sm:gap-4">
@@ -874,8 +874,8 @@ $haritadaGoster = $firmalarHaritada->map(fn($c) => ['id' => $c->id, 'name' => $c
                 <a href="{{ route('blog.index') }}" class="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline ml-2">Tümü</a>
             </div>
         </div>
-        <div class="slider-wrap">
-            <div id="blog-slider-track" class="slider-track">
+        <div class="slider-wrap overflow-hidden">
+            <div id="blog-slider-track" class="slider-track flex gap-5 overflow-x-auto overflow-y-hidden pb-4 scroll-smooth snap-x snap-mandatory scrollbar-hide" style="scroll-behavior: smooth; -webkit-overflow-scrolling: touch;">
                 @foreach($sonBlog as $post)
                     <div class="slider-item">
                         <a href="{{ route('blog.show', $post->slug) }}" class="group block">
@@ -908,13 +908,20 @@ $haritadaGoster = $firmalarHaritada->map(fn($c) => ['id' => $c->id, 'name' => $c
 @push('scripts')
 <script>
 (function() {
-    var track = document.getElementById('blog-slider-track');
-    var prev = document.getElementById('blog-slider-prev');
-    var next = document.getElementById('blog-slider-next');
-    if (!track || !prev || !next) return;
-    var step = 320;
-    prev.addEventListener('click', function() { track.scrollBy({ left: -step, behavior: 'smooth' }); });
-    next.addEventListener('click', function() { track.scrollBy({ left: step, behavior: 'smooth' }); });
+    function initBlogSlider() {
+        var track = document.getElementById('blog-slider-track');
+        var prev = document.getElementById('blog-slider-prev');
+        var next = document.getElementById('blog-slider-next');
+        if (!track || !prev || !next) return;
+        var step = 340;
+        prev.addEventListener('click', function() { track.scrollBy({ left: -step, behavior: 'smooth' }); });
+        next.addEventListener('click', function() { track.scrollBy({ left: step, behavior: 'smooth' }); });
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initBlogSlider);
+    } else {
+        initBlogSlider();
+    }
 })();
 </script>
 @endpush

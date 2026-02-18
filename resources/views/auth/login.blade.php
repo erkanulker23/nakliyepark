@@ -4,7 +4,7 @@
 @section('meta_description', 'NakliyePark hesabınıza giriş yapın. İhalelerinizi yönetin, teklif verin veya nakliye firması olarak kayıt olun.')
 
 @section('content')
-<div class="w-full max-w-sm">
+<div class="w-full max-w-md">
     <div class="card p-6 sm:p-8">
         @if(!isset($admin_login))
         <div class="flex rounded-xl bg-zinc-100 dark:bg-zinc-800 p-1 mb-6" role="tablist">

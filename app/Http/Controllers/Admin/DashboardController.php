@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\BlogPost;
 use App\Models\Company;
 use App\Models\CompanyVehicleImage;
 use App\Models\Ihale;
@@ -21,6 +22,7 @@ class DashboardController extends Controller
             'companies_approved' => Company::whereNotNull('approved_at')->count(),
             'ihaleler' => Ihale::where('status', 'published')->count(),
             'recent_users_7' => User::where('created_at', '>=', now()->subDays(7))->count(),
+            'total_page_views' => (int) Company::sum('view_count') + (int) Ihale::where('status', 'published')->sum('view_count') + (int) BlogPost::sum('view_count'),
         ];
 
         $recentCompanies = Company::with('user')->latest()->take(10)->get();
@@ -29,6 +31,7 @@ class DashboardController extends Controller
 
         $mostViewedCompanies = Company::whereNotNull('approved_at')->whereNull('blocked_at')->orderByDesc('view_count')->take(10)->get(['id', 'name', 'slug', 'city', 'view_count']);
         $mostViewedIhaleler = Ihale::where('status', 'published')->orderByDesc('view_count')->take(10)->get(['id', 'from_city', 'to_city', 'slug', 'view_count']);
+        $mostViewedBlogPosts = BlogPost::whereNotNull('published_at')->orderByDesc('view_count')->take(10)->get(['id', 'title', 'slug', 'view_count']);
 
         // Onay bekleyenler (en üstte gösterilecek)
         $pendingCompaniesCount = Company::whereNull('approved_at')->count();
@@ -45,7 +48,7 @@ class DashboardController extends Controller
 
         return view('admin.dashboard', compact(
             'stats', 'recentCompanies', 'recentIhaleler', 'recentUsers',
-            'mostViewedCompanies', 'mostViewedIhaleler',
+            'mostViewedCompanies', 'mostViewedIhaleler', 'mostViewedBlogPosts',
             'pendingCompaniesCount', 'pendingCompanies',
             'companiesWithPendingChangesCount', 'companiesWithPendingChanges',
             'pendingIhalelerCount', 'pendingIhaleler',

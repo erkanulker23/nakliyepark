@@ -10,7 +10,7 @@ class BlogPost extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['category_id', 'title', 'slug', 'meta_title', 'excerpt', 'content', 'ai_prompt', 'image', 'published_at', 'meta_description', 'featured'];
+    protected $fillable = ['category_id', 'title', 'slug', 'meta_title', 'excerpt', 'content', 'ai_prompt', 'image', 'published_at', 'view_count', 'meta_description', 'featured'];
 
     protected function casts(): array
     {

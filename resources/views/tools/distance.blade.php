@@ -20,25 +20,43 @@
 <div class="page-container py-6 sm:py-8">
     <header class="mb-6 sm:mb-8">
         <h1 class="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">Mesafe Hesaplama</h1>
-        <p class="mt-1.5 text-sm text-zinc-500 dark:text-zinc-400">Başlangıç ve varış ili seçin; haritada güzergahı görün ve tahmini mesafeyi hesaplayın.</p>
-        <p class="mt-3 text-zinc-600 dark:text-zinc-400 text-base max-w-3xl">Nakliye mesafesi hesaplama aracı ile Türkiye illeri arasında kuş uçuşu mesafeyi anında öğrenin. İl seçerek nakliye km tahmini alın, harita üzerinde güzergahı görün. Nakliye fiyatı ve planlaması için mesafe bilgisi edinin.</p>
+        <p class="mt-1.5 text-sm text-zinc-500 dark:text-zinc-400">Başlangıç ve varış için il, ilçe ve isteğe bağlı mahalle seçin; karayolu mesafesi hesaplansın.</p>
+        <p class="mt-3 text-zinc-600 dark:text-zinc-400 text-base max-w-3xl">Aynı il içinde farklı ilçeler arasında da mesafe hesaplanır. İl + ilçe (ve isteğe bağlı mahalle) seçerek nakliye km tahmini alın, harita üzerinde güzergahı görün.</p>
     </header>
 
     <div class="max-w-3xl mx-auto space-y-6">
         <div class="card rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm p-5 sm:p-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Başlangıç ili *</label>
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Başlangıç *</label>
                     <select id="from-province" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl">
                         <option value="">İl seçin</option>
                     </select>
+                    <select id="from-district" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl" disabled>
+                        <option value="">Önce il seçin</option>
+                    </select>
+                    <select id="from-neighborhood" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl" disabled>
+                        <option value="">İlçe seçince mahalle (opsiyonel)</option>
+                    </select>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Varış ili *</label>
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Varış *</label>
                     <select id="to-province" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl">
                         <option value="">İl seçin</option>
                     </select>
+                    <select id="to-district" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl" disabled>
+                        <option value="">Önce il seçin</option>
+                    </select>
+                    <select id="to-neighborhood" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl" disabled>
+                        <option value="">İlçe seçince mahalle (opsiyonel)</option>
+                    </select>
                 </div>
+            </div>
+            <div class="mt-4">
+                <button type="button" id="btn-calc-distance" class="btn-primary gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+                    Mesafeyi hesapla
+                </button>
             </div>
         </div>
 
@@ -53,9 +71,17 @@
         </div>
 
         <div id="result" class="rounded-2xl border border-emerald-200/80 dark:border-emerald-800/80 bg-emerald-50/80 dark:bg-emerald-950/30 p-5 sm:p-6 hidden">
-            <p class="text-sm text-zinc-600 dark:text-zinc-400">Tahmini mesafe (kuş uçuşu)</p>
+            <p class="text-sm text-zinc-600 dark:text-zinc-400" id="result-label">Tahmini karayolu mesafesi</p>
             <p class="text-2xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-1"><span id="result-km">0</span> km</p>
+            <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1" id="result-route"></p>
         </div>
+
+        <section class="mt-8 pt-6 border-t border-zinc-200 dark:border-zinc-800" aria-labelledby="son-mesafe-baslik">
+            <h2 id="son-mesafe-baslik" class="text-lg font-semibold text-zinc-900 dark:text-white mb-3">Son 10 mesafe ölçümü</h2>
+            <div id="distance-history-list" class="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-800/30 divide-y divide-zinc-200 dark:divide-zinc-700 overflow-hidden">
+                <p class="p-4 text-sm text-zinc-500 dark:text-zinc-400" id="distance-history-empty">Henüz mesafe hesaplaması yapılmadı. Başlangıç ve varış seçip "Mesafeyi hesapla" butonuna tıklayın.</p>
+            </div>
+        </section>
     </div>
 
     <section class="mt-8 pt-8 border-t border-zinc-200 dark:border-zinc-800 max-w-3xl mx-auto" aria-labelledby="embed-baslik-dist">
@@ -73,8 +99,8 @@
             @if(!empty($toolContent))
                 {!! $toolContent !!}
             @else
-                <p>Mesafe hesaplama aracı, başlangıç ve varış olarak seçtiğiniz iki il arasındaki tahmini mesafeyi (kuş uçuşu) hesaplar ve harita üzerinde gösterir.</p>
-                <p><strong>Kullanım:</strong> &ldquo;Başlangıç ili&rdquo; ve &ldquo;Varış ili&rdquo; açılır listesinden illeri seçin. Harita otomatik güncellenir; kırmızı işaret başlangıç, yeşil işaret varış noktasıdır. Yeşil çizgi iki noktayı birleştirir. Sonuç kutusunda tahmini mesafe (km) görüntülenir. Bu mesafe kuş uçuşu olduğu için karayolu km&apos;den biraz daha kısa olabilir; nakliye planlaması ve maliyet tahmini için referans olarak kullanabilirsiniz.</p>
+                <p>Mesafe hesaplama aracı, başlangıç ve varış için seçtiğiniz il, ilçe ve isteğe bağlı mahalle bilgisiyle tahmini karayolu mesafesini hesaplar ve harita üzerinde gösterir.</p>
+                <p><strong>Kullanım:</strong> Başlangıç ve varış için önce ili, sonra ilçeyi seçin. İsterseniz mahalle de seçerek daha hassas mesafe alabilirsiniz. Aynı il içinde farklı ilçeler (örn. Adana Çukurova → Adana Seyhan) seçildiğinde de ilçeler arası km hesaplanır. Sonuç kutusunda tahmini karayolu mesafesi (km) görüntülenir.</p>
             @endif
         </div>
     </section>
@@ -84,12 +110,21 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
 (function() {
-    const fromSelect = document.getElementById('from-province');
-    const toSelect = document.getElementById('to-province');
+    const provincesApiUrl = '{{ route("api.turkey.provinces") }}';
+    const districtsApiUrl = '{{ route("api.turkey.districts") }}';
+    const geocodeApiUrl = '{{ route("api.geocode") }}';
+
+    const fromProvince = document.getElementById('from-province');
+    const fromDistrict = document.getElementById('from-district');
+    const fromNeighborhood = document.getElementById('from-neighborhood');
+    const toProvince = document.getElementById('to-province');
+    const toDistrict = document.getElementById('to-district');
+    const toNeighborhood = document.getElementById('to-neighborhood');
     const mapWrapper = document.getElementById('map-wrapper');
-    const mapContainer = document.getElementById('map-container');
     const resultBox = document.getElementById('result');
     const resultKm = document.getElementById('result-km');
+    const resultLabel = document.getElementById('result-label');
+    const resultRoute = document.getElementById('result-route');
 
     const OSRM_BASE = 'https://router.project-osrm.org/route/v1/driving';
     let map = null;
@@ -98,13 +133,146 @@
     let line = null;
     let routeRequest = null;
     let provinces = [];
+    let fromDistrictsData = [];
+    let toDistrictsData = [];
 
-    function haversine(lat1, lon1, lat2, lon2) {
-        const R = 6371;
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a = Math.sin(dLat/2)**2 + Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) * Math.sin(dLon/2)**2;
-        return 2 * R * Math.asin(Math.sqrt(a));
+    function fillProvinces() {
+        const fromVal = fromProvince?.value || '';
+        const toVal = toProvince?.value || '';
+        const opts = (p) => '<option value="' + p.id + '" data-lat="' + (p.latitude || '') + '" data-lng="' + (p.longitude || '') + '" data-name="' + (p.name || '').replace(/"/g, '&quot;') + '">' + (p.name || '') + '</option>';
+        if (fromProvince) {
+            fromProvince.innerHTML = '<option value="">İl seçin</option>' + provinces.map(opts).join('');
+            if (fromVal) fromProvince.value = fromVal;
+        }
+        if (toProvince) {
+            toProvince.innerHTML = '<option value="">İl seçin</option>' + provinces.map(opts).join('');
+            if (toVal) toProvince.value = toVal;
+        }
+    }
+
+    function loadDistricts(provinceSelect, districtSelect, neighborhoodSelect, storeKey) {
+        const pid = provinceSelect?.value;
+        if (!pid) {
+            if (districtSelect) { districtSelect.innerHTML = '<option value="">Önce il seçin</option>'; districtSelect.disabled = true; }
+            if (neighborhoodSelect) { neighborhoodSelect.innerHTML = '<option value="">İlçe seçince mahalle (opsiyonel)</option>'; neighborhoodSelect.disabled = true; }
+            return Promise.resolve();
+        }
+        districtSelect.innerHTML = '<option value="">Yükleniyor...</option>';
+        districtSelect.disabled = false;
+        return fetch(districtsApiUrl + '?province_id=' + pid).then(r => r.json()).then(data => {
+            if (!data.data || !data.data.length) {
+                districtSelect.innerHTML = '<option value="">İlçe yok</option>';
+                if (neighborhoodSelect) { neighborhoodSelect.innerHTML = '<option value="">—</option>'; neighborhoodSelect.disabled = true; }
+                if (storeKey === 'from') fromDistrictsData = []; else toDistrictsData = [];
+                return;
+            }
+            if (storeKey === 'from') fromDistrictsData = data.data; else toDistrictsData = data.data;
+            districtSelect.innerHTML = '<option value="">İlçe seçin</option>' + data.data.map(d =>
+                '<option value="' + d.id + '" data-name="' + (d.name || '').replace(/"/g, '&quot;') + '">' + (d.name || '') + '</option>'
+            ).join('');
+            if (neighborhoodSelect) { neighborhoodSelect.innerHTML = '<option value="">Mahalle (opsiyonel)</option>'; neighborhoodSelect.disabled = true; }
+        }).catch(function() {
+            districtSelect.innerHTML = '<option value="">Hata</option>';
+        });
+    }
+
+    function fillNeighborhoods(districtSelect, neighborhoodSelect, districtsData) {
+        const did = districtSelect?.value;
+        if (!did || !districtsData.length) {
+            neighborhoodSelect.innerHTML = '<option value="">İlçe seçince mahalle (opsiyonel)</option>';
+            neighborhoodSelect.disabled = true;
+            return;
+        }
+        const district = districtsData.find(d => String(d.id) === String(did));
+        const neighborhoods = (district && district.neighborhoods) ? district.neighborhoods : [];
+        neighborhoodSelect.disabled = false;
+        neighborhoodSelect.innerHTML = '<option value="">Mahalle (opsiyonel)</option>' + neighborhoods.map(n =>
+            '<option value="' + (n.id || '') + '" data-name="' + (n.name || '').replace(/"/g, '&quot;') + '">' + (n.name || '') + '</option>'
+        ).join('');
+    }
+
+    function getLocationName(provinceSelect, districtSelect, neighborhoodSelect) {
+        const pOpt = provinceSelect?.options[provinceSelect.selectedIndex];
+        const dOpt = districtSelect?.options[districtSelect?.selectedIndex];
+        const nOpt = neighborhoodSelect?.options[neighborhoodSelect?.selectedIndex];
+        const pName = pOpt?.text || '';
+        const dName = (dOpt && dOpt.value) ? dOpt.text : '';
+        const nName = (nOpt && nOpt.value) ? nOpt.text : '';
+        if (nName) return nName + ', ' + dName + '/' + pName;
+        if (dName) return dName + '/' + pName;
+        return pName;
+    }
+
+    function getCoordsFor(side) {
+        const provinceSelect = side === 'from' ? fromProvince : toProvince;
+        const districtSelect = side === 'from' ? fromDistrict : toDistrict;
+        const neighborhoodSelect = side === 'from' ? fromNeighborhood : toNeighborhood;
+        const pOpt = provinceSelect?.options[provinceSelect?.selectedIndex];
+        if (!pOpt || !pOpt.value) return Promise.resolve(null);
+        const pName = pOpt.text || '';
+        const pLat = parseFloat(pOpt.dataset.lat);
+        const pLng = parseFloat(pOpt.dataset.lng);
+        const dOpt = districtSelect?.options[districtSelect?.selectedIndex];
+        const nOpt = neighborhoodSelect?.options[neighborhoodSelect?.selectedIndex];
+        const hasDistrict = dOpt && dOpt.value;
+        const hasNeighborhood = nOpt && nOpt.value;
+        const dName = hasDistrict ? dOpt.text : '';
+        const nName = hasNeighborhood ? nOpt.text : '';
+
+        if (hasNeighborhood && hasDistrict) {
+            const q = encodeURIComponent(nName + ', ' + dName + ', ' + pName);
+            return fetch(geocodeApiUrl + '?q=' + q).then(r => r.json()).then(data => {
+                if (data.lat != null && data.lng != null) return { lat: data.lat, lng: data.lng, name: getLocationName(provinceSelect, districtSelect, neighborhoodSelect) };
+                return { lat: pLat, lng: pLng, name: pName };
+            }).catch(() => ({ lat: pLat, lng: pLng, name: pName }));
+        }
+        if (hasDistrict) {
+            const q = encodeURIComponent(dName + ', ' + pName);
+            return fetch(geocodeApiUrl + '?q=' + q).then(r => r.json()).then(data => {
+                if (data.lat != null && data.lng != null) return { lat: data.lat, lng: data.lng, name: dName + '/' + pName };
+                return { lat: pLat, lng: pLng, name: pName };
+            }).catch(() => ({ lat: pLat, lng: pLng, name: pName }));
+        }
+        if (!isNaN(pLat) && !isNaN(pLng)) return Promise.resolve({ lat: pLat, lng: pLng, name: pName });
+        return Promise.resolve(null);
+    }
+
+    const DISTANCE_HISTORY_KEY = 'nakliyepark_distance_history';
+    const MAX_HISTORY = 10;
+
+    function saveDistanceHistory(fromName, toName, km) {
+        try {
+            let list = JSON.parse(localStorage.getItem(DISTANCE_HISTORY_KEY) || '[]');
+            list.unshift({ from: fromName, to: toName, km: km, route: fromName + ' → ' + toName });
+            list = list.slice(0, MAX_HISTORY);
+            localStorage.setItem(DISTANCE_HISTORY_KEY, JSON.stringify(list));
+            renderDistanceHistory();
+        } catch (e) {}
+    }
+
+    function renderDistanceHistory() {
+        const container = document.getElementById('distance-history-list');
+        const emptyEl = document.getElementById('distance-history-empty');
+        if (!container) return;
+        try {
+            const list = JSON.parse(localStorage.getItem(DISTANCE_HISTORY_KEY) || '[]');
+            if (list.length === 0) {
+                if (emptyEl) emptyEl.classList.remove('hidden');
+                const items = container.querySelectorAll('.distance-history-item');
+                items.forEach(function(el) { el.remove(); });
+                return;
+            }
+            if (emptyEl) emptyEl.classList.add('hidden');
+            container.querySelectorAll('.distance-history-item').forEach(function(el) { el.remove(); });
+            list.forEach(function(item) {
+                const div = document.createElement('div');
+                div.className = 'distance-history-item px-4 py-3 flex items-center justify-between gap-3 text-sm';
+                div.innerHTML = '<span class="text-zinc-600 dark:text-zinc-300 truncate">' + (item.route || item.from + ' → ' + item.to) + '</span><span class="font-semibold text-emerald-600 dark:text-emerald-400 shrink-0">' + (item.km || 0) + ' km</span>';
+                container.appendChild(div);
+            });
+        } catch (e) {
+            if (emptyEl) emptyEl.classList.remove('hidden');
+        }
     }
 
     function fetchRoadRoute(from, to, onSuccess, onFallback) {
@@ -114,85 +282,53 @@
         fetch(url, { signal: routeRequest.signal })
             .then(r => r.json())
             .then(data => {
-                if (data.code === 'Ok' && data.routes && data.routes[0] && data.routes[0].geometry && data.routes[0].geometry.coordinates) {
-                    const coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
-                    onSuccess(coords);
-                } else {
-                    if (onFallback) onFallback();
-                }
+                if (data.code === 'Ok' && data.routes && data.routes[0]) {
+                    const route = data.routes[0];
+                    const roadKm = route.distance != null ? Math.round(route.distance / 1000) : null;
+                    if (roadKm != null && resultKm) resultKm.textContent = roadKm;
+                    if (roadKm != null) saveDistanceHistory(from.name, to.name, roadKm);
+                    if (route.geometry && route.geometry.coordinates && route.geometry.coordinates.length) {
+                        const coords = route.geometry.coordinates.map(c => [c[1], c[0]]);
+                        onSuccess(coords);
+                    } else if (onFallback) onFallback();
+                } else if (onFallback) onFallback();
             })
             .catch(() => { if (onFallback) onFallback(); });
     }
 
-    function fillSelect(select, excludeId) {
-        const current = select.value;
-        select.innerHTML = '<option value="">İl seçin</option>';
-        provinces.forEach(p => {
-            if (p.id == excludeId) return;
-            const opt = document.createElement('option');
-            opt.value = p.id;
-            opt.dataset.lat = p.latitude;
-            opt.dataset.lng = p.longitude;
-            opt.dataset.name = p.name;
-            opt.textContent = p.name;
-            if (String(p.id) === String(current)) opt.selected = true;
-            select.appendChild(opt);
-        });
-    }
-
-    function getSelectedCoords(select) {
-        const opt = select.options[select.selectedIndex];
-        if (!opt || !opt.value) return null;
-        const lat = parseFloat(opt.dataset.lat);
-        const lng = parseFloat(opt.dataset.lng);
-        if (isNaN(lat) || isNaN(lng)) return null;
-        return { lat, lng, name: opt.dataset.name };
-    }
-
-    function updateMap() {
-        const from = getSelectedCoords(fromSelect);
-        const to = getSelectedCoords(toSelect);
-
+    function updateMapAndResult(from, to) {
         if (!from && !to) {
             mapWrapper.classList.add('hidden');
             resultBox.classList.add('hidden');
             return;
         }
-
+        mapWrapper.classList.remove('hidden');
         if (!map) {
-            mapWrapper.classList.remove('hidden');
             const center = from || to;
             map = L.map('map').setView([center.lat, center.lng], 6);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             }).addTo(map);
         }
-
         if (fromMarker) map.removeLayer(fromMarker);
         if (toMarker) map.removeLayer(toMarker);
         if (line) map.removeLayer(line);
         fromMarker = null;
         toMarker = null;
         line = null;
-
         const bounds = [];
-
         if (from) {
-            fromMarker = L.marker([from.lat, from.lng], { className: 'distance-marker-start' })
-                .addTo(map)
-                .bindPopup('<b>Başlangıç</b><br>' + from.name);
+            fromMarker = L.marker([from.lat, from.lng], { className: 'distance-marker-start' }).addTo(map).bindPopup('<b>Başlangıç</b><br>' + from.name);
             bounds.push([from.lat, from.lng]);
         }
         if (to) {
-            toMarker = L.marker([to.lat, to.lng], { className: 'distance-marker-end' })
-                .addTo(map)
-                .bindPopup('<b>Varış</b><br>' + to.name);
+            toMarker = L.marker([to.lat, to.lng], { className: 'distance-marker-end' }).addTo(map).bindPopup('<b>Varış</b><br>' + to.name);
             bounds.push([to.lat, to.lng]);
         }
         if (from && to) {
-            const airKm = Math.round(haversine(from.lat, from.lng, to.lat, to.lng));
-            resultKm.textContent = airKm;
             resultBox.classList.remove('hidden');
+            if (resultLabel) resultLabel.textContent = 'Tahmini karayolu mesafesi';
+            if (resultRoute) resultRoute.textContent = from.name + ' → ' + to.name;
             fetchRoadRoute(from, to,
                 function(coords) {
                     if (line) map.removeLayer(line);
@@ -201,34 +337,53 @@
                 },
                 function() {
                     if (line) map.removeLayer(line);
+                    var fallbackKm = Math.round(Math.sqrt(Math.pow((to.lat - from.lat) * 111, 2) + Math.pow((to.lng - from.lng) * 85, 2)));
+                    if (resultKm) resultKm.textContent = fallbackKm;
+                    saveDistanceHistory(from.name, to.name, fallbackKm);
                     line = L.polyline([[from.lat, from.lng], [to.lat, to.lng]], { color: '#059669', weight: 4, opacity: 0.9 }).addTo(map);
+                    map.fitBounds(bounds, { padding: [40, 40], maxZoom: 12 });
                 }
             );
         } else {
             resultBox.classList.add('hidden');
-        }
-
-        if (bounds.length) {
-            map.fitBounds(bounds, { padding: [40, 40], maxZoom: 12 });
+            if (bounds.length) map.fitBounds(bounds, { padding: [40, 40], maxZoom: 12 });
         }
     }
 
-    fromSelect.addEventListener('change', () => {
-        fillSelect(toSelect, fromSelect.value);
-        updateMap();
+    function runUpdate() {
+        if (!fromProvince?.value || !toProvince?.value) {
+            mapWrapper.classList.add('hidden');
+            resultBox.classList.add('hidden');
+            return;
+        }
+        Promise.all([getCoordsFor('from'), getCoordsFor('to')]).then(function([from, to]) {
+            updateMapAndResult(from, to);
+        });
+    }
+
+    fromProvince?.addEventListener('change', function() {
+        loadDistricts(fromProvince, fromDistrict, fromNeighborhood, 'from');
     });
-    toSelect.addEventListener('change', () => {
-        fillSelect(fromSelect, toSelect.value);
-        updateMap();
+    toProvince?.addEventListener('change', function() {
+        loadDistricts(toProvince, toDistrict, toNeighborhood, 'to');
+    });
+    fromDistrict?.addEventListener('change', function() {
+        fillNeighborhoods(fromDistrict, fromNeighborhood, fromDistrictsData);
+    });
+    toDistrict?.addEventListener('change', function() {
+        fillNeighborhoods(toDistrict, toNeighborhood, toDistrictsData);
     });
 
-    fetch('{{ route("api.turkey.provinces") }}')
+    document.getElementById('btn-calc-distance')?.addEventListener('click', runUpdate);
+
+    renderDistanceHistory();
+
+    fetch(provincesApiUrl)
         .then(r => r.json())
         .then(data => {
             if (!data.data || !data.data.length) return;
             provinces = data.data.filter(p => p.latitude != null && p.longitude != null);
-            fillSelect(fromSelect);
-            fillSelect(toSelect);
+            fillProvinces();
         })
         .catch(() => {});
 })();

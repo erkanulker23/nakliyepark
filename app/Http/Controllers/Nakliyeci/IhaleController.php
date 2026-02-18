@@ -46,6 +46,9 @@ class IhaleController extends Controller
         if ($company->isBlocked()) {
             return back()->with('error', 'Firmanız engellenmiştir. Teklif veremezsiniz.');
         }
+        if (! $company->hasPackage()) {
+            return back()->with('error', 'İhalelere fiyat verebilmek için abonelik paketiniz olmalıdır. Paket satın almak için lütfen bizimle iletişime geçin.');
+        }
         if (! $company->canSendTeklif()) {
             return back()->with('error', 'Bu ay için teklif limitiniz dolmuştur (' . $company->teklif_limit . ' teklif). Paket yükseltmek için lütfen bizimle iletişime geçin.');
         }

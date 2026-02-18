@@ -4,11 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\BlogCategory;
 use App\Models\BlogPost;
+use App\Models\Setting;
 
 class BlogController extends Controller
 {
     public function index()
     {
+        if (Setting::get('show_blog_page', '1') !== '1') {
+            abort(404);
+        }
         $categories = BlogCategory::orderBy('sort_order')->orderBy('name')->get();
         $selectedCategory = request('category');
 
@@ -24,7 +28,11 @@ class BlogController extends Controller
 
     public function show(string $slug)
     {
+        if (Setting::get('show_blog_page', '1') !== '1') {
+            abort(404);
+        }
         $post = BlogPost::where('slug', $slug)->whereNotNull('published_at')->with('category')->firstOrFail();
+        $post->increment('view_count');
         $otherPosts = BlogPost::whereNotNull('published_at')
             ->where('id', '!=', $post->id)
             ->orderByDesc('published_at')

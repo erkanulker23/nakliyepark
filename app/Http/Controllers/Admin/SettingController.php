@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Company;
+use App\Models\PaymentRequest;
 use App\Models\Setting;
+use App\Services\IyzicoPaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -58,6 +61,9 @@ class SettingController extends Controller
             'contact_whatsapp' => Setting::get('contact_whatsapp', ''),
             'contact_hours' => Setting::get('contact_hours', ''),
             'show_firmalar_page' => Setting::get('show_firmalar_page', '1'),
+            'show_defter_page' => Setting::get('show_defter_page', '1'),
+            'show_pazaryeri_page' => Setting::get('show_pazaryeri_page', '1'),
+            'show_blog_page' => Setting::get('show_blog_page', '1'),
             'openai_api_key_set' => ! empty(Setting::get('openai_api_key', '')),
             'openai_blog_model' => Setting::get('openai_blog_model', env('OPENAI_BLOG_MODEL', 'gpt-4o-mini')),
             'payment_enabled' => Setting::get('payment_enabled', '0'),
@@ -83,7 +89,8 @@ class SettingController extends Controller
         }
         $paketlerJson = Setting::get('nakliyeci_paketler', '');
         $settings['nakliyeci_paketler'] = $paketlerJson ? (is_string($paketlerJson) ? json_decode($paketlerJson, true) : $paketlerJson) : config('nakliyepark.nakliyeci_paketler', []);
-        return view('admin.settings.index', compact('settings'));
+        $companies = Company::approved()->with('user')->orderBy('name')->get();
+        return view('admin.settings.index', compact('settings', 'companies'));
     }
 
     public function update(Request $request)
@@ -149,6 +156,9 @@ class SettingController extends Controller
 
         if ($section === 'site' || $section === null) {
             Setting::set('show_firmalar_page', $request->boolean('show_firmalar_page') ? '1' : '0', 'general');
+            Setting::set('show_defter_page', $request->boolean('show_defter_page') ? '1' : '0', 'general');
+            Setting::set('show_pazaryeri_page', $request->boolean('show_pazaryeri_page') ? '1' : '0', 'general');
+            Setting::set('show_blog_page', $request->boolean('show_blog_page') ? '1' : '0', 'general');
             foreach (['site_meta_title', 'site_meta_description', 'site_meta_keywords'] as $key) {
                 Setting::set($key, $request->input($key) ?? '', 'seo');
             }
@@ -222,6 +232,72 @@ class SettingController extends Controller
         ]);
 
         return back()->with('success', 'Ayarlar kaydedildi.');
+    }
+
+    /**
+     * Admin manuel ödeme: nakliye firması adına kart ile ödeme alır.
+     * Kart bilgileri loglanmaz veya saklanmaz.
+     */
+    public function manualPayment(Request $request)
+    {
+        $request->validate([
+            'company_id' => 'required|exists:companies,id',
+            'amount' => 'required|numeric|min:0.01',
+            'payment_type' => 'required|in:borc,paket',
+            'package_id' => 'required_if:payment_type,paket|nullable|string|max:50',
+            'card_holder_name' => 'required|string|max:255',
+            'card_number' => 'required|string|max:19',
+            'expire_month' => 'required|string|min:1|max:2',
+            'expire_year' => 'required|string|min:4|max:4',
+            'cvc' => 'required|string|min:3|max:4',
+        ], [
+            'company_id.required' => 'Nakliye firması seçin.',
+            'company_id.exists' => 'Geçerli bir firma seçin.',
+            'amount.required' => 'Tutar girin.',
+            'amount.min' => 'Tutar 0,01 TL veya üzeri olmalı.',
+            'payment_type.required' => 'Ödeme türü seçin.',
+            'package_id.required_if' => 'Paket seçin.',
+            'card_holder_name.required' => 'Kart sahibi adı girin.',
+            'card_number.required' => 'Kart numarası girin.',
+            'expire_month.required' => 'Son kullanma ayı girin.',
+            'expire_year.required' => 'Son kullanma yılı girin.',
+            'cvc.required' => 'CVC girin.',
+        ]);
+
+        $company = Company::findOrFail($request->company_id);
+        $amount = (float) $request->amount;
+        $type = $request->payment_type;
+        $packageId = $type === PaymentRequest::TYPE_PAKET ? $request->package_id : null;
+        $paketlerJson = Setting::get('nakliyeci_paketler', '');
+        $packages = $paketlerJson ? (is_string($paketlerJson) ? json_decode($paketlerJson, true) : $paketlerJson) : config('nakliyepark.nakliyeci_paketler', []);
+        $packageName = null;
+        if ($packageId) {
+            foreach ($packages as $p) {
+                if (($p['id'] ?? '') === $packageId) {
+                    $packageName = $p['name'] ?? $packageId;
+                    break;
+                }
+            }
+            $packageName = $packageName ?? $packageId;
+        }
+
+        $card = [
+            'card_holder_name' => $request->card_holder_name,
+            'card_number' => $request->card_number,
+            'expire_month' => $request->expire_month,
+            'expire_year' => $request->expire_year,
+            'cvc' => $request->cvc,
+        ];
+
+        $result = IyzicoPaymentService::createAdminDirectPayment($company, $amount, $type, $card, $packageId, $packageName);
+
+        if ($result['success']) {
+            return redirect()->route('admin.settings.index')->withFragment('payment')->with('success', 'Ödeme alındı. Tutar: ' . number_format($amount, 2, ',', '.') . ' TL');
+        }
+
+        return redirect()->back()
+            ->withInput($request->except(['card_number', 'cvc']))
+            ->with('error', $result['error'] ?? 'Ödeme alınamadı.');
     }
 
     public function updateMailTemplates(Request $request)

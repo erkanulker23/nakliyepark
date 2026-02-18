@@ -21,8 +21,11 @@
             </div>
             <div class="admin-form-group">
                 <label class="admin-label">Şifre *</label>
-                <input type="password" name="password" required class="admin-input" placeholder="En az 8 karakter" autocomplete="new-password">
-                <input type="password" name="password_confirmation" required class="admin-input mt-2" placeholder="Şifre tekrar" autocomplete="new-password">
+                <div class="flex gap-2 flex-wrap">
+                    <input type="password" name="password" id="admin-create-user-password" required class="admin-input flex-1 min-w-[200px]" placeholder="En az 8 karakter" autocomplete="new-password">
+                    <button type="button" id="admin-generate-password" class="admin-btn-secondary text-sm whitespace-nowrap">Otomatik oluştur</button>
+                </div>
+                <input type="password" name="password_confirmation" id="admin-create-user-password-confirmation" required class="admin-input mt-2" placeholder="Şifre tekrar" autocomplete="new-password">
                 @error('password')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
             </div>
             <div class="admin-form-group">
@@ -43,4 +46,34 @@
         </form>
     </div>
 </div>
+
+@push('scripts')
+<script>
+(function() {
+    var pw = document.getElementById('admin-create-user-password');
+    var pwConf = document.getElementById('admin-create-user-password-confirmation');
+    var btn = document.getElementById('admin-generate-password');
+    if (!pw || !pwConf || !btn) return;
+
+    function randomPassword(length) {
+        length = length || 14;
+        var charset = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789!@#$%';
+        var result = '';
+        for (var i = 0; i < length; i++) {
+            result += charset.charAt(Math.floor(Math.random() * charset.length));
+        }
+        return result;
+    }
+
+    btn.addEventListener('click', function() {
+        var p = randomPassword(14);
+        pw.value = p;
+        pwConf.value = p;
+        pw.type = 'text';
+        pwConf.type = 'text';
+        setTimeout(function() { pw.type = 'password'; pwConf.type = 'password'; }, 3000);
+    });
+})();
+</script>
+@endpush
 @endsection

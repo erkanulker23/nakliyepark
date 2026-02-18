@@ -6,9 +6,9 @@
 
 @section('content')
 <div class="max-w-2xl space-y-4 min-w-0">
-    {{-- Onay & Engelleme --}}
-    <div class="admin-card p-4 flex flex-wrap items-center gap-4">
-        <div class="flex flex-wrap items-center gap-3">
+    {{-- Onay durumu & Engelleme — satır satır, butonlar iç içe olmasın --}}
+    <div class="admin-card p-4 space-y-4">
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
             <span class="text-sm text-zinc-600 dark:text-zinc-400">E-posta doğrulandı:</span>
             @if($user->email_verified_at)
                 <span class="text-sm font-medium text-emerald-600 dark:text-emerald-400">Evet</span>
@@ -21,13 +21,13 @@
             @endif
         </div>
         @if($user->isNakliyeci() && $user->company)
-            <span class="text-zinc-300 dark:text-zinc-600">|</span>
-            <div class="flex flex-wrap items-center gap-2">
-                <span class="text-sm text-zinc-600 dark:text-zinc-400">Firma:</span>
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-2 pt-2 border-t border-slate-200 dark:border-slate-600">
+                <span class="text-sm text-zinc-600 dark:text-zinc-400">Firma onayı:</span>
                 <a href="{{ route('admin.companies.edit', $user->company) }}" class="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline">{{ $user->company->name }}</a>
                 @if($user->company->approved_at)
-                    <span class="text-sm text-emerald-600 dark:text-emerald-400">(Onaylı)</span>
+                    <span class="text-sm font-medium text-emerald-600 dark:text-emerald-400">Onaylı</span>
                 @else
+                    <span class="text-sm font-medium text-amber-600 dark:text-amber-400">Onaylı değil</span>
                     <form method="POST" action="{{ route('admin.companies.approve', $user->company) }}" class="inline">
                         @csrf
                         <button type="submit" class="admin-btn-primary text-sm">Firmayı onayla</button>
@@ -35,8 +35,7 @@
                 @endif
             </div>
         @elseif($user->isNakliyeci())
-            <span class="text-zinc-300 dark:text-zinc-600">|</span>
-            <div class="flex flex-wrap items-center gap-2">
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-2 pt-2 border-t border-slate-200 dark:border-slate-600">
                 <span class="text-sm text-amber-600 dark:text-amber-400 font-medium">Firma oluşturmamış</span>
                 <form method="POST" action="{{ route('admin.users.send-company-reminder', $user) }}" class="inline">
                     @csrf
@@ -44,21 +43,20 @@
                 </form>
             </div>
         @endif
-        <span class="text-zinc-300 dark:text-zinc-600">|</span>
-        @if($user->isBlocked())
-            <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-2 pt-2 border-t border-slate-200 dark:border-slate-600">
+            @if($user->isBlocked())
                 <span class="text-sm text-red-600 dark:text-red-400 font-medium">Engelli</span>
                 <form method="POST" action="{{ route('admin.blocklist.unblock-user', $user) }}" class="inline">
                     @csrf
                     <button type="submit" class="admin-btn-primary text-sm">Engeli kaldır</button>
                 </form>
-            </div>
-        @elseif($user->id !== auth()->id())
-            <form method="POST" action="{{ route('admin.blocklist.block-user', $user) }}" class="inline" onsubmit="return confirm('Bu kullanıcıyı engellemek istediğinize emin misiniz?');">
-                @csrf
-                <button type="submit" class="admin-btn-danger text-sm">Kullanıcıyı engelle</button>
-            </form>
-        @endif
+            @elseif($user->id !== auth()->id())
+                <form method="POST" action="{{ route('admin.blocklist.block-user', $user) }}" class="inline" onsubmit="return confirm('Bu kullanıcıyı engellemek istediğinize emin misiniz?');">
+                    @csrf
+                    <button type="submit" class="admin-btn-danger text-sm">Kullanıcıyı engelle</button>
+                </form>
+            @endif
+        </div>
     </div>
     <div class="admin-card p-6">
         <form method="POST" action="{{ route('admin.users.update', $user) }}" class="space-y-5">

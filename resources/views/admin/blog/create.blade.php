@@ -83,10 +83,10 @@
             </div>
             <div class="admin-form-group">
                 <label class="admin-label">İçerik *</label>
-                <div id="blog-content-editor" class="bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-600 rounded-lg overflow-hidden min-h-[420px]" style="height: 420px;"></div>
+                <div id="blog-content-editor" class="admin-rich-editor-wrap bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-600 rounded-lg overflow-hidden min-h-[480px]" style="height: 480px;"></div>
                 <textarea name="content" id="blog-content" required class="hidden" placeholder="Zengin metin içerik">{{ old('content') }}</textarea>
                 @error('content')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
-                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Başlık, kalın/italik, liste ve link ekleyebilirsiniz. İçerik frontend’de birebir aynı görünecektir.</p>
+                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Başlık, kalın/italik/altı çizili, liste, link, alıntı ve kod. İçerik frontend’de birebir aynı görünecektir.</p>
             </div>
             <div class="border-t border-slate-200 pt-5">
                 <h4 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">Kapak görseli</h4>
@@ -121,6 +121,12 @@
 
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+<style>
+.admin-rich-editor-wrap .ql-toolbar.ql-snow { border: none; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
+.dark .admin-rich-editor-wrap .ql-toolbar.ql-snow { background: #1e293b; border-color: #475569; }
+.admin-rich-editor-wrap .ql-container.ql-snow { border: none; font-size: 15px; }
+.admin-rich-editor-wrap .ql-editor { min-height: 420px; }
+</style>
 @endpush
 
 @push('scripts')
@@ -132,13 +138,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var quill = new Quill(editorEl, {
         theme: 'snow',
-        placeholder: 'İçerik yazın…',
+        placeholder: 'İçerik yazın… Başlık, kalın, liste, link ve daha fazlası için araç çubuğunu kullanın.',
         modules: {
             toolbar: [
                 [{ header: [1, 2, 3, false] }],
-                ['bold', 'italic'],
-                ['link'],
-                [{ list: 'ordered' }, { list: 'bullet' }]
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ color: [] }, { background: [] }],
+                [{ list: 'ordered' }, { list: 'bullet' }],
+                [{ indent: '-1' }, { indent: '+1' }],
+                ['blockquote', 'code-block'],
+                ['link', 'image'],
+                ['clean']
             ]
         }
     });

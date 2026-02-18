@@ -4,7 +4,7 @@
 @section('meta_description', 'NakliyePark hesap şifrenizi sıfırlamak için e-posta adresinizi girin.')
 
 @section('content')
-<div class="w-full max-w-sm">
+<div class="w-full max-w-md">
     <div class="card p-6 sm:p-8">
         <h1 class="text-xl font-semibold text-zinc-900 dark:text-white mb-1">Şifremi unuttum</h1>
         <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Kayıtlı e-posta adresinizi girin, size şifre sıfırlama linki gönderelim.</p>

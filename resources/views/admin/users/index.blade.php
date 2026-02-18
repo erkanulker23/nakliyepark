@@ -41,8 +41,10 @@
                         </x-panel.status-badge>
                         @if($u->role === 'nakliyeci' && $u->company)
                             <a href="{{ route('admin.companies.edit', $u->company) }}" class="text-sm font-medium text-[var(--panel-primary)] hover:underline">{{ $u->company->name }}</a>
-                            @if(!$u->company->approved_at)
-                                <span class="text-xs text-amber-600 dark:text-amber-400">(onay bekliyor)</span>
+                            @if($u->company->approved_at)
+                                <span class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Onaylı</span>
+                            @else
+                                <span class="text-xs text-amber-600 dark:text-amber-400 font-medium">Onaylı değil</span>
                                 <form method="POST" action="{{ route('admin.companies.approve', $u->company) }}" class="inline">
                                     @csrf
                                     <button type="submit" class="text-xs px-2 py-1 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600">Onayla</button>

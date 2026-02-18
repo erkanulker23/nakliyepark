@@ -36,10 +36,6 @@
         <tr>
             <td align="center" style="padding: 48px 24px;">
                 <table role="presentation" class="content email-card" width="600" cellspacing="0" cellpadding="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px;">
-                    {{-- Üst vurgu şeridi (marka rengi - düz renk e-posta uyumluluğu için) --}}
-                    <tr>
-                        <td style="height: 6px; font-size: 0; line-height: 0; background-color: #059669;">&nbsp;</td>
-                    </tr>
                     {{-- Header (logo + marka) --}}
                     <tr>
                         <td class="mobile-pad" style="padding: 28px 40px 24px; background-color: #ffffff;">

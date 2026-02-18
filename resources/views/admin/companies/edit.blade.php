@@ -83,6 +83,9 @@
                 <button type="button" class="company-edit-tab px-4 py-2.5 text-sm font-medium rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 -mb-px"
                     data-tab="seo"
                     role="tab" aria-selected="false">SEO</button>
+                <button type="button" class="company-edit-tab px-4 py-2.5 text-sm font-medium rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-slate-700 -mb-px"
+                    data-tab="map-reviews"
+                    role="tab" aria-selected="false">Harita & Yorumlar</button>
             </div>
         </div>
 
@@ -196,6 +199,15 @@
                     </label>
                     <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Onaylı olmayan firmalar sitede ve /nakliye-firmalari/... sayfasında görünmez (404). Yeni nakliyeci kayıtları önce admin onayı gerektirir.</p>
                 </div>
+                @if($company->user)
+                <div class="admin-form-group">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" name="send_credentials_email" value="1" {{ old('send_credentials_email') ? 'checked' : '' }} class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                        <span class="admin-label mb-0">Nakliyeciye giriş bilgileri e-postası gönder</span>
+                    </label>
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">İşaretlerseniz firmanın e-posta adresine giriş sayfası ve “şifremi oluştur” linki gönderilir. Nakliyeci linke tıklayarak kendi şifresini belirler.</p>
+                </div>
+                @endif
                 <div class="admin-form-group pt-2 border-t border-slate-200 dark:border-slate-600">
                     <p class="admin-label mb-2">Doğrulama rozetleri (firma sayfasında gösterilir)</p>
                     <div class="space-y-2">
@@ -235,6 +247,57 @@
                     <label class="admin-label">Meta anahtar kelimeler</label>
                     <input type="text" name="seo_meta_keywords" value="{{ old('seo_meta_keywords', $company->seo_meta_keywords) }}" class="admin-input" placeholder="nakliye, ev taşıma, ...">
                     @error('seo_meta_keywords')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                </div>
+            </div>
+
+            {{-- Sekme: Harita & Dış yorumlar (Google / Yandex) --}}
+            <div id="tab-map-reviews" class="company-edit-pane hidden space-y-5" role="tabpanel">
+                <p class="text-sm text-slate-600 dark:text-slate-400">Firma detay sayfasında harita ve Google / Yandex yorum kartları gösterilir. Yönetici bu alanları doldurarak firmanın Google Harita ve yorum sayfası linkini ekleyebilir.</p>
+                <div class="admin-form-group">
+                    <label class="admin-label">Google Harita URL</label>
+                    <input type="text" name="google_maps_url" value="{{ old('google_maps_url', $company->google_maps_url) }}" class="admin-input" placeholder="https://www.google.com/maps/place/...">
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Firmanın Google Harita sayfası linki. Firma detayda &quot;Haritada konum&quot; ve &quot;Google Haritada Aç&quot; olarak kullanılır.</p>
+                    @error('google_maps_url')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                </div>
+                <div class="border-t border-slate-200 dark:border-slate-600 pt-5">
+                    <h4 class="font-medium text-slate-800 dark:text-slate-200 mb-3">Google yorumları (firma sayfasında kart olarak gösterilir)</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div class="admin-form-group">
+                            <label class="admin-label">Google yorumlar sayfası URL</label>
+                            <input type="text" name="google_reviews_url" value="{{ old('google_reviews_url', $company->google_reviews_url) }}" class="admin-input" placeholder="https://g.page/... veya Google işletme yorum linki">
+                            @error('google_reviews_url')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="admin-form-group">
+                            <label class="admin-label">Google puan (1–5)</label>
+                            <input type="number" name="google_rating" value="{{ old('google_rating', $company->google_rating) }}" class="admin-input" min="0" max="5" step="0.1" placeholder="4.2">
+                            @error('google_rating')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="admin-form-group">
+                            <label class="admin-label">Google yorum sayısı</label>
+                            <input type="number" name="google_review_count" value="{{ old('google_review_count', $company->google_review_count) }}" class="admin-input" min="0" placeholder="156">
+                            @error('google_review_count')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t border-slate-200 dark:border-slate-600 pt-5">
+                    <h4 class="font-medium text-slate-800 dark:text-slate-200 mb-3">Yandex yorumları (isteğe bağlı)</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div class="admin-form-group">
+                            <label class="admin-label">Yandex yorumlar URL</label>
+                            <input type="text" name="yandex_reviews_url" value="{{ old('yandex_reviews_url', $company->yandex_reviews_url) }}" class="admin-input" placeholder="https://yandex.com.tr/maps/...">
+                            @error('yandex_reviews_url')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="admin-form-group">
+                            <label class="admin-label">Yandex puan (1–5)</label>
+                            <input type="number" name="yandex_rating" value="{{ old('yandex_rating', $company->yandex_rating) }}" class="admin-input" min="0" max="5" step="0.1" placeholder="4.0">
+                            @error('yandex_rating')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="admin-form-group">
+                            <label class="admin-label">Yandex yorum sayısı</label>
+                            <input type="number" name="yandex_review_count" value="{{ old('yandex_review_count', $company->yandex_review_count) }}" class="admin-input" min="0" placeholder="8">
+                            @error('yandex_review_count')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                        </div>
+                    </div>
                 </div>
             </div>
 

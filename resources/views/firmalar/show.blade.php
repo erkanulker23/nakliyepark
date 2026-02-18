@@ -14,6 +14,12 @@
 @endphp
 @include('partials.structured-data-breadcrumb')
 
+@if($company->live_latitude && $company->live_longitude)
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+@endpush
+@endif
+
 @push('structured_data')
 @php
     $localBusiness = [
@@ -36,6 +42,14 @@
     if (!$company->phone) unset($localBusiness['telephone']);
     if (!$company->email) unset($localBusiness['email']);
     if (!$localBusiness['image']) unset($localBusiness['image']);
+    if ($company->google_rating && $company->google_review_count) {
+        $localBusiness['aggregateRating'] = [
+            '@type' => 'AggregateRating',
+            'ratingValue' => (float) $company->google_rating,
+            'reviewCount' => (int) $company->google_review_count,
+            'bestRating' => 5,
+        ];
+    }
 @endphp
 <script type="application/ld+json">{!! json_encode($localBusiness, JSON_UNESCAPED_UNICODE) !!}</script>
 @endpush
@@ -211,6 +225,42 @@
     <div class="page-container pb-24 sm:pb-28">
         <div class="lg:grid lg:grid-cols-12 lg:gap-8">
             <div class="lg:col-span-8 space-y-8 lg:space-y-10">
+                @php
+                    $hasMapCoords = $company->live_latitude && $company->live_longitude;
+                    $hasGoogleMapsUrl = !empty($company->google_maps_url);
+                    $showMapSection = $hasMapCoords || $hasGoogleMapsUrl;
+                @endphp
+                @if($showMapSection)
+                    <section>
+                        <div class="rounded-2xl bg-white/90 dark:bg-zinc-900/80 border border-zinc-200/60 dark:border-zinc-800/60 overflow-hidden">
+                            <div class="px-5 py-4 bg-zinc-50/80 dark:bg-zinc-800/40 border-b border-zinc-200/50 dark:border-zinc-700/50 flex flex-wrap items-center justify-between gap-2">
+                                <h2 class="font-semibold text-zinc-900 dark:text-white text-sm flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+                                    Konum
+                                </h2>
+                                @if($hasGoogleMapsUrl)
+                                    <a href="{{ $company->google_maps_url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:underline">
+                                        Google Haritada Aç
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                    </a>
+                                @endif
+                            </div>
+                            <div class="p-4 sm:p-5">
+                                @if($hasMapCoords)
+                                    <div id="company-detail-map" class="w-full rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800/50" style="height: 280px;"></div>
+                                @endif
+                                @if(!$hasMapCoords && $hasGoogleMapsUrl)
+                                    <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-3">Firmanın konumunu Google Harita üzerinde görmek için yukarıdaki bağlantıyı kullanın.</p>
+                                    <a href="{{ $company->google_maps_url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+                                        Google Haritada Gör
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                    </section>
+                @endif
+
                 @if($company->description)
                     <section>
                         <div class="rounded-2xl bg-white/90 dark:bg-zinc-900/80 border border-zinc-200/60 dark:border-zinc-800/60 overflow-hidden">
@@ -404,6 +454,60 @@
                         </div>
                     </div>
                 </section>
+
+                @php
+                    $hasGoogleReviews = ($company->google_rating !== null && $company->google_rating > 0) || !empty($company->google_reviews_url);
+                    $hasYandexReviews = ($company->yandex_rating !== null && $company->yandex_rating > 0) || !empty($company->yandex_reviews_url);
+                    $showExternalReviews = $hasGoogleReviews || $hasYandexReviews;
+                @endphp
+                @if($showExternalReviews)
+                    <section>
+                        <div class="rounded-2xl bg-white/90 dark:bg-zinc-900/80 border border-zinc-200/60 dark:border-zinc-800/60 overflow-hidden">
+                            <div class="px-5 py-4 bg-zinc-50/80 dark:bg-zinc-800/40 border-b border-zinc-200/50 dark:border-zinc-700/50">
+                                <h2 class="font-semibold text-zinc-900 dark:text-white text-sm">Dış platform yorumları</h2>
+                                <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-amber-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                                    Yorumlar doğrulanmamıştır
+                                </p>
+                            </div>
+                            <div class="p-5 sm:p-6">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    @if($hasGoogleReviews)
+                                        <a href="{{ $company->google_reviews_url ?: $company->google_maps_url ?: '#' }}" target="_blank" rel="noopener noreferrer" class="flex flex-col rounded-2xl border border-zinc-200/80 dark:border-zinc-700/80 bg-white dark:bg-zinc-800/50 p-5 hover:border-emerald-300 dark:hover:border-emerald-700/50 hover:shadow-md transition-all group">
+                                            <div class="flex items-center justify-between mb-3">
+                                                <div class="flex items-center gap-2">
+                                                    <img src="https://www.google.com/images/branding/googleg/1x/googleg_standard_color_128dp.png" alt="Google" class="w-8 h-8 rounded-lg object-contain" width="32" height="32">
+                                                    <span class="font-semibold text-zinc-900 dark:text-white">Google</span>
+                                                </div>
+                                                <svg class="w-4 h-4 text-zinc-400 group-hover:text-emerald-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                            </div>
+                                            <p class="text-2xl font-bold text-zinc-900 dark:text-white">{{ $company->google_rating ? number_format($company->google_rating, 1, ',', '') : '—' }}/5</p>
+                                            <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">{{ $company->google_review_count ? number_format($company->google_review_count) . ' yorum' : 'Yorumları gör' }}</p>
+                                        </a>
+                                    @endif
+                                    @if($hasYandexReviews)
+                                        @php $yandexUrl = $company->yandex_reviews_url ?: null; @endphp
+                                        @if($yandexUrl)
+                                            <a href="{{ $yandexUrl }}" target="_blank" rel="noopener noreferrer" class="flex flex-col rounded-2xl border border-zinc-200/80 dark:border-zinc-700/80 bg-white dark:bg-zinc-800/50 p-5 hover:border-emerald-300 dark:hover:border-emerald-700/50 hover:shadow-md transition-all group">
+                                        @else
+                                            <div class="flex flex-col rounded-2xl border border-zinc-200/80 dark:border-zinc-700/80 bg-white dark:bg-zinc-800/50 p-5">
+                                        @endif
+                                            <div class="flex items-center justify-between mb-3">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="w-8 h-8 rounded-lg bg-red-500 flex items-center justify-center text-white font-bold text-xs">Y</span>
+                                                    <span class="font-semibold text-zinc-900 dark:text-white">Yandex</span>
+                                                </div>
+                                                @if($yandexUrl)<svg class="w-4 h-4 text-zinc-400 group-hover:text-emerald-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>@endif
+                                            </div>
+                                            <p class="text-2xl font-bold text-zinc-900 dark:text-white">{{ $company->yandex_rating ? number_format($company->yandex_rating, 1, ',', '') : '—' }}/5</p>
+                                            <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">{{ $company->yandex_review_count ? number_format($company->yandex_review_count) . ' yorum' : 'Yorumları gör' }}</p>
+                                        @if($yandexUrl)</a>@else</div>@endif
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                @endif
             </div>
 
             {{-- Sidebar: tek iletişim alanı + CTA --}}
@@ -582,6 +686,24 @@
         if (e.key === 'ArrowLeft') open(currentIndex - 1);
         if (e.key === 'ArrowRight') open(currentIndex + 1);
     });
+})();
+</script>
+@endpush
+@endif
+
+@if($company->live_latitude && $company->live_longitude)
+@push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+(function() {
+    var el = document.getElementById('company-detail-map');
+    if (!el || typeof L === 'undefined') return;
+    var lat = {{ (float) $company->live_latitude }};
+    var lng = {{ (float) $company->live_longitude }};
+    var name = {!! json_encode($company->name) !!};
+    var map = L.map('company-detail-map').setView([lat, lng], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(map);
+    L.marker([lat, lng]).addTo(map).bindPopup('<strong>' + name + '</strong>');
 })();
 </script>
 @endpush

@@ -124,14 +124,29 @@
                     </div>
                 </div>
                 <div class="border-b border-slate-200 dark:border-slate-600 pb-5">
-                    <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">Nakliye firmaları sayfası</h3>
+                    <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">Frontend sayfaları (aç/kapa)</h3>
                     <p class="text-slate-600 dark:text-slate-400 text-sm mb-3">Frontend’de nakliye firmaları listesi ve haritadaki nakliyeciler sayfasının (menü linkleri dahil) gösterilip gösterilmeyeceğini buradan ayarlayabilirsiniz.</p>
                     <div class="admin-form-group flex items-center gap-3">
                         <input type="checkbox" name="show_firmalar_page" id="show_firmalar_page" value="1" class="rounded border-slate-300 dark:border-slate-600 text-emerald-600 focus:ring-emerald-500"
                             {{ ($settings['show_firmalar_page'] ?? '1') === '1' ? 'checked' : '' }}>
                         <label for="show_firmalar_page" class="admin-label mb-0">Nakliye firmaları sayfası frontend’de gösterilsin</label>
                     </div>
-                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">İşareti kaldırırsanız /nakliye-firmalari ve menüdeki Firmalar linkleri gizlenir; sayfaya doğrudan gidildiğinde 404 döner.</p>
+                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">İşareti kaldırırsanız ilgili sayfa ve menü linkleri gizlenir; doğrudan URL ile gidildiğinde 404 döner.</p>
+                    <label class="flex items-center gap-3 cursor-pointer mt-3">
+                        <input type="checkbox" name="show_defter_page" value="1" class="rounded border-slate-300 dark:border-slate-600 text-emerald-600 focus:ring-emerald-500"
+                            {{ ($settings['show_defter_page'] ?? '1') === '1' ? 'checked' : '' }}>
+                        <span class="text-sm text-slate-700 dark:text-slate-300">Defter sayfası</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" name="show_pazaryeri_page" value="1" class="rounded border-slate-300 dark:border-slate-600 text-emerald-600 focus:ring-emerald-500"
+                            {{ ($settings['show_pazaryeri_page'] ?? '1') === '1' ? 'checked' : '' }}>
+                        <span class="text-sm text-slate-700 dark:text-slate-300">Pazaryeri sayfası</span>
+                    </label>
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input type="checkbox" name="show_blog_page" value="1" class="rounded border-slate-300 dark:border-slate-600 text-emerald-600 focus:ring-emerald-500"
+                            {{ ($settings['show_blog_page'] ?? '1') === '1' ? 'checked' : '' }}>
+                        <span class="text-sm text-slate-700 dark:text-slate-300">Blog sayfası</span>
+                    </label>
                 </div>
                 <div class="border-b border-slate-200 dark:border-slate-600 pb-5">
                     <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">SEO ayarları</h3>
@@ -358,6 +373,89 @@
                     <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Sandbox kapalıyken canlı ödeme alınır. Test için işaretli bırakın.</p>
                 </div>
                 <button type="submit" class="admin-btn-primary">Ödeme ayarlarını kaydet</button>
+            </form>
+        </div>
+
+        <div class="admin-card p-6 max-w-2xl mt-6">
+            <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-2">Manuel ödeme al</h3>
+            <p class="text-slate-600 dark:text-slate-400 text-sm mb-5">Nakliye firması adına kredi kartı bilgilerini girerek buradan ödeme alabilirsiniz. Kart bilgileri saklanmaz, yalnızca iyzico ile işleme gönderilir.</p>
+            @if(session('error'))
+                <p class="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-sm">{{ session('error') }}</p>
+            @endif
+            <form method="POST" action="{{ route('admin.settings.manual-payment') }}" class="space-y-4" autocomplete="off">
+                @csrf
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="admin-form-group">
+                        <label class="admin-label">Nakliye firması <span class="text-red-500">*</span></label>
+                        <select name="company_id" required class="admin-input">
+                            <option value="">Seçin</option>
+                            @foreach($companies ?? [] as $c)
+                                <option value="{{ $c->id }}" {{ old('company_id') == $c->id ? 'selected' : '' }}>{{ $c->name }}</option>
+                            @endforeach
+                        </select>
+                        @error('company_id')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                    </div>
+                    <div class="admin-form-group">
+                        <label class="admin-label">Tutar (TL) <span class="text-red-500">*</span></label>
+                        <input type="number" name="amount" step="0.01" min="0.01" value="{{ old('amount') }}" required placeholder="0.00" class="admin-input">
+                        @error('amount')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                    </div>
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-label">Ödeme türü <span class="text-red-500">*</span></label>
+                    <div class="flex gap-4">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="payment_type" value="borc" {{ old('payment_type', 'borc') === 'borc' ? 'checked' : '' }} class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                            <span>Borç ödemesi</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="payment_type" value="paket" {{ old('payment_type') === 'paket' ? 'checked' : '' }} class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500">
+                            <span>Paket satın alma</span>
+                        </label>
+                    </div>
+                    @error('payment_type')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                </div>
+                <div class="admin-form-group js-manual-payment-package" style="{{ old('payment_type') === 'paket' ? '' : 'display:none;' }}">
+                    <label class="admin-label">Paket</label>
+                    <select name="package_id" class="admin-input">
+                        <option value="">Seçin</option>
+                        @foreach($settings['nakliyeci_paketler'] ?? [] as $p)
+                            <option value="{{ $p['id'] ?? '' }}" {{ old('package_id') === ($p['id'] ?? '') ? 'selected' : '' }}>{{ $p['name'] ?? '' }} ({{ $p['price'] ?? 0 }} TL)</option>
+                        @endforeach
+                    </select>
+                    @error('package_id')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                </div>
+                <div class="border-t border-slate-200 dark:border-slate-600 pt-4 mt-4">
+                    <p class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Kart bilgileri</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="admin-form-group sm:col-span-2">
+                            <label class="admin-label">Kart sahibi adı <span class="text-red-500">*</span></label>
+                            <input type="text" name="card_holder_name" value="{{ old('card_holder_name') }}" required maxlength="255" class="admin-input" autocomplete="off">
+                            @error('card_holder_name')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="admin-form-group sm:col-span-2">
+                            <label class="admin-label">Kart numarası <span class="text-red-500">*</span></label>
+                            <input type="text" name="card_number" value="" required maxlength="19" placeholder="4111 1111 1111 1111" class="admin-input" autocomplete="off" inputmode="numeric">
+                            @error('card_number')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="admin-form-group">
+                            <label class="admin-label">Son kullanma (ay) <span class="text-red-500">*</span></label>
+                            <input type="text" name="expire_month" value="{{ old('expire_month') }}" required maxlength="2" placeholder="12" class="admin-input" autocomplete="off" inputmode="numeric">
+                            @error('expire_month')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="admin-form-group">
+                            <label class="admin-label">Son kullanma (yıl) <span class="text-red-500">*</span></label>
+                            <input type="text" name="expire_year" value="{{ old('expire_year') }}" required maxlength="4" placeholder="2030" class="admin-input" autocomplete="off" inputmode="numeric">
+                            @error('expire_year')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="admin-form-group">
+                            <label class="admin-label">CVC <span class="text-red-500">*</span></label>
+                            <input type="text" name="cvc" value="" required maxlength="4" placeholder="000" class="admin-input" autocomplete="off" inputmode="numeric">
+                            @error('cvc')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="admin-btn-primary">Ödeme al</button>
             </form>
         </div>
     </div>
@@ -601,8 +699,20 @@
     var hash = window.location.hash.slice(1);
     var saved = null;
     try { saved = localStorage.getItem(storageKey); } catch (e) {}
-    var initial = (hash === 'site' || hash === 'tools' || hash === 'mail' || hash === 'commission' || hash === 'style' || hash === 'mail-templates' || hash === 'packages' || hash === 'contact' || hash === 'api') ? hash : (saved || 'site');
+    var initial = (hash === 'site' || hash === 'tools' || hash === 'mail' || hash === 'commission' || hash === 'payment' || hash === 'style' || hash === 'mail-templates' || hash === 'packages' || hash === 'contact' || hash === 'api') ? hash : (saved || 'site');
     activate(initial);
+
+    var paymentTypeRadios = container.querySelectorAll('input[name="payment_type"]');
+    var packageRow = container.querySelector('.js-manual-payment-package');
+    function togglePackageRow() {
+        if (!packageRow) return;
+        var paket = container.querySelector('input[name="payment_type"][value="paket"]');
+        packageRow.style.display = paket && paket.checked ? '' : 'none';
+    }
+    paymentTypeRadios.forEach(function(r) {
+        r.addEventListener('change', togglePackageRow);
+    });
+    togglePackageRow();
 })();
 </script>
 

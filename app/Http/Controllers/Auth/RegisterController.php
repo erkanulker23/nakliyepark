@@ -74,6 +74,10 @@ class RegisterController extends Controller
         AdminNotifier::notify('user_registered', "Yeni kayıt: {$user->name} ({$user->email}) - Rol: {$user->role}", $adminTitle, ['url' => route('admin.users.edit', $user)]);
         Auth::login($user);
 
+        if (! $user->hasVerifiedEmail()) {
+            return redirect()->route('verification.notice')->with('success', 'Kaydınız başarıyla işleme alınmıştır. E-posta adresinize gönderilen link ile hesabınızı doğrulayın.');
+        }
+
         if ($user->isNakliyeci()) {
             return redirect()->route('nakliyeci.company.create')->with('success', 'Firma bilgilerinizi tamamlayın.');
         }

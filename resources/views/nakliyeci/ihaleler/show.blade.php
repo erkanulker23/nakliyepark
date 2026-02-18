@@ -74,9 +74,14 @@
         </div>
     @endif
 
-    {{-- Teklif ver / verdim / güncelle --}}
+    {{-- Teklif ver / verdim / güncelle — paket yoksa sadece bilgi göster --}}
     <div class="panel-card p-5 sm:p-6 rounded-2xl border border-[var(--panel-border)] bg-[var(--panel-surface)]">
-        @if($nakliyeciVerdiMi && $benimTeklif)
+        @if(!$company->hasPackage() && !$nakliyeciVerdiMi)
+            <div class="rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4">
+                <p class="font-medium text-amber-800 dark:text-amber-200">İhalelere fiyat verebilmek için abonelik paketiniz olmalıdır.</p>
+                <p class="text-sm text-amber-700 dark:text-amber-300 mt-1">İhaleleri görüntüleyebilirsiniz; teklif göndermek için paket satın almanız gerekmektedir. Paket seçenekleri için bizimle iletişime geçin.</p>
+            </div>
+        @elseif($nakliyeciVerdiMi && $benimTeklif)
             <h2 class="font-bold text-[var(--panel-text)] mb-2">Sizin teklifiniz</h2>
             <p class="text-xl font-bold text-emerald-600 dark:text-emerald-400">{{ number_format($benimTeklif->amount, 0, ',', '.') }} ₺</p>
             <p class="text-sm text-[var(--panel-text-muted)] mt-1">Durum: {{ $benimTeklif->status === 'accepted' ? 'Onaylandı' : ($benimTeklif->status === 'rejected' ? 'Reddedildi' : 'Beklemede') }}</p>
@@ -109,7 +114,7 @@
                     </form>
                 </div>
             @endif
-        @else
+        @elseif($company->hasPackage())
             <h2 class="font-semibold text-slate-800 dark:text-slate-200 mb-4">Teklif ver</h2>
             <form method="POST" action="{{ route('nakliyeci.ihaleler.teklif.store') }}" class="space-y-4 max-w-md">
                 @csrf

@@ -10,7 +10,7 @@ class EnsureEmailVerifiedForPanel
 {
     /**
      * Musteri ve nakliyeci panelleri için e-posta doğrulama zorunludur.
-     * Admin için zorunlu değildir.
+     * Admin için zorunlu değildir. Admin panelinden onaylanmış nakliye firması kullanıcıları için de zorunlu değildir.
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -21,7 +21,10 @@ class EnsureEmailVerifiedForPanel
         $user = $request->user();
         // Test ortamı: bu e-postalar için doğrulama zorunlu değil
         $testEmails = ['firma@nakliyepark.test', 'musteri@nakliyepark.test'];
-        $skipVerification = $user->isAdmin() || in_array($user->email, $testEmails, true);
+        $companyApprovedByAdmin = $user->company && $user->company->approved_at !== null;
+        $skipVerification = $user->isAdmin()
+            || in_array($user->email, $testEmails, true)
+            || $companyApprovedByAdmin;
 
         if ($skipVerification || $user->hasVerifiedEmail()) {
             return $next($request);

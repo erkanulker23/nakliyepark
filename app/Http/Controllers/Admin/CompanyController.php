@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\Company;
 use App\Notifications\CompanyApprovedNotification;
+use App\Notifications\CompanyCredentialsSetPasswordNotification;
 use App\Services\AdminNotifier;
 use App\Services\SafeNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Storage;
 
 class CompanyController extends Controller
@@ -92,11 +94,20 @@ class CompanyController extends Controller
             'seo_meta_keywords' => 'nullable|string|max:500',
             'services' => 'nullable|array',
             'services.*' => 'string|in:evden_eve_nakliyat,sehirlerarasi_nakliyat,ofis_tasima,esya_depolama,uluslararasi_nakliyat',
+            'google_maps_url' => 'nullable|string|max:500',
+            'google_reviews_url' => 'nullable|string|max:500',
+            'google_rating' => 'nullable|numeric|min:0|max:5',
+            'google_review_count' => 'nullable|integer|min:0',
+            'yandex_reviews_url' => 'nullable|string|max:500',
+            'yandex_rating' => 'nullable|numeric|min:0|max:5',
+            'yandex_review_count' => 'nullable|integer|min:0',
         ]);
         $data = $request->only([
             'name', 'tax_number', 'tax_office', 'address', 'city', 'district',
             'phone', 'phone_2', 'whatsapp', 'email', 'description', 'package',
             'seo_meta_title', 'seo_meta_description', 'seo_meta_keywords',
+            'google_maps_url', 'google_reviews_url', 'google_rating', 'google_review_count',
+            'yandex_reviews_url', 'yandex_rating', 'yandex_review_count',
         ]);
         $data['services'] = $request->input('services', []);
         $wasApproved = $company->approved_at !== null;
@@ -148,6 +159,26 @@ class CompanyController extends Controller
             'phone_verified_at' => $request->boolean('phone_verified') ? now() : null,
             'official_company_verified_at' => $request->boolean('official_company_verified') ? now() : null,
         ]);
+
+        // Nakliyeciye giriş bilgileri e-postası: şifre oluşturma linki ile (nakliyeci linke tıklayıp kendi şifresini belirler)
+        if ($request->boolean('send_credentials_email') && $company->user) {
+            $user = $company->user;
+            $token = Password::broker()->createToken($user);
+            $setPasswordUrl = url()->route('password.reset', [
+                'token' => $token,
+                'email' => $user->getEmailForPasswordReset(),
+            ]);
+            SafeNotificationService::sendToUser(
+                $user,
+                new CompanyCredentialsSetPasswordNotification($company, $setPasswordUrl),
+                'admin_company_credentials'
+            );
+            Log::channel('admin_actions')->info('Admin sent company credentials email to mover', [
+                'admin_id' => auth()->id(),
+                'company_id' => $company->id,
+                'user_id' => $user->id,
+            ]);
+        }
 
         return redirect()->route('admin.companies.edit', $company)->with('success', 'Firma güncellendi.');
     }

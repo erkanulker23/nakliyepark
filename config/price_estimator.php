@@ -49,11 +49,11 @@ return [
         'ozel' => 1.4,
     ],
 
-    // Kat bilgisi: asansör yoksa kat başına ek ücret (₺)
-    'per_floor_no_elevator' => 150,
+    // Kat bilgisi: asansör yoksa kat başına ek ücret (₺) — merdiven taşıma (insan gücü) daha yüksek
+    'per_floor_no_elevator' => 280,
 
     // Asansör varsa kat başına düşük ücret (₺)
-    'per_floor_with_elevator' => 30,
+    'per_floor_with_elevator' => 40,
 
     // Oda tipine göre hacim tahmini (m³) - evden eve dışındaki hizmetler için
     'room_volume_estimate' => [

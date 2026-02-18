@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PazaryeriListing;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -10,6 +11,9 @@ class PazaryeriController extends Controller
 {
     public function index(Request $request)
     {
+        if (Setting::get('show_pazaryeri_page', '1') !== '1') {
+            abort(404);
+        }
         $query = PazaryeriListing::with('company')
             ->where('status', 'active')
             ->latest();
@@ -34,6 +38,9 @@ class PazaryeriController extends Controller
 
     public function show(Request $request, PazaryeriListing $listing)
     {
+        if (Setting::get('show_pazaryeri_page', '1') !== '1') {
+            abort(404);
+        }
         if ($listing->status !== 'active') {
             abort(404);
         }
