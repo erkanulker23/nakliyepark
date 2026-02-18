@@ -39,4 +39,8 @@ return [
         'url' => env('TURKIYE_API_URL', 'https://api.turkiyeapi.dev/v1'),
     ],
 
+    'google' => [
+        'places_api_key' => env('GOOGLE_PLACES_API_KEY', ''),
+    ],
+
 ];

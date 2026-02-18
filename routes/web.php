@@ -235,6 +235,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/companies', [AdminCompanyController::class, 'index'])->name('companies.index');
     Route::get('/companies/{company}/edit', [AdminCompanyController::class, 'edit'])->name('companies.edit');
     Route::put('/companies/{company}', [AdminCompanyController::class, 'update'])->name('companies.update');
+    Route::post('/companies/{company}/fetch-google-reviews', [AdminCompanyController::class, 'fetchGoogleReviews'])->name('companies.fetch-google-reviews');
     Route::delete('/companies/{company}', [AdminCompanyController::class, 'destroy'])->name('companies.destroy');
     Route::post('/companies/{company}/approve', [AdminCompanyController::class, 'approve'])->name('companies.approve');
     Route::post('/companies/{company}/approve-pending', [AdminCompanyController::class, 'approvePendingChanges'])->name('companies.approve-pending');

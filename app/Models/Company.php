@@ -58,7 +58,7 @@ class Company extends Model
     protected $fillable = [
         'user_id', 'name', 'slug', 'tax_number', 'tax_office', 'address', 'city', 'district',
         'live_latitude', 'live_longitude', 'live_location_updated_at', 'map_visible',
-        'google_maps_url', 'google_reviews_url', 'google_rating', 'google_review_count',
+        'google_maps_url', 'google_reviews_url', 'google_rating', 'google_review_count', 'google_reviews_fetched_at',
         'yandex_reviews_url', 'yandex_rating', 'yandex_review_count',
         'phone', 'phone_2', 'whatsapp', 'email',
         'description', 'logo', 'logo_approved_at', 'services', 'approved_at', 'package',         'blocked_at', 'blocked_reason', 'view_count',
@@ -83,6 +83,7 @@ class Company extends Model
             'pending_changes_at' => 'datetime',
             'google_rating' => 'decimal:1',
             'yandex_rating' => 'decimal:1',
+            'google_reviews_fetched_at' => 'datetime',
         ];
     }
 
@@ -93,6 +94,12 @@ class Company extends Model
 
     /** Sadece sitede listelenen firmalar: onaylı ve engelli değil (/nakliye-firmalari detay için) */
     public function scopeForFirmalarShow($query)
+    {
+        return $query->whereNotNull('approved_at')->whereNull('blocked_at');
+    }
+
+    /** Admin panelde listelenecek onaylı firmalar (Ayarlar sayfası manuel ödeme vb.) */
+    public function scopeApproved($query)
     {
         return $query->whereNotNull('approved_at')->whereNull('blocked_at');
     }

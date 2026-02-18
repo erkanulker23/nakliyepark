@@ -87,6 +87,7 @@
                     data-tab="map-reviews"
                     role="tab" aria-selected="false">Harita & Yorumlar</button>
             </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Google Harita linki ve yorum bilgileri için <strong>Harita & Yorumlar</strong> sekmesine tıklayın.</p>
         </div>
 
         <form method="POST" action="{{ route('admin.companies.update', $company) }}" class="space-y-5">
@@ -261,6 +262,14 @@
                 </div>
                 <div class="border-t border-slate-200 dark:border-slate-600 pt-5">
                     <h4 class="font-medium text-slate-800 dark:text-slate-200 mb-3">Google yorumları (firma sayfasında kart olarak gösterilir)</h4>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-3">Puan ve yorum sayısının <strong>Google'dan orijinal</strong> gelmesi için aşağıdaki butona tıklayın. (.env içinde <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">GOOGLE_PLACES_API_KEY</code> tanımlı olmalı.) Manuel giriş yaparsanız veri &quot;doğrulanmamış&quot; olarak işaretlenir.</p>
+                    <form method="POST" action="{{ route('admin.companies.fetch-google-reviews', $company) }}" class="inline-block mb-4">
+                        @csrf
+                        <button type="submit" class="admin-btn-primary text-sm">Google'dan puan ve yorum sayısını getir</button>
+                    </form>
+                    @if($company->google_reviews_fetched_at)
+                        <p class="text-xs text-emerald-600 dark:text-emerald-400">Son alım: {{ $company->google_reviews_fetched_at->locale('tr')->diffForHumans() }}</p>
+                    @endif
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div class="admin-form-group">
                             <label class="admin-label">Google yorumlar sayfası URL</label>

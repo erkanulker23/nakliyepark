@@ -42,7 +42,7 @@
     if (!$company->phone) unset($localBusiness['telephone']);
     if (!$company->email) unset($localBusiness['email']);
     if (!$localBusiness['image']) unset($localBusiness['image']);
-    if ($company->google_rating && $company->google_review_count) {
+    if ($company->google_reviews_fetched_at && $company->google_rating && $company->google_review_count) {
         $localBusiness['aggregateRating'] = [
             '@type' => 'AggregateRating',
             'ratingValue' => (float) $company->google_rating,
@@ -465,9 +465,14 @@
                         <div class="rounded-2xl bg-white/90 dark:bg-zinc-900/80 border border-zinc-200/60 dark:border-zinc-800/60 overflow-hidden">
                             <div class="px-5 py-4 bg-zinc-50/80 dark:bg-zinc-800/40 border-b border-zinc-200/50 dark:border-zinc-700/50">
                                 <h2 class="font-semibold text-zinc-900 dark:text-white text-sm">Dış platform yorumları</h2>
-                                <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 flex items-center gap-1.5">
-                                    <svg class="w-4 h-4 text-amber-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
-                                    Yorumlar doğrulanmamıştır
+                                <p class="text-xs mt-1 flex items-center gap-1.5 {{ $company->google_reviews_fetched_at ? 'text-emerald-600 dark:text-emerald-400' : 'text-zinc-500 dark:text-zinc-400' }}">
+                                    @if($company->google_reviews_fetched_at)
+                                        <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                        Yorumlar ve puan Google'dan alınmıştır
+                                    @else
+                                        <svg class="w-4 h-4 text-amber-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                                        Yorumlar doğrulanmamıştır
+                                    @endif
                                 </p>
                             </div>
                             <div class="p-5 sm:p-6">

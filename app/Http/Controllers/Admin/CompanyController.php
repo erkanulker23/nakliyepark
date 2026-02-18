@@ -8,6 +8,7 @@ use App\Models\Company;
 use App\Notifications\CompanyApprovedNotification;
 use App\Notifications\CompanyCredentialsSetPasswordNotification;
 use App\Services\AdminNotifier;
+use App\Services\GooglePlacesService;
 use App\Services\SafeNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -110,6 +111,10 @@ class CompanyController extends Controller
             'yandex_reviews_url', 'yandex_rating', 'yandex_review_count',
         ]);
         $data['services'] = $request->input('services', []);
+        // Manuel giriş yapıldığında Google'dan alındı işaretini kaldır
+        if ($request->has('google_rating') || $request->has('google_review_count')) {
+            $data['google_reviews_fetched_at'] = null;
+        }
         $wasApproved = $company->approved_at !== null;
         $company->load('user');
         $company->update($data);
@@ -181,6 +186,45 @@ class CompanyController extends Controller
         }
 
         return redirect()->route('admin.companies.edit', $company)->with('success', 'Firma güncellendi.');
+    }
+
+    /**
+     * Google Places API ile firmanın puan ve yorum sayısını Google'dan çekip kaydeder.
+     * Google Harita URL'si dolu olmalı; .env'de GOOGLE_PLACES_API_KEY tanımlı olmalı.
+     */
+    public function fetchGoogleReviews(Company $company)
+    {
+        $this->authorize('update', $company);
+
+        $url = $company->google_maps_url;
+        if (empty($url)) {
+            return redirect()->route('admin.companies.edit', $company)
+                ->with('error', 'Google Harita URL\'si boş. Önce Harita & Yorumlar sekmesinde Google Harita URL girin.');
+        }
+
+        $service = app(GooglePlacesService::class);
+        if (! $service->hasApiKey()) {
+            return redirect()->route('admin.companies.edit', $company)
+                ->with('error', 'Google Places API anahtarı tanımlı değil. .env dosyasına GOOGLE_PLACES_API_KEY ekleyin.');
+        }
+
+        $data = $service->fetchRatingAndReviewCount($url);
+        if (! $data) {
+            return redirect()->route('admin.companies.edit', $company)
+                ->with('error', 'Google\'dan puan ve yorum sayısı alınamadı. URL\'yi kontrol edin veya API kotasını inceleyin.');
+        }
+
+        $update = ['google_reviews_fetched_at' => now()];
+        if (isset($data['rating'])) {
+            $update['google_rating'] = $data['rating'];
+        }
+        if (isset($data['user_ratings_total'])) {
+            $update['google_review_count'] = $data['user_ratings_total'];
+        }
+        $company->update($update);
+
+        return redirect()->route('admin.companies.edit', $company)
+            ->with('success', 'Google puan ve yorum sayısı Google\'dan alındı ve kaydedildi.');
     }
 
     public function destroy(Request $request, Company $company)

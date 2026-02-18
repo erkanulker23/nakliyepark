@@ -78,7 +78,10 @@ class SettingController extends Controller
             'nakliyeci_ihale_preferred', 'nakliyeci_teklif_accepted', 'nakliyeci_contact_message',
             'password_reset',
         ];
-        $mailDefaults = config('mail_templates_defaults', []);
+        $mailDefaults = config('mail_templates_defaults');
+        if (! is_array($mailDefaults)) {
+            $mailDefaults = [];
+        }
         foreach ($mailTemplateKeys as $key) {
             $storedSubject = Setting::get('mail_tpl_' . $key . '_subject', '');
             $storedBody = Setting::get('mail_tpl_' . $key . '_body', '');
@@ -88,8 +91,11 @@ class SettingController extends Controller
             $settings['mail_tpl_' . $key . '_body'] = $storedBody !== '' ? (string) $storedBody : (string) ($defaults['body'] ?? '');
         }
         $paketlerJson = Setting::get('nakliyeci_paketler', '');
-        $settings['nakliyeci_paketler'] = $paketlerJson ? (is_string($paketlerJson) ? json_decode($paketlerJson, true) : $paketlerJson) : config('nakliyepark.nakliyeci_paketler', []);
+        $decoded = $paketlerJson ? (is_string($paketlerJson) ? json_decode($paketlerJson, true) : $paketlerJson) : null;
+        $settings['nakliyeci_paketler'] = is_array($decoded) ? $decoded : (config('nakliyepark.nakliyeci_paketler') ?? []);
+
         $companies = Company::approved()->with('user')->orderBy('name')->get();
+
         return view('admin.settings.index', compact('settings', 'companies'));
     }
 
