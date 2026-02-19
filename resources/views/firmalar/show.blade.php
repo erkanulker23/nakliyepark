@@ -68,8 +68,15 @@
     </div>
 
     {{-- Hero: tek kart, logo + isim + konum + istatistik + hizmetler --}}
+    @php $companyHasPackage = $company->package && trim($company->package) !== ''; @endphp
     <section class="page-container pb-6 sm:pb-8">
-        <div class="rounded-2xl sm:rounded-3xl bg-white/90 dark:bg-zinc-900/80 border border-zinc-200/60 dark:border-zinc-800/60 overflow-hidden">
+        <div class="rounded-2xl sm:rounded-3xl bg-white/90 dark:bg-zinc-900/80 border {{ $companyHasPackage ? 'border-amber-300/60 dark:border-amber-600/40 ring-2 ring-amber-400/15 dark:ring-amber-500/15' : 'border-zinc-200/60 dark:border-zinc-800/60' }} overflow-hidden relative">
+            @if($companyHasPackage)
+                <div class="absolute top-0 right-0 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-bl-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-bold shadow-lg" aria-hidden="true">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    Gold üye
+                </div>
+            @endif
             <div class="p-6 sm:p-8 lg:p-10">
                 <div class="flex flex-col sm:flex-row sm:items-start gap-6 lg:gap-8">
                     @if($company->logo && $company->logo_approved_at)
@@ -100,6 +107,12 @@
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:py-1 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 shrink-0" title="Resmi şirket bilgileri doğrulanmış">
                                     <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
                                     Resmi onaylı
+                                </span>
+                            @endif
+                            @if($companyHasPackage)
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-800 dark:text-amber-200 border border-amber-500/30 shrink-0" title="Paketli üye – öncelikli firma">
+                                    <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                    Gold üye
                                 </span>
                             @endif
                             @include('partials.company-package-badge', ['company' => $company])

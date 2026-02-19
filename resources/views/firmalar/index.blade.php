@@ -65,9 +65,16 @@
             <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">{{ $firmalar->total() }} firma listeleniyor</p>
             <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6">
                 @foreach($firmalar as $firma)
+                    @php $hasPackage = $firma->package && trim($firma->package) !== ''; @endphp
                     <a href="{{ route('firmalar.show', $firma) }}" class="group block">
-                        <article class="relative h-full rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 overflow-hidden shadow-sm hover:shadow-lg hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-300 flex flex-col">
-                            <div class="absolute top-0 right-0 w-20 h-20 bg-emerald-500/10 rounded-bl-full group-hover:bg-emerald-500/20 transition-colors pointer-events-none" aria-hidden="true"></div>
+                        <article class="relative h-full rounded-2xl border {{ $hasPackage ? 'border-amber-300/80 dark:border-amber-600/50 ring-1 ring-amber-400/20 dark:ring-amber-500/20' : 'border-zinc-200/80 dark:border-zinc-800' }} bg-white dark:bg-zinc-900 overflow-hidden shadow-sm hover:shadow-lg {{ $hasPackage ? 'hover:border-amber-400 dark:hover:border-amber-500' : 'hover:border-zinc-300 dark:hover:border-zinc-700' }} transition-all duration-300 flex flex-col">
+                            @if($hasPackage)
+                                <div class="absolute top-0 left-0 z-10 flex items-center gap-1 px-2.5 py-1 rounded-br-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs font-bold shadow-md" aria-hidden="true">
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                    Gold üye
+                                </div>
+                            @endif
+                            <div class="absolute top-0 right-0 w-20 h-20 {{ $hasPackage ? 'bg-amber-500/10 rounded-bl-full group-hover:bg-amber-500/20' : 'bg-emerald-500/10 rounded-bl-full group-hover:bg-emerald-500/20' }} transition-colors pointer-events-none" aria-hidden="true"></div>
                             <div class="p-5 sm:p-6 flex-1 flex flex-col relative">
                                 <div class="flex gap-4">
                                     @if($firma->logo && $firma->logo_approved_at && trim($firma->logo) !== '')
@@ -90,6 +97,12 @@
                                             </p>
                                         @endif
                                         <div class="mt-2 flex items-center gap-2 flex-wrap">
+                                            @if($hasPackage)
+                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 text-xs font-semibold shrink-0">
+                                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                                    Gold üye
+                                                </span>
+                                            @endif
                                             @include('partials.company-package-badge', ['firma' => $firma])
                                             @if($firma->reviews_count > 0)
                                                 <span class="shrink-0 inline-flex items-center gap-1 rounded-full bg-zinc-100 dark:bg-zinc-800 px-2.5 py-1 text-xs font-semibold text-zinc-600 dark:text-zinc-300">
