@@ -99,6 +99,37 @@ class UserController extends Controller
         return back()->with('success', 'Kullanıcıya e-posta doğrulama linki gönderildi.');
     }
 
+    /** Admin, nakliyeci kullanıcı için firma oluşturur (kullanıcının firması yoksa). */
+    public function createCompany(Request $request, User $user)
+    {
+        if (! $user->isNakliyeci()) {
+            return back()->with('error', 'Sadece nakliyeci rolündeki kullanıcılar için firma oluşturulabilir.');
+        }
+        if ($user->company) {
+            return redirect()->route('admin.companies.edit', $user->company)->with('info', 'Bu kullanıcının zaten firması var.');
+        }
+        $request->validate([
+            'company_name' => 'required|string|max:255',
+        ], [
+            'company_name.required' => 'Firma adı girin.',
+        ]);
+
+        $company = Company::create([
+            'user_id' => $user->id,
+            'name' => $request->company_name,
+            'approved_at' => null,
+        ]);
+        AdminNotifier::notify('company_created', "Admin tarafından firma oluşturuldu: {$company->name} ({$user->email})", 'Yeni firma (admin)', ['url' => route('admin.companies.edit', $company)]);
+        Log::channel('admin_actions')->info('Admin created company for user', [
+            'admin_id' => auth()->id(),
+            'user_id' => $user->id,
+            'company_id' => $company->id,
+            'company_name' => $company->name,
+        ]);
+
+        return redirect()->route('admin.companies.edit', $company)->with('success', 'Firma oluşturuldu. Firma bilgilerini tamamlayıp onaylayabilirsiniz.');
+    }
+
     /** Nakliyeci rolündeki ancak firma oluşturmamış kullanıcıya "firma oluştur" hatırlatma maili gönderir. */
     public function sendCompanyReminder(User $user)
     {

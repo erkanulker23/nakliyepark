@@ -217,6 +217,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('users', AdminUserController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
     Route::post('/users/bulk-delete', [AdminUserController::class, 'bulkDelete'])->name('users.bulk-delete');
     Route::post('/users/{user}/approve', [AdminUserController::class, 'approve'])->name('users.approve');
+    Route::post('/users/{user}/create-company', [AdminUserController::class, 'createCompany'])->name('users.create-company');
     Route::post('/users/{user}/send-company-reminder', [AdminUserController::class, 'sendCompanyReminder'])->name('users.send-company-reminder');
     Route::get('/musteriler', [AdminMusteriController::class, 'index'])->name('musteriler.index');
     Route::get('/musteriler/{user}', [AdminMusteriController::class, 'show'])->name('musteriler.show');

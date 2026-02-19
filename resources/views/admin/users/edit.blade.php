@@ -35,12 +35,24 @@
                 @endif
             </div>
         @elseif($user->isNakliyeci())
-            <div class="flex flex-wrap items-center gap-x-4 gap-y-2 pt-2 border-t border-slate-200 dark:border-slate-600">
-                <span class="text-sm text-amber-600 dark:text-amber-400 font-medium">Firma oluşturmamış</span>
-                <form method="POST" action="{{ route('admin.users.send-company-reminder', $user) }}" class="inline">
+            <div class="pt-2 border-t border-slate-200 dark:border-slate-600 space-y-3">
+                <p class="text-sm text-amber-600 dark:text-amber-400 font-medium">Firma oluşturmamış</p>
+                <form method="POST" action="{{ route('admin.users.create-company', $user) }}" class="flex flex-wrap items-end gap-3">
                     @csrf
-                    <button type="submit" class="admin-btn-secondary text-sm">Firma oluşturması için hatırlatma maili gönder</button>
+                    <div class="min-w-[200px]">
+                        <label for="company_name" class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Firma adı</label>
+                        <input type="text" name="company_name" id="company_name" value="{{ old('company_name') }}" required maxlength="255" class="admin-input text-sm" placeholder="Örn: ABC Nakliyat">
+                        @error('company_name')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                    </div>
+                    <button type="submit" class="admin-btn-primary text-sm">Firma oluştur</button>
                 </form>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Firma oluşturduktan sonra firma düzenleme sayfasına yönlendirilirsiniz.</p>
+                <div class="pt-2">
+                    <form method="POST" action="{{ route('admin.users.send-company-reminder', $user) }}" class="inline">
+                        @csrf
+                        <button type="submit" class="admin-btn-secondary text-sm">Firma oluşturması için hatırlatma maili gönder</button>
+                    </form>
+                </div>
             </div>
         @endif
         <div class="flex flex-wrap items-center gap-x-4 gap-y-2 pt-2 border-t border-slate-200 dark:border-slate-600">
