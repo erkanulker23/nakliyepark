@@ -14,7 +14,7 @@
 @endphp
 @include('partials.structured-data-breadcrumb')
 
-@if($company->live_latitude && $company->live_longitude)
+@if($company->map_visible && $company->live_latitude && $company->live_longitude)
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 @endpush
@@ -236,7 +236,7 @@
         <div class="lg:grid lg:grid-cols-12 lg:gap-8">
             <div class="lg:col-span-8 space-y-8 lg:space-y-10">
                 @php
-                    $hasMapCoords = $company->live_latitude && $company->live_longitude;
+                    $hasMapCoords = $company->map_visible && $company->live_latitude && $company->live_longitude;
                     $hasGoogleMapsUrl = !empty($company->google_maps_url);
                     $showMapSection = $hasMapCoords || $hasGoogleMapsUrl;
                 @endphp
@@ -314,16 +314,16 @@
                                 @endif
                             </div>
 
-                            @if($company->tax_number || $company->tax_office || $company->contracts->count() > 0)
+                            @if($company->tax_number || $company->tax_office || (optional($company->contracts)->count() > 0))
                                 <div class="border-t border-zinc-200/60 dark:border-zinc-700/60 pt-5"></div>
                             @endif
 
                             {{-- Sözleşmeler --}}
-                            @if($company->contracts->count() > 0)
+                            @if(optional($company->contracts)->count() > 0)
                                 <div>
                                     <p class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-3">Sözleşmeler</p>
                                     <div class="grid sm:grid-cols-2 gap-3">
-                                        @foreach($company->contracts as $contract)
+                                        @foreach($company->contracts ?? [] as $contract)
                                             <a href="{{ asset('storage/'.$contract->file_path) }}" target="_blank" rel="noopener" class="flex items-center gap-3 p-4 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/40 border border-zinc-200/50 dark:border-zinc-700/50 hover:border-emerald-300/60 dark:hover:border-emerald-700/40 hover:shadow-md hover:shadow-emerald-500/5 transition-all duration-200 group">
                                                 <span class="w-11 h-11 rounded-xl bg-white dark:bg-zinc-700/50 border border-zinc-200/60 dark:border-zinc-600/50 flex items-center justify-center text-zinc-500 shrink-0 group-hover:bg-emerald-500/10 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 group-hover:border-emerald-200/60 transition-colors">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
@@ -340,11 +340,11 @@
                             @endif
 
                             {{-- Belgeler (K1, sigorta, ruhsat vb.) --}}
-                            <div class="{{ $company->contracts->count() > 0 ? 'border-t border-zinc-200/60 dark:border-zinc-700/60 pt-5' : '' }}">
+                            <div class="{{ (optional($company->contracts)->count() > 0) ? 'border-t border-zinc-200/60 dark:border-zinc-700/60 pt-5' : '' }}">
                                 <p class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-3">Belgeler</p>
-                                @if($company->documents->count() > 0)
+                                @if(optional($company->documents)->count() > 0)
                                     <div class="grid sm:grid-cols-2 gap-3">
-                                        @foreach($company->documents as $doc)
+                                        @foreach($company->documents ?? [] as $doc)
                                             <a href="{{ asset('storage/'.$doc->file_path) }}" target="_blank" rel="noopener" class="flex items-center gap-3 p-4 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/40 border border-zinc-200/50 dark:border-zinc-700/50 hover:border-emerald-300/60 dark:hover:border-emerald-700/40 hover:shadow-md hover:shadow-emerald-500/5 transition-all duration-200 group">
                                                 <span class="w-11 h-11 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 group-hover:bg-emerald-500/20 transition-colors">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
@@ -380,14 +380,14 @@
                             <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Taşıma araçları ve görseller</p>
                         </div>
                         <div class="p-5 sm:p-6">
-                            @if($company->approvedVehicleImages->count() > 0)
+                            @if(optional($company->approvedVehicleImages)->count() > 0)
                                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4" id="company-gallery">
-                                    @foreach($company->approvedVehicleImages as $i => $img)
+                                    @foreach($company->approvedVehicleImages ?? [] as $i => $img)
                                         <button type="button" class="company-gallery-thumb w-full text-left rounded-xl overflow-hidden aspect-square group border border-zinc-200/50 dark:border-zinc-700/50 hover:border-emerald-400/60 dark:hover:border-emerald-500/50 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-zinc-900 cursor-pointer"
                                             data-index="{{ $i }}"
                                             data-src="{{ asset('storage/'.$img->path) }}"
                                             data-caption="{{ $img->caption ?? '' }}"
-                                            aria-label="Görseli büyüt ({{ $i + 1 }}/{{ $company->approvedVehicleImages->count() }})">
+                                            aria-label="Görseli büyüt ({{ $i + 1 }}/{{ optional($company->approvedVehicleImages)->count() }})">
                                             <div class="relative w-full h-full bg-zinc-100 dark:bg-zinc-800">
                                                 <img src="{{ asset('storage/'.$img->path) }}" alt="{{ $img->caption ?? 'Galeri' }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy">
                                                 <span class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
@@ -440,18 +440,18 @@
                     <div class="rounded-2xl bg-white/90 dark:bg-zinc-900/80 border border-zinc-200/60 dark:border-zinc-800/60 overflow-hidden">
                         <div class="px-5 py-4 bg-zinc-50/80 dark:bg-zinc-800/40 border-b border-zinc-200/50 dark:border-zinc-700/50">
                             <h2 class="font-semibold text-zinc-900 dark:text-white text-sm">Değerlendirmeler</h2>
-                            @if($company->reviews->count() > 0)
+                            @if(optional($company->reviews)->count() > 0)
                                 <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{{ $reviewCount }} değerlendirme · {{ number_format($reviewAvg, 1, ',', '') }}/5</p>
                             @endif
                         </div>
                         <div class="p-5 sm:p-6">
-                            @if($company->reviews->count() > 0)
+                            @if(optional($company->reviews)->count() > 0)
                                 <ul class="space-y-3">
-                                    @foreach($company->reviews as $review)
+                                    @foreach($company->reviews ?? [] as $review)
                                         <li class="rounded-xl bg-zinc-50/60 dark:bg-zinc-800/30 border border-zinc-200/50 dark:border-zinc-700/50 p-4 sm:p-5">
                                             <div class="flex items-center justify-between gap-2 flex-wrap">
                                                 <span class="text-amber-500 text-base" aria-label="{{ $review->rating }} yıldız">{{ str_repeat('★', $review->rating) }}{{ str_repeat('☆', 5 - $review->rating) }}</span>
-                                                <span class="text-sm text-zinc-500 dark:text-zinc-400">{{ $review->user->name ?? 'Misafir' }}</span>
+                                                <span class="text-sm text-zinc-500 dark:text-zinc-400">{{ $review->user?->name ?? 'Misafir' }}</span>
                                             </div>
                                             @if($review->comment)
                                                 <p class="mt-2 text-zinc-600 dark:text-zinc-300 leading-relaxed text-sm">{{ $review->comment }}</p>
@@ -626,7 +626,7 @@
     @endif
 </div>
 
-@if($company->approvedVehicleImages->count() > 0)
+@if(optional($company->approvedVehicleImages)->count() > 0)
 @push('scripts')
 <script>
 (function(){
@@ -712,7 +712,7 @@
 @endpush
 @endif
 
-@if($company->live_latitude && $company->live_longitude)
+@if($company->map_visible && $company->live_latitude && $company->live_longitude)
 @push('scripts')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>

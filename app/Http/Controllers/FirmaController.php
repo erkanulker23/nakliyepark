@@ -51,10 +51,22 @@ class FirmaController extends Controller
     public function show(Company $companyForShow)
     {
         $company = $companyForShow;
-        $company->increment('view_count');
+
+        // Sadece onaylı ve engelli olmayan firmalar public sayfada görünsün
+        if ($company->approved_at === null || $company->blocked_at !== null) {
+            abort(404);
+        }
+
+        try {
+            $company->increment('view_count');
+        } catch (\Throwable $e) {
+            // view_count kolonu eksikse veya DB hatası olursa sayfa yine açılsın
+        }
+
         $company->load('user', 'reviews.user', 'contracts', 'approvedVehicleImages', 'documents');
-        $reviewAvg = round($company->reviews->avg('rating') ?? 0, 1);
-        $reviewCount = $company->reviews->count();
+        $reviews = $company->reviews ?? collect();
+        $reviewAvg = round($reviews->avg('rating') ?? 0, 1);
+        $reviewCount = $reviews->count();
         $completedJobsCount = $company->teklifler()->where('status', 'accepted')->count();
         $totalTeklifCount = $company->teklifler()->count();
         $acceptanceRate = $totalTeklifCount > 0 ? round(($completedJobsCount / $totalTeklifCount) * 100) : 0;

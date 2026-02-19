@@ -59,7 +59,19 @@
                         <a href="{{ route('ihale.create') }}" class="hidden sm:inline-flex items-center justify-center gap-2 min-h-[44px] px-5 py-2.5 rounded-xl font-semibold text-white bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 shadow-lg shadow-orange-500/25 transition-all">İhale başlat</a>
                     @else
                         @if(auth()->user()->isNakliyeci())
-                            <a href="{{ route('nakliyeci.company.edit') }}" class="btn-ghost rounded-lg hidden sm:inline-flex">Firmam</a>
+                            <div class="relative hidden sm:block" id="firmam-dropdown-wrap">
+                                <button type="button" class="btn-ghost rounded-lg inline-flex items-center gap-1 firmam-dropdown-btn" aria-expanded="false" aria-haspopup="true" aria-controls="firmam-dropdown-menu" id="firmam-menu-btn">
+                                    Firmam
+                                    <svg class="w-4 h-4 transition-transform firmam-dropdown-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                </button>
+                                <div id="firmam-dropdown-menu" class="absolute right-0 top-full mt-1 min-w-[160px] rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-lg py-1 z-50 firmam-dropdown-panel" role="menu" aria-labelledby="firmam-menu-btn" hidden>
+                                    <a href="{{ route('nakliyeci.company.edit') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Firmam</a>
+                                    <form method="POST" action="{{ route('logout') }}" class="block" role="menuitem">
+                                        @csrf
+                                        <button type="submit" class="w-full text-left px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800">Çıkış</button>
+                                    </form>
+                                </div>
+                            </div>
                         @elseif(auth()->user()->isMusteri())
                             <a href="{{ route('musteri.dashboard') }}" class="btn-ghost rounded-lg hidden sm:inline-flex">İhalelerim</a>
                         @endif

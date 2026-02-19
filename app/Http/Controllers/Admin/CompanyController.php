@@ -271,6 +271,25 @@ class CompanyController extends Controller
         return redirect()->route('admin.companies.edit', $company)->with('success', 'Firma onaylandı.');
     }
 
+    /** Firma canlı konumunu kaldır; haritada görünürlüğü kapatır. */
+    public function removeLocation(Company $company)
+    {
+        $this->authorize('update', $company);
+        $company->update([
+            'map_visible' => false,
+            'live_latitude' => null,
+            'live_longitude' => null,
+            'live_location_updated_at' => null,
+        ]);
+        Log::channel('admin_actions')->info('Admin removed company location', [
+            'admin_id' => auth()->id(),
+            'company_id' => $company->id,
+            'company_name' => $company->name,
+        ]);
+        return redirect()->route('admin.companies.edit', $company)
+            ->with('success', 'Firma lokasyonu kaldırıldı; haritada görünürlük kapatıldı.');
+    }
+
     public function reject(Company $company)
     {
         $company->update([

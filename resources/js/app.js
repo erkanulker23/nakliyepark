@@ -42,6 +42,41 @@ function initToolsDropdown() {
   });
 }
 
+// Firmam dropdown (nakliyeci girişli): Firmam + Çıkış
+function initFirmamDropdown() {
+  const wrap = document.getElementById('firmam-dropdown-wrap');
+  const btn = document.querySelector('.firmam-dropdown-btn');
+  const panel = document.getElementById('firmam-dropdown-menu');
+  const chevron = document.querySelector('.firmam-dropdown-chevron');
+  if (!wrap || !btn || !panel) return;
+
+  function open() {
+    panel.hidden = false;
+    btn.setAttribute('aria-expanded', 'true');
+    if (chevron) chevron.style.transform = 'rotate(180deg)';
+  }
+  function close() {
+    panel.hidden = true;
+    btn.setAttribute('aria-expanded', 'false');
+    if (chevron) chevron.style.transform = '';
+  }
+  function toggle() {
+    if (panel.hidden) open(); else close();
+  }
+
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggle();
+  });
+  document.addEventListener('click', (e) => {
+    if (!wrap.contains(e.target)) close();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') close();
+  });
+}
+
 // Bildirim dropdown: çan tıklanınca aç/kapa
 function initHeaderNotificationsDropdown() {
   const wrap = document.getElementById('header-notifications-wrap');
@@ -82,6 +117,7 @@ function initHeaderNotificationsDropdown() {
 
 function initHeader() {
   initToolsDropdown();
+  initFirmamDropdown();
   initHeaderNotificationsDropdown();
 }
 

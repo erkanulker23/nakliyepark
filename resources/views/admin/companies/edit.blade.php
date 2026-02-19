@@ -254,6 +254,30 @@
             {{-- Sekme: Harita & Dış yorumlar (Google / Yandex) --}}
             <div id="tab-map-reviews" class="company-edit-pane hidden space-y-5" role="tabpanel">
                 <p class="text-sm text-slate-600 dark:text-slate-400">Firma detay sayfasında harita ve Google / Yandex yorum kartları gösterilir. Yönetici bu alanları doldurarak firmanın Google Harita ve yorum sayfası linkini ekleyebilir.</p>
+
+                {{-- Canlı konum (haritada görünürlük): sadece lokasyon açıkken alınır; admin lokasyonu kaldırabilir --}}
+                <div class="border border-slate-200 dark:border-slate-600 rounded-xl p-5 bg-slate-50/50 dark:bg-slate-800/30">
+                    <h4 class="font-medium text-slate-800 dark:text-slate-200 mb-2">Canlı konum (haritada görünürlük)</h4>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-3">Nakliyeci panelinde &quot;Haritada göster&quot; açıkken konum alınır; kapalıyken konum saklanmaz. Firma sayfasında ve harita sayfasında sadece lokasyon açık olan firmaların konumu gösterilir.</p>
+                    @if($company->live_latitude !== null && $company->live_longitude !== null)
+                        <p class="text-sm text-slate-600 dark:text-slate-400 mb-2">
+                            <span class="font-medium">Kayıtlı konum:</span> {{ number_format($company->live_latitude, 5) }}, {{ number_format($company->live_longitude, 5) }}
+                            @if($company->live_location_updated_at)
+                                · Son güncelleme: {{ $company->live_location_updated_at->locale('tr')->diffForHumans() }}
+                            @endif
+                        </p>
+                        <p class="text-sm text-slate-600 dark:text-slate-400 mb-3">
+                            Haritada göster: <span class="font-medium {{ $company->map_visible ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500' }}">{{ $company->map_visible ? 'Açık' : 'Kapalı' }}</span>
+                        </p>
+                        <form method="POST" action="{{ route('admin.companies.remove-location', $company) }}" class="inline" onsubmit="return confirm('Firmanın canlı konumunu kaldırmak ve haritada görünürlüğü kapatmak istediğinize emin misiniz?');">
+                            @csrf
+                            <button type="submit" class="admin-btn-secondary text-sm py-2 px-4 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20">Lokasyonu kaldır</button>
+                        </form>
+                    @else
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Kayıtlı canlı konum yok. Nakliyeci panelinden &quot;Haritada göster&quot; açıp konum paylaştığında burada görünür.</p>
+                    @endif
+                </div>
+
                 <div class="admin-form-group">
                     <label class="admin-label">Google Harita URL</label>
                     <input type="text" name="google_maps_url" value="{{ old('google_maps_url', $company->google_maps_url) }}" class="admin-input" placeholder="https://www.google.com/maps/place/...">

@@ -24,9 +24,11 @@ class LocationController extends Controller
             $data['map_visible'] = filter_var($request->input('map_visible'), FILTER_VALIDATE_BOOLEAN);
         }
 
+        // Konum sadece "haritada göster" açıkken alınır ve saklanır; kapalıysa konum tutulmaz.
         $lat = $request->input('lat');
         $lng = $request->input('lng');
-        if (is_numeric($lat) && is_numeric($lng)) {
+        $mapVisible = array_key_exists('map_visible', $data) ? $data['map_visible'] : $company->map_visible;
+        if ($mapVisible && is_numeric($lat) && is_numeric($lng)) {
             $lat = (float) $lat;
             $lng = (float) $lng;
             if ($lat >= -90 && $lat <= 90 && $lng >= -180 && $lng <= 180) {
@@ -34,6 +36,11 @@ class LocationController extends Controller
                 $data['live_longitude'] = $lng;
                 $data['live_location_updated_at'] = now();
             }
+        } elseif (!$mapVisible) {
+            // Haritada göster kapalıysa kayıtlı konumu temizle
+            $data['live_latitude'] = null;
+            $data['live_longitude'] = null;
+            $data['live_location_updated_at'] = null;
         }
 
         if (! empty($data)) {
