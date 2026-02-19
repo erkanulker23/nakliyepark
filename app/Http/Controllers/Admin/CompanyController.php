@@ -12,6 +12,7 @@ use App\Services\CompanyLogoProcessor;
 use App\Services\GooglePlacesService;
 use App\Services\SafeNotificationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Storage;
@@ -289,6 +290,30 @@ class CompanyController extends Controller
         ]);
         return redirect()->route('admin.companies.edit', $company)
             ->with('success', 'Firma lokasyonu kaldırıldı; haritada görünürlük kapatıldı.');
+    }
+
+    /** Admin nakliyeci kullanıcısının şifresini değiştirir. */
+    public function changePassword(Request $request, Company $company)
+    {
+        $this->authorize('update', $company);
+        $user = $company->user;
+        if (! $user) {
+            return back()->with('error', 'Bu firmaya bağlı kullanıcı bulunamadı.');
+        }
+        $request->validate([
+            'password' => 'required|string|min:8|confirmed',
+        ], [
+            'password.required' => 'Yeni şifre girin.',
+            'password.min' => 'Şifre en az 8 karakter olmalıdır.',
+            'password.confirmed' => 'Şifre tekrarı eşleşmiyor.',
+        ]);
+        $user->update(['password' => Hash::make($request->password)]);
+        Log::channel('admin_actions')->info('Admin changed company user password', [
+            'admin_id' => auth()->id(),
+            'company_id' => $company->id,
+            'user_id' => $user->id,
+        ]);
+        return redirect()->route('admin.companies.edit', $company)->with('success', 'Nakliyeci şifresi güncellendi.');
     }
 
     public function reject(Company $company)

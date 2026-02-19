@@ -52,21 +52,24 @@ class GuestWizardController extends Controller
             $serviceType = Ihale::SERVICE_EVDEN_EVE;
         }
 
+        $isInternational = $serviceType === Ihale::SERVICE_ULUSLARASI;
+        $needFloorElevator = in_array($serviceType, [Ihale::SERVICE_EVDEN_EVE, Ihale::SERVICE_SEHIRLERARASI], true);
+
         $rules = [
             'service_type' => 'nullable|string|in:'.implode(',', $validServiceTypes),
             'room_type' => 'nullable|string|max:100',
             'from_city' => 'required|string|max:100',
             'from_address' => 'nullable|string',
-            'from_district' => 'nullable|string|max:100',
+            'from_district' => ($isInternational ? 'nullable' : 'required').'|string|max:100',
             'from_neighborhood' => 'nullable|string|max:150',
-            'from_floor' => 'nullable|string|max:50',
-            'from_elevator' => 'nullable|string|in:var,yok',
+            'from_floor' => ($needFloorElevator ? 'required' : 'nullable').'|string|max:50',
+            'from_elevator' => ($needFloorElevator ? 'required' : 'nullable').'|string|in:var,yok',
             'to_city' => in_array($serviceType, [Ihale::SERVICE_DEPOLAMA], true) ? 'nullable|string|max:100' : 'required|string|max:100',
             'to_address' => 'nullable|string',
-            'to_district' => 'nullable|string|max:100',
+            'to_district' => (in_array($serviceType, [Ihale::SERVICE_DEPOLAMA, Ihale::SERVICE_ULUSLARASI], true) ? 'nullable' : 'required').'|string|max:100',
             'to_neighborhood' => 'nullable|string|max:150',
-            'to_floor' => 'nullable|string|max:50',
-            'to_elevator' => 'nullable|string|in:var,yok',
+            'to_floor' => ($needFloorElevator ? 'required' : 'nullable').'|string|max:50',
+            'to_elevator' => ($needFloorElevator ? 'required' : 'nullable').'|string|in:var,yok',
             'distance_km' => 'nullable|numeric|min:0',
             'move_date' => 'nullable|date',
             'move_date_end' => 'nullable|date',
@@ -81,7 +84,7 @@ class GuestWizardController extends Controller
             'description_items' => 'nullable|string',
             'guest_contact_name' => 'nullable|string|max:255',
             'guest_contact_email' => 'nullable|email',
-            'guest_contact_phone' => ['nullable', 'string', 'max:20', 'regex:/^0[\s0-9]{10,14}$/'],
+            'guest_contact_phone' => ['nullable', 'string', 'max:20', 'regex:/^(\+90|0)[\s0-9]{10,14}$/'],
             'preferred_company_id' => ['nullable', Rule::exists('companies', 'id')->whereNotNull('approved_at')],
             'photos' => 'nullable|array',
             'photos.*' => 'image|max:5120',
@@ -90,7 +93,7 @@ class GuestWizardController extends Controller
         if (! $request->user()) {
             $rules['guest_contact_name'] = 'required|string|max:255';
             $rules['guest_contact_email'] = 'required|email';
-            $rules['guest_contact_phone'] = ['required', 'string', 'max:20', 'regex:/^0[\s0-9]{10,14}$/'];
+            $rules['guest_contact_phone'] = ['required', 'string', 'max:20', 'regex:/^(\+90|0)[\s0-9]{10,14}$/'];
         }
         $messages = [
             'kvkk_consent.accepted' => 'Kişisel verilerin işlenmesi için açık rıza vermeniz gerekmektedir.',
@@ -98,7 +101,13 @@ class GuestWizardController extends Controller
             'guest_contact_email.required' => 'E-posta adresi zorunludur.',
             'guest_contact_email.email' => 'Geçerli bir e-posta adresi girin.',
             'guest_contact_phone.required' => 'Telefon numarası zorunludur.',
-            'guest_contact_phone.regex' => 'Telefon numarası 0555 555 55 55 formatında olmalıdır.',
+            'guest_contact_phone.regex' => 'Telefon numarası +90 555 555 55 55 formatında olmalıdır.',
+            'from_district.required' => 'Lütfen ilçe seçin.',
+            'to_district.required' => 'Lütfen ilçe seçin.',
+            'from_floor.required' => 'Lütfen kat durumunu seçin.',
+            'from_elevator.required' => 'Lütfen asansör durumunu seçin.',
+            'to_floor.required' => 'Lütfen kat durumunu seçin.',
+            'to_elevator.required' => 'Lütfen asansör durumunu seçin.',
         ];
         $validator = Validator::make($request->all(), $rules, $messages);
         if ($validator->fails()) {
@@ -161,7 +170,9 @@ class GuestWizardController extends Controller
             $validated['user_id'] = null;
             if (!empty($validated['guest_contact_phone'])) {
                 $digits = preg_replace('/\D/', '', $validated['guest_contact_phone']);
-                if (strlen($digits) === 10 && str_starts_with($digits, '5')) {
+                if (strlen($digits) === 12 && str_starts_with($digits, '90')) {
+                    $digits = '0' . substr($digits, 2);
+                } elseif (strlen($digits) === 10 && str_starts_with($digits, '5')) {
                     $digits = '0' . $digits;
                 }
                 $validated['guest_contact_phone'] = strlen($digits) === 11 ? $digits : $validated['guest_contact_phone'];

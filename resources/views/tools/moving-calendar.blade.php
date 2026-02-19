@@ -12,9 +12,13 @@
     </header>
 
     <div>
-        <div class="card rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm p-5 sm:p-6 mb-6">
+        <div class="card rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm p-5 sm:p-6 mb-6" id="move-date-card">
             <label for="move-date" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Taşınma tarihi *</label>
-            <input type="date" id="move-date" class="input-touch w-full sm:w-auto border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl py-2.5">
+            <div class="flex flex-wrap items-center gap-3">
+                <input type="date" id="move-date" class="input-touch w-full sm:w-auto min-h-[44px] border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl py-2.5 flex-1" style="min-width: 160px;">
+                <button type="button" id="move-date-apply" class="btn-touch min-h-[44px] px-5 py-2.5 rounded-xl font-medium bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm">Takvimi göster</button>
+            </div>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-2">Tarih seçip &quot;Takvimi göster&quot;e tıklayın veya takvimi otomatik görmek için bir tarih seçin.</p>
         </div>
 
         <div id="calendar-timeline" class="grid grid-cols-2 md:grid-cols-1 gap-4 hidden">
@@ -106,6 +110,22 @@
     if (moveDateEl) {
         moveDateEl.addEventListener('change', update);
         moveDateEl.addEventListener('input', update);
+        moveDateEl.addEventListener('blur', update);
+    }
+    var applyBtn = document.getElementById('move-date-apply');
+    if (applyBtn) {
+        applyBtn.addEventListener('click', function() {
+            if (moveDateEl) moveDateEl.focus();
+            update();
+        });
+    }
+    var dateCard = document.getElementById('move-date-card');
+    if (dateCard && moveDateEl) {
+        dateCard.addEventListener('click', function(ev) {
+            if (ev.target === moveDateEl || ev.target.id === 'move-date-apply') return;
+            moveDateEl.focus();
+            try { moveDateEl.showPicker && moveDateEl.showPicker(); } catch (e) {}
+        });
     }
 })();
 </script>

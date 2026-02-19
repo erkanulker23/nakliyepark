@@ -36,9 +36,9 @@
             </select>
         </div>
 
-        {{-- Oda tipi (evden eve) veya Hacim (diğer) --}}
+        {{-- Eşya durumu (oda tipi) — ihale gibi; sadece uluslararasıda hacim (m³) --}}
         <div id="room-type-wrap">
-            <label for="room_type" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Eşya durumu (oda tipi)</label>
+            <label for="room_type" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Eşya durumu (oda tipi) *</label>
             <select id="room_type" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl">
                 @foreach(array_keys($config['room_type_factors'] ?? []) as $room)
                     @php
@@ -50,51 +50,67 @@
             </select>
         </div>
         <div id="volume-wrap" class="hidden">
-            <label for="volume_m3" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Tahmini hacim (m³)</label>
-            <input type="number" id="volume_m3" min="1" max="500" step="1" value="30" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl">
+            <label for="volume_m3" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Tahmini hacim (m³) *</label>
+            <input type="number" id="volume_m3" min="1" max="500" step="1" value="30" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl" placeholder="Örn. 40">
         </div>
-        <div id="esya-durumu-wrap" class="hidden">
-            <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">Eşya durumu</label>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                @foreach($config['esya_durumu'] ?? [] as $key => $mult)
-                    <label class="flex items-center gap-2 min-h-[44px] px-3 rounded-xl border-2 border-zinc-200 dark:border-zinc-700 cursor-pointer hover:border-emerald-400/80 transition-all has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50/80 dark:has-[:checked]:bg-emerald-900/20">
-                        <input type="radio" name="esya_durumu_alt" value="{{ $key }}" {{ $key === 'normal' ? 'checked' : '' }} class="w-4 h-4 text-emerald-500 accent-emerald-500">
-                        <span class="text-sm font-medium text-zinc-800 dark:text-zinc-100">
-                            @if($key === 'basit') Az eşya
-                            @elseif($key === 'normal') Normal
-                            @elseif($key === 'agir') Çok eşya
-                            @else Özel
-                            @endif
-                        </span>
-                    </label>
-                @endforeach
+
+        {{-- Türkiye: İl + İlçe, mesafe otomatik --}}
+        <div id="turkey-location-wrap" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <label for="from_province" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Nereden (il / ilçe)</label>
+                    <select id="from_province" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl">
+                        <option value="">İl seçin</option>
+                    </select>
+                    <select id="from_district" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl" disabled>
+                        <option value="">Önce il seçin</option>
+                    </select>
+                </div>
+                <div class="space-y-2">
+                    <label for="to_province" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Nereye (il / ilçe)</label>
+                    <select id="to_province" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl">
+                        <option value="">İl seçin</option>
+                    </select>
+                    <select id="to_district" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl" disabled>
+                        <option value="">Önce il seçin</option>
+                    </select>
+                </div>
+            </div>
+            <div id="distance-display" class="rounded-xl bg-zinc-100 dark:bg-zinc-800/50 px-4 py-2 text-sm text-zinc-600 dark:text-zinc-400">
+                <span id="distance-label">Mesafe: İl ve ilçe seçin, otomatik hesaplanacak</span>
             </div>
         </div>
 
-        {{-- Nereden / Nereye - İl + İlçe, mesafe otomatik hesaplanır --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="space-y-2">
-                <label for="from_province" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Nereden (ilçe)</label>
-                <select id="from_province" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl">
-                    <option value="">İl seçin</option>
-                </select>
-                <select id="from_district" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl" disabled>
-                    <option value="">Önce il seçin</option>
-                </select>
+        {{-- Uluslararası: Ülke + şehir, mesafe elle (km) --}}
+        <div id="international-location-wrap" class="hidden space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <label for="from_country" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Çıkış ülkesi</label>
+                    <select id="from_country" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl">
+                        <option value="">Ülke seçin</option>
+                        @foreach($config['countries'] ?? ['Türkiye', 'Almanya', 'Hollanda', 'Fransa', 'İngiltere', 'ABD', 'Diğer'] as $c)
+                            <option value="{{ $c }}">{{ $c }}</option>
+                        @endforeach
+                    </select>
+                    <input type="text" id="from_city_int" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl" placeholder="Şehir (opsiyonel)">
+                </div>
+                <div class="space-y-2">
+                    <label for="to_country" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Varış ülkesi</label>
+                    <select id="to_country" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl">
+                        <option value="">Ülke seçin</option>
+                        @foreach($config['countries'] ?? ['Türkiye', 'Almanya', 'Hollanda', 'Fransa', 'İngiltere', 'ABD', 'Diğer'] as $c)
+                            <option value="{{ $c }}">{{ $c }}</option>
+                        @endforeach
+                    </select>
+                    <input type="text" id="to_city_int" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl" placeholder="Şehir (opsiyonel)">
+                </div>
             </div>
-            <div class="space-y-2">
-                <label for="to_province" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300">Nereye (ilçe)</label>
-                <select id="to_province" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl">
-                    <option value="">İl seçin</option>
-                </select>
-                <select id="to_district" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl" disabled>
-                    <option value="">Önce il seçin</option>
-                </select>
+            <div>
+                <label for="distance_km_manual" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Tahmini mesafe (km)</label>
+                <input type="number" id="distance_km_manual" min="0" max="20000" step="1" value="0" class="input-touch w-full border border-zinc-200 dark:border-zinc-600 dark:bg-zinc-800 rounded-xl" placeholder="Örn. 2500">
             </div>
         </div>
-        <div id="distance-display" class="rounded-xl bg-zinc-100 dark:bg-zinc-800/50 px-4 py-2 text-sm text-zinc-600 dark:text-zinc-400">
-            <span id="distance-label">Mesafe: İl ve ilçe seçin, otomatik hesaplanacak</span>
-        </div>
+
         <input type="hidden" id="distance_km" value="0">
 
         {{-- Harita: iller seçildikten sonra karayolu rotası --}}
@@ -215,13 +231,17 @@
     const serviceTypeEl = document.getElementById('service_type');
     const roomTypeWrap = document.getElementById('room-type-wrap');
     const volumeWrap = document.getElementById('volume-wrap');
-    const esyaDurumuWrap = document.getElementById('esya-durumu-wrap');
     const roomTypeEl = document.getElementById('room_type');
     const volumeEl = document.getElementById('volume_m3');
+    const turkeyLocationWrap = document.getElementById('turkey-location-wrap');
+    const internationalLocationWrap = document.getElementById('international-location-wrap');
     const fromProvince = document.getElementById('from_province');
     const toProvince = document.getElementById('to_province');
     const fromDistrict = document.getElementById('from_district');
     const toDistrict = document.getElementById('to_district');
+    const fromCountry = document.getElementById('from_country');
+    const toCountry = document.getElementById('to_country');
+    const distanceKmManual = document.getElementById('distance_km_manual');
     const distanceEl = document.getElementById('distance_km');
     const distanceLabel = document.getElementById('distance-label');
     const fromFloorEl = document.getElementById('from_floor');
@@ -239,21 +259,25 @@
     let priceEstimatorLine = null;
     let priceEstimatorRouteRequest = null;
 
+    function isInternational() {
+        return serviceTypeEl?.value === 'uluslararasi_nakliyat';
+    }
+
     function getDistance() {
+        if (isInternational() && distanceKmManual) {
+            const v = parseInt(distanceKmManual.value, 10);
+            return Math.max(0, isNaN(v) ? 0 : v);
+        }
         return Math.max(0, Math.round(parseFloat(distanceEl?.value || 0) || 0));
     }
 
     function getRoomFactor() {
-        if (serviceTypeEl?.value !== 'evden_eve_nakliyat') return 1;
-        const opt = roomTypeEl?.options[roomTypeEl.selectedIndex];
+        if (isInternational()) {
+            var vol = parseFloat(volumeEl?.value || 0) || 30;
+            return Math.max(0.5, Math.min(3, vol / 40));
+        }
+        const opt = roomTypeEl?.options[roomTypeEl?.selectedIndex];
         return parseFloat(opt?.dataset?.factor || 1) || 1;
-    }
-
-    function getEsyaDurumuMult() {
-        const r = document.querySelector('input[name="esya_durumu_alt"]:checked');
-        const key = r ? r.value : 'normal';
-        const map = config.esya_durumu || {};
-        return map[key] ?? 1;
     }
 
     function getFloorSurcharge() {
@@ -293,11 +317,7 @@
         const pricePerKm = getPricePerKm(km);
         let fiyat = km * pricePerKm;
 
-        if (serviceTypeEl?.value === 'evden_eve_nakliyat') {
-            fiyat *= getRoomFactor();
-        } else if (esyaDurumuWrap && !esyaDurumuWrap.classList.contains('hidden')) {
-            fiyat *= getEsyaDurumuMult();
-        }
+        fiyat *= getRoomFactor();
 
         fiyat += getFloorSurcharge();
         fiyat = Math.round(fiyat);
@@ -305,10 +325,17 @@
         const formatted = fiyat.toLocaleString('tr-TR');
         if (priceDisplayEl) priceDisplayEl.textContent = formatted;
 
-        const fromName = fromDistrict?.options[fromDistrict?.selectedIndex]?.text || fromProvince?.options[fromProvince?.selectedIndex]?.text || '';
-        const toName = toDistrict?.options[toDistrict?.selectedIndex]?.text || toProvince?.options[toProvince?.selectedIndex]?.text || '';
-        const roomLabel = roomTypeEl?.options[roomTypeEl?.selectedIndex]?.text ?? '';
-        const details = [fromName && toName ? fromName + ' → ' + toName : '', 'Mesafe: ' + km + ' km', 'Eşya durumu: ' + roomLabel].filter(Boolean);
+        var fromName = '';
+        var toName = '';
+        if (isInternational()) {
+            fromName = (fromCountry?.options[fromCountry?.selectedIndex]?.text || '') + (document.getElementById('from_city_int')?.value ? ', ' + document.getElementById('from_city_int').value : '');
+            toName = (toCountry?.options[toCountry?.selectedIndex]?.text || '') + (document.getElementById('to_city_int')?.value ? ', ' + document.getElementById('to_city_int').value : '');
+        } else {
+            fromName = fromDistrict?.options[fromDistrict?.selectedIndex]?.text || fromProvince?.options[fromProvince?.selectedIndex]?.text || '';
+            toName = toDistrict?.options[toDistrict?.selectedIndex]?.text || toProvince?.options[toProvince?.selectedIndex]?.text || '';
+        }
+        const roomLabel = isInternational() ? (volumeEl?.value ? volumeEl.value + ' m³' : '') : (roomTypeEl?.options[roomTypeEl?.selectedIndex]?.text ?? '');
+        const details = [fromName && toName ? fromName + ' → ' + toName : '', 'Mesafe: ' + km + ' km', roomLabel ? 'Eşya/hacim: ' + roomLabel : ''].filter(Boolean);
         if (priceDetailsEl) priceDetailsEl.innerHTML = details.map(d => '<div>' + d + '</div>').join('');
 
         var routeLabel = (fromName && toName) ? fromName + ' → ' + toName : '';
@@ -358,10 +385,16 @@
     }
 
     function toggleInputs() {
-        const isEvdenEve = serviceTypeEl?.value === 'evden_eve_nakliyat';
-        if (roomTypeWrap) roomTypeWrap.classList.toggle('hidden', !isEvdenEve);
-        if (volumeWrap) volumeWrap.classList.toggle('hidden', isEvdenEve);
-        if (esyaDurumuWrap) esyaDurumuWrap.classList.toggle('hidden', isEvdenEve);
+        const international = isInternational();
+        if (roomTypeWrap) roomTypeWrap.classList.toggle('hidden', international);
+        if (volumeWrap) volumeWrap.classList.toggle('hidden', !international);
+        if (turkeyLocationWrap) turkeyLocationWrap.classList.toggle('hidden', international);
+        if (internationalLocationWrap) internationalLocationWrap.classList.toggle('hidden', !international);
+        if (mapWrapper && international) mapWrapper.classList.add('hidden');
+        if (international && distanceKmManual) {
+            distanceEl.value = Math.max(0, parseInt(distanceKmManual.value, 10) || 0);
+            if (distanceLabel) distanceLabel.textContent = 'Mesafe: ' + (distanceEl.value || '0') + ' km (elle girildi)';
+        }
     }
 
     function fillProvinces() {
@@ -423,7 +456,7 @@
     }
 
     function updatePriceEstimatorMap() {
-        if (!fromProvince?.value || !toProvince?.value) {
+        if (isInternational() || !fromProvince?.value || !toProvince?.value) {
             if (mapWrapper) mapWrapper.classList.add('hidden');
             return;
         }
@@ -478,6 +511,12 @@
     }
 
     function calcDistanceAuto() {
+        if (isInternational()) {
+            if (distanceKmManual) distanceEl.value = Math.max(0, parseInt(distanceKmManual.value, 10) || 0);
+            toggleInputs();
+            calculate();
+            return;
+        }
         if (!fromProvince?.value || !toProvince?.value) {
             if (distanceEl) distanceEl.value = '0';
             if (distanceLabel) distanceLabel.textContent = 'Mesafe: İl ve ilçe seçin, otomatik hesaplanacak';
@@ -500,17 +539,16 @@
 
     serviceTypeEl?.addEventListener('change', function() {
         toggleInputs();
+        calcDistanceAuto();
         calculate();
     });
 
     roomTypeEl?.addEventListener('change', calculate);
-    volumeEl?.addEventListener('input', calculate);
+    volumeEl?.addEventListener('input', function() { toggleInputs(); calculate(); });
+    volumeEl?.addEventListener('change', calculate);
     fromFloorEl?.addEventListener('change', calculate);
     toFloorEl?.addEventListener('change', calculate);
 
-    document.querySelectorAll('input[name="esya_durumu_alt"]').forEach(function(r) {
-        r.addEventListener('change', calculate);
-    });
     document.querySelectorAll('input[name="from_elevator"]').forEach(function(r) {
         r.addEventListener('change', calculate);
     });
@@ -522,6 +560,17 @@
     toProvince?.addEventListener('change', onToProvinceChange);
     fromDistrict?.addEventListener('change', calcDistanceAuto);
     toDistrict?.addEventListener('change', calcDistanceAuto);
+
+    fromCountry?.addEventListener('change', function() { calcDistanceAuto(); calculate(); });
+    toCountry?.addEventListener('change', function() { calcDistanceAuto(); calculate(); });
+    if (distanceKmManual) {
+        distanceKmManual.addEventListener('input', function() {
+            if (distanceEl) distanceEl.value = Math.max(0, parseInt(this.value, 10) || 0);
+            if (distanceLabel) distanceLabel.textContent = 'Mesafe: ' + (distanceEl?.value || '0') + ' km (elle girildi)';
+            calculate();
+        });
+        distanceKmManual.addEventListener('change', calcDistanceAuto);
+    }
 
     fetch(provincesApiUrl)
         .then(r => r.json())

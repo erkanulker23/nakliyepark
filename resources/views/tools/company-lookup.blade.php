@@ -7,8 +7,8 @@
 <div class="page-container py-6 sm:py-8">
     <header class="mb-6 sm:mb-8">
         <h1 class="text-2xl sm:text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">Firma sorgula</h1>
-        <p class="mt-1.5 text-sm text-zinc-500 dark:text-zinc-400">Cep veya telefon numarasına göre nakliye firmasını bulun.</p>
-        <p class="mt-3 text-zinc-600 dark:text-zinc-400 text-base max-w-2xl">Firmanın kayıtlı cep numarası veya sabit telefon numarasını girin; bu numarayı iletişim bilgisi olarak kullanan onaylı firmalar listelenir.</p>
+        <p class="mt-1.5 text-sm text-zinc-500 dark:text-zinc-400">Cep, telefon numarası veya e-posta adresine göre nakliye firmasını bulun.</p>
+        <p class="mt-3 text-zinc-600 dark:text-zinc-400 text-base max-w-2xl">Firmanın kayıtlı cep/telefon numarası veya e-posta adresini girin; bu bilgiyi iletişim olarak kullanan onaylı firmalar listelenir.</p>
     </header>
 
     <div class="max-w-2xl">
@@ -16,11 +16,11 @@
             <div class="p-5 sm:p-6">
                 <form action="{{ route('tools.company-lookup') }}" method="get" class="space-y-4">
                     <div>
-                        <label for="phone" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Cep veya telefon numarası</label>
-                        <input type="tel" id="phone" name="phone" value="{{ old('phone', $searchPhone) }}" inputmode="numeric" autocomplete="tel"
-                               placeholder="5XX XXX XX XX veya 0XXX XXX XX XX"
+                        <label for="phone" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Cep / telefon numarası veya e-posta</label>
+                        <input type="text" id="phone" name="phone" value="{{ old('phone', $searchPhone) }}" inputmode="text" autocomplete="off"
+                               placeholder="5XX XXX XX XX veya firma@ornek.com"
                                class="w-full min-h-[48px] px-4 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 text-base">
-                        <p class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">Başında 0 veya 90 olmadan da girebilirsiniz (örn. 532 123 45 67).</p>
+                        <p class="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">Telefon numarası (532 123 45 67) veya e-posta adresi (firma@ornek.com) girebilirsiniz.</p>
                     </div>
                     <button type="submit" class="w-full sm:w-auto h-11 px-6 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-500 transition-colors inline-flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -34,8 +34,8 @@
             <div class="mt-6 sm:mt-8">
                 @if($companies->isEmpty())
                     <div class="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 sm:p-8 text-center">
-                        <p class="text-zinc-600 dark:text-zinc-400">Bu numaraya kayıtlı onaylı firma bulunamadı.</p>
-                        <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-500">Numarayı kontrol edip tekrar deneyin veya <a href="{{ route('firmalar.index') }}" class="text-emerald-600 dark:text-emerald-400 hover:underline">firma listesine</a> göz atın.</p>
+                        <p class="text-zinc-600 dark:text-zinc-400">Bu bilgiye kayıtlı onaylı firma bulunamadı.</p>
+                        <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-500">Girdiğiniz numara veya e-posta adresini kontrol edip tekrar deneyin veya <a href="{{ route('firmalar.index') }}" class="text-emerald-600 dark:text-emerald-400 hover:underline">firma listesine</a> göz atın.</p>
                     </div>
                 @else
                     <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">

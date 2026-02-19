@@ -11,7 +11,7 @@
             default => 'bg-zinc-100 dark:bg-zinc-700/50 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-600',
         };
     @endphp
-    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border {{ $badgeClass }}">
+    <span class="inline-flex items-center gap-1 px-2.5 py-1.5 sm:py-1 rounded-full text-xs font-semibold border shrink-0 {{ $badgeClass }}">
         {{ $config['name'] ?? 'Paket' }}
     </span>
 @endif

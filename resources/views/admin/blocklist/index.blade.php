@@ -47,7 +47,7 @@
         <h2 class="text-lg font-semibold text-slate-800 mb-3">Telefon engelleri</h2>
         <form method="POST" action="{{ route('admin.blocklist.store-phone') }}" class="flex flex-wrap gap-2 mb-4">
             @csrf
-            <input type="text" name="phone" class="admin-input w-48" placeholder="0532 111 22 33" required>
+            <input type="tel" name="phone" class="admin-input w-48" placeholder="+90 532 111 22 33" data-phone-mask required>
             <input type="text" name="reason" class="admin-input w-48" placeholder="Sebep (isteğe bağlı)">
             <button type="submit" class="admin-btn-primary">Ekle</button>
         </form>

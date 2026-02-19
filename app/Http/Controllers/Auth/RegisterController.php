@@ -28,17 +28,27 @@ class RegisterController extends Controller
         if (! $request->filled('name') && ($request->filled('first_name') || $request->filled('last_name'))) {
             $request->merge(['name' => trim($request->input('first_name', '') . ' ' . $request->input('last_name', ''))]);
         }
+        if ($request->filled('phone')) {
+            $digits = preg_replace('/\D/', '', $request->phone);
+            if (strlen($digits) === 12 && str_starts_with($digits, '90')) {
+                $digits = '0' . substr($digits, 2);
+            } elseif (strlen($digits) === 10 && $digits[0] === '5') {
+                $digits = '0' . $digits;
+            }
+            $digits = strlen($digits) > 11 ? substr($digits, 0, 11) : $digits;
+            $request->merge(['phone' => $digits !== '' ? $digits : null]);
+        }
 
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'phone' => ['nullable', 'string', 'max:15', 'regex:/^[0-9]+$/'],
+            'phone' => ['nullable', 'string', 'regex:/^0[0-9]{10}$/'],
             'password' => ['required', 'string', 'confirmed', Password::min(8)->letters()->numbers()],
             'role' => ['required', 'in:musteri,nakliyeci'],
         ], [
             'password.letters' => 'Şifre en az bir harf içermelidir.',
             'password.numbers' => 'Şifre en az bir rakam içermelidir.',
-            'phone.regex' => 'Telefon numarası sadece rakamlardan oluşmalıdır.',
+            'phone.regex' => 'Telefon numarası +90 5XX XXX XX XX formatında olmalıdır.',
         ]);
 
         if (BlockedEmail::isBlocked($request->email)) {

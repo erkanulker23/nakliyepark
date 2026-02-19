@@ -42,7 +42,7 @@
                 </div>
                 <div class="admin-form-group">
                     <label class="admin-label">Misafir telefon</label>
-                    <input type="text" name="guest_contact_phone" value="{{ old('guest_contact_phone') }}" class="admin-input">
+                    <input type="tel" name="guest_contact_phone" value="{{ old('guest_contact_phone') }}" class="admin-input" data-phone-mask placeholder="+90 532 111 22 33">
                 </div>
             </div>
             <div class="border-t border-slate-200 pt-5 mt-6">

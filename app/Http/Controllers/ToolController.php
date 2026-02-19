@@ -175,28 +175,44 @@ class ToolController extends Controller
     public function companyLookup(Request $request)
     {
         $metaTitle = Setting::get('tool_company_lookup_meta_title') ?: 'Firma Sorgula - NakliyePark';
-        $metaDescription = Setting::get('tool_company_lookup_meta_description') ?: 'Nakliye firmasının cep veya sabit telefon numarasına göre firma sayfasını bulun.';
+        $metaDescription = Setting::get('tool_company_lookup_meta_description') ?: 'Nakliye firmasının cep, telefon veya e-posta adresine göre firma sayfasını bulun.';
         $toolContent = Setting::get('tool_company_lookup_content', '');
         $companies = collect();
-        $searchPhone = $request->input('phone') ?: $request->input('q');
-        $searchPhone = is_string($searchPhone) ? trim($searchPhone) : '';
+        $searchQuery = $request->input('phone') ?: $request->input('q');
+        $searchQuery = is_string($searchQuery) ? trim($searchQuery) : '';
 
-        if ($searchPhone !== '') {
-            $normalized = Company::normalizePhoneForSearch($searchPhone);
-            if ($normalized !== null) {
+        if ($searchQuery !== '') {
+            $isEmail = str_contains($searchQuery, '@');
+            if ($isEmail) {
+                $emailNormalized = strtolower($searchQuery);
                 $companies = Company::query()
                     ->whereNotNull('approved_at')
                     ->whereNull('blocked_at')
-                    ->get()
-                    ->filter(function (Company $company) use ($normalized) {
-                        return Company::normalizePhoneForSearch($company->phone) === $normalized
-                            || Company::normalizePhoneForSearch($company->phone_2) === $normalized
-                            || Company::normalizePhoneForSearch($company->whatsapp) === $normalized;
+                    ->where(function ($q) use ($emailNormalized) {
+                        $q->whereRaw('LOWER(TRIM(email)) = ?', [$emailNormalized])
+                            ->orWhereHas('user', function ($uq) use ($emailNormalized) {
+                                $uq->whereRaw('LOWER(TRIM(email)) = ?', [$emailNormalized]);
+                            });
                     })
-                    ->values();
+                    ->get();
+            } else {
+                $normalized = Company::normalizePhoneForSearch($searchQuery);
+                if ($normalized !== null) {
+                    $companies = Company::query()
+                        ->whereNotNull('approved_at')
+                        ->whereNull('blocked_at')
+                        ->get()
+                        ->filter(function (Company $company) use ($normalized) {
+                            return Company::normalizePhoneForSearch($company->phone) === $normalized
+                                || Company::normalizePhoneForSearch($company->phone_2) === $normalized
+                                || Company::normalizePhoneForSearch($company->whatsapp) === $normalized;
+                        })
+                        ->values();
+                }
             }
         }
 
+        $searchPhone = $searchQuery;
         return view('tools.company-lookup', compact('metaTitle', 'metaDescription', 'toolContent', 'companies', 'searchPhone'));
     }
 

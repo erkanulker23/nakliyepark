@@ -56,8 +56,8 @@
                 <label for="phone" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Mobil numaranız</label>
                 <div class="flex rounded-[var(--radius-button)] overflow-hidden border border-zinc-200 dark:border-zinc-600 bg-white dark:bg-zinc-800">
                     <span class="flex items-center px-3 text-zinc-500 dark:text-zinc-400 text-sm">+90</span>
-                    <input id="phone" type="tel" name="phone" value="{{ old('phone') }}" inputmode="numeric" pattern="[0-9]*" maxlength="10" autocomplete="tel-national"
-                           class="min-h-[44px] flex-1 px-4 py-3 bg-transparent border-0 focus:outline-none focus:ring-0 text-zinc-900 dark:text-white @error('phone') ring-2 ring-red-500 @enderror" placeholder="5XX XXX XX XX">
+                    <input id="phone" type="tel" name="phone" value="{{ old('phone') }}" inputmode="numeric" autocomplete="tel-national"
+                           class="min-h-[44px] flex-1 px-4 py-3 bg-transparent border-0 focus:outline-none focus:ring-0 text-zinc-900 dark:text-white @error('phone') ring-2 ring-red-500 @enderror" placeholder="+90 532 111 22 33" data-phone-mask>
                 </div>
                 @error('phone')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
@@ -133,18 +133,6 @@
             }
         });
     });
-
-    var phoneInput = document.getElementById('phone');
-    if (phoneInput) {
-        phoneInput.addEventListener('input', function() {
-            this.value = this.value.replace(/\D/g, '').slice(0, 10);
-        });
-        phoneInput.addEventListener('paste', function(e) {
-            e.preventDefault();
-            var text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 10);
-            this.value = text;
-        });
-    }
 
     document.querySelectorAll('[data-password-toggle]').forEach(function(btn) {
         var inputId = btn.getAttribute('data-password-toggle');

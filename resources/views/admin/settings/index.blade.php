@@ -611,7 +611,7 @@
                 <input type="hidden" name="settings_section" value="contact">
                 <div class="admin-form-group">
                     <label class="admin-label">Telefon</label>
-                    <input type="text" name="contact_phone" value="{{ old('contact_phone', $settings['contact_phone'] ?? '') }}" class="admin-input" placeholder="Örn: 0 (212) 555 00 00">
+                    <input type="tel" name="contact_phone" value="{{ old('contact_phone', $settings['contact_phone'] ?? '') }}" class="admin-input" data-phone-mask placeholder="+90 532 111 22 33">
                 </div>
                 <div class="admin-form-group">
                     <label class="admin-label">E-posta</label>
@@ -623,7 +623,7 @@
                 </div>
                 <div class="admin-form-group">
                     <label class="admin-label">WhatsApp numarası (isteğe bağlı)</label>
-                    <input type="text" name="contact_whatsapp" value="{{ old('contact_whatsapp', $settings['contact_whatsapp'] ?? '') }}" class="admin-input" placeholder="905321234567 (başında 0 olmadan)">
+                    <input type="tel" name="contact_whatsapp" value="{{ old('contact_whatsapp', $settings['contact_whatsapp'] ?? '') }}" class="admin-input" placeholder="+90 532 111 22 33" data-phone-mask>
                 </div>
                 <div class="admin-form-group">
                     <label class="admin-label">Çalışma saatleri (isteğe bağlı)</label>

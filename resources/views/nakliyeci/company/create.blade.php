@@ -43,7 +43,7 @@
             </div>
             <div class="admin-form-group">
                 <label class="admin-label">Telefon (+90)</label>
-                <input type="tel" name="phone" value="{{ old('phone') }}" inputmode="tel" class="admin-input" placeholder="5XX XXX XX XX">
+                <input type="tel" name="phone" value="{{ old('phone') }}" inputmode="numeric" class="admin-input" placeholder="+90 532 111 22 33" data-phone-mask>
                 @error('phone')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -60,11 +60,11 @@
             </div>
             <div class="admin-form-group">
                 <label class="admin-label">İkinci telefon</label>
-                <input type="tel" name="phone_2" value="{{ old('phone_2') }}" inputmode="tel" class="admin-input" placeholder="Opsiyonel">
+                <input type="tel" name="phone_2" value="{{ old('phone_2') }}" inputmode="numeric" class="admin-input" placeholder="+90 532 111 22 33" data-phone-mask>
             </div>
             <div class="admin-form-group">
                 <label class="admin-label">WhatsApp</label>
-                <input type="tel" name="whatsapp" value="{{ old('whatsapp') }}" inputmode="tel" class="admin-input" placeholder="5XX XXX XX XX">
+                <input type="tel" name="whatsapp" value="{{ old('whatsapp') }}" inputmode="numeric" class="admin-input" placeholder="+90 532 111 22 33" data-phone-mask>
             </div>
             <div class="admin-form-group">
                 <label class="admin-label">E-posta</label>

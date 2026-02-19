@@ -45,7 +45,7 @@
             </div>
             <div class="admin-form-group">
                 <label class="admin-label">Telefon</label>
-                <input type="text" name="phone" value="{{ old('phone', $user->phone) }}" class="admin-input" placeholder="5XX XXX XX XX" autocomplete="tel">
+                <input type="tel" name="phone" value="{{ old('phone', $user->phone) }}" class="admin-input" placeholder="+90 532 111 22 33" autocomplete="tel" data-phone-mask>
                 @error('phone')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
             </div>
             <div class="border-t border-slate-200 dark:border-slate-600 pt-6 mt-6">

@@ -64,6 +64,7 @@ class Company extends Model
         'description', 'logo', 'logo_approved_at', 'services', 'approved_at', 'package',         'blocked_at', 'blocked_reason', 'view_count',
         'email_verified_at', 'phone_verified_at', 'official_company_verified_at',
         'seo_meta_title', 'seo_meta_description', 'seo_meta_keywords',
+        'youtube_videos',
         'pending_changes', 'pending_changes_at',
     ];
 
@@ -349,7 +350,7 @@ class Company extends Model
     }
 
     /**
-     * Telefon numarasını gösterim için formatlar: 10 haneli ve 5 ile başlıyorsa başına 0 ekler (0532...).
+     * Telefon numarasını gösterim için formatlar: +90 5XX XXX XX XX (proje genelinde tek format).
      */
     public static function formatPhoneForDisplay(?string $phone): string
     {
@@ -357,12 +358,15 @@ class Company extends Model
             return '';
         }
         $digits = preg_replace('/\D/', '', $phone);
-        if (strlen($digits) === 10 && $digits[0] === '5') {
-            return '0' . $digits;
+        if (strlen($digits) === 12 && str_starts_with($digits, '90')) {
+            $digits = substr($digits, 2);
         }
         if (strlen($digits) === 11 && $digits[0] === '0') {
+            $digits = substr($digits, 1);
+        }
+        if (strlen($digits) !== 10 || $digits[0] !== '5') {
             return $phone;
         }
-        return $phone;
+        return '+90 ' . substr($digits, 0, 3) . ' ' . substr($digits, 3, 3) . ' ' . substr($digits, 6, 2) . ' ' . substr($digits, 8, 2);
     }
 }

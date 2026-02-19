@@ -32,12 +32,15 @@ return [
         'default' => 20, // 1500 km üzeri
     ],
 
-    // Oda tipi (eşya durumu) çarpanları
+    // Oda tipi (eşya durumu) çarpanları — ihale ile uyumlu
     'room_type_factors' => [
         '1+1' => 1.1,
         '2+1' => 1.3,
         '3+1' => 1.5,
+        '4+1' => 2.0,
         '5+1' => 3.0,
+        'Daha büyük' => 3.0,
+        'Sadece birkaç eşya taşınacak' => 0.9,
         'Diğer' => 1.2,
     ],
 
@@ -60,11 +63,23 @@ return [
         '1+1' => 25,
         '2+1' => 35,
         '3+1' => 50,
+        '4+1' => 65,
         '5+1' => 90,
+        'Daha büyük' => 90,
+        'Sadece birkaç eşya taşınacak' => 15,
         'Diğer' => 40,
     ],
 
 
     // Şehir içi (0 km) mesajı - iletişim merkezinden fiyat alınması önerilir
     'local_transport_message' => 'Lütfen çağrı merkezimizden şehir içi nakliye fiyatlarını öğreniniz.',
+
+    // Uluslararası nakliyat için ülke listesi (Türkçe)
+    'countries' => [
+        'Türkiye', 'Almanya', 'Hollanda', 'Belçika', 'Fransa', 'İngiltere', 'İsviçre', 'Avusturya',
+        'İtalya', 'İspanya', 'Portekiz', 'Polonya', 'Romanya', 'Bulgaristan', 'Yunanistan', 'Çekya',
+        'Macaristan', 'Hırvatistan', 'Slovenya', 'Slovakya', 'Danimarka', 'İsveç', 'Norveç', 'Finlandiya',
+        'ABD', 'Kanada', 'Avustralya', 'Rusya', 'Ukrayna', 'Azerbaycan', 'Gürcistan', 'Kazakistan',
+        'Suudi Arabistan', 'BAE', 'Katar', 'Kuveyt', 'Irak', 'İran', 'Mısır', 'Diğer',
+    ],
 ];

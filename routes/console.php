@@ -2,6 +2,7 @@
 
 use App\Models\Company;
 use App\Models\User;
+use App\Services\CompanyLogoProcessor;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
@@ -65,4 +66,21 @@ Artisan::command('companies:refresh-slugs', function (): void {
         }
     }
     $this->info("Slug güncellendi: {$updated} firma.");
-})->purpose('Firma slug’larını Türkçe karakter desteği ile yeniden üretir (404 düzeltmek için)');
+})->purpose('Firma slug\'larını Türkçe karakter desteği ile yeniden üretir (404 düzeltmek için)');
+
+Artisan::command('companies:reprocess-logos', function (): void {
+    $companies = Company::withoutGlobalScopes()->whereNotNull('logo')->where('logo', '!=', '')->get();
+    $processor = app(CompanyLogoProcessor::class);
+    $done = 0;
+    $fail = 0;
+    foreach ($companies as $company) {
+        if ($processor->process($company->logo)) {
+            $done++;
+            $this->line("  OK: {$company->name} ({$company->logo})");
+        } else {
+            $fail++;
+            $this->warn("  Skip/fail: {$company->name} ({$company->logo})");
+        }
+    }
+    $this->info("Logolar işlendi: {$done} başarılı, {$fail} atlandı/hata.");
+})->purpose('Tüm firma logolarını yeniden işler (şeffaf PNG/WebP beyaz arka plan)');

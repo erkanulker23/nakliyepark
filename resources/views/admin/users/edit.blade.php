@@ -95,7 +95,7 @@
             </div>
             <div class="admin-form-group">
                 <label class="admin-label">Telefon</label>
-                <input type="text" name="phone" value="{{ old('phone', $user->phone) }}" class="admin-input">
+                <input type="tel" name="phone" value="{{ old('phone', $user->phone) }}" class="admin-input" data-phone-mask placeholder="+90 532 111 22 33">
                 @error('phone')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
             </div>
             <div class="admin-form-group">

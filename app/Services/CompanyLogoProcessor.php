@@ -46,7 +46,7 @@ class CompanyLogoProcessor
             return false;
         }
 
-        $needsWhiteBackground = $mime === 'image/png' && $this->hasTransparency($src);
+        $needsWhiteBackground = in_array($mime, ['image/png', 'image/webp'], true) && $this->hasTransparency($src);
         $needsResize = $width > self::MAX_SIDE || $height > self::MAX_SIDE;
 
         if (! $needsWhiteBackground && ! $needsResize) {
@@ -100,6 +100,10 @@ class CompanyLogoProcessor
         }
 
         $saved = false;
+        if ($needsWhiteBackground) {
+            imagealphablending($dest, false);
+            imagesavealpha($dest, false);
+        }
         if (str_ends_with(strtolower($fullPath), '.png')) {
             $saved = imagepng($dest, $fullPath, 6);
         } else {

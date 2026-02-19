@@ -25,29 +25,24 @@
             <button type="submit" class="admin-btn-primary">Üyelik askısını kaldır</button>
         </form>
     @else
-        <div class="admin-card p-4 mb-4 border border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-900/20 rounded-lg">
-            <h3 class="font-medium text-slate-800 dark:text-slate-200 mb-2">Nakliyeci üyeliğini askıya al</h3>
-            <p class="text-sm text-slate-600 dark:text-slate-400 mb-3">Borç, sözleşme ihlali veya diğer sebeplerle üyeliği askıya alabilirsiniz. Askıda firma sitede görünmez ve teklif veremez.</p>
-            <form method="POST" action="{{ route('admin.blocklist.block-company', $company) }}" class="space-y-3" onsubmit="return confirm('Bu nakliyecinin üyeliğini askıya almak istediğinize emin misiniz?');">
-                @csrf
-                <div class="flex flex-wrap gap-4 items-end">
-                    <div class="min-w-[180px]">
-                        <label class="admin-label text-xs">Sebep türü</label>
-                        <select name="blocked_reason_type" class="admin-input py-2 w-full">
-                            <option value="">— Seçin (isteğe bağlı) —</option>
-                            @foreach(\App\Models\Company::blockedReasonLabels() as $key => $label)
-                                <option value="{{ $key }}">{{ $label }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="flex-1 min-w-[200px]">
-                        <label class="admin-label text-xs">Açıklama (isteğe bağlı)</label>
-                        <input type="text" name="blocked_reason" class="admin-input py-2 w-full" placeholder="Örn: Ödenmemiş komisyon, detay..." maxlength="500">
-                    </div>
-                    <button type="submit" class="admin-btn-danger">Üyeliği askıya al</button>
-                </div>
-            </form>
-        </div>
+        <details class="admin-card p-4 mb-4 border border-slate-200 dark:border-slate-600 rounded-lg group">
+            <summary class="cursor-pointer list-none flex items-center justify-between gap-2 text-sm font-medium text-slate-600 dark:text-slate-400">
+                Üyeliği askıya al (gerekirse) ▾
+            </summary>
+            <div class="pt-4 mt-2 border-t border-slate-200 dark:border-slate-600">
+                <form method="POST" action="{{ route('admin.blocklist.block-company', $company) }}" class="flex flex-wrap gap-3 items-end" onsubmit="return confirm('Üyeliği askıya almak istediğinize emin misiniz?');">
+                    @csrf
+                    <select name="blocked_reason_type" class="admin-input py-2 w-40 text-sm">
+                        <option value="">Sebep (opsiyonel)</option>
+                        @foreach(\App\Models\Company::blockedReasonLabels() as $key => $label)
+                            <option value="{{ $key }}">{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    <input type="text" name="blocked_reason" class="admin-input py-2 flex-1 min-w-[200px] text-sm" placeholder="Açıklama (opsiyonel)" maxlength="500">
+                    <button type="submit" class="admin-btn-danger text-sm">Askıya al</button>
+                </form>
+            </div>
+        </details>
     @endif
     @if($company->hasPendingChanges())
         @php
@@ -166,7 +161,6 @@
                     data-tab="map-reviews"
                     role="tab" aria-selected="false">Harita & Yorumlar</button>
             </div>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">Google Harita linki ve yorum bilgileri için <strong>Harita & Yorumlar</strong> sekmesine tıklayın.</p>
         </div>
 
         <form method="POST" action="{{ route('admin.companies.update', $company) }}" class="space-y-5">
@@ -217,19 +211,19 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div class="admin-form-group">
                         <label class="admin-label">Telefon</label>
-                        <input type="text" name="phone" value="{{ old('phone', $company->phone) }}" class="admin-input">
+                        <input type="tel" name="phone" value="{{ old('phone', $company->phone) }}" class="admin-input" data-phone-mask placeholder="+90 532 111 22 33">
                         @error('phone')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                     </div>
                     <div class="admin-form-group">
                         <label class="admin-label">İkinci telefon</label>
-                        <input type="text" name="phone_2" value="{{ old('phone_2', $company->phone_2) }}" class="admin-input">
+                        <input type="tel" name="phone_2" value="{{ old('phone_2', $company->phone_2) }}" class="admin-input" data-phone-mask placeholder="+90 532 111 22 33">
                         @error('phone_2')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                     </div>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div class="admin-form-group">
                         <label class="admin-label">WhatsApp</label>
-                        <input type="text" name="whatsapp" value="{{ old('whatsapp', $company->whatsapp) }}" class="admin-input" placeholder="5XX XXX XX XX">
+                        <input type="tel" name="whatsapp" value="{{ old('whatsapp', $company->whatsapp) }}" class="admin-input" data-phone-mask placeholder="+90 532 111 22 33">
                         @error('whatsapp')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                     </div>
                     <div class="admin-form-group">
@@ -330,28 +324,20 @@
                 </div>
             </div>
 
-            {{-- Sekme: Harita & Dış yorumlar (Google / Yandex) --}}
+            {{-- Sekme: Harita & Dış yorumlar --}}
             <div id="tab-map-reviews" class="company-edit-pane hidden space-y-5" role="tabpanel">
-                <p class="text-sm text-slate-600 dark:text-slate-400">Firma detay sayfasında harita ve Google / Yandex yorum kartları gösterilir. Yönetici bu alanları doldurarak firmanın Google Harita ve yorum sayfası linkini ekleyebilir.</p>
-
-                {{-- Canlı konum (haritada görünürlük): sadece lokasyon açıkken alınır; admin lokasyonu kaldırabilir --}}
-                <div class="border border-slate-200 dark:border-slate-600 rounded-xl p-5 bg-slate-50/50 dark:bg-slate-800/30">
-                    <h4 class="font-medium text-slate-800 dark:text-slate-200 mb-2">Canlı konum (haritada görünürlük)</h4>
-                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-3">Nakliyeci panelinde &quot;Haritada göster&quot; açıkken konum alınır; kapalıyken konum saklanmaz. Firma sayfasında ve harita sayfasında sadece lokasyon açık olan firmaların konumu gösterilir.</p>
+                {{-- Canlı konum --}}
+                <div class="border border-slate-200 dark:border-slate-600 rounded-xl p-4 bg-slate-50/50 dark:bg-slate-800/30">
+                    <h4 class="font-medium text-slate-800 dark:text-slate-200 mb-2">Canlı konum</h4>
                     @if($company->live_latitude !== null && $company->live_longitude !== null)
                         <p class="text-sm text-slate-600 dark:text-slate-400 mb-2">
-                            <span class="font-medium">Kayıtlı konum:</span> {{ number_format($company->live_latitude, 5) }}, {{ number_format($company->live_longitude, 5) }}
+                            {{ number_format($company->live_latitude, 5) }}, {{ number_format($company->live_longitude, 5) }}
                             @if($company->live_location_updated_at)
-                                · Son güncelleme: {{ $company->live_location_updated_at->locale('tr')->diffForHumans() }}
+                                · {{ $company->live_location_updated_at->locale('tr')->diffForHumans() }}
                             @endif
+                            · Haritada: <span class="{{ $company->map_visible ? 'text-emerald-600' : 'text-slate-500' }}">{{ $company->map_visible ? 'Açık' : 'Kapalı' }}</span>
                         </p>
-                        <p class="text-sm text-slate-600 dark:text-slate-400 mb-3">
-                            Haritada göster: <span class="font-medium {{ $company->map_visible ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500' }}">{{ $company->map_visible ? 'Açık' : 'Kapalı' }}</span>
-                        </p>
-                        <form method="POST" action="{{ route('admin.companies.remove-location', $company) }}" class="inline" onsubmit="return confirm('Firmanın canlı konumunu kaldırmak ve haritada görünürlüğü kapatmak istediğinize emin misiniz?');">
-                            @csrf
-                            <button type="submit" class="admin-btn-secondary text-sm py-2 px-4 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20">Lokasyonu kaldır</button>
-                        </form>
+                        <button type="button" id="btn-remove-location" class="admin-btn-secondary text-sm py-2 px-4 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20">Lokasyonu kaldır</button>
                     @else
                         <p class="text-sm text-slate-500 dark:text-slate-400">Kayıtlı canlı konum yok. Nakliyeci panelinden &quot;Haritada göster&quot; açıp konum paylaştığında burada görünür.</p>
                     @endif
@@ -360,13 +346,11 @@
                 <div class="admin-form-group">
                     <label class="admin-label">Google Harita URL</label>
                     <input type="text" name="google_maps_url" value="{{ old('google_maps_url', $company->google_maps_url) }}" class="admin-input" placeholder="https://www.google.com/maps/place/...">
-                    <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Firmanın Google Harita sayfası linki. Firma detayda &quot;Haritada konum&quot; ve &quot;Google Haritada Aç&quot; olarak kullanılır.</p>
                     @error('google_maps_url')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div class="border-t border-slate-200 dark:border-slate-600 pt-5">
-                    <h4 class="font-medium text-slate-800 dark:text-slate-200 mb-3">Google yorumları (firma sayfasında kart olarak gösterilir)</h4>
-                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-3">Puan ve yorum sayısının <strong>Google'dan orijinal</strong> gelmesi için aşağıdaki butona tıklayın. (.env içinde <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">GOOGLE_PLACES_API_KEY</code> tanımlı olmalı.) Manuel giriş yaparsanız veri &quot;doğrulanmamış&quot; olarak işaretlenir.</p>
-                    <button type="button" id="btn-fetch-google-reviews" class="admin-btn-primary text-sm mb-4">Google'dan puan ve yorum sayısını getir</button>
+                    <h4 class="font-medium text-slate-800 dark:text-slate-200 mb-3">Google yorumları</h4>
+                    <button type="button" id="btn-fetch-google-reviews" class="admin-btn-secondary text-sm mb-4">Google'dan getir</button>
                     @if($company->google_reviews_fetched_at)
                         <p class="text-xs text-emerald-600 dark:text-emerald-400">Son alım: {{ $company->google_reviews_fetched_at->locale('tr')->diffForHumans() }}</p>
                     @endif
@@ -389,7 +373,7 @@
                     </div>
                 </div>
                 <div class="border-t border-slate-200 dark:border-slate-600 pt-5">
-                    <h4 class="font-medium text-slate-800 dark:text-slate-200 mb-3">Yandex yorumları (isteğe bağlı)</h4>
+                    <h4 class="font-medium text-slate-800 dark:text-slate-200 mb-3">Yandex yorumları</h4>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div class="admin-form-group">
                             <label class="admin-label">Yandex yorumlar URL</label>
@@ -421,8 +405,11 @@
             @method('DELETE')
             <button type="submit" class="admin-btn-danger">Firmayı sil</button>
         </form>
-        {{-- Ayrı form: ana form içinde form olamaz (HTML geçersiz), Kaydet'in çalışması için dışarıda --}}
+        {{-- Ayrı formlar: ana form içinde form olamaz (HTML geçersiz) --}}
         <form id="form-fetch-google-reviews" method="POST" action="{{ route('admin.companies.fetch-google-reviews', $company) }}" class="hidden">
+            @csrf
+        </form>
+        <form id="form-remove-location" method="POST" action="{{ route('admin.companies.remove-location', $company) }}" class="hidden">
             @csrf
         </form>
     </div>
@@ -535,6 +522,11 @@
     document.getElementById('btn-fetch-google-reviews')?.addEventListener('click', function() {
         document.getElementById('form-fetch-google-reviews')?.submit();
     });
+    document.getElementById('btn-remove-location')?.addEventListener('click', function() {
+        if (confirm('Firmanın canlı konumunu kaldırmak ve haritada görünürlüğü kapatmak istediğinize emin misiniz?')) {
+            document.getElementById('form-remove-location').submit();
+        }
+    });
     </script>
 
     {{-- Firma logosu / profil resmi: admin yükleyebilir, bekleyen logoyu veya mevcut logoyu onaylayabilir --}}
@@ -567,7 +559,6 @@
                 </div>
                 <button type="submit" class="admin-btn-primary text-sm">Yükle</button>
             </div>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">JPEG, PNG veya WebP. En fazla 2 MB. Mevcut logo varsa yenisiyle değişir.</p>
         </form>
 
         @if($company->logo)
@@ -594,10 +585,8 @@
         @endif
     </div>
 
-    {{-- Firma galerisi: her zaman göster, admin fotoğraf ekleyebilir / onaylayabilir / kaldırabilir --}}
     <div class="mt-6 admin-card p-6">
-        <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">Firma galerisi</h3>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Nakliyecinin yapabildiği gibi buradan da fotoğraf ekleyebilirsiniz. Eklediğiniz fotoğraflar otomatik onaylı olur. Nakliyecinin yüklediği fotoğrafları tek tek veya toplu onaylayabilir, istemediğinizi kaldırabilirsiniz.</p>
+        <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">Galeri</h3>
 
         <form method="POST" action="{{ route('admin.companies.store-gallery', $company) }}" enctype="multipart/form-data" class="mb-6 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-600">
             @csrf
@@ -614,7 +603,6 @@
                 </div>
                 <button type="submit" class="admin-btn-primary text-sm">Yükle</button>
             </div>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">JPG, PNG veya WebP. Dosya başı en fazla 5 MB. Birden fazla seçebilirsiniz.</p>
         </form>
 
         @if($company->vehicleImages->count() > 0)
@@ -655,13 +643,28 @@
     </div>
 
     <div class="mt-6 admin-card p-6">
-        <h3 class="font-semibold text-slate-800 mb-3">İstatistikler</h3>
+        <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">İstatistikler</h3>
         <ul class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
             <li><span class="text-slate-500">Alınan iş sayısı:</span> <strong>{{ $company->acceptedTeklifler()->count() }}</strong></li>
             <li><span class="text-slate-500">Toplam kazanç:</span> <strong>{{ number_format($company->total_earnings, 0, ',', '.') }} ₺</strong></li>
             <li><span class="text-slate-500">NakliyePark komisyonu ({{ $company->commission_rate }}%):</span> <strong>{{ number_format($company->total_commission, 0, ',', '.') }} ₺</strong></li>
         </ul>
     </div>
-    <p class="mt-4 text-sm text-slate-500">Kullanıcı: {{ $company->user->name ?? '-' }} ({{ $company->user->email ?? '-' }})</p>
+
+    {{-- Nakliyeci hesabı ve şifre değiştirme --}}
+    @if($company->user)
+    <div class="mt-6 admin-card p-6">
+        <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">Nakliyeci hesabı</h3>
+        <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">{{ $company->user->name ?? '-' }} · {{ $company->user->email ?? '-' }}</p>
+        <form method="POST" action="{{ route('admin.companies.change-password', $company) }}" class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-600 max-w-sm">
+            @csrf
+            <label class="admin-label text-xs block mb-1">Yeni şifre belirle</label>
+            <input type="password" name="password" required minlength="8" class="admin-input text-sm py-2 mb-2" placeholder="En az 8 karakter">
+            <input type="password" name="password_confirmation" required minlength="8" class="admin-input text-sm py-2 mb-3" placeholder="Şifre tekrar">
+            <button type="submit" class="admin-btn-primary text-sm">Şifreyi güncelle</button>
+            @error('password')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+        </form>
+    </div>
+    @endif
 </div>
 @endsection

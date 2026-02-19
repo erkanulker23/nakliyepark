@@ -113,19 +113,19 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-[var(--panel-text)] mb-1.5">Telefon</label>
-                        <input type="text" name="phone" value="{{ old('phone', $pending['phone'] ?? $company->phone) }}" placeholder="5XX XXX XX XX" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">
+                        <input type="tel" name="phone" value="{{ old('phone', $pending['phone'] ?? $company->phone) }}" placeholder="+90 532 111 22 33" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]" data-phone-mask>
                         @error('phone')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-[var(--panel-text)] mb-1.5">İkinci telefon</label>
-                        <input type="text" name="phone_2" value="{{ old('phone_2', $pending['phone_2'] ?? $company->phone_2) }}" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">
+                        <input type="tel" name="phone_2" value="{{ old('phone_2', $pending['phone_2'] ?? $company->phone_2) }}" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]" data-phone-mask placeholder="+90 532 111 22 33">
                         @error('phone_2')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                     </div>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-[var(--panel-text)] mb-1.5">WhatsApp</label>
-                        <input type="text" name="whatsapp" value="{{ old('whatsapp', $pending['whatsapp'] ?? $company->whatsapp) }}" placeholder="5XX XXX XX XX" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">
+                        <input type="tel" name="whatsapp" value="{{ old('whatsapp', $pending['whatsapp'] ?? $company->whatsapp) }}" placeholder="+90 532 111 22 33" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]" data-phone-mask>
                         @error('whatsapp')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                     </div>
                     <div>
