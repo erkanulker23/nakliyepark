@@ -239,6 +239,7 @@ class CompanyController extends Controller
 
     public function approve(Request $request, Company $company)
     {
+        $this->authorize('update', $company);
         $wasApproved = $company->approved_at !== null;
         $company->load('user');
         $now = now();
@@ -351,6 +352,61 @@ class CompanyController extends Controller
         $company->update(['package' => $request->package ?: null]);
         \App\Models\AuditLog::log('company_package_changed', Company::class, (int) $company->id, ['package' => $oldPackage], ['package' => $company->package]);
         return back()->with('success', 'Firma paketi güncellendi.');
+    }
+
+    /** Admin firma logosu / profil resmi yükler (otomatik onaylı). */
+    public function uploadLogo(Request $request, Company $company)
+    {
+        $this->authorize('update', $company);
+        $request->validate([
+            'logo' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+        ], [
+            'logo.required' => 'Bir logo dosyası seçin.',
+            'logo.image' => 'Seçilen dosya resim olmalıdır (JPEG, PNG, JPG veya WebP).',
+            'logo.max' => 'Logo en fazla 2 MB olabilir.',
+        ]);
+        $oldPath = $company->logo;
+        $pending = $company->pending_changes;
+        $pendingLogoPath = is_array($pending) ? ($pending['logo'] ?? null) : null;
+        $path = $request->file('logo')->store('company-logos/' . $company->id, 'public');
+        $company->update([
+            'logo' => $path,
+            'logo_approved_at' => now(),
+        ]);
+        if (is_array($pending)) {
+            unset($pending['logo'], $pending['remove_logo']);
+            $company->update(['pending_changes' => empty($pending) ? null : $pending, 'pending_changes_at' => null]);
+        }
+        if ($oldPath && Storage::disk('public')->exists($oldPath)) {
+            Storage::disk('public')->delete($oldPath);
+        }
+        if ($pendingLogoPath && Storage::disk('public')->exists($pendingLogoPath)) {
+            Storage::disk('public')->delete($pendingLogoPath);
+        }
+        Log::channel('admin_actions')->info('Admin uploaded company logo', ['admin_id' => auth()->id(), 'company_id' => $company->id]);
+        return back()->with('success', 'Profil resmi / logo yüklendi ve yayına alındı.');
+    }
+
+    /** Firma logosunu kaldır. */
+    public function removeLogo(Company $company)
+    {
+        $this->authorize('update', $company);
+        $oldPath = $company->logo;
+        $pending = $company->pending_changes;
+        $pendingLogoPath = is_array($pending) ? ($pending['logo'] ?? null) : null;
+        $company->update(['logo' => null, 'logo_approved_at' => null]);
+        if (is_array($pending)) {
+            unset($pending['logo'], $pending['remove_logo']);
+            $company->update(['pending_changes' => empty($pending) ? null : $pending, 'pending_changes_at' => null]);
+        }
+        if ($oldPath && Storage::disk('public')->exists($oldPath)) {
+            Storage::disk('public')->delete($oldPath);
+        }
+        if ($pendingLogoPath && Storage::disk('public')->exists($pendingLogoPath)) {
+            Storage::disk('public')->delete($pendingLogoPath);
+        }
+        Log::channel('admin_actions')->info('Admin removed company logo', ['admin_id' => auth()->id(), 'company_id' => $company->id]);
+        return back()->with('success', 'Logo kaldırıldı.');
     }
 
     /** Firma logosunu onayla (nakliyeci yükledikten sonra). */

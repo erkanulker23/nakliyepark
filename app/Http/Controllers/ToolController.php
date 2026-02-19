@@ -100,15 +100,17 @@ class ToolController extends Controller
         $toolContent = Setting::get('tool_price_estimator_content', '');
         $config = config('price_estimator');
         $embedUrl = url(route('tools.price-estimator.embed'));
+        $priceHistoryLast10 = PriceEstimatorCalculation::lastTen();
 
-        return view('tools.price-estimator', compact('metaTitle', 'metaDescription', 'toolContent', 'config', 'embedUrl'));
+        return view('tools.price-estimator', compact('metaTitle', 'metaDescription', 'toolContent', 'config', 'embedUrl', 'priceHistoryLast10'));
     }
 
     public function priceEstimatorEmbed()
     {
         $config = config('price_estimator');
+        $priceHistoryLast10 = PriceEstimatorCalculation::lastTen();
 
-        return view('tools.price-estimator-embed', compact('config'));
+        return view('tools.price-estimator-embed', compact('config', 'priceHistoryLast10'));
     }
 
     public function movingCalendar()

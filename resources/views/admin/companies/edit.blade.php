@@ -263,10 +263,7 @@
                 <div class="border-t border-slate-200 dark:border-slate-600 pt-5">
                     <h4 class="font-medium text-slate-800 dark:text-slate-200 mb-3">Google yorumları (firma sayfasında kart olarak gösterilir)</h4>
                     <p class="text-sm text-slate-600 dark:text-slate-400 mb-3">Puan ve yorum sayısının <strong>Google'dan orijinal</strong> gelmesi için aşağıdaki butona tıklayın. (.env içinde <code class="text-xs bg-slate-100 dark:bg-slate-700 px-1 rounded">GOOGLE_PLACES_API_KEY</code> tanımlı olmalı.) Manuel giriş yaparsanız veri &quot;doğrulanmamış&quot; olarak işaretlenir.</p>
-                    <form method="POST" action="{{ route('admin.companies.fetch-google-reviews', $company) }}" class="inline-block mb-4">
-                        @csrf
-                        <button type="submit" class="admin-btn-primary text-sm">Google'dan puan ve yorum sayısını getir</button>
-                    </form>
+                    <button type="button" id="btn-fetch-google-reviews" class="admin-btn-primary text-sm mb-4">Google'dan puan ve yorum sayısını getir</button>
                     @if($company->google_reviews_fetched_at)
                         <p class="text-xs text-emerald-600 dark:text-emerald-400">Son alım: {{ $company->google_reviews_fetched_at->locale('tr')->diffForHumans() }}</p>
                     @endif
@@ -320,6 +317,10 @@
             @csrf
             @method('DELETE')
             <button type="submit" class="admin-btn-danger">Firmayı sil</button>
+        </form>
+        {{-- Ayrı form: ana form içinde form olamaz (HTML geçersiz), Kaydet'in çalışması için dışarıda --}}
+        <form id="form-fetch-google-reviews" method="POST" action="{{ route('admin.companies.fetch-google-reviews', $company) }}" class="hidden">
+            @csrf
         </form>
     </div>
 
@@ -428,13 +429,31 @@
         });
         if (document.querySelector('#tab-seo .text-red-500')) showTab('seo');
     })();
+    document.getElementById('btn-fetch-google-reviews')?.addEventListener('click', function() {
+        document.getElementById('form-fetch-google-reviews')?.submit();
+    });
     </script>
 
-    {{-- Logo onayı --}}
-    @if($company->logo)
-        <div class="mt-6 admin-card p-6">
-            <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">Firma logosu</h3>
-            <div class="flex flex-wrap items-center gap-4">
+    {{-- Firma logosu / profil resmi: admin yükleyebilir, onaylayabilir veya kaldırabilir --}}
+    <div class="mt-6 admin-card p-6">
+        <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">Firma logosu / profil resmi</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Profil resmini buradan yükleyebilir veya nakliyecinin yüklediği logoyu onaylayabilirsiniz. Yüklediğiniz logo otomatik onaylı olur.</p>
+
+        <form method="POST" action="{{ route('admin.companies.upload-logo', $company) }}" enctype="multipart/form-data" class="mb-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-600">
+            @csrf
+            <div class="flex flex-wrap items-end gap-4">
+                <div class="min-w-[200px]">
+                    <label for="admin-company-logo" class="admin-label text-xs">Logo / profil resmi yükle</label>
+                    <input id="admin-company-logo" type="file" name="logo" accept="image/jpeg,image/png,image/jpg,image/webp" class="admin-input text-sm py-2">
+                    @error('logo')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                </div>
+                <button type="submit" class="admin-btn-primary text-sm">Yükle</button>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">JPEG, PNG veya WebP. En fazla 2 MB. Mevcut logo varsa yenisiyle değişir.</p>
+        </form>
+
+        @if($company->logo)
+            <div class="flex flex-wrap items-center gap-4 pt-2 border-t border-slate-200 dark:border-slate-600">
                 <img src="{{ asset('storage/'.$company->logo) }}" alt="{{ $company->name }} logo" class="w-24 h-24 rounded-xl object-cover border border-slate-200 dark:border-slate-600">
                 @if($company->logo_approved_at)
                     <span class="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">Yayında</span>
@@ -444,9 +463,16 @@
                         <button type="submit" class="admin-btn-primary text-sm">Logoyu onayla</button>
                     </form>
                 @endif
+                <form method="POST" action="{{ route('admin.companies.remove-logo', $company) }}" class="inline" onsubmit="return confirm('Logoyu kaldırmak istediğinize emin misiniz?');">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="admin-btn-secondary text-sm border-red-200 text-red-600 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">Logoyu kaldır</button>
+                </form>
             </div>
-        </div>
-    @endif
+        @else
+            <p class="text-sm text-slate-500 dark:text-slate-400">Henüz logo yok. Yukarıdaki formdan yükleyebilirsiniz veya nakliyeci yüklediyse bekleyen değişikliklerde görünür.</p>
+        @endif
+    </div>
 
     {{-- Firma galerisi: her zaman göster, admin fotoğraf ekleyebilir / onaylayabilir / kaldırabilir --}}
     <div class="mt-6 admin-card p-6">

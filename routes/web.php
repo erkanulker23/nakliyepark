@@ -246,7 +246,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/companies/{company}/approve-pending', [AdminCompanyController::class, 'approvePendingChanges'])->name('companies.approve-pending');
     Route::post('/companies/{company}/reject', [AdminCompanyController::class, 'reject'])->name('companies.reject');
     Route::patch('/companies/{company}/package', [AdminCompanyController::class, 'updatePackage'])->name('companies.update-package');
+    Route::post('/companies/{company}/logo', [AdminCompanyController::class, 'uploadLogo'])->name('companies.upload-logo');
     Route::post('/companies/{company}/logo/approve', [AdminCompanyController::class, 'approveLogo'])->name('companies.approve-logo');
+    Route::delete('/companies/{company}/logo', [AdminCompanyController::class, 'removeLogo'])->name('companies.remove-logo');
     Route::post('/companies/{company}/galeri', [AdminCompanyController::class, 'storeGallery'])->name('companies.store-gallery');
     Route::post('/companies/{company}/galeri/approve-all', [AdminCompanyController::class, 'approveAllGalleryImages'])->name('companies.approve-gallery-all');
 Route::post('/companies/{company}/galeri/{id}/approve', [AdminCompanyController::class, 'approveGalleryImage'])->name('companies.approve-gallery-image');

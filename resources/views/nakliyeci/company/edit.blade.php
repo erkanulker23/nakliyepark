@@ -76,16 +76,23 @@
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-[var(--panel-text)] mb-1.5">Şehir</label>
-                        <input type="text" name="city" value="{{ old('city', $company->pending_changes['city'] ?? $company->city) }}" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">
-                        @error('city')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                        <label class="block text-sm font-medium text-[var(--panel-text)] mb-1.5">İl</label>
+                        <select id="nakliyeci_company_province" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">
+                            <option value="">İl seçin</option>
+                        </select>
+                        <p class="mt-1 text-xs text-[var(--panel-text-muted)]">Türkiye il listesi API'den yüklenir.</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-[var(--panel-text)] mb-1.5">İlçe</label>
-                        <input type="text" name="district" value="{{ old('district', $company->pending_changes['district'] ?? $company->district) }}" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">
-                        @error('district')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                        <select id="nakliyeci_company_district" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]" disabled>
+                            <option value="">Önce il seçin</option>
+                        </select>
                     </div>
                 </div>
+                <input type="hidden" name="city" id="nakliyeci_company_city" value="{{ old('city', $company->pending_changes['city'] ?? $company->city) }}">
+                <input type="hidden" name="district" id="nakliyeci_company_district_value" value="{{ old('district', $company->pending_changes['district'] ?? $company->district) }}">
+                @error('city')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
+                @error('district')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 <div>
                     <label class="block text-sm font-medium text-[var(--panel-text)] mb-1.5">Adres</label>
                     <textarea name="address" rows="2" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">{{ old('address', $company->pending_changes['address'] ?? $company->address) }}</textarea>
@@ -220,4 +227,90 @@
         </ul>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var provincesUrl = {!! json_encode(route('api.turkey.provinces')) !!};
+    var districtsUrl = {!! json_encode(route('api.turkey.districts')) !!};
+    var fallbackProvinces = @json(array_keys(config('turkey_city_coordinates', [])) ?: ['Adana','Ankara','Antalya','Aydın','Balıkesir','Bursa','Denizli','Diyarbakır','Gaziantep','Hatay','İstanbul','İzmir','Kayseri','Kocaeli','Konya','Malatya','Manisa','Mardin','Mersin','Muğla','Samsun','Şanlıurfa','Tekirdağ','Trabzon']);
+    var currentCity = {!! json_encode(old('city', $company->pending_changes['city'] ?? $company->city)) !!};
+    var currentDistrict = {!! json_encode(old('district', $company->pending_changes['district'] ?? $company->district)) !!};
+    var provSel = document.getElementById('nakliyeci_company_province');
+    var distSel = document.getElementById('nakliyeci_company_district');
+    var cityInp = document.getElementById('nakliyeci_company_city');
+    var distInp = document.getElementById('nakliyeci_company_district_value');
+    if (!provSel || !distSel || !cityInp || !distInp) return;
+
+    function selectByText(sel, text) {
+        if (!text || !sel) return;
+        for (var i = 0; i < sel.options.length; i++) {
+            if (sel.options[i].text === text) { sel.selectedIndex = i; return; }
+        }
+    }
+    function syncHidden() {
+        if (provSel.selectedIndex > 0) cityInp.value = provSel.options[provSel.selectedIndex].text;
+        if (distSel.selectedIndex > 0) distInp.value = distSel.options[distSel.selectedIndex].text;
+    }
+    function clearProvincesKeepFirst() {
+        while (provSel.options.length > 1) provSel.remove(1);
+    }
+    function loadDistricts(provinceId) {
+        if (!provinceId) return;
+        distSel.innerHTML = '<option value="">Yükleniyor...</option>';
+        distSel.disabled = true;
+        fetch(districtsUrl + '?province_id=' + encodeURIComponent(provinceId)).then(function(r) { return r.json(); }).then(function(res) {
+            var data = res.data;
+            if (Object.prototype.toString.call(data) === '[object Object]') data = Object.values(data);
+            distSel.innerHTML = '<option value="">İlçe seçin</option>';
+            (data || []).forEach(function(d) { distSel.appendChild(new Option(d.name, d.id)); });
+            selectByText(distSel, currentDistrict);
+            syncHidden();
+            distSel.disabled = false;
+        }).catch(function() {
+            distSel.innerHTML = '<option value="">İlçe listesi alınamadı</option>';
+            syncHidden();
+            distSel.disabled = false;
+        });
+    }
+    function fillProvincesFromApi() {
+        clearProvincesKeepFirst();
+        fetch(provincesUrl).then(function(r) { return r.json(); }).then(function(res) {
+            var data = res.data;
+            if (Object.prototype.toString.call(data) === '[object Object]') data = Object.values(data);
+            if (data && data.length) {
+                data.forEach(function(p) { provSel.appendChild(new Option(p.name, p.id)); });
+                selectByText(provSel, currentCity);
+                if (provSel.value) loadDistricts(provSel.value);
+                else syncHidden();
+                return;
+            }
+            fillProvincesFallback();
+        }).catch(function() { fillProvincesFallback(); });
+    }
+    function fillProvincesFallback() {
+        clearProvincesKeepFirst();
+        (fallbackProvinces && fallbackProvinces.length ? fallbackProvinces : ['Adana','Ankara','Antalya','İstanbul','İzmir']).forEach(function(name) {
+            provSel.appendChild(new Option(name, name));
+        });
+        selectByText(provSel, currentCity);
+        syncHidden();
+        distSel.innerHTML = '<option value="">İlçe (API gerekli)</option>';
+        distSel.disabled = false;
+    }
+    fillProvincesFromApi();
+    provSel.addEventListener('change', function() {
+        distSel.innerHTML = '<option value="">Önce il seçin</option>';
+        distInp.value = '';
+        if (this.value) {
+            var isId = /^\d+$/.test(String(this.value));
+            if (isId) loadDistricts(this.value);
+            else { cityInp.value = this.value; syncHidden(); }
+        } else { cityInp.value = ''; distSel.disabled = true; }
+        syncHidden();
+    });
+    distSel.addEventListener('change', syncHidden);
+});
+</script>
+@endpush
 @endsection

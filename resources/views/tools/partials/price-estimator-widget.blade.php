@@ -2,6 +2,7 @@
     $config = $config ?? config('price_estimator');
     $showEmbedLink = $showEmbedLink ?? false;
     $ihaleCreateUrl = $ihaleCreateUrl ?? route('ihale.create');
+    $priceHistoryLast10 = $priceHistoryLast10 ?? collect();
 @endphp
 @push('styles')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
@@ -13,7 +14,7 @@
 @push('scripts')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 @endpush
-<div class="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-lg overflow-hidden" id="price-estimator">
+<div class="rounded-2xl border border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-lg overflow-visible" id="price-estimator">
     <div class="p-4 sm:p-5 border-b border-zinc-200 dark:border-zinc-800 bg-gradient-to-r from-emerald-50/80 to-teal-50/50 dark:from-emerald-950/20 dark:to-zinc-900">
         <h2 class="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
             <span class="w-9 h-9 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
@@ -177,11 +178,22 @@
             <p class="text-xs text-amber-700 dark:text-amber-300 mt-1">Please obtain the prices for local transportation from our call center.</p>
         </div>
 
-        <section class="mt-6 pt-5 border-t border-zinc-200 dark:border-zinc-700" aria-labelledby="son-fiyat-baslik">
-            <h3 id="son-fiyat-baslik" class="text-base font-semibold text-zinc-900 dark:text-white mb-3">Son 10 tahmini fiyat hesaplaması</h3>
-            <p class="text-xs text-zinc-500 dark:text-zinc-400 mb-2">Site genelinde yapılan son hesaplamalar; detaylar hemen altında listelenir.</p>
-            <div id="price-history-list" class="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-800/30 divide-y divide-zinc-200 dark:divide-zinc-700 overflow-hidden">
-                <p class="p-4 text-sm text-zinc-500 dark:text-zinc-400" id="price-history-empty">Henüz fiyat hesaplaması yapılmadı. Mesafe ve diğer bilgileri girince tahmin otomatik hesaplanır ve burada listelenir.</p>
+        <section id="son-10-fiyat-section" class="mt-6 pt-5 border-t-2 border-zinc-200 dark:border-zinc-700" aria-labelledby="son-fiyat-baslik">
+            <h3 id="son-fiyat-baslik" class="text-base font-semibold text-zinc-900 dark:text-white mb-1">Son 10 tahmini fiyat hesaplaması</h3>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mb-3">Site genelinde yapılan son hesaplamalar; detaylar hemen altında listelenir.</p>
+            <div id="price-history-list" class="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-800/30 divide-y divide-zinc-200 dark:divide-zinc-700 overflow-hidden min-h-[120px]">
+                <p class="p-4 text-sm text-zinc-500 dark:text-zinc-400 {{ $priceHistoryLast10->isNotEmpty() ? 'hidden' : '' }}" id="price-history-empty">Henüz fiyat hesaplaması yapılmadı. Mesafe ve diğer bilgileri girince tahmin otomatik hesaplanır ve burada listelenir.</p>
+                @foreach($priceHistoryLast10 as $item)
+                        <div class="price-history-item px-4 py-3 text-sm">
+                            <div class="flex items-center justify-between gap-3 flex-wrap">
+                                <span class="text-zinc-600 dark:text-zinc-300 truncate">{{ $item->route_label ?: ($item->from_label && $item->to_label ? $item->from_label . ' → ' . $item->to_label : '—') }}</span>
+                                <span class="font-semibold text-emerald-600 dark:text-emerald-400 shrink-0">{{ number_format($item->price, 0, ',', '.') }} ₺</span>
+                            </div>
+                            @if($item->km || $item->room_label || $item->service_type)
+                                <div class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">{{ implode(' · ', array_filter([$item->km ? $item->km . ' km' : null, $item->room_label, $item->service_type])) }}</div>
+                            @endif
+                        </div>
+                @endforeach
             </div>
         </section>
     </div>
@@ -523,7 +535,11 @@
 
     toggleInputs();
     calculate();
-    loadPriceHistory();
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() { loadPriceHistory(); });
+    } else {
+        loadPriceHistory();
+    }
 })();
 </script>
 @endpush

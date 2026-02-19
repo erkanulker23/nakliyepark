@@ -12,7 +12,7 @@
     </header>
 
     <div class="max-w-3xl mx-auto">
-        @include('tools.partials.price-estimator-widget', ['config' => $config, 'showEmbedLink' => true])
+        @include('tools.partials.price-estimator-widget', ['config' => $config, 'showEmbedLink' => true, 'priceHistoryLast10' => $priceHistoryLast10 ?? collect()])
     </div>
 
     {{-- Embed kodu - iframe ile başka sitelere eklenebilir --}}
