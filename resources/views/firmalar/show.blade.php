@@ -73,7 +73,9 @@
             <div class="p-6 sm:p-8 lg:p-10">
                 <div class="flex flex-col sm:flex-row sm:items-start gap-6 lg:gap-8">
                     @if($company->logo && $company->logo_approved_at)
-                        <img src="{{ asset('storage/'.$company->logo) }}" alt="{{ $company->name }}" class="w-28 h-28 sm:w-36 sm:h-36 rounded-2xl object-cover border-2 border-zinc-200/60 dark:border-zinc-700/60 shrink-0 shadow-lg ring-2 ring-white/20 dark:ring-zinc-800/50">
+                        <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-2xl shrink-0 overflow-hidden flex items-center justify-center bg-white dark:bg-zinc-800 border-2 border-zinc-200/60 dark:border-zinc-700/60 shadow-lg ring-2 ring-white/20 dark:ring-zinc-800/50">
+                            <img src="{{ asset('storage/'.$company->logo) }}" alt="{{ $company->name }}" class="w-full h-full object-contain p-1">
+                        </div>
                     @else
                         <div class="w-28 h-28 sm:w-36 sm:h-36 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-3xl sm:text-4xl font-bold text-white shrink-0 shadow-lg shadow-emerald-500/25 ring-2 ring-white/20">
                             {{ mb_substr($company->name, 0, 1) }}

@@ -160,7 +160,9 @@
                             <h2 class="text-lg font-semibold text-zinc-900 dark:text-white mb-4">İlan sahibi</h2>
                             <div class="flex flex-wrap items-center gap-4 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700">
                                 @if($listing->company->logo && $listing->company->logo_approved_at)
-                                    <img src="{{ asset('storage/'.$listing->company->logo) }}" alt="{{ $listing->company->name }}" class="w-20 h-20 rounded-2xl object-cover border border-zinc-200 dark:border-zinc-600 shadow-sm">
+                                    <div class="w-20 h-20 rounded-2xl shrink-0 overflow-hidden flex items-center justify-center bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-600 shadow-sm">
+                                        <img src="{{ asset('storage/'.$listing->company->logo) }}" alt="{{ $listing->company->name }}" class="w-full h-full object-contain p-1">
+                                    </div>
                                 @else
                                     <div class="w-20 h-20 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-2xl font-bold text-emerald-700 dark:text-emerald-300 shadow-sm">
                                         {{ mb_substr($listing->company->name, 0, 1) }}

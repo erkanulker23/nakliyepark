@@ -709,7 +709,9 @@ $haritadaGoster = $firmalarHaritada->map(fn($c) => ['id' => $c->id, 'name' => $c
             @foreach($firmalar as $firma)
                 <a href="{{ route('firmalar.show', $firma) }}" class="group flex items-center gap-4 p-5 sm:p-6 rounded-2xl border-2 border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 shadow-sm hover:shadow-lg hover:border-emerald-300 dark:hover:border-emerald-700/50 hover:bg-emerald-50/30 dark:hover:bg-zinc-800/80 transition-all duration-300">
                     @if($firma->logo && $firma->logo_approved_at)
-                        <img src="{{ asset('storage/'.$firma->logo) }}" alt="{{ $firma->name }}" class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover shrink-0 border border-zinc-200/60 dark:border-zinc-700 shadow-sm">
+                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl shrink-0 overflow-hidden flex items-center justify-center bg-white dark:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-700 shadow-sm">
+                            <img src="{{ asset('storage/'.$firma->logo) }}" alt="{{ $firma->name }}" class="w-full h-full object-contain p-1">
+                        </div>
                     @else
                         <span class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-emerald-500 flex items-center justify-center text-2xl font-bold text-white shrink-0 shadow-sm">{{ mb_substr($firma->name, 0, 1) }}</span>
                     @endif

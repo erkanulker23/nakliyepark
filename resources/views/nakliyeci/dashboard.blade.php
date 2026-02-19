@@ -77,10 +77,11 @@
     </div>
 </div>
 
-{{-- Haritada görünsün --}}
+{{-- Haritada görünsün: Değişiklikler anında kaydedilir, ayrı Kaydet butonu yok --}}
 <div class="panel-card p-4 sm:p-5 mb-6">
     <h2 class="font-semibold text-[var(--panel-text)] mb-2">Haritada görünsün</h2>
-    <p class="text-sm text-[var(--panel-text-muted)] mb-4">Açıkken konumunuz anasayfadaki haritada nakliye firmalarıyla birlikte gösterilir.</p>
+    <p class="text-sm text-[var(--panel-text-muted)] mb-2">Açıkken konumunuz anasayfadaki haritada nakliye firmalarıyla birlikte gösterilir.</p>
+    <p class="text-xs text-[var(--panel-text-muted)] mb-4">Değişiklikler anında kaydedilir (ayrı kaydet butonu yok).</p>
     <label class="flex items-center gap-3 cursor-pointer">
         <input type="checkbox" id="map_visible_toggle" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" {{ $company->map_visible ? 'checked' : '' }}>
         <span class="text-sm font-medium text-[var(--panel-text)]">Anasayfada haritada konumumu göster</span>
@@ -141,11 +142,11 @@
             .then(r => r.json())
             .then(data => {
                 if (data.ok && statusEl) {
-                    if (data.map_visible) statusEl.textContent = 'Haritada görünüyorsunuz.';
-                    else statusEl.textContent = '';
+                    if (data.map_visible) statusEl.textContent = 'Haritada görünüyorsunuz. Kaydedildi.';
+                    else statusEl.textContent = 'Haritada görünmüyorsunuz. Kaydedildi.';
                 }
             })
-            .catch(() => { if (statusEl) statusEl.textContent = 'Güncelleme gönderilemedi.'; });
+            .catch(() => { if (statusEl) statusEl.textContent = 'Güncelleme gönderilemedi. Tekrar deneyin.'; });
     }
     function updateLocation() {
         if (!navigator.geolocation) { if (statusEl) statusEl.textContent = 'Konum desteklenmiyor.'; return; }
@@ -158,9 +159,9 @@
         const on = this.checked;
         sendLocation(on);
         if (on) { updateLocation(); locationInterval = setInterval(updateLocation, 90000); }
-        else { if (locationInterval) { clearInterval(locationInterval); locationInterval = null; } if (statusEl) statusEl.textContent = ''; }
+        else { if (locationInterval) { clearInterval(locationInterval); locationInterval = null; } }
     });
-    if (toggle.checked) { updateLocation(); locationInterval = setInterval(updateLocation, 90000); }
+    if (toggle.checked) { updateLocation(); locationInterval = setInterval(updateLocation, 90000); if (statusEl) statusEl.textContent = 'Haritada görünüyorsunuz.'; }
 })();
 </script>
 @endpush

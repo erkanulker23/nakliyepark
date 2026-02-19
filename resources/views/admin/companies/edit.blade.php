@@ -493,7 +493,9 @@
 
         @if($company->logo)
             <div class="flex flex-wrap items-center gap-4 pt-2 border-t border-slate-200 dark:border-slate-600">
-                <img src="{{ asset('storage/'.$company->logo) }}" alt="{{ $company->name }} logo" class="w-24 h-24 rounded-xl object-cover border border-slate-200 dark:border-slate-600">
+                <div class="w-24 h-24 rounded-xl overflow-hidden flex items-center justify-center bg-white dark:bg-zinc-800 border border-slate-200 dark:border-slate-600">
+                    <img src="{{ asset('storage/'.$company->logo) }}" alt="{{ $company->name }} logo" class="w-full h-full object-contain p-1">
+                </div>
                 @if($company->logo_approved_at)
                     <span class="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">Yayında</span>
                 @else

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Nakliyeci;
 use App\Http\Controllers\Controller;
 use App\Models\Company;
 use App\Services\AdminNotifier;
+use App\Services\CompanyLogoProcessor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -62,7 +63,19 @@ class CompanyController extends Controller
         }
         $this->authorize('update', $company);
         $company->load('vehicleImages');
-        return view('nakliyeci.company.edit', compact('company'));
+
+        // İstatistikler için güvenli değerler (accessor hata verebilir)
+        try {
+            $statsTotalEarnings = $company->total_earnings;
+            $statsCommissionRate = $company->commission_rate;
+            $statsTotalCommission = $company->total_commission;
+        } catch (\Throwable $e) {
+            $statsTotalEarnings = 0;
+            $statsCommissionRate = 10;
+            $statsTotalCommission = 0;
+        }
+
+        return view('nakliyeci.company.edit', compact('company', 'statsTotalEarnings', 'statsCommissionRate', 'statsTotalCommission'));
     }
 
     public function update(Request $request)
@@ -124,6 +137,11 @@ class CompanyController extends Controller
                 Storage::disk('public')->delete($company->pending_changes['logo']);
             }
             $path = $request->file('logo')->store($pendingDir, 'public');
+            try {
+                app(CompanyLogoProcessor::class)->process($path);
+            } catch (\Throwable $e) {
+                // İşlem başarısız olsa da yükleme kaydı kalsın
+            }
             $pending['logo'] = $path;
         }
 

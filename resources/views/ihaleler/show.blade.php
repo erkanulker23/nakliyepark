@@ -282,9 +282,9 @@
                                             @else
                                         <div class="flex items-center gap-3 min-w-0 flex-1 group">
                                             @endif
-                                            <span class="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0 group-hover:bg-emerald-500/10 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors overflow-hidden">
+                                            <span class="w-12 h-12 rounded-xl bg-white dark:bg-zinc-800 flex items-center justify-center text-zinc-500 dark:text-zinc-400 shrink-0 group-hover:bg-emerald-500/10 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors overflow-hidden border border-zinc-200/60 dark:border-zinc-700/60">
                                                 @if($teklif->company->logo && $teklif->company->logo_approved_at)
-                                                    <img src="{{ asset('storage/'.$teklif->company->logo) }}" alt="{{ $teklif->company->name }}" class="w-12 h-12 rounded-xl object-cover">
+                                                    <img src="{{ asset('storage/'.$teklif->company->logo) }}" alt="{{ $teklif->company->name }}" class="w-full h-full object-contain p-0.5">
                                                 @else
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                                                 @endif

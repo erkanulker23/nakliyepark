@@ -33,7 +33,9 @@
             @endphp
             @if($currentLogo)
                 <div class="flex flex-wrap items-center gap-4 mb-4">
-                    <img src="{{ asset('storage/'.$currentLogo) }}" alt="Logo" class="w-20 h-20 rounded-2xl object-cover border border-[var(--panel-border)]">
+                    <div class="w-20 h-20 rounded-2xl overflow-hidden flex items-center justify-center bg-white dark:bg-zinc-800 border border-[var(--panel-border)]">
+                        <img src="{{ asset('storage/'.$currentLogo) }}" alt="Logo" class="w-full h-full object-contain p-1">
+                    </div>
                     @if(!empty($pending['logo']))
                         <span class="text-xs font-medium px-2.5 py-1 rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200">Onay bekliyor</span>
                     @elseif(!empty($pending['remove_logo']))
@@ -148,7 +150,7 @@
                 @foreach(\App\Models\Company::serviceLabels() as $key => $label)
                     <label class="flex items-center gap-2.5 min-h-[44px] px-4 py-2.5 rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] cursor-pointer hover:border-[var(--panel-primary)] transition-colors">
                         <input type="checkbox" name="services[]" value="{{ $key }}" class="rounded border-slate-300 text-[var(--panel-primary)] focus:ring-[var(--panel-primary)] w-5 h-5"
-                            {{ in_array($key, old('services', $pending['services'] ?? $company->services ?? [])) ? 'checked' : '' }}>
+                            {{ in_array($key, old('services', $pending['services'] ?? (is_array($company->services ?? null) ? $company->services : []))) ? 'checked' : '' }}>
                         <span class="text-sm text-[var(--panel-text)]">{{ $label }}</span>
                     </label>
                 @endforeach
@@ -202,7 +204,7 @@
             <a href="{{ route('nakliyeci.galeri.create') }}" class="inline-flex items-center justify-center min-h-[48px] px-5 py-2.5 rounded-2xl text-base font-semibold bg-[var(--panel-primary)] text-white">+ Fotoğraf ekle</a>
             <a href="{{ route('nakliyeci.galeri.index') }}" class="inline-flex items-center justify-center min-h-[48px] px-5 py-2.5 rounded-2xl text-base font-medium border border-[var(--panel-border)] text-[var(--panel-text)]">Galeriyi yönet</a>
         </div>
-        @if($company->vehicleImages->count() > 0)
+        @if(optional($company->vehicleImages)->count() > 0)
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 @foreach($company->vehicleImages as $img)
                     <div class="rounded-xl overflow-hidden border border-[var(--panel-border)]">
@@ -225,8 +227,8 @@
         <h2 class="text-base font-bold text-[var(--panel-text)] mb-4">İstatistikler</h2>
         <ul class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
             <li><span class="text-[var(--panel-text-muted)]">Alınan iş:</span> <strong class="text-[var(--panel-text)]">{{ $company->acceptedTeklifler()->count() }}</strong></li>
-            <li><span class="text-[var(--panel-text-muted)]">Toplam kazanç:</span> <strong class="text-[var(--panel-text)]">{{ number_format($company->total_earnings, 0, ',', '.') }} ₺</strong></li>
-            <li><span class="text-[var(--panel-text-muted)]">Komisyon ({{ $company->commission_rate }}%):</span> <strong class="text-[var(--panel-text)]">{{ number_format($company->total_commission, 0, ',', '.') }} ₺</strong></li>
+            <li><span class="text-[var(--panel-text-muted)]">Toplam kazanç:</span> <strong class="text-[var(--panel-text)]">{{ number_format($statsTotalEarnings ?? 0, 0, ',', '.') }} ₺</strong></li>
+            <li><span class="text-[var(--panel-text-muted)]">Komisyon ({{ $statsCommissionRate ?? 10 }}%):</span> <strong class="text-[var(--panel-text)]">{{ number_format($statsTotalCommission ?? 0, 0, ',', '.') }} ₺</strong></li>
         </ul>
     </div>
 </div>
@@ -236,7 +238,11 @@
 document.addEventListener('DOMContentLoaded', function() {
     var provincesUrl = {!! json_encode(route('api.turkey.provinces')) !!};
     var districtsUrl = {!! json_encode(route('api.turkey.districts')) !!};
-    var fallbackProvinces = @json(array_keys(config('turkey_city_coordinates', [])) ?: ['Adana','Ankara','Antalya','Aydın','Balıkesir','Bursa','Denizli','Diyarbakır','Gaziantep','Hatay','İstanbul','İzmir','Kayseri','Kocaeli','Konya','Malatya','Manisa','Mardin','Mersin','Muğla','Samsun','Şanlıurfa','Tekirdağ','Trabzon']);
+    @php
+        $coordConfig = config('turkey_city_coordinates', []);
+        $fallbackProvinces = is_array($coordConfig) && !empty($coordConfig) ? array_keys($coordConfig) : ['Adana','Ankara','Antalya','İstanbul','İzmir'];
+    @endphp
+    var fallbackProvinces = @json($fallbackProvinces);
     var currentCity = {!! json_encode(old('city', $pending['city'] ?? $company->city)) !!};
     var currentDistrict = {!! json_encode(old('district', $pending['district'] ?? $company->district)) !!};
     var provSel = document.getElementById('nakliyeci_company_province');

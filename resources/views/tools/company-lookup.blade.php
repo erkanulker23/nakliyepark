@@ -45,7 +45,9 @@
                         @foreach($companies as $company)
                             <a href="{{ route('firmalar.show', $company) }}" class="group flex gap-4 rounded-2xl bg-white dark:bg-zinc-900/80 border border-zinc-200/70 dark:border-zinc-800/70 p-5 sm:p-6 hover:border-emerald-300/70 dark:hover:border-emerald-700/50 hover:shadow-md transition-all duration-200 block">
                                 @if($company->logo && $company->logo_approved_at && trim($company->logo) !== '')
-                                    <img src="{{ asset('storage/'.$company->logo) }}" alt="{{ $company->name }}" class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover shrink-0 border border-zinc-100 dark:border-zinc-800 shadow-sm">
+                                    <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl shrink-0 overflow-hidden flex items-center justify-center bg-white dark:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-700 shadow-sm">
+                                        <img src="{{ asset('storage/'.$company->logo) }}" alt="{{ $company->name }}" class="w-full h-full object-contain p-1">
+                                    </div>
                                 @else
                                     <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-emerald-500 flex items-center justify-center text-2xl sm:text-3xl font-bold text-white shrink-0 shadow-sm" aria-hidden="true">
                                         {{ mb_substr(trim($company->name) ?: 'F', 0, 1) }}

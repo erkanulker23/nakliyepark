@@ -8,6 +8,7 @@ use App\Models\Company;
 use App\Notifications\CompanyApprovedNotification;
 use App\Notifications\CompanyCredentialsSetPasswordNotification;
 use App\Services\AdminNotifier;
+use App\Services\CompanyLogoProcessor;
 use App\Services\GooglePlacesService;
 use App\Services\SafeNotificationService;
 use Illuminate\Http\Request;
@@ -344,7 +345,13 @@ class CompanyController extends Controller
             if ($company->logo && $company->logo !== $pending['logo']) {
                 Storage::disk('public')->delete($company->logo);
             }
-            $data['logo'] = $pending['logo'];
+            $logoPath = $pending['logo'];
+            try {
+                app(CompanyLogoProcessor::class)->process($logoPath);
+            } catch (\Throwable $e) {
+                // İşlem başarısız olsa da onaylama devam etsin
+            }
+            $data['logo'] = $logoPath;
             $data['logo_approved_at'] = now();
         }
         $company->update($data);
@@ -388,6 +395,11 @@ class CompanyController extends Controller
         $pending = $company->pending_changes;
         $pendingLogoPath = is_array($pending) ? ($pending['logo'] ?? null) : null;
         $path = $request->file('logo')->store('company-logos/' . $company->id, 'public');
+        try {
+            app(CompanyLogoProcessor::class)->process($path);
+        } catch (\Throwable $e) {
+            // İşlem başarısız olsa da yükleme kaydı kalsın
+        }
         $company->update([
             'logo' => $path,
             'logo_approved_at' => now(),
@@ -439,6 +451,11 @@ class CompanyController extends Controller
         }
         $oldPath = $company->logo;
         $pendingPath = $pending['logo'];
+        try {
+            app(CompanyLogoProcessor::class)->process($pendingPath);
+        } catch (\Throwable $e) {
+            // İşlem başarısız olsa da onaylama devam etsin
+        }
         $company->update([
             'logo' => $pendingPath,
             'logo_approved_at' => now(),
