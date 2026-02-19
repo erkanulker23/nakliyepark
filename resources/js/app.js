@@ -117,27 +117,33 @@ function initHeaderNotificationsDropdown() {
 
 // Türk telefon maskesi: +90 5XX XXX XX XX (tek format, tüm projede)
 function initPhoneMask() {
+  function getDigits(val) {
+    return (val || '').replace(/\D/g, '');
+  }
+  /** En fazla 10 haneye indirir: 90 ile başlıyorsa 90’ı atar, 0 ile başlıyorsa 0’ı atar, fazlaysa son 10’u alır. */
   function toTenDigits(val) {
-    const d = (val || '').replace(/\D/g, '');
+    const d = getDigits(val);
     if (d.length === 0) return '';
     if (d.length >= 12 && d.startsWith('90')) return d.slice(2, 12);
-    if (d.length >= 11 && d[0] === '0') return d.slice(1, 11);
-    if (d.length >= 10 && d[0] === '5') return d.slice(0, 10);
+    if (d.length === 11 && d[0] === '0') return d.slice(1);
     if (d.length > 10) return d.slice(-10);
     return d;
   }
-  function formatTurkishPhone(val) {
-    const ten = toTenDigits(val);
+  function formatFromTen(ten) {
     if (ten.length === 0) return '';
     if (ten.length <= 3) return '+90 ' + ten;
     if (ten.length <= 6) return '+90 ' + ten.slice(0, 3) + ' ' + ten.slice(3);
     if (ten.length <= 8) return '+90 ' + ten.slice(0, 3) + ' ' + ten.slice(3, 6) + ' ' + ten.slice(6);
     return '+90 ' + ten.slice(0, 3) + ' ' + ten.slice(3, 6) + ' ' + ten.slice(6, 8) + ' ' + ten.slice(8, 10);
   }
-  function phoneValueForSubmit(val) {
-    const ten = toTenDigits(val);
-    if (ten.length !== 10) return val;
-    return '0' + ten;
+  /** Formatlanmış metinde N. rakamdan sonraki konumu döndürür (boşluk ve +90 dahil). */
+  function positionAfterDigits(formatted, digitCount) {
+    let digits = 0;
+    for (let i = 0; i < formatted.length; i++) {
+      if (/\d/.test(formatted[i])) digits++;
+      if (digits >= digitCount) return i + 1;
+    }
+    return formatted.length;
   }
   document.querySelectorAll('[data-phone-mask]').forEach((el) => {
     if (el._phoneMaskInit) return;
@@ -145,30 +151,45 @@ function initPhoneMask() {
     el.setAttribute('inputmode', 'numeric');
     el.setAttribute('autocomplete', 'tel');
     el.addEventListener('input', function () {
-      const start = this.selectionStart;
-      const prevLen = this.value.length;
-      this.value = formatTurkishPhone(this.value);
-      const diff = this.value.length - prevLen;
-      const newStart = Math.min(Math.max(0, start + diff), this.value.length);
-      this.setSelectionRange(newStart, newStart);
+      const cursorBefore = this.selectionStart;
+      const digitsBeforeCursor = getDigits(this.value.slice(0, cursorBefore)).length;
+      const ten = toTenDigits(this.value);
+      const formatted = formatFromTen(ten);
+      this.value = formatted;
+      const newPos = positionAfterDigits(formatted, digitsBeforeCursor);
+      this.setSelectionRange(newPos, newPos);
     });
     el.addEventListener('paste', function (e) {
       e.preventDefault();
       const text = (e.clipboardData || window.clipboardData).getData('text');
-      this.value = formatTurkishPhone(text);
+      const ten = toTenDigits(text);
+      this.value = formatFromTen(ten);
     });
-    el.addEventListener('blur', function () {
-      const ten = toTenDigits(this.value);
-      if (ten.length === 10) this.value = formatTurkishPhone(this.value);
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Backspace' || e.key === 'Delete') {
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        const digits = getDigits(this.value);
+        const digitsBeforeStart = getDigits(this.value.slice(0, start)).length;
+        const digitsInSelection = getDigits(this.value.slice(start, end)).length;
+        const from = digitsInSelection > 0 ? digitsBeforeStart : (e.key === 'Backspace' ? digitsBeforeStart - 1 : digitsBeforeStart);
+        const to = digitsInSelection > 0 ? digitsBeforeStart + digitsInSelection : (e.key === 'Backspace' ? digitsBeforeStart : digitsBeforeStart + 1);
+        const targetDigitCount = Math.max(0, from);
+        const newTen = digits.slice(0, from) + digits.slice(to);
+        this.value = formatFromTen(newTen);
+        const newPos = positionAfterDigits(this.value, targetDigitCount);
+        this.setSelectionRange(newPos, newPos);
+        e.preventDefault();
+      }
     });
     const form = el.closest('form');
     if (form && !el.dataset.phoneMaskNoNormalize) {
       form.addEventListener('submit', function () {
         const ten = toTenDigits(el.value);
-        if (ten.length === 10) el.value = phoneValueForSubmit(el.value);
+        if (ten.length === 10) el.value = '0' + ten;
       }, { capture: true });
     }
-    if (el.value) el.value = formatTurkishPhone(el.value);
+    if (el.value) el.value = formatFromTen(toTenDigits(el.value));
   });
 }
 
