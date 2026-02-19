@@ -5,6 +5,9 @@
 @section('page_subtitle', $company->name)
 
 @section('content')
+@php
+    $pending = $company->pending_changes ?? [];
+@endphp
 <div class="max-w-2xl space-y-6 pb-24">
     @if(!$company->approved_at)
         <div class="rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50/80 dark:bg-amber-900/20 px-4 py-4 text-sm text-amber-800 dark:text-amber-200">
@@ -26,14 +29,14 @@
             <h2 class="text-base font-bold text-[var(--panel-text)] mb-1">Logo</h2>
             <p class="text-sm text-[var(--panel-text-muted)] mb-4">Önerilen: 400×400 px (kare), max 2 MB. JPG, PNG veya WebP.</p>
             @php
-                $currentLogo = (isset($company->pending_changes['remove_logo']) && $company->pending_changes['remove_logo']) ? null : ($company->pending_changes['logo'] ?? $company->logo);
+                $currentLogo = (!empty($pending['remove_logo'])) ? null : ($pending['logo'] ?? $company->logo);
             @endphp
             @if($currentLogo)
                 <div class="flex flex-wrap items-center gap-4 mb-4">
                     <img src="{{ asset('storage/'.$currentLogo) }}" alt="Logo" class="w-20 h-20 rounded-2xl object-cover border border-[var(--panel-border)]">
-                    @if(isset($company->pending_changes['logo']) && $company->pending_changes['logo'])
+                    @if(!empty($pending['logo']))
                         <span class="text-xs font-medium px-2.5 py-1 rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200">Onay bekliyor</span>
-                    @elseif(isset($company->pending_changes['remove_logo']) && $company->pending_changes['remove_logo'])
+                    @elseif(!empty($pending['remove_logo']))
                         <span class="text-xs font-medium px-2.5 py-1 rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200">Silme talebi</span>
                     @elseif(!$company->logo_approved_at)
                         <span class="text-xs font-medium px-2.5 py-1 rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200">Onay bekliyor</span>
@@ -42,7 +45,7 @@
                     @endif
                 </div>
                 <label class="flex items-center gap-3 min-h-[44px] cursor-pointer mb-4">
-                    <input type="checkbox" name="remove_logo" value="1" class="rounded border-slate-300 text-red-600 focus:ring-red-500 w-5 h-5" {{ old('remove_logo') || (isset($company->pending_changes['remove_logo']) && $company->pending_changes['remove_logo']) ? 'checked' : '' }}>
+                    <input type="checkbox" name="remove_logo" value="1" class="rounded border-slate-300 text-red-600 focus:ring-red-500 w-5 h-5" {{ old('remove_logo') || !empty($pending['remove_logo']) ? 'checked' : '' }}>
                     <span class="text-sm text-[var(--panel-text)]">Mevcut logoyu sil (onay sonrası kaldırılır)</span>
                 </label>
             @endif
@@ -59,18 +62,18 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-[var(--panel-text)] mb-1.5">Firma adı *</label>
-                    <input type="text" name="name" value="{{ old('name', $company->pending_changes['name'] ?? $company->name) }}" required class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)] focus:border-transparent">
+                    <input type="text" name="name" value="{{ old('name', $pending['name'] ?? $company->name) }}" required class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)] focus:border-transparent">
                     @error('name')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-[var(--panel-text)] mb-1.5">Vergi no</label>
-                        <input type="text" name="tax_number" value="{{ old('tax_number', $company->pending_changes['tax_number'] ?? $company->tax_number) }}" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">
+                        <input type="text" name="tax_number" value="{{ old('tax_number', $pending['tax_number'] ?? $company->tax_number) }}" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">
                         @error('tax_number')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-[var(--panel-text)] mb-1.5">Vergi / Veri dairesi</label>
-                        <input type="text" name="tax_office" value="{{ old('tax_office', $company->pending_changes['tax_office'] ?? $company->tax_office) }}" placeholder="Örn: Kadıköy VD" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">
+                        <input type="text" name="tax_office" value="{{ old('tax_office', $pending['tax_office'] ?? $company->tax_office) }}" placeholder="Örn: Kadıköy VD" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">
                         @error('tax_office')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                     </div>
                 </div>
@@ -89,13 +92,13 @@
                         </select>
                     </div>
                 </div>
-                <input type="hidden" name="city" id="nakliyeci_company_city" value="{{ old('city', $company->pending_changes['city'] ?? $company->city) }}">
-                <input type="hidden" name="district" id="nakliyeci_company_district_value" value="{{ old('district', $company->pending_changes['district'] ?? $company->district) }}">
+                <input type="hidden" name="city" id="nakliyeci_company_city" value="{{ old('city', $pending['city'] ?? $company->city) }}">
+                <input type="hidden" name="district" id="nakliyeci_company_district_value" value="{{ old('district', $pending['district'] ?? $company->district) }}">
                 @error('city')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 @error('district')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 <div>
                     <label class="block text-sm font-medium text-[var(--panel-text)] mb-1.5">Adres</label>
-                    <textarea name="address" rows="2" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">{{ old('address', $company->pending_changes['address'] ?? $company->address) }}</textarea>
+                    <textarea name="address" rows="2" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">{{ old('address', $pending['address'] ?? $company->address) }}</textarea>
                     @error('address')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
             </div>
@@ -108,30 +111,30 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-[var(--panel-text)] mb-1.5">Telefon</label>
-                        <input type="text" name="phone" value="{{ old('phone', $company->pending_changes['phone'] ?? $company->phone) }}" placeholder="5XX XXX XX XX" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">
+                        <input type="text" name="phone" value="{{ old('phone', $pending['phone'] ?? $company->phone) }}" placeholder="5XX XXX XX XX" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">
                         @error('phone')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-[var(--panel-text)] mb-1.5">İkinci telefon</label>
-                        <input type="text" name="phone_2" value="{{ old('phone_2', $company->pending_changes['phone_2'] ?? $company->phone_2) }}" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">
+                        <input type="text" name="phone_2" value="{{ old('phone_2', $pending['phone_2'] ?? $company->phone_2) }}" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">
                         @error('phone_2')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                     </div>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-[var(--panel-text)] mb-1.5">WhatsApp</label>
-                        <input type="text" name="whatsapp" value="{{ old('whatsapp', $company->pending_changes['whatsapp'] ?? $company->whatsapp) }}" placeholder="5XX XXX XX XX" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">
+                        <input type="text" name="whatsapp" value="{{ old('whatsapp', $pending['whatsapp'] ?? $company->whatsapp) }}" placeholder="5XX XXX XX XX" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">
                         @error('whatsapp')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-[var(--panel-text)] mb-1.5">E-posta</label>
-                        <input type="email" name="email" value="{{ old('email', $company->pending_changes['email'] ?? $company->email) }}" placeholder="info@firma.com" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">
+                        <input type="email" name="email" value="{{ old('email', $pending['email'] ?? $company->email) }}" placeholder="info@firma.com" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">
                         @error('email')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                     </div>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-[var(--panel-text)] mb-1.5">Açıklama</label>
-                    <textarea name="description" rows="4" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]" placeholder="Firmanızı kısaca tanıtın">{{ old('description', $company->pending_changes['description'] ?? $company->description) }}</textarea>
+                    <textarea name="description" rows="4" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]" placeholder="Firmanızı kısaca tanıtın">{{ old('description', $pending['description'] ?? $company->description) }}</textarea>
                     @error('description')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
             </div>
@@ -145,7 +148,7 @@
                 @foreach(\App\Models\Company::serviceLabels() as $key => $label)
                     <label class="flex items-center gap-2.5 min-h-[44px] px-4 py-2.5 rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] cursor-pointer hover:border-[var(--panel-primary)] transition-colors">
                         <input type="checkbox" name="services[]" value="{{ $key }}" class="rounded border-slate-300 text-[var(--panel-primary)] focus:ring-[var(--panel-primary)] w-5 h-5"
-                            {{ in_array($key, old('services', $company->pending_changes['services'] ?? $company->services ?? [])) ? 'checked' : '' }}>
+                            {{ in_array($key, old('services', $pending['services'] ?? $company->services ?? [])) ? 'checked' : '' }}>
                         <span class="text-sm text-[var(--panel-text)]">{{ $label }}</span>
                     </label>
                 @endforeach
@@ -162,17 +165,17 @@
             <div class="px-5 sm:px-6 pb-5 sm:pb-6 pt-0 space-y-4 border-t border-[var(--panel-border)]">
                 <div>
                     <label class="block text-sm font-medium text-[var(--panel-text)] mb-1.5">Meta başlık</label>
-                    <input type="text" name="seo_meta_title" value="{{ old('seo_meta_title', $company->pending_changes['seo_meta_title'] ?? $company->seo_meta_title) }}" placeholder="Arama sonuçlarında görünecek başlık" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">
+                    <input type="text" name="seo_meta_title" value="{{ old('seo_meta_title', $pending['seo_meta_title'] ?? $company->seo_meta_title) }}" placeholder="Arama sonuçlarında görünecek başlık" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">
                     @error('seo_meta_title')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-[var(--panel-text)] mb-1.5">Meta açıklama</label>
-                    <textarea name="seo_meta_description" rows="2" maxlength="500" placeholder="Kısa açıklama" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">{{ old('seo_meta_description', $company->pending_changes['seo_meta_description'] ?? $company->seo_meta_description) }}</textarea>
+                    <textarea name="seo_meta_description" rows="2" maxlength="500" placeholder="Kısa açıklama" class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">{{ old('seo_meta_description', $pending['seo_meta_description'] ?? $company->seo_meta_description) }}</textarea>
                     @error('seo_meta_description')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-[var(--panel-text)] mb-1.5">Meta anahtar kelimeler</label>
-                    <input type="text" name="seo_meta_keywords" value="{{ old('seo_meta_keywords', $company->pending_changes['seo_meta_keywords'] ?? $company->seo_meta_keywords) }}" placeholder="nakliye, ev taşıma, ..." class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">
+                    <input type="text" name="seo_meta_keywords" value="{{ old('seo_meta_keywords', $pending['seo_meta_keywords'] ?? $company->seo_meta_keywords) }}" placeholder="nakliye, ev taşıma, ..." class="input-touch w-full rounded-xl border border-[var(--panel-border)] bg-[var(--panel-bg)] px-4 py-3 text-[var(--panel-text)] focus:ring-2 focus:ring-[var(--panel-primary)]">
                     @error('seo_meta_keywords')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
             </div>
@@ -234,8 +237,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var provincesUrl = {!! json_encode(route('api.turkey.provinces')) !!};
     var districtsUrl = {!! json_encode(route('api.turkey.districts')) !!};
     var fallbackProvinces = @json(array_keys(config('turkey_city_coordinates', [])) ?: ['Adana','Ankara','Antalya','Aydın','Balıkesir','Bursa','Denizli','Diyarbakır','Gaziantep','Hatay','İstanbul','İzmir','Kayseri','Kocaeli','Konya','Malatya','Manisa','Mardin','Mersin','Muğla','Samsun','Şanlıurfa','Tekirdağ','Trabzon']);
-    var currentCity = {!! json_encode(old('city', $company->pending_changes['city'] ?? $company->city)) !!};
-    var currentDistrict = {!! json_encode(old('district', $company->pending_changes['district'] ?? $company->district)) !!};
+    var currentCity = {!! json_encode(old('city', $pending['city'] ?? $company->city)) !!};
+    var currentDistrict = {!! json_encode(old('district', $pending['district'] ?? $company->district)) !!};
     var provSel = document.getElementById('nakliyeci_company_province');
     var distSel = document.getElementById('nakliyeci_company_district');
     var cityInp = document.getElementById('nakliyeci_company_city');

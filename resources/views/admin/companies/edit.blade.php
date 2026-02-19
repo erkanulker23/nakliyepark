@@ -434,10 +434,25 @@
     });
     </script>
 
-    {{-- Firma logosu / profil resmi: admin yükleyebilir, onaylayabilir veya kaldırabilir --}}
+    {{-- Firma logosu / profil resmi: admin yükleyebilir, bekleyen logoyu veya mevcut logoyu onaylayabilir --}}
     <div class="mt-6 admin-card p-6">
         <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">Firma logosu / profil resmi</h3>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Profil resmini buradan yükleyebilir veya nakliyecinin yüklediği logoyu onaylayabilirsiniz. Yüklediğiniz logo otomatik onaylı olur.</p>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Profil resmini buradan yükleyebilir veya nakliyecinin yüklediği logoyu onaylayabilirsiniz. <strong>Nakliyeci logo yüklediyse aşağıda "Bekleyen logo" görünür; "Bekleyen logoyu yayına al" ile sitede hemen görünür.</strong></p>
+
+        @php $pendingLogo = $company->pending_changes['logo'] ?? null; @endphp
+        @if($pendingLogo)
+            <div class="mb-4 p-4 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+                <p class="text-sm font-medium text-amber-800 dark:text-amber-200 mb-2">Nakliyeci yeni logo yükledi (onay bekliyor)</p>
+                <div class="flex flex-wrap items-center gap-4">
+                    <img src="{{ asset('storage/'.$pendingLogo) }}" alt="Bekleyen logo" class="w-24 h-24 rounded-xl object-cover border border-amber-300 dark:border-amber-700">
+                    <form method="POST" action="{{ route('admin.companies.approve-pending-logo', $company) }}" class="inline">
+                        @csrf
+                        <button type="submit" class="admin-btn-primary text-sm">Bekleyen logoyu yayına al</button>
+                    </form>
+                </div>
+                <p class="text-xs text-amber-700 dark:text-amber-300 mt-2">Bu buton sadece logoyu yayına alır; diğer bekleyen değişiklikler (ad, adres vb.) üstteki "Değişiklikleri onayla ve yayına al" ile onaylanır.</p>
+            </div>
+        @endif
 
         <form method="POST" action="{{ route('admin.companies.upload-logo', $company) }}" enctype="multipart/form-data" class="mb-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-600">
             @csrf
@@ -470,7 +485,7 @@
                 </form>
             </div>
         @else
-            <p class="text-sm text-slate-500 dark:text-slate-400">Henüz logo yok. Yukarıdaki formdan yükleyebilirsiniz veya nakliyeci yüklediyse bekleyen değişikliklerde görünür.</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Henüz logo yok. Yukarıdaki formdan yükleyebilirsiniz veya nakliyeci yüklediyse yukarıda "Bekleyen logoyu yayına al" ile onaylayın.</p>
         @endif
     </div>
 

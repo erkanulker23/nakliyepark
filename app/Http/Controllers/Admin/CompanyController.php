@@ -409,12 +409,39 @@ class CompanyController extends Controller
         return back()->with('success', 'Logo kaldırıldı.');
     }
 
-    /** Firma logosunu onayla (nakliyeci yükledikten sonra). */
+    /** Nakliyecinin yüklediği bekleyen logoyu yayına alır (sadece logo; diğer bekleyen değişiklikler kalır). */
+    public function approvePendingLogo(Company $company)
+    {
+        $this->authorize('update', $company);
+        $company->refresh();
+        $pending = $company->pending_changes;
+        if (! is_array($pending) || empty($pending['logo'])) {
+            return back()->with('error', 'Bekleyen logo bulunamadı. Nakliyeci logoyu panelden yükleyip kaydettiğinde burada görünür.');
+        }
+        $oldPath = $company->logo;
+        $pendingPath = $pending['logo'];
+        $company->update([
+            'logo' => $pendingPath,
+            'logo_approved_at' => now(),
+        ]);
+        if ($oldPath && $oldPath !== $pendingPath && Storage::disk('public')->exists($oldPath)) {
+            Storage::disk('public')->delete($oldPath);
+        }
+        unset($pending['logo'], $pending['remove_logo']);
+        $company->update([
+            'pending_changes' => empty($pending) ? null : $pending,
+            'pending_changes_at' => empty($pending) ? null : $company->pending_changes_at,
+        ]);
+        Log::channel('admin_actions')->info('Admin approved pending company logo', ['admin_id' => auth()->id(), 'company_id' => $company->id]);
+        return back()->with('success', 'Bekleyen logo yayına alındı. Firma sayfasında görünecek.');
+    }
+
+    /** Firma logosunu onayla (mevcut company.logo zaten yüklüyse, sadece onay tarihi güncellenir). */
     public function approveLogo(Company $company)
     {
         $this->authorize('update', $company);
         if (! $company->logo) {
-            return back()->with('error', 'Firmada yüklü logo yok.');
+            return back()->with('error', 'Firmada yüklü logo yok. Nakliyeci yeni logo yüklediyse "Bekleyen logoyu yayına al" butonunu kullanın.');
         }
         $company->update(['logo_approved_at' => now()]);
         Log::channel('admin_actions')->info('Admin company logo approved', ['admin_id' => auth()->id(), 'company_id' => $company->id]);

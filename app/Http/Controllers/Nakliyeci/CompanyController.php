@@ -132,7 +132,10 @@ class CompanyController extends Controller
             'pending_changes_at' => now(),
         ]);
 
-        AdminNotifier::notify('company_pending_changes', "Firma güncelleme talebi: {$company->name} – Bekleyen değişiklikler onayınızı bekliyor.", 'Bekleyen firma değişiklikleri', ['url' => route('admin.companies.edit', $company)]);
+        $hasLogo = ! empty($pending['logo']);
+        $title = $hasLogo ? 'Firma logo / değişiklik talebi' : 'Bekleyen firma değişiklikleri';
+        $message = "Firma güncelleme talebi: {$company->name} – Bekleyen değişiklikler onayınızı bekliyor." . ($hasLogo ? ' (Yeni logo yüklendi.)' : '');
+        AdminNotifier::notify('company_pending_changes', $message, $title, ['url' => route('admin.companies.edit', $company)]);
 
         return redirect()->route('nakliyeci.company.edit')->with('success', 'Değişiklikleriniz kaydedildi. Admin onayından sonra yayına alınacaktır. Firma sayfanız mevcut haliyle yayında.');
     }
