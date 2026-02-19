@@ -14,6 +14,11 @@
     <a href="{{ route('nakliyeci.company.edit') }}" class="nav-item {{ request()->routeIs('nakliyeci.company.*') ? 'active' : '' }}" data-tooltip="Firma Bilgileri">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
     </a>
+    @if($show_pazaryeri_page ?? true)
+    <a href="{{ route('nakliyeci.pazaryeri.index') }}" class="nav-item {{ request()->routeIs('nakliyeci.pazaryeri.*') ? 'active' : '' }}" data-tooltip="Pazaryeri İlanlarım">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+    </a>
+    @endif
     <div class="flex-1"></div>
     <a href="{{ route('nakliyeci.bilgilerim.edit') }}" class="nav-item {{ request()->routeIs('nakliyeci.bilgilerim.*') ? 'active' : '' }}" data-tooltip="Bilgilerim">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>

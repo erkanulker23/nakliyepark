@@ -182,6 +182,7 @@
                 </div>
                 <span class="text-sm font-medium text-sky-600 dark:text-sky-400 shrink-0">Hemen Başlat →</span>
             </a>
+            @if($show_pazaryeri_page ?? true)
             <a href="{{ route('pazaryeri.index') }}" class="flex items-center justify-between gap-4 p-4 rounded-2xl bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 hover:bg-violet-100 dark:hover:bg-violet-900/30 transition-colors">
                 <div class="flex items-center gap-3 min-w-0">
                     <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-violet-200 dark:bg-violet-800 text-violet-600 dark:text-violet-400">
@@ -191,6 +192,7 @@
                 </div>
                 <span class="text-sm font-medium text-violet-600 dark:text-violet-400 shrink-0">Hemen Öne Çık →</span>
             </a>
+            @endif
         </div>
 
         <div class="lg:flex lg:gap-8">

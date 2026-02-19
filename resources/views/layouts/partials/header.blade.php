@@ -26,7 +26,9 @@
                 <a href="{{ route('firmalar.index') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400">Firmalar</a>
                 @endif
                 <a href="{{ route('defter.index') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400">Defter</a>
+                @if($show_pazaryeri_page ?? true)
                 <a href="{{ route('pazaryeri.index') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400">Pazaryeri</a>
+                @endif
                 <div class="relative" id="tools-dropdown-wrap">
                     <button type="button" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400 inline-flex items-center gap-1 tools-dropdown-btn" aria-expanded="false" aria-haspopup="true" aria-controls="tools-dropdown-menu" id="tools-menu-btn">
                         Yardımcı araçlar
@@ -66,6 +68,9 @@
                                 </button>
                                 <div id="firmam-dropdown-menu" class="absolute right-0 top-full mt-1 min-w-[160px] rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 shadow-lg py-1 z-50 firmam-dropdown-panel" role="menu" aria-labelledby="firmam-menu-btn" hidden>
                                     <a href="{{ route('nakliyeci.company.edit') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Firmam</a>
+                                    @if($show_pazaryeri_page ?? true)
+                                    <a href="{{ route('nakliyeci.pazaryeri.index') }}" class="block px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800" role="menuitem">Pazaryeri İlanlarım</a>
+                                    @endif
                                     <form method="POST" action="{{ route('logout') }}" class="block" role="menuitem">
                                         @csrf
                                         <button type="submit" class="w-full text-left px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800">Çıkış</button>
@@ -91,7 +96,9 @@
             <a href="{{ route('firmalar.index') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400 shrink-0 py-2 text-sm">Firmalar</a>
             @endif
             <a href="{{ route('defter.index') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400 shrink-0 py-2 text-sm">Defter</a>
+            @if($show_pazaryeri_page ?? true)
             <a href="{{ route('pazaryeri.index') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400 shrink-0 py-2 text-sm">Pazaryeri</a>
+            @endif
             <a href="{{ route('tools.volume') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400 shrink-0 py-2 text-sm">Hacim</a>
             <a href="{{ route('tools.distance') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400 shrink-0 py-2 text-sm">Mesafe</a>
             <a href="{{ route('tools.price-estimator') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400 shrink-0 py-2 text-sm">Tahmini fiyat</a>

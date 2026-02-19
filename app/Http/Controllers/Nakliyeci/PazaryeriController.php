@@ -4,11 +4,19 @@ namespace App\Http\Controllers\Nakliyeci;
 
 use App\Http\Controllers\Controller;
 use App\Models\PazaryeriListing;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class PazaryeriController extends Controller
 {
+    private function ensurePazaryeriEnabled(): void
+    {
+        if (Setting::get('show_pazaryeri_page', '1') !== '1') {
+            abort(404);
+        }
+    }
+
     private function getCompany(Request $request)
     {
         $company = $request->user()->company;
@@ -20,6 +28,7 @@ class PazaryeriController extends Controller
 
     public function index(Request $request)
     {
+        $this->ensurePazaryeriEnabled();
         $company = $this->getCompany($request);
         if (! $company) {
             return redirect()->route('nakliyeci.company.create')->with('error', 'Önce firma bilgilerinizi girin.');
@@ -32,6 +41,7 @@ class PazaryeriController extends Controller
 
     public function create(Request $request)
     {
+        $this->ensurePazaryeriEnabled();
         $company = $this->getCompany($request);
         if (! $company) {
             return redirect()->route('nakliyeci.company.create')->with('error', 'Önce firma bilgilerinizi girin.');
@@ -43,6 +53,7 @@ class PazaryeriController extends Controller
 
     public function store(Request $request)
     {
+        $this->ensurePazaryeriEnabled();
         $company = $this->getCompany($request);
         if (! $company) {
             return redirect()->route('nakliyeci.company.create')->with('error', 'Önce firma bilgilerinizi girin.');
@@ -94,6 +105,7 @@ class PazaryeriController extends Controller
 
     public function edit(Request $request, PazaryeriListing $pazaryeri)
     {
+        $this->ensurePazaryeriEnabled();
         $company = $this->getCompany($request);
         if (! $company) {
             abort(403);
@@ -108,6 +120,7 @@ class PazaryeriController extends Controller
 
     public function update(Request $request, PazaryeriListing $pazaryeri)
     {
+        $this->ensurePazaryeriEnabled();
         $company = $this->getCompany($request);
         if (! $company || $pazaryeri->company_id !== $company->id) {
             abort(403);
@@ -158,6 +171,7 @@ class PazaryeriController extends Controller
 
     public function destroy(Request $request, PazaryeriListing $pazaryeri)
     {
+        $this->ensurePazaryeriEnabled();
         $company = $this->getCompany($request);
         if (! $company || $pazaryeri->company_id !== $company->id) {
             abort(403);

@@ -50,7 +50,60 @@
         </div>
     @endif
     @if($company->hasPendingChanges())
-        @php $p = $company->pending_changes; @endphp
+        @php
+            $p = $company->pending_changes;
+            $c = $company;
+            $diffFields = [
+                'name' => 'Firma adı',
+                'tax_number' => 'Vergi no',
+                'tax_office' => 'Vergi dairesi',
+                'address' => 'Adres',
+                'city' => 'İl',
+                'district' => 'İlçe',
+                'phone' => 'Telefon',
+                'phone_2' => 'Telefon 2',
+                'whatsapp' => 'WhatsApp',
+                'email' => 'E-posta',
+                'description' => 'Açıklama',
+                'seo_meta_title' => 'SEO başlık',
+                'seo_meta_description' => 'SEO açıklama',
+                'seo_meta_keywords' => 'SEO anahtar kelimeler',
+            ];
+            $diffItems = [];
+            foreach ($diffFields as $key => $label) {
+                if (!array_key_exists($key, $p)) continue;
+                $old = $c->$key ?? '';
+                $new = $p[$key] ?? '';
+                if (is_array($old)) $old = implode(', ', $old);
+                if (is_array($new)) $new = implode(', ', $new);
+                $old = trim((string) $old);
+                $new = trim((string) $new);
+                if ($old === $new) continue;
+                if ($old === '') {
+                    $diffItems[] = ['label' => $label, 'type' => 'new', 'value' => $new ?: '(boş)'];
+                } elseif ($new === '') {
+                    $diffItems[] = ['label' => $label, 'type' => 'removed', 'value' => $old];
+                } else {
+                    $diffItems[] = ['label' => $label, 'type' => 'changed', 'old' => $old, 'new' => $new];
+                }
+            }
+            // Hizmetler (array)
+            if (isset($p['services'])) {
+                $oldS = is_array($c->services ?? null) ? $c->services : [];
+                $newS = is_array($p['services'] ?? null) ? $p['services'] : [];
+                $oldSet = array_flip($oldS);
+                $newSet = array_flip($newS);
+                $added = array_diff_key($newSet, $oldSet);
+                $removed = array_diff_key($oldSet, $newSet);
+                $serviceLabels = \App\Models\Company::serviceLabels();
+                if (!empty($added) || !empty($removed)) {
+                    $parts = [];
+                    if (!empty($added)) $parts[] = 'Yeni eklenenler: ' . implode(', ', array_map(fn($k) => $serviceLabels[$k] ?? $k, array_keys($added)));
+                    if (!empty($removed)) $parts[] = 'Kaldırılanlar: ' . implode(', ', array_map(fn($k) => $serviceLabels[$k] ?? $k, array_keys($removed)));
+                    $diffItems[] = ['label' => 'Hizmetler', 'type' => 'services', 'parts' => $parts];
+                }
+            }
+        @endphp
         <div class="admin-card p-5 mb-4 border-2 border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/20 rounded-lg">
             <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-2 flex items-center gap-2">
                 <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
@@ -59,13 +112,39 @@
                 Nakliyecinin gönderdiği bekleyen değişiklikler
             </h3>
             <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">Gönderim: {{ $company->pending_changes_at?->format('d.m.Y H:i') }}. Aşağıdaki değişiklikler onaylanana kadar firma sayfası mevcut haliyle yayında.</p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm mb-4">
-                @if(isset($p['name']))<div><span class="text-slate-500">Firma adı:</span> <strong>{{ $p['name'] }}</strong></div>@endif
-                @if(isset($p['city']) || isset($p['district']))<div><span class="text-slate-500">Şehir / İlçe:</span> {{ trim(($p['city'] ?? '') . (isset($p['district']) && $p['district'] ? ', ' . $p['district'] : '')) ?: '—' }}</div>@endif
-                @if(isset($p['phone']))<div><span class="text-slate-500">Telefon:</span> {{ $p['phone'] }}</div>@endif
-                @if(isset($p['email']))<div><span class="text-slate-500">E-posta:</span> {{ $p['email'] }}</div>@endif
-                @if(!empty($p['remove_logo']))<div class="sm:col-span-2"><span class="text-red-600 dark:text-red-400 font-medium">Nakliyeci logoyu kaldırmak istiyor.</span></div>@endif
-                @if(!empty($p['logo']))<div class="sm:col-span-2"><span class="text-slate-500">Yeni logo:</span> <img src="{{ asset('storage/'.$p['logo']) }}" alt="Bekleyen logo" class="inline-block w-16 h-16 rounded-lg object-cover border border-slate-200 dark:border-slate-600 mt-1"></div>@endif
+            <div class="space-y-3 text-sm mb-4">
+                @foreach($diffItems as $item)
+                    <div class="p-3 rounded-lg bg-white/60 dark:bg-zinc-800/40 border border-emerald-200/80 dark:border-emerald-800/50">
+                        <span class="text-slate-500 font-medium block mb-1">{{ $item['label'] }}:</span>
+                        @if($item['type'] === 'new')
+                            <span class="text-emerald-700 dark:text-emerald-300"><strong>Yeni ekledi:</strong> {{ Str::limit($item['value'], 200) }}</span>
+                        @elseif($item['type'] === 'removed')
+                            <span class="text-red-600 dark:text-red-400"><strong>Kaldırdı</strong> (eskiden: {{ Str::limit($item['value'], 100) }})</span>
+                        @elseif($item['type'] === 'services')
+                            <div class="space-y-1">
+                                @foreach($item['parts'] as $part)
+                                    <div class="text-slate-700 dark:text-slate-300">{{ $part }}</div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="space-y-1">
+                                <div><span class="text-slate-500">Şu an:</span> <span class="line-through text-slate-500">{{ Str::limit($item['old'], 150) }}</span></div>
+                                <div><span class="text-emerald-700 dark:text-emerald-300 font-medium">Yeni değer:</span> {{ Str::limit($item['new'], 150) }}</div>
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
+                @if(!empty($p['remove_logo']))
+                    <div class="p-3 rounded-lg bg-red-50/80 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                        <span class="text-red-600 dark:text-red-400 font-medium">Logo kaldırma talebi</span> — Nakliyeci logoyu kaldırmak istiyor.
+                    </div>
+                @endif
+                @if(!empty($p['logo']))
+                    <div class="p-3 rounded-lg bg-white/60 dark:bg-zinc-800/40 border border-emerald-200/80 dark:border-emerald-800/50">
+                        <span class="text-slate-500 font-medium block mb-2">Yeni logo yükledi:</span>
+                        <img src="{{ asset('storage/'.$p['logo']) }}" alt="Bekleyen logo" class="w-20 h-20 rounded-xl object-cover border border-slate-200 dark:border-slate-600">
+                    </div>
+                @endif
             </div>
             <form method="POST" action="{{ route('admin.companies.approve-pending', $company) }}" class="inline" onsubmit="return confirm('Bu değişiklikleri onaylayıp yayına almak istediğinize emin misiniz?');">
                 @csrf

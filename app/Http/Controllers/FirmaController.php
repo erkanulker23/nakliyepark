@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use Illuminate\Support\Facades\Cookie;
 
 class FirmaController extends Controller
 {
@@ -57,10 +58,15 @@ class FirmaController extends Controller
             abort(404);
         }
 
-        try {
-            $company->increment('view_count');
-        } catch (\Throwable $e) {
-            // view_count kolonu eksikse veya DB hatası olursa sayfa yine açılsın
+        // Görüntülenme: aynı ziyaretçi (tarayıcı) bu firmayı daha önce görmediyse say (cookie ile 1 yıl)
+        $cookieName = 'np_fv_' . $company->id;
+        if (! request()->cookie($cookieName)) {
+            try {
+                $company->increment('view_count');
+            } catch (\Throwable $e) {
+                // view_count kolonu eksikse veya DB hatası olursa sayfa yine açılsın
+            }
+            Cookie::queue($cookieName, '1', 60 * 24 * 365); // 1 yıl
         }
 
         $company->load('user', 'reviews.user', 'contracts', 'approvedVehicleImages', 'documents');

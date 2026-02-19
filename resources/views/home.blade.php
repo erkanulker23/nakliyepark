@@ -1065,11 +1065,13 @@ $haritadaGoster = $firmalarHaritada->map(fn($c) => ['id' => $c->id, 'name' => $c
                 <span class="relative font-bold text-zinc-900 dark:text-white">Firmalar</span>
             </a>
             @endif
+            @if($show_pazaryeri_page ?? true)
             <a href="{{ route('pazaryeri.index') }}" class="relative flex flex-col items-center justify-center min-h-[140px] p-6 rounded-2xl bg-white dark:bg-zinc-900/80 border-2 border-zinc-200/80 dark:border-zinc-800 text-center group shadow-md hover:shadow-xl hover:border-violet-300 dark:hover:border-violet-700/50 hover:-translate-y-1 transition-all duration-300 overflow-hidden">
                 <span class="absolute top-0 right-0 w-20 h-20 bg-violet-500/10 rounded-bl-full group-hover:bg-violet-500/20 transition-colors"></span>
                 <span class="relative w-16 h-16 rounded-2xl bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center text-violet-600 dark:text-violet-400 mb-3 group-hover:scale-110 transition-transform"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg></span>
                 <span class="relative font-bold text-zinc-900 dark:text-white">Pazaryeri</span>
             </a>
+            @endif
         </div>
     </div>
 </section>

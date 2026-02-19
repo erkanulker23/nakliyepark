@@ -114,6 +114,9 @@ class AppServiceProvider extends ServiceProvider
         $contactWhatsapp = \App\Models\Setting::get('contact_whatsapp', '');
         $contactHours = \App\Models\Setting::get('contact_hours', '');
         $showFirmalarPage = \App\Models\Setting::get('show_firmalar_page', '1') === '1';
+        $showPazaryeriPage = \App\Models\Setting::get('show_pazaryeri_page', '1') === '1';
+        $showDefterPage = \App\Models\Setting::get('show_defter_page', '1') === '1';
+        $showBlogPage = \App\Models\Setting::get('show_blog_page', '1') === '1';
 
         \Illuminate\Support\Facades\View::share([
             'site_meta_title' => $siteMetaTitle,
@@ -132,6 +135,9 @@ class AppServiceProvider extends ServiceProvider
             'contact_whatsapp' => $contactWhatsapp ?: null,
             'contact_hours' => $contactHours ?: null,
             'show_firmalar_page' => $showFirmalarPage,
+            'show_pazaryeri_page' => $showPazaryeriPage,
+            'show_defter_page' => $showDefterPage,
+            'show_blog_page' => $showBlogPage,
         ]);
     }
 

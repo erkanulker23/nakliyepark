@@ -28,7 +28,9 @@
                     <li><a href="{{ route('firmalar.index') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Firmalar</a></li>
                     @endif
                     <li><a href="{{ route('defter.index') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Defter</a></li>
+                    @if($show_pazaryeri_page ?? true)
                     <li><a href="{{ route('pazaryeri.index') }}" class="text-sm text-zinc-600 dark:text-zinc-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">Pazaryeri</a></li>
+                    @endif
                 </ul>
             </div>
             <div>
