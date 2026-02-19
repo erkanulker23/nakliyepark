@@ -71,6 +71,10 @@ Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'ind
 Route::get('/api/turkey/provinces', [TurkeyLocationController::class, 'provinces'])->name('api.turkey.provinces');
 Route::get('/api/turkey/districts', [TurkeyLocationController::class, 'districts'])->name('api.turkey.districts');
 Route::get('/api/geocode', GeocodeController::class)->name('api.geocode');
+Route::get('/api/tools/distance-history', [ToolController::class, 'distanceHistory'])->name('api.tools.distance-history');
+Route::post('/api/tools/distance-history', [ToolController::class, 'storeDistanceHistory'])->name('api.tools.distance-history.store')->middleware('throttle:30,1');
+Route::get('/api/tools/price-history', [ToolController::class, 'priceHistory'])->name('api.tools.price-history');
+Route::post('/api/tools/price-history', [ToolController::class, 'storePriceHistory'])->name('api.tools.price-history.store')->middleware('throttle:30,1');
 
 Route::get('/ihaleler', [IhaleController::class, 'index'])->name('ihaleler.index');
 Route::get('/ihaleler/{ihale}', [IhaleController::class, 'show'])->name('ihaleler.show');
@@ -243,6 +247,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/companies/{company}/reject', [AdminCompanyController::class, 'reject'])->name('companies.reject');
     Route::patch('/companies/{company}/package', [AdminCompanyController::class, 'updatePackage'])->name('companies.update-package');
     Route::post('/companies/{company}/logo/approve', [AdminCompanyController::class, 'approveLogo'])->name('companies.approve-logo');
+    Route::post('/companies/{company}/galeri', [AdminCompanyController::class, 'storeGallery'])->name('companies.store-gallery');
     Route::post('/companies/{company}/galeri/approve-all', [AdminCompanyController::class, 'approveAllGalleryImages'])->name('companies.approve-gallery-all');
 Route::post('/companies/{company}/galeri/{id}/approve', [AdminCompanyController::class, 'approveGalleryImage'])->name('companies.approve-gallery-image');
 Route::delete('/companies/{company}/galeri/{id}', [AdminCompanyController::class, 'destroyGalleryImage'])->name('companies.destroy-gallery-image');

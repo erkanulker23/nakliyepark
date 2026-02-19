@@ -448,12 +448,31 @@
         </div>
     @endif
 
-    {{-- Galeri onayları --}}
-    @if($company->vehicleImages->count() > 0)
-        @php $unapprovedCount = $company->vehicleImages->whereNull('approved_at')->count(); @endphp
-        <div class="mt-6 admin-card p-6">
-            <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">Firma galerisi</h3>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Onaylanan fotoğraflar firma sayfasında gösterilir. Tek tek onaylayabilir, hepsini toplu onaylayabilir veya istemediğiniz görseli kaldırabilirsiniz.</p>
+    {{-- Firma galerisi: her zaman göster, admin fotoğraf ekleyebilir / onaylayabilir / kaldırabilir --}}
+    <div class="mt-6 admin-card p-6">
+        <h3 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">Firma galerisi</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Nakliyecinin yapabildiği gibi buradan da fotoğraf ekleyebilirsiniz. Eklediğiniz fotoğraflar otomatik onaylı olur. Nakliyecinin yüklediği fotoğrafları tek tek veya toplu onaylayabilir, istemediğinizi kaldırabilirsiniz.</p>
+
+        <form method="POST" action="{{ route('admin.companies.store-gallery', $company) }}" enctype="multipart/form-data" class="mb-6 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-600">
+            @csrf
+            <div class="flex flex-wrap items-end gap-4">
+                <div class="min-w-[200px] flex-1">
+                    <label class="admin-label text-xs">Fotoğraf ekle</label>
+                    <input type="file" name="images[]" accept="image/jpeg,image/png,image/jpg,image/webp" multiple class="admin-input text-sm py-2">
+                    @error('images')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                    @error('images.*')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                </div>
+                <div class="min-w-[180px]">
+                    <label class="admin-label text-xs">Ortak açıklama (opsiyonel)</label>
+                    <input type="text" name="caption" value="{{ old('caption') }}" class="admin-input text-sm py-2" placeholder="Araç / iş fotoğrafı">
+                </div>
+                <button type="submit" class="admin-btn-primary text-sm">Yükle</button>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">JPG, PNG veya WebP. Dosya başı en fazla 5 MB. Birden fazla seçebilirsiniz.</p>
+        </form>
+
+        @if($company->vehicleImages->count() > 0)
+            @php $unapprovedCount = $company->vehicleImages->whereNull('approved_at')->count(); @endphp
             @if($unapprovedCount > 0)
                 <form method="POST" action="{{ route('admin.companies.approve-gallery-all', $company) }}" class="inline mb-4">
                     @csrf
@@ -484,8 +503,10 @@
                     </div>
                 @endforeach
             </div>
-        </div>
-    @endif
+        @else
+            <p class="text-sm text-slate-500 dark:text-slate-400 py-4">Henüz galeri fotoğrafı yok. Yukarıdaki formdan fotoğraf yükleyebilirsiniz.</p>
+        @endif
+    </div>
 
     <div class="mt-6 admin-card p-6">
         <h3 class="font-semibold text-slate-800 mb-3">İstatistikler</h3>

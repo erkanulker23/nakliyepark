@@ -179,6 +179,7 @@
 
         <section class="mt-6 pt-5 border-t border-zinc-200 dark:border-zinc-700" aria-labelledby="son-fiyat-baslik">
             <h3 id="son-fiyat-baslik" class="text-base font-semibold text-zinc-900 dark:text-white mb-3">Son 10 tahmini fiyat hesaplaması</h3>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mb-2">Site genelinde yapılan son hesaplamalar; detaylar hemen altında listelenir.</p>
             <div id="price-history-list" class="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-800/30 divide-y divide-zinc-200 dark:divide-zinc-700 overflow-hidden">
                 <p class="p-4 text-sm text-zinc-500 dark:text-zinc-400" id="price-history-empty">Henüz fiyat hesaplaması yapılmadı. Mesafe ve diğer bilgileri girince tahmin otomatik hesaplanır ve burada listelenir.</p>
             </div>
@@ -190,11 +191,14 @@
 <script>
 (function() {
     const config = @json($config);
+    const csrfToken = '{{ csrf_token() }}';
     const OSRM_BASE = 'https://router.project-osrm.org/route/v1/driving';
     const provincesApiUrl = '{{ route("api.turkey.provinces") }}';
     const districtsApiUrl = '{{ route("api.turkey.districts") }}';
     const geocodeApiUrl = '{{ route("api.geocode") }}';
     const ihaleCreateUrl = '{{ $ihaleCreateUrl }}';
+    const priceHistoryApiUrl = '{{ route("api.tools.price-history") }}';
+    const priceHistoryStoreUrl = '{{ route("api.tools.price-history.store") }}';
 
     const serviceTypeEl = document.getElementById('service_type');
     const roomTypeWrap = document.getElementById('room-type-wrap');
@@ -295,46 +299,50 @@
         const details = [fromName && toName ? fromName + ' → ' + toName : '', 'Mesafe: ' + km + ' km', 'Eşya durumu: ' + roomLabel].filter(Boolean);
         if (priceDetailsEl) priceDetailsEl.innerHTML = details.map(d => '<div>' + d + '</div>').join('');
 
-        savePriceHistory(fromName, toName, km, fiyat, roomLabel);
-        renderPriceHistory();
+        var routeLabel = (fromName && toName) ? fromName + ' → ' + toName : '';
+        savePriceHistory(fromName, toName, km, fiyat, roomLabel, routeLabel);
     }
 
-    const PRICE_HISTORY_KEY = 'nakliyepark_price_history';
-    const MAX_PRICE_HISTORY = 10;
-
-    function savePriceHistory(fromName, toName, km, price, roomLabel) {
-        try {
-            var list = JSON.parse(localStorage.getItem(PRICE_HISTORY_KEY) || '[]');
-            list.unshift({ from: fromName, to: toName, km: km, price: price, room: roomLabel || '', route: (fromName && toName) ? fromName + ' → ' + toName : '' });
-            list = list.slice(0, MAX_PRICE_HISTORY);
-            localStorage.setItem(PRICE_HISTORY_KEY, JSON.stringify(list));
-        } catch (e) {}
+    function savePriceHistory(fromName, toName, km, price, roomLabel, routeLabel) {
+        var payload = { from: fromName || '', to: toName || '', km: km, price: price, room: roomLabel || '', route: routeLabel || '', service_type: serviceTypeEl ? serviceTypeEl.value : '' };
+        fetch(priceHistoryStoreUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            body: JSON.stringify(payload)
+        }).then(function() { loadPriceHistory(); }).catch(function() {});
     }
 
-    function renderPriceHistory() {
+    function loadPriceHistory() {
+        fetch(priceHistoryApiUrl, { headers: { 'Accept': 'application/json' } })
+            .then(function(r) { return r.json(); })
+            .then(function(res) { renderPriceHistory(res.data || []); })
+            .catch(function() { renderPriceHistory([]); });
+    }
+
+    function renderPriceHistory(list) {
         var container = document.getElementById('price-history-list');
         var emptyEl = document.getElementById('price-history-empty');
         if (!container) return;
-        try {
-            var list = JSON.parse(localStorage.getItem(PRICE_HISTORY_KEY) || '[]');
-            if (list.length === 0) {
-                if (emptyEl) emptyEl.classList.remove('hidden');
-                container.querySelectorAll('.price-history-item').forEach(function(el) { el.remove(); });
-                return;
-            }
-            if (emptyEl) emptyEl.classList.add('hidden');
-            container.querySelectorAll('.price-history-item').forEach(function(el) { el.remove(); });
-            list.forEach(function(item) {
-                var div = document.createElement('div');
-                div.className = 'price-history-item px-4 py-3 text-sm';
-                var route = item.route || (item.from && item.to ? item.from + ' → ' + item.to : '');
-                var priceStr = (item.price != null) ? Number(item.price).toLocaleString('tr-TR') + ' ₺' : '';
-                div.innerHTML = '<div class="flex items-center justify-between gap-3 flex-wrap"><span class="text-zinc-600 dark:text-zinc-300 truncate">' + (route || '—') + '</span><span class="font-semibold text-emerald-600 dark:text-emerald-400 shrink-0">' + priceStr + '</span></div>' + (item.km ? '<div class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">' + item.km + ' km' + (item.room ? ' · ' + item.room : '') + '</div>' : '');
-                container.appendChild(div);
-            });
-        } catch (e) {
+        if (!list || list.length === 0) {
             if (emptyEl) emptyEl.classList.remove('hidden');
+            container.querySelectorAll('.price-history-item').forEach(function(el) { el.remove(); });
+            return;
         }
+        if (emptyEl) emptyEl.classList.add('hidden');
+        container.querySelectorAll('.price-history-item').forEach(function(el) { el.remove(); });
+        list.forEach(function(item) {
+            var div = document.createElement('div');
+            div.className = 'price-history-item px-4 py-3 text-sm';
+            var route = item.route || (item.from && item.to ? item.from + ' → ' + item.to : '') || '—';
+            var priceStr = (item.price != null) ? Number(item.price).toLocaleString('tr-TR') + ' ₺' : '';
+            var detay = [];
+            if (item.km) detay.push(item.km + ' km');
+            if (item.room) detay.push(item.room);
+            if (item.service_type) detay.push(item.service_type);
+            var detayStr = detay.length ? detay.join(' · ') : '';
+            div.innerHTML = '<div class="flex items-center justify-between gap-3 flex-wrap"><span class="text-zinc-600 dark:text-zinc-300 truncate">' + route + '</span><span class="font-semibold text-emerald-600 dark:text-emerald-400 shrink-0">' + priceStr + '</span></div>' + (detayStr ? '<div class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">' + detayStr + '</div>' : '');
+            container.appendChild(div);
+        });
     }
 
     function toggleInputs() {
@@ -515,7 +523,7 @@
 
     toggleInputs();
     calculate();
-    renderPriceHistory();
+    loadPriceHistory();
 })();
 </script>
 @endpush

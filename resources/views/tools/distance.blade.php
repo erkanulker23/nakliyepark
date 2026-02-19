@@ -77,7 +77,8 @@
         </div>
 
         <section class="mt-8 pt-6 border-t border-zinc-200 dark:border-zinc-800" aria-labelledby="son-mesafe-baslik">
-            <h2 id="son-mesafe-baslik" class="text-lg font-semibold text-zinc-900 dark:text-white mb-3">Son 10 mesafe ölçümü</h2>
+            <h2 id="son-mesafe-baslik" class="text-lg font-semibold text-zinc-900 dark:text-white mb-1">Son 10 mesafe ölçümü</h2>
+            <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-3">Sitede yapılan son hesaplamalar; herkes aynı listeyi görür.</p>
             <div id="distance-history-list" class="rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-800/30 divide-y divide-zinc-200 dark:divide-zinc-700 overflow-hidden">
                 <p class="p-4 text-sm text-zinc-500 dark:text-zinc-400" id="distance-history-empty">Henüz mesafe hesaplaması yapılmadı. Başlangıç ve varış seçip "Mesafeyi hesapla" butonuna tıklayın.</p>
             </div>
@@ -110,6 +111,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
 (function() {
+    const csrfToken = '{{ csrf_token() }}';
     const provincesApiUrl = '{{ route("api.turkey.provinces") }}';
     const districtsApiUrl = '{{ route("api.turkey.districts") }}';
     const geocodeApiUrl = '{{ route("api.geocode") }}';
@@ -237,42 +239,42 @@
         return Promise.resolve(null);
     }
 
-    const DISTANCE_HISTORY_KEY = 'nakliyepark_distance_history';
-    const MAX_HISTORY = 10;
+    const distanceHistoryApiUrl = '{{ route("api.tools.distance-history") }}';
+    const distanceHistoryStoreUrl = '{{ route("api.tools.distance-history.store") }}';
 
     function saveDistanceHistory(fromName, toName, km) {
-        try {
-            let list = JSON.parse(localStorage.getItem(DISTANCE_HISTORY_KEY) || '[]');
-            list.unshift({ from: fromName, to: toName, km: km, route: fromName + ' → ' + toName });
-            list = list.slice(0, MAX_HISTORY);
-            localStorage.setItem(DISTANCE_HISTORY_KEY, JSON.stringify(list));
-            renderDistanceHistory();
-        } catch (e) {}
+        const route = fromName + ' → ' + toName;
+        fetch(distanceHistoryStoreUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            body: JSON.stringify({ from: fromName, to: toName, km: km, route: route })
+        }).then(function() { loadDistanceHistory(); }).catch(function() {});
     }
 
-    function renderDistanceHistory() {
+    function loadDistanceHistory() {
+        fetch(distanceHistoryApiUrl, { headers: { 'Accept': 'application/json' } })
+            .then(function(r) { return r.json(); })
+            .then(function(res) { renderDistanceHistory(res.data || []); })
+            .catch(function() { renderDistanceHistory([]); });
+    }
+
+    function renderDistanceHistory(list) {
         const container = document.getElementById('distance-history-list');
         const emptyEl = document.getElementById('distance-history-empty');
         if (!container) return;
-        try {
-            const list = JSON.parse(localStorage.getItem(DISTANCE_HISTORY_KEY) || '[]');
-            if (list.length === 0) {
-                if (emptyEl) emptyEl.classList.remove('hidden');
-                const items = container.querySelectorAll('.distance-history-item');
-                items.forEach(function(el) { el.remove(); });
-                return;
-            }
-            if (emptyEl) emptyEl.classList.add('hidden');
-            container.querySelectorAll('.distance-history-item').forEach(function(el) { el.remove(); });
-            list.forEach(function(item) {
-                const div = document.createElement('div');
-                div.className = 'distance-history-item px-4 py-3 flex items-center justify-between gap-3 text-sm';
-                div.innerHTML = '<span class="text-zinc-600 dark:text-zinc-300 truncate">' + (item.route || item.from + ' → ' + item.to) + '</span><span class="font-semibold text-emerald-600 dark:text-emerald-400 shrink-0">' + (item.km || 0) + ' km</span>';
-                container.appendChild(div);
-            });
-        } catch (e) {
+        if (!list || list.length === 0) {
             if (emptyEl) emptyEl.classList.remove('hidden');
+            container.querySelectorAll('.distance-history-item').forEach(function(el) { el.remove(); });
+            return;
         }
+        if (emptyEl) emptyEl.classList.add('hidden');
+        container.querySelectorAll('.distance-history-item').forEach(function(el) { el.remove(); });
+        list.forEach(function(item) {
+            const div = document.createElement('div');
+            div.className = 'distance-history-item px-4 py-3 flex items-center justify-between gap-3 text-sm';
+            div.innerHTML = '<span class="text-zinc-600 dark:text-zinc-300 truncate">' + (item.route || item.from + ' → ' + item.to) + '</span><span class="font-semibold text-emerald-600 dark:text-emerald-400 shrink-0">' + (item.km || 0) + ' km</span>';
+            container.appendChild(div);
+        });
     }
 
     function fetchRoadRoute(from, to, onSuccess, onFallback) {
@@ -376,7 +378,7 @@
 
     document.getElementById('btn-calc-distance')?.addEventListener('click', runUpdate);
 
-    renderDistanceHistory();
+    loadDistanceHistory();
 
     fetch(provincesApiUrl)
         .then(r => r.json())

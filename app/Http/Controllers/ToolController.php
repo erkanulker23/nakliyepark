@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Models\DistanceCalculation;
+use App\Models\PriceEstimatorCalculation;
 use App\Models\Setting;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ToolController extends Controller
@@ -193,5 +196,78 @@ class ToolController extends Controller
         }
 
         return view('tools.company-lookup', compact('metaTitle', 'metaDescription', 'toolContent', 'companies', 'searchPhone'));
+    }
+
+    /** Son 10 mesafe hesaplaması (herkes için global). */
+    public function distanceHistory(): JsonResponse
+    {
+        $items = DistanceCalculation::lastTen()->map(fn ($r) => [
+            'id' => $r->id,
+            'from' => $r->from_label,
+            'to' => $r->to_label,
+            'km' => $r->km,
+            'route' => $r->route_label ?: $r->from_label . ' → ' . $r->to_label,
+        ]);
+
+        return response()->json(['data' => $items->values()->all()]);
+    }
+
+    /** Mesafe hesaplaması kaydet (global listeye eklenir). */
+    public function storeDistanceHistory(Request $request): JsonResponse
+    {
+        $request->validate([
+            'from' => 'required|string|max:255',
+            'to' => 'required|string|max:255',
+            'km' => 'required|integer|min:0|max:10000',
+            'route' => 'nullable|string|max:512',
+        ]);
+        DistanceCalculation::create([
+            'from_label' => $request->from,
+            'to_label' => $request->to,
+            'km' => (int) $request->km,
+            'route_label' => $request->route ?: $request->from . ' → ' . $request->to,
+        ]);
+        return response()->json(['ok' => true]);
+    }
+
+    /** Son 10 tahmini fiyat hesaplaması (herkes için global). */
+    public function priceHistory(): JsonResponse
+    {
+        $items = PriceEstimatorCalculation::lastTen()->map(fn ($r) => [
+            'id' => $r->id,
+            'from' => $r->from_label,
+            'to' => $r->to_label,
+            'km' => $r->km,
+            'price' => (float) $r->price,
+            'room' => $r->room_label,
+            'service_type' => $r->service_type,
+            'route' => $r->route_label ?: ($r->from_label && $r->to_label ? $r->from_label . ' → ' . $r->to_label : ''),
+        ]);
+
+        return response()->json(['data' => $items->values()->all()]);
+    }
+
+    /** Tahmini fiyat hesaplaması kaydet (global listeye eklenir). */
+    public function storePriceHistory(Request $request): JsonResponse
+    {
+        $request->validate([
+            'from' => 'nullable|string|max:255',
+            'to' => 'nullable|string|max:255',
+            'km' => 'required|integer|min:0|max:10000',
+            'price' => 'required|numeric|min:0',
+            'room' => 'nullable|string|max:255',
+            'service_type' => 'nullable|string|max:64',
+            'route' => 'nullable|string|max:512',
+        ]);
+        PriceEstimatorCalculation::create([
+            'from_label' => $request->from,
+            'to_label' => $request->to,
+            'km' => (int) $request->km,
+            'price' => $request->price,
+            'room_label' => $request->room,
+            'service_type' => $request->service_type,
+            'route_label' => $request->route,
+        ]);
+        return response()->json(['ok' => true]);
     }
 }

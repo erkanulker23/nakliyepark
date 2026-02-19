@@ -365,6 +365,40 @@ class CompanyController extends Controller
         return back()->with('success', 'Logo onaylandı. Firma sayfasında görünecek.');
     }
 
+    /** Admin galeriye fotoğraf ekler (eklenenler otomatik onaylı). */
+    public function storeGallery(Request $request, Company $company)
+    {
+        $this->authorize('update', $company);
+        $request->validate([
+            'images' => 'required|array|min:1',
+            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:5120',
+            'caption' => 'nullable|string|max:255',
+        ], [
+            'images.required' => 'En az bir fotoğraf seçin.',
+            'images.*.image' => 'Seçilen dosyalar resim olmalıdır.',
+            'images.*.max' => 'Her fotoğraf en fazla 5 MB olabilir.',
+        ]);
+        $caption = $request->filled('caption') ? $request->caption : null;
+        $maxOrder = (int) $company->vehicleImages()->max('sort_order');
+        $uploaded = 0;
+        foreach ($request->file('images') as $file) {
+            $path = $file->store('company-gallery/' . $company->id, 'public');
+            $company->vehicleImages()->create([
+                'path' => $path,
+                'caption' => $caption,
+                'sort_order' => ++$maxOrder,
+                'approved_at' => now(),
+            ]);
+            $uploaded++;
+        }
+        Log::channel('admin_actions')->info('Admin added gallery images to company', [
+            'admin_id' => auth()->id(),
+            'company_id' => $company->id,
+            'count' => $uploaded,
+        ]);
+        return back()->with('success', $uploaded === 1 ? 'Galeri fotoğrafı eklendi.' : "{$uploaded} galeri fotoğrafı eklendi.");
+    }
+
     /** Galeri fotoğrafını onayla. */
     public function approveGalleryImage(Request $request, Company $company, int $id)
     {
