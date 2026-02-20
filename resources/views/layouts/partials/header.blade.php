@@ -105,6 +105,10 @@
             @if($show_firmalar_page ?? true)
             <a href="{{ route('firmalar.map') }}" class="btn-ghost rounded-lg text-zinc-600 dark:text-zinc-400 shrink-0 py-2 text-sm">Nakliyeci bul</a>
             @endif
+            @guest
+            <a href="{{ route('login') }}" class="btn-secondary rounded-lg shrink-0 py-2 text-sm">Giriş yap</a>
+            <a href="{{ route('register') }}" class="btn-secondary rounded-lg shrink-0 py-2 text-sm">Üye ol</a>
+            @endguest
         </nav>
     </div>
 </header>

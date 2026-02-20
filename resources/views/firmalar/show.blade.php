@@ -91,24 +91,6 @@
                     <div class="min-w-0 flex-1">
                         <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-zinc-900 dark:text-white tracking-tight mb-2 sm:mb-1">{{ $company->name }}</h1>
                         <div class="flex flex-wrap items-center gap-2 mb-1">
-                            @if($company->isEmailVerified())
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:py-1 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 shrink-0" title="E-posta doğrulanmış">
-                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                                    Mail onaylı
-                                </span>
-                            @endif
-                            @if($company->isPhoneVerified())
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:py-1 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 shrink-0" title="Telefon doğrulanmış">
-                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-                                    Telefon onaylı
-                                </span>
-                            @endif
-                            @if($company->isOfficialCompanyVerified())
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:py-1 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 shrink-0" title="Resmi şirket bilgileri doğrulanmış">
-                                    <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
-                                    Resmi onaylı
-                                </span>
-                            @endif
                             @if($companyHasPackage)
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-800 dark:text-amber-200 border border-amber-500/30 shrink-0" title="Paketli üye – öncelikli firma">
                                     <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
@@ -143,31 +125,6 @@
                                         <span class="text-sm font-semibold text-slate-800 dark:text-slate-100 break-words">{{ $company->tax_office }}</span>
                                     </div>
                                 @endif
-                            </div>
-                        @endif
-                        @if($company->isEmailVerified() || $company->isPhoneVerified() || $company->isOfficialCompanyVerified())
-                            <div class="mt-4 p-3 sm:p-4 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/50">
-                                <p class="text-xs font-semibold text-emerald-800 dark:text-emerald-200 uppercase tracking-wider mb-2 sm:mb-2.5">Doğrulama bilgileri</p>
-                                <ul class="space-y-2 sm:space-y-1.5 text-sm text-emerald-800/90 dark:text-emerald-200/90">
-                                    @if($company->isEmailVerified())
-                                        <li class="flex items-start sm:items-center gap-2 min-w-0">
-                                            <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5 sm:mt-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
-                                            <span class="break-words">E-posta adresi doğrulanmış</span>
-                                        </li>
-                                    @endif
-                                    @if($company->isPhoneVerified())
-                                        <li class="flex items-start sm:items-center gap-2 min-w-0">
-                                            <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5 sm:mt-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
-                                            <span class="break-words">Telefon numarası doğrulanmış</span>
-                                        </li>
-                                    @endif
-                                    @if($company->isOfficialCompanyVerified())
-                                        <li class="flex items-start sm:items-center gap-2 min-w-0">
-                                            <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5 sm:mt-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
-                                            <span class="break-words">Resmi şirket bilgileri (vergi no / vergi dairesi) doğrulanmış</span>
-                                        </li>
-                                    @endif
-                                </ul>
                             </div>
                         @endif
                     </div>
@@ -553,6 +510,28 @@
                         <div class="px-5 py-4 bg-zinc-50/80 dark:bg-zinc-800/40 border-b border-zinc-200/50 dark:border-zinc-700/50">
                             <h3 class="font-semibold text-zinc-900 dark:text-white text-sm">İletişim</h3>
                             <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Arayın veya mesaj atın</p>
+                            @if($company->isEmailVerified() || $company->isPhoneVerified() || $company->isOfficialCompanyVerified())
+                                <div class="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-zinc-200/50 dark:border-zinc-700/50">
+                                    @if($company->isEmailVerified())
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 shrink-0" title="E-posta doğrulanmış">
+                                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                            Mail onaylı
+                                        </span>
+                                    @endif
+                                    @if($company->isPhoneVerified())
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 shrink-0" title="Telefon doğrulanmış">
+                                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                                            Telefon onaylı
+                                        </span>
+                                    @endif
+                                    @if($company->isOfficialCompanyVerified())
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 shrink-0" title="Resmi şirket bilgileri doğrulanmış">
+                                            <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
+                                            Resmi onaylı
+                                        </span>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                         <div class="p-4 space-y-1">
                             @if($company->phone)
@@ -607,6 +586,31 @@
                             @endif
                             @if(!$company->phone && !$company->phone_2 && !$company->whatsapp && !$company->email && !$company->address && !$company->city)
                                 <p class="p-4 text-sm text-zinc-500 dark:text-zinc-400 text-center">İletişim bilgisi yok</p>
+                            @endif
+                            @if($company->isEmailVerified() || $company->isPhoneVerified() || $company->isOfficialCompanyVerified())
+                                <div class="mt-4 pt-4 border-t border-zinc-200/50 dark:border-zinc-700/50 p-3 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/50">
+                                    <p class="text-xs font-semibold text-emerald-800 dark:text-emerald-200 uppercase tracking-wider mb-2">Doğrulama bilgileri</p>
+                                    <ul class="space-y-1.5 text-sm text-emerald-800/90 dark:text-emerald-200/90">
+                                        @if($company->isEmailVerified())
+                                            <li class="flex items-start gap-2 min-w-0">
+                                                <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
+                                                <span class="break-words">E-posta adresi doğrulanmış</span>
+                                            </li>
+                                        @endif
+                                        @if($company->isPhoneVerified())
+                                            <li class="flex items-start gap-2 min-w-0">
+                                                <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
+                                                <span class="break-words">Telefon numarası doğrulanmış</span>
+                                            </li>
+                                        @endif
+                                        @if($company->isOfficialCompanyVerified())
+                                            <li class="flex items-start gap-2 min-w-0">
+                                                <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
+                                                <span class="break-words">Resmi şirket bilgileri (vergi no / vergi dairesi) doğrulanmış</span>
+                                            </li>
+                                        @endif
+                                    </ul>
+                                </div>
                             @endif
                         </div>
                     </div>

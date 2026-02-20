@@ -58,6 +58,18 @@ return [
     // Asansör varsa kat başına düşük ücret (₺)
     'per_floor_with_elevator' => 40,
 
+    // Oda tipine göre tahmini fiyat alt sınırı (₺) — hesaplanan fiyat bunun altına düşemez
+    'room_minimum_price' => [
+        '1+1' => 15000,
+        '2+1' => 25000,
+        '3+1' => 35000,
+        '4+1' => 45000,
+        '5+1' => 60000,
+        'Daha büyük' => 60000,
+        'Sadece birkaç eşya taşınacak' => 10000,
+        'Diğer' => 20000,
+    ],
+
     // Oda tipine göre hacim tahmini (m³) - evden eve dışındaki hizmetler için
     'room_volume_estimate' => [
         '1+1' => 25,

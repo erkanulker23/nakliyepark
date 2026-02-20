@@ -322,6 +322,14 @@
         fiyat += getFloorSurcharge();
         fiyat = Math.round(fiyat);
 
+        // Oda tipine göre minimum fiyat (sadece Türkiye evden eve)
+        if (!isInternational() && roomTypeEl) {
+            const roomType = roomTypeEl.options[roomTypeEl.selectedIndex]?.value;
+            const minPrices = config.room_minimum_price || {};
+            const minForRoom = minPrices[roomType];
+            if (minForRoom != null) fiyat = Math.max(fiyat, minForRoom);
+        }
+
         const formatted = fiyat.toLocaleString('tr-TR');
         if (priceDisplayEl) priceDisplayEl.textContent = formatted;
 
