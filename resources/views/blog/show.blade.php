@@ -36,6 +36,29 @@
 </script>
 @endpush
 
+@push('styles')
+<style>
+/* Blog detay: TinyMCE içeriği editördeki gibi net görünsün, iç içe/üst üste binmesin */
+.blog-article-content { word-wrap: break-word; }
+.blog-article-content > * + * { margin-top: 0.75em; }
+.blog-article-content p { margin-top: 0.75em; margin-bottom: 0.75em; display: block; }
+.blog-article-content h2,
+.blog-article-content h3,
+.blog-article-content h4 { margin-top: 1.25em; margin-bottom: 0.5em; display: block; page-break-after: avoid; }
+.blog-article-content ul,
+.blog-article-content ol { display: block; margin-top: 0.75em; margin-bottom: 0.75em; padding-left: 1.5em; }
+.blog-article-content ul { list-style-type: disc; }
+.blog-article-content ol { list-style-type: decimal; }
+.blog-article-content li { display: list-item; margin-top: 0.35em; margin-bottom: 0.35em; padding-left: 0.25em; }
+.blog-article-content ul ul,
+.blog-article-content ol ol,
+.blog-article-content ul ol,
+.blog-article-content ol ul { margin-top: 0.35em; margin-bottom: 0.35em; }
+.blog-article-content div { display: block; margin-top: 0.5em; margin-bottom: 0.5em; }
+.blog-article-content blockquote { margin-top: 1em; margin-bottom: 1em; padding: 0.75em 1em; display: block; }
+</style>
+@endpush
+
 @push('scripts')
 @vite('resources/js/blog.js')
 @endpush
