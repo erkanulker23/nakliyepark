@@ -102,7 +102,9 @@
                             prose-ul:my-4 prose-ol:my-4 prose-li:text-zinc-600 dark:prose-li:text-zinc-300
                             prose-a:text-emerald-600 dark:prose-a:text-emerald-400 prose-a:no-underline hover:prose-a:underline
                             prose-strong:text-zinc-900 dark:prose-strong:text-white
-                            prose-img:rounded-xl prose-img:shadow-md"
+                            prose-blockquote:border-emerald-500 prose-blockquote:bg-emerald-50/50 dark:prose-blockquote:bg-emerald-950/20 dark:prose-blockquote:border-emerald-400
+                            prose-img:rounded-xl prose-img:shadow-md
+                            [&_.mce-offscreen-selection]:hidden [&_div]:min-h-0"
                             itemprop="articleBody">
                             {!! $post->content !!}
                         </div>

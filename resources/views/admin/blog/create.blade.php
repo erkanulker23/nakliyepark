@@ -165,8 +165,10 @@ document.addEventListener('DOMContentLoaded', function() {
             ed.on('init', function() {
                 var form = document.getElementById('blog-form');
                 if (form) {
-                    form.addEventListener('submit', function() {
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
                         ed.save();
+                        setTimeout(function() { form.submit(); }, 0);
                     });
                 }
             });

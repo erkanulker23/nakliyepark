@@ -93,9 +93,10 @@
             </div>
             <div class="admin-form-group">
                 <label class="admin-label">İçerik *</label>
-                <div class="tox-editor-container admin-rich-editor-wrap rounded-lg overflow-hidden border border-slate-300 dark:border-zinc-600 bg-white dark:bg-zinc-900">
-                    <textarea name="content" id="blog-content" required placeholder="İçerik yazın… Araç çubuğundan başlık, kalın, liste, link kullanın.">{{ old('content', $blog->content) }}</textarea>
+                <div class="tox-editor-container admin-rich-editor-wrap rounded-lg border border-slate-300 dark:border-zinc-600 bg-white dark:bg-zinc-900" style="min-height: 480px;">
+                    <textarea name="content" id="blog-content" required placeholder="İçerik yazın… Araç çubuğundan başlık, kalın, liste, link kullanın." class="w-full min-h-[420px] p-4 text-sm border-0 rounded-lg bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:ring-2 focus:ring-emerald-500/40" style="min-height: 420px;">{{ old('content', $blog->content) }}</textarea>
                 </div>
+                <p class="mt-1 text-xs text-amber-600 dark:text-amber-400 js-editor-loading-message">Editör yükleniyor…</p>
                 @error('content')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Başlık, kalın/italik, liste, link, alıntı ve kod. İçerik frontend’de birebir aynı görünecektir.</p>
             </div>
@@ -169,6 +170,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }).join('');
     }
 
+    var loadingMsg = document.querySelector('.js-editor-loading-message');
+    var fallbackTextarea = document.getElementById('blog-content');
+
     tinymce.init({
         selector: '#blog-content',
         base_url: TINYMCE_BASE,
@@ -184,15 +188,34 @@ document.addEventListener('DOMContentLoaded', function() {
         branding: false,
         setup: function(ed) {
             ed.on('init', function() {
+                if (loadingMsg) loadingMsg.style.display = 'none';
                 var form = document.getElementById('blog-form');
                 if (form) {
-                    form.addEventListener('submit', function() {
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
                         ed.save();
+                        setTimeout(function() { form.submit(); }, 0);
                     });
                 }
             });
         }
     });
+
+    setTimeout(function() {
+        if (!loadingMsg) return;
+        var ed = (typeof tinymce !== 'undefined') ? tinymce.get('blog-content') : null;
+        if (!ed || !ed.initialized) {
+            loadingMsg.textContent = 'Editör yüklenemedi. Aşağıdaki alanda içeriği düzenleyebilirsiniz.';
+            loadingMsg.classList.add('font-medium');
+            if (fallbackTextarea) {
+                fallbackTextarea.style.display = 'block';
+                fallbackTextarea.style.visibility = 'visible';
+                fallbackTextarea.classList.remove('hidden');
+            }
+        } else {
+            loadingMsg.style.display = 'none';
+        }
+    }, 5000);
 
     var btn = document.getElementById('ai-generate-btn');
     var topicInput = document.getElementById('ai-topic');
