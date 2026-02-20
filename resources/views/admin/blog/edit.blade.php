@@ -6,6 +6,15 @@
 
 @section('content')
 <div class="max-w-4xl space-y-6">
+    @if($blog->published_at && $blog->slug)
+        <div class="flex items-center justify-between gap-4 py-2 px-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200/60 dark:border-emerald-800/50">
+            <span class="text-sm text-emerald-800 dark:text-emerald-200">Yazı yayında.</span>
+            <a href="{{ route('blog.show', $blog->slug) }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300">
+                Yazıya git
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+            </a>
+        </div>
+    @endif
     {{-- Yapay zeka ile güncelle / genişlet --}}
     <div class="admin-card p-6 border-2 border-dashed border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/20">
         <div class="flex items-center gap-2 mb-3">
@@ -148,6 +157,22 @@ document.addEventListener('DOMContentLoaded', function() {
     var textarea = document.getElementById('blog-content');
     var editorEl = document.getElementById('blog-content-editor');
 
+    function normalizeAiContentToHtml(raw) {
+        if (!raw) return '';
+        var trimmed = raw.trim();
+        if (!trimmed) return '';
+        if (/<p>|<h[1-6]>|<ul>|<ol>|<li>/.test(trimmed) && (trimmed.match(/<[a-z][a-z0-9]*\s*\/?>/g) || []).length >= 2) {
+            return trimmed;
+        }
+        var escaped = trimmed.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        var paras = escaped.split(/\n\s*\n/).filter(function(p) { return p.length; });
+        if (paras.length === 0) paras = [escaped];
+        return paras.map(function(p) {
+            var withBr = p.replace(/\n/g, '<br>');
+            return '<p>' + withBr + '</p>';
+        }).join('');
+    }
+
     var quill = new Quill(editorEl, {
         theme: 'snow',
         placeholder: 'İçerik yazın… Başlık, kalın, liste, link ve daha fazlası için araç çubuğunu kullanın.',
@@ -217,8 +242,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('blog-title').value = d.title || '';
                 document.getElementById('blog-slug').value = slugify(d.title) || document.getElementById('blog-slug').value;
                 document.getElementById('blog-excerpt').value = d.excerpt || '';
-                quill.root.innerHTML = d.content || '';
-                textarea.value = d.content || '';
+                var raw = (d.content || '').trim();
+                var html = normalizeAiContentToHtml(raw);
+                quill.root.innerHTML = html;
+                textarea.value = html;
                 document.getElementById('blog-meta-title').value = d.meta_title || '';
                 document.getElementById('blog-meta-description').value = d.meta_description || '';
                 errorEl.classList.add('hidden');

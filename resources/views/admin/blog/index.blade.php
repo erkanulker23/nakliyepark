@@ -72,4 +72,26 @@
         <div class="px-4 py-3 border-t border-slate-200">{{ $posts->links() }}</div>
     @endif
 </div>
+
+@push('scripts')
+<script>
+(function(){
+    var form = document.querySelector('form[action*="admin/blog"]');
+    if (!form) return;
+    var qInput = form.querySelector('input[name="q"]');
+    var timer = null;
+    function submitForm() { form.submit(); }
+    form.querySelectorAll('select').forEach(function(sel){
+        sel.addEventListener('change', submitForm);
+    });
+    if (qInput) {
+        qInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); submitForm(); } });
+        qInput.addEventListener('input', function() {
+            clearTimeout(timer);
+            timer = setTimeout(submitForm, 450);
+        });
+    }
+})();
+</script>
+@endpush
 @endsection

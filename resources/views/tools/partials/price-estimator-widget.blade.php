@@ -360,7 +360,8 @@
     }
 
     function loadPriceHistory() {
-        fetch(priceHistoryApiUrl, { headers: { 'Accept': 'application/json' } })
+        var url = priceHistoryApiUrl + (priceHistoryApiUrl.indexOf('?') >= 0 ? '&' : '?') + '_=' + Date.now();
+        fetch(url, { headers: { 'Accept': 'application/json' }, cache: 'no-store' })
             .then(function(r) { return r.json(); })
             .then(function(res) { renderPriceHistory(res.data || []); })
             .catch(function() { renderPriceHistory([]); });
@@ -371,6 +372,8 @@
         var emptyEl = document.getElementById('price-history-empty');
         if (!container) return;
         if (!list || list.length === 0) {
+            var existingItems = container.querySelectorAll('.price-history-item').length;
+            if (existingItems > 0) return;
             if (emptyEl) emptyEl.classList.remove('hidden');
             container.querySelectorAll('.price-history-item').forEach(function(el) { el.remove(); });
             return;
@@ -592,11 +595,7 @@
 
     toggleInputs();
     calculate();
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() { loadPriceHistory(); });
-    } else {
-        loadPriceHistory();
-    }
+    // Son 10 liste sunucuda zaten render edildi; ilk yüklemede API çağrısı yapmıyoruz (cache yüzünden boş görünme sorununu önler). Sadece yeni hesaplama sonrası loadPriceHistory() çağrılıyor.
 })();
 </script>
 @endpush

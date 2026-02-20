@@ -15,15 +15,23 @@ class BlogController extends Controller
         }
         $categories = BlogCategory::orderBy('sort_order')->orderBy('name')->get();
         $selectedCategory = request('category');
+        $searchQuery = request('q', '');
 
         $posts = BlogPost::whereNotNull('published_at')
             ->with('category')
             ->when($selectedCategory, fn ($q) => $q->whereHas('category', fn ($cq) => $cq->where('slug', $selectedCategory)))
+            ->when($searchQuery !== '', function ($q) use ($searchQuery) {
+                $q->where(function ($qry) use ($searchQuery) {
+                    $qry->where('title', 'like', '%' . $searchQuery . '%')
+                        ->orWhere('excerpt', 'like', '%' . $searchQuery . '%')
+                        ->orWhere('content', 'like', '%' . $searchQuery . '%');
+                });
+            })
             ->orderByDesc('published_at')
             ->paginate(12)
             ->withQueryString();
 
-        return view('blog.index', compact('posts', 'categories', 'selectedCategory'));
+        return view('blog.index', compact('posts', 'categories', 'selectedCategory', 'searchQuery'));
     }
 
     public function show(string $slug)

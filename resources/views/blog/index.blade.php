@@ -43,17 +43,28 @@
                 </header>
                 @if($categories->isNotEmpty())
                     <nav class="flex flex-wrap gap-2 lg:justify-end" aria-label="Blog kategorileri">
-                        <a href="{{ route('blog.index') }}" class="px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ !$selectedCategory ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-md' : 'bg-white/80 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700 backdrop-blur-sm' }}">
+                        <a href="{{ route('blog.index') }}" class="px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ !$selectedCategory && empty($searchQuery ?? '') ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-md' : 'bg-white/80 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700 backdrop-blur-sm' }}">
                             Tümü
                         </a>
                         @foreach($categories as $cat)
-                            <a href="{{ route('blog.index', ['category' => $cat->slug]) }}" class="px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ $selectedCategory === $cat->slug ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-md' : 'bg-white/80 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700 backdrop-blur-sm' }}">
+                            <a href="{{ route('blog.index', ['category' => $cat->slug, 'q' => $searchQuery ?? '']) }}" class="px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ $selectedCategory === $cat->slug ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-md' : 'bg-white/80 dark:bg-zinc-800/80 text-zinc-600 dark:text-zinc-400 hover:bg-white dark:hover:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700 backdrop-blur-sm' }}">
                                 {{ $cat->name }}
                             </a>
                         @endforeach
                     </nav>
                 @endif
             </div>
+            <form action="{{ route('blog.index') }}" method="get" class="mt-8 max-w-xl" role="search">
+                @if($selectedCategory)
+                    <input type="hidden" name="category" value="{{ $selectedCategory }}">
+                @endif
+                <div class="flex gap-2">
+                    <input type="search" name="q" value="{{ old('q', $searchQuery ?? '') }}" placeholder="Blogda ara…" class="flex-1 min-w-0 px-4 py-3 rounded-xl border border-zinc-200/80 dark:border-zinc-700 bg-white dark:bg-zinc-800/80 text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 text-sm">
+                    <button type="submit" class="px-5 py-3 rounded-xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-medium text-sm hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-colors shrink-0">
+                        Ara
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 

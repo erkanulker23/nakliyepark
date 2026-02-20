@@ -136,6 +136,22 @@ document.addEventListener('DOMContentLoaded', function() {
     var textarea = document.getElementById('blog-content');
     var editorEl = document.getElementById('blog-content-editor');
 
+    function normalizeAiContentToHtml(raw) {
+        if (!raw) return '';
+        var trimmed = raw.trim();
+        if (!trimmed) return '';
+        if (/<p>|<h[1-6]>|<ul>|<ol>|<li>/.test(trimmed) && (trimmed.match(/<[a-z][a-z0-9]*\s*\/?>/g) || []).length >= 2) {
+            return trimmed;
+        }
+        var escaped = trimmed.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        var paras = escaped.split(/\n\s*\n/).filter(function(p) { return p.length; });
+        if (paras.length === 0) paras = [escaped];
+        return paras.map(function(p) {
+            var withBr = p.replace(/\n/g, '<br>');
+            return '<p>' + withBr + '</p>';
+        }).join('');
+    }
+
     var quill = new Quill(editorEl, {
         theme: 'snow',
         placeholder: 'İçerik yazın… Başlık, kalın, liste, link ve daha fazlası için araç çubuğunu kullanın.',
@@ -205,8 +221,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('blog-title').value = d.title || '';
                 document.getElementById('blog-slug').value = slugify(d.title) || '';
                 document.getElementById('blog-excerpt').value = d.excerpt || '';
-                quill.root.innerHTML = d.content || '';
-                textarea.value = d.content || '';
+                var raw = (d.content || '').trim();
+                var html = normalizeAiContentToHtml(raw);
+                quill.root.innerHTML = html;
+                textarea.value = html;
                 document.getElementById('blog-meta-title').value = d.meta_title || '';
                 document.getElementById('blog-meta-description').value = d.meta_description || '';
                 errorEl.classList.add('hidden');
