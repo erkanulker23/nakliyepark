@@ -91,17 +91,10 @@
             </div>
             <div class="border-t border-slate-200 pt-5">
                 <h4 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">Kapak görseli</h4>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <div class="admin-form-group">
-                        <label class="admin-label">Dosya yükle (veya aşağıda URL girin)</label>
-                        <input type="file" name="image_file" accept="image/jpeg,image/png,image/webp" class="admin-input py-2">
-                        @error('image_file')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
-                    </div>
-                    <div class="admin-form-group">
-                        <label class="admin-label">Veya kapak görseli URL</label>
-                        <input type="text" name="image" value="{{ old('image') }}" class="admin-input" placeholder="https://...">
-                        @error('image')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
-                    </div>
+                <div class="admin-form-group max-w-md">
+                    <label class="admin-label">Dosya yükle</label>
+                    <input type="file" name="image_file" accept="image/jpeg,image/png,image/webp" class="admin-input py-2">
+                    @error('image_file')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">

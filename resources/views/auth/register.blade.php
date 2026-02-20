@@ -18,7 +18,7 @@
             </button>
         </div>
         <h1 class="text-xl font-semibold text-zinc-900 dark:text-white mb-1">Hesap oluştur</h1>
-        <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Deftere yazın, teklif verin. Her gün 2.500'den fazla işin paylaşıldığı bu platforma katılın.</p>
+        <p id="register-desc" class="text-sm text-zinc-500 dark:text-zinc-400 mb-6" data-musteri="Nakliye ihtiyacınızı ilan edin, uygun fiyatlı teklifler alın. Binlerce nakliyeci sizin için hazır." data-nakliyeci="Deftere yazın, teklif verin. Her gün 2.500'den fazla işin paylaşıldığı bu platforma katılın.">{{ $defaultRole === 'musteri' ? 'Nakliye ihtiyacınızı ilan edin, uygun fiyatlı teklifler alın. Binlerce nakliyeci sizin için hazır.' : 'Deftere yazın, teklif verin. Her gün 2.500\'den fazla işin paylaşıldığı bu platforma katılın.' }}</p>
 
     {{-- Step 1: Sadece rol seçimi (tek sayfa: form aşağıda) --}}
         <form method="POST" action="{{ route('register') }}" id="register-form" class="space-y-4">
@@ -106,8 +106,12 @@
     var tabs = document.querySelectorAll('.register-role-tab');
     if (!formRole || !tabs.length) return;
 
+    var descEl = document.getElementById('register-desc');
     function setActiveRole(role) {
         formRole.value = role;
+        if (descEl && descEl.getAttribute('data-' + role)) {
+            descEl.textContent = descEl.getAttribute('data-' + role);
+        }
         tabs.forEach(function(t) {
             var isActive = t.getAttribute('data-role') === role;
             t.setAttribute('aria-selected', isActive ? 'true' : 'false');

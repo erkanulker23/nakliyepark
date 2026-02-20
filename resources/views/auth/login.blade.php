@@ -13,7 +13,15 @@
         </div>
         @endif
         <h1 class="text-xl font-semibold text-zinc-900 dark:text-white mb-1">@isset($admin_login) Yönetici / Admin girişi @else Giriş yap @endisset</h1>
-        <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-6">@isset($admin_login) Yönetim paneline erişmek için giriş yapın. @else Hesabınızla devam edin. @endisset</p>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-6">@isset($admin_login)
+            Yönetim paneline erişmek için giriş yapın.
+        @else
+            @if(request('tab') === 'nakliyeci')
+                Deftere yazın, teklif verin. İşlerinize buradan devam edin.
+            @else
+                İhalelerinizi yönetin, teklifleri karşılaştırın. Hesabınızla devam edin.
+            @endif
+        @endisset</p>
 
         @if($errors->any())
             <div class="mb-4 rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 px-4 py-4 flex items-start gap-3" role="alert">

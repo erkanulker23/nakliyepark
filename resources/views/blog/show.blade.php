@@ -38,7 +38,7 @@
 
 @push('styles')
 <style>
-/* Blog detay: TinyMCE içeriği editördeki gibi net görünsün; kalın, başlık vb. korunsun */
+/* Blog detay: TinyMCE içeriği editördeki gibi; kalın başlık ve strong mutlaka görünsün */
 .blog-article-content { word-wrap: break-word; }
 .blog-article-content > * + * { margin-top: 0.75em; }
 .blog-article-content p { margin-top: 0.75em; margin-bottom: 0.75em; display: block; }
@@ -54,7 +54,18 @@
 }
 .blog-article-content strong,
 .blog-article-content b,
-.blog-article-content .font-bold { font-weight: 700 !important; }
+.blog-article-content .font-bold,
+.blog-article-content p strong,
+.blog-article-content p b,
+.blog-article-content li strong,
+.blog-article-content li b,
+.blog-article-content div strong,
+.blog-article-content div b,
+.blog-article-content span[style*="font-weight: 700"],
+.blog-article-content span[style*="font-weight: bold"] {
+  font-weight: 700 !important;
+  color: inherit;
+}
 .blog-article-content em,
 .blog-article-content i { font-style: italic !important; }
 .blog-article-content u { text-decoration: underline !important; }
