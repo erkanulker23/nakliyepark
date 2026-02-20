@@ -45,10 +45,12 @@ class RegisterController extends Controller
             'phone' => ['nullable', 'string', 'regex:/^0[0-9]{10}$/'],
             'password' => ['required', 'string', 'confirmed', Password::min(8)->letters()->numbers()],
             'role' => ['required', 'in:musteri,nakliyeci'],
+            'company_name' => ['required_if:role,nakliyeci', 'nullable', 'string', 'max:255'],
         ], [
             'password.letters' => 'Şifre en az bir harf içermelidir.',
             'password.numbers' => 'Şifre en az bir rakam içermelidir.',
             'phone.regex' => 'Telefon numarası +90 5XX XXX XX XX formatında olmalıdır.',
+            'company_name.required_if' => 'Nakliyeci kaydı için firma adı gereklidir.',
         ]);
 
         if (BlockedEmail::isBlocked($request->email)) {
@@ -89,7 +91,9 @@ class RegisterController extends Controller
         }
 
         if ($user->isNakliyeci()) {
-            return redirect()->route('nakliyeci.company.create')->with('success', 'Firma bilgilerinizi tamamlayın.');
+            return redirect()->route('nakliyeci.company.create')
+                ->with('success', 'Firma bilgilerinizi tamamlayın.')
+                ->with('company_name', $request->input('company_name', ''));
         }
 
         return redirect()->route('musteri.dashboard')->with('success', 'Hesabınız oluşturuldu.');

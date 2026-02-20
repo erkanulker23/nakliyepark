@@ -64,6 +64,7 @@ class AdZone extends Model
             'ust'           => 'Üst alan',
             'alt'           => 'Alt alan',
             'sidebar'       => 'Sidebar (yan sütun)',
+            'icerik'       => 'Blog yazısı içeriği',
             'icerik_ustu'   => 'İçerik üstü',
             'icerik_alti'   => 'İçerik altı',
             'icerik_ortasi' => 'İçerik ortası',

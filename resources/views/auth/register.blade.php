@@ -17,7 +17,7 @@
                 Nakliyeci kaydı
             </button>
         </div>
-        <h1 class="text-xl font-semibold text-zinc-900 dark:text-white mb-1">Hesap oluştur</h1>
+        <h1 id="register-title" class="text-xl font-semibold text-zinc-900 dark:text-white mb-1" data-musteri="Müşteri hesabı oluştur" data-nakliyeci="Nakliyeci hesabı oluştur">{{ $defaultRole === 'musteri' ? 'Müşteri hesabı oluştur' : 'Nakliyeci hesabı oluştur' }}</h1>
         <p id="register-desc" class="text-sm text-zinc-500 dark:text-zinc-400 mb-6" data-musteri="Nakliye ihtiyacınızı ilan edin, uygun fiyatlı teklifler alın. Binlerce nakliyeci sizin için hazır." data-nakliyeci="Deftere yazın, teklif verin. Her gün 2.500'den fazla işin paylaşıldığı bu platforma katılın.">{{ $defaultRole === 'musteri' ? 'Nakliye ihtiyacınızı ilan edin, uygun fiyatlı teklifler alın. Binlerce nakliyeci sizin için hazır.' : 'Deftere yazın, teklif verin. Her gün 2.500\'den fazla işin paylaşıldığı bu platforma katılın.' }}</p>
 
     {{-- Step 1: Sadece rol seçimi (tek sayfa: form aşağıda) --}}
@@ -60,6 +60,13 @@
                            class="min-h-[44px] flex-1 px-4 py-3 bg-transparent border-0 focus:outline-none focus:ring-0 text-zinc-900 dark:text-white @error('phone') ring-2 ring-red-500 @enderror" placeholder="+90 532 111 22 33" data-phone-mask>
                 </div>
                 @error('phone')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+            </div>
+
+            <div id="register-company-wrap" class="{{ $defaultRole === 'nakliyeci' ? '' : 'hidden' }}">
+                <label for="company_name" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Firma adı *</label>
+                <input id="company_name" type="text" name="company_name" value="{{ old('company_name') }}" {{ $defaultRole === 'nakliyeci' ? 'required' : '' }}
+                       class="input-touch @error('company_name') border-red-500 @enderror" placeholder="Nakliye firmanızın adı">
+                @error('company_name')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
 
             <div>
@@ -107,10 +114,21 @@
     if (!formRole || !tabs.length) return;
 
     var descEl = document.getElementById('register-desc');
+    var titleEl = document.getElementById('register-title');
+    var companyWrap = document.getElementById('register-company-wrap');
+    var companyInput = document.getElementById('company_name');
     function setActiveRole(role) {
         formRole.value = role;
         if (descEl && descEl.getAttribute('data-' + role)) {
             descEl.textContent = descEl.getAttribute('data-' + role);
+        }
+        if (titleEl && titleEl.getAttribute('data-' + role)) {
+            titleEl.textContent = titleEl.getAttribute('data-' + role);
+        }
+        if (companyWrap && companyInput) {
+            var isNakliyeci = role === 'nakliyeci';
+            companyWrap.classList.toggle('hidden', !isNakliyeci);
+            companyInput.required = isNakliyeci;
         }
         tabs.forEach(function(t) {
             var isActive = t.getAttribute('data-role') === role;

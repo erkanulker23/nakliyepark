@@ -98,7 +98,7 @@
                 </div>
                 <p class="mt-1 text-xs text-amber-600 dark:text-amber-400 js-editor-loading-message">Editör yükleniyor…</p>
                 @error('content')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
-                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Başlık, kalın/italik, liste, link, alıntı ve kod. İçerik frontend’de birebir aynı görünecektir.</p>
+                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Başlık, kalın/italik, liste, link, alıntı ve kod. İçerik frontend’de birebir aynı görünecektir. Reklam göstermek istediğiniz yere <code class="px-1 py-0.5 rounded bg-slate-200 dark:bg-slate-600">[reklam]</code> yazın (Reklam Alanları'nda &quot;Blog yazısı içeriği&quot; konumunda tanımlı reklam gösterilir).</p>
             </div>
             <div class="border-t border-slate-200 pt-5">
                 <h4 class="font-semibold text-slate-800 dark:text-slate-200 mb-3">Kapak görseli</h4>

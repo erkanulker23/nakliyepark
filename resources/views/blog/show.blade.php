@@ -155,7 +155,17 @@
                             prose-img:rounded-xl prose-img:shadow-md
                             [&_.mce-offscreen-selection]:hidden [&_div]:min-h-0"
                             itemprop="articleBody">
-                            {!! $post->content !!}
+                            @php
+                                $blogContent = $post->content;
+                                $blogIcerikReklamlar = \App\Models\AdZone::getForPagePosition('blog_show', 'icerik', 1);
+                                if ($blogIcerikReklamlar->isNotEmpty()) {
+                                    $adHtml = view('partials.blog-ad-incontent', ['reklam' => $blogIcerikReklamlar->first()])->render();
+                                    $blogContent = str_replace('[reklam]', $adHtml, $blogContent);
+                                } else {
+                                    $blogContent = str_replace('[reklam]', '', $blogContent);
+                                }
+                            @endphp
+                            {!! $blogContent !!}
                         </div>
 
                         {{-- Paylaşım + Geri dön --}}

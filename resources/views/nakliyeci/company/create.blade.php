@@ -16,7 +16,7 @@
             @csrf
             <div class="admin-form-group">
                 <label class="admin-label">Firma adı *</label>
-                <input type="text" name="name" value="{{ old('name') }}" required class="admin-input" placeholder="Firma adınız">
+                <input type="text" name="name" value="{{ old('name', session('company_name')) }}" required class="admin-input" placeholder="Firma adınız">
                 @error('name')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
             </div>
             <div class="admin-form-group">
