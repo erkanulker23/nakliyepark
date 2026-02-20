@@ -38,13 +38,28 @@
 
 @push('styles')
 <style>
-/* Blog detay: TinyMCE içeriği editördeki gibi net görünsün, iç içe/üst üste binmesin */
+/* Blog detay: TinyMCE içeriği editördeki gibi net görünsün; kalın, başlık vb. korunsun */
 .blog-article-content { word-wrap: break-word; }
 .blog-article-content > * + * { margin-top: 0.75em; }
 .blog-article-content p { margin-top: 0.75em; margin-bottom: 0.75em; display: block; }
+.blog-article-content h1,
 .blog-article-content h2,
 .blog-article-content h3,
-.blog-article-content h4 { margin-top: 1.25em; margin-bottom: 0.5em; display: block; page-break-after: avoid; }
+.blog-article-content h4,
+.blog-article-content h5,
+.blog-article-content h6 {
+  margin-top: 1.25em; margin-bottom: 0.5em; display: block; page-break-after: avoid;
+  font-weight: 700 !important;
+  color: inherit;
+}
+.blog-article-content strong,
+.blog-article-content b,
+.blog-article-content .font-bold { font-weight: 700 !important; }
+.blog-article-content em,
+.blog-article-content i { font-style: italic !important; }
+.blog-article-content u { text-decoration: underline !important; }
+.blog-article-content s,
+.blog-article-content strike { text-decoration: line-through !important; }
 .blog-article-content ul,
 .blog-article-content ol { display: block; margin-top: 0.75em; margin-bottom: 0.75em; padding-left: 1.5em; }
 .blog-article-content ul { list-style-type: disc; }
