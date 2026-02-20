@@ -83,8 +83,9 @@
             </div>
             <div class="admin-form-group">
                 <label class="admin-label">İçerik *</label>
-                <div id="blog-content-editor" class="admin-rich-editor-wrap bg-white dark:bg-zinc-900 border border-slate-300 dark:border-zinc-600 rounded-lg overflow-hidden min-h-[480px]" style="height: 480px;"></div>
-                <textarea name="content" id="blog-content" required class="hidden" placeholder="Zengin metin içerik">{{ old('content') }}</textarea>
+                <div class="tox-editor-container admin-rich-editor-wrap rounded-lg overflow-hidden border border-slate-300 dark:border-zinc-600 bg-white dark:bg-zinc-900">
+                    <textarea name="content" id="blog-content" required placeholder="İçerik yazın… Araç çubuğundan başlık, kalın, liste, link kullanın.">{{ old('content') }}</textarea>
+                </div>
                 @error('content')<p class="mt-1 text-sm text-red-500">{{ $message }}</p>@enderror
                 <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Başlık, kalın/italik/altı çizili, liste, link, alıntı ve kod. İçerik frontend’de birebir aynı görünecektir.</p>
             </div>
@@ -120,21 +121,16 @@
 </div>
 
 @push('styles')
-<link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
 <style>
-.admin-rich-editor-wrap .ql-toolbar.ql-snow { border: none; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
-.dark .admin-rich-editor-wrap .ql-toolbar.ql-snow { background: #1e293b; border-color: #475569; }
-.admin-rich-editor-wrap .ql-container.ql-snow { border: none; font-size: 15px; }
-.admin-rich-editor-wrap .ql-editor { min-height: 420px; }
+.tox-editor-container .tox-tinymce { min-height: 420px; border-radius: 0.5rem; }
 </style>
 @endpush
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tinymce@6.8.2/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    var textarea = document.getElementById('blog-content');
-    var editorEl = document.getElementById('blog-content-editor');
+    var TINYMCE_BASE = 'https://cdn.jsdelivr.net/npm/tinymce@6.8.2';
 
     function normalizeAiContentToHtml(raw) {
         if (!raw) return '';
@@ -152,27 +148,29 @@ document.addEventListener('DOMContentLoaded', function() {
         }).join('');
     }
 
-    var quill = new Quill(editorEl, {
-        theme: 'snow',
-        placeholder: 'İçerik yazın… Başlık, kalın, liste, link ve daha fazlası için araç çubuğunu kullanın.',
-        modules: {
-            toolbar: [
-                [{ header: [1, 2, 3, false] }],
-                ['bold', 'italic', 'underline', 'strike'],
-                [{ color: [] }, { background: [] }],
-                [{ list: 'ordered' }, { list: 'bullet' }],
-                [{ indent: '-1' }, { indent: '+1' }],
-                ['blockquote', 'code-block'],
-                ['link', 'image'],
-                ['clean']
-            ]
+    tinymce.init({
+        selector: '#blog-content',
+        base_url: TINYMCE_BASE,
+        suffix: '.min',
+        height: 480,
+        menubar: false,
+        plugins: 'lists link',
+        toolbar: 'blocks | bold italic underline strikethrough | forecolor backcolor | numlist bullist | indent outdent | blockquote | link | removeformat',
+        block_formats: 'Paragraf=p; Başlık 2=h2; Başlık 3=h3',
+        content_style: 'body { font-family: system-ui, sans-serif; font-size: 15px; }',
+        placeholder: 'İçerik yazın… Araç çubuğundan başlık, kalın, liste, link kullanın.',
+        promotion: false,
+        branding: false,
+        setup: function(ed) {
+            ed.on('init', function() {
+                var form = document.getElementById('blog-form');
+                if (form) {
+                    form.addEventListener('submit', function() {
+                        ed.save();
+                    });
+                }
+            });
         }
-    });
-
-    quill.root.innerHTML = textarea.value || '';
-
-    document.getElementById('blog-form').addEventListener('submit', function() {
-        textarea.value = quill.root.innerHTML;
     });
 
     var btn = document.getElementById('ai-generate-btn');
@@ -223,8 +221,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('blog-excerpt').value = d.excerpt || '';
                 var raw = (d.content || '').trim();
                 var html = normalizeAiContentToHtml(raw);
-                quill.root.innerHTML = html;
-                textarea.value = html;
+                var ed = tinymce.get('blog-content');
+                if (ed) ed.setContent(html);
                 document.getElementById('blog-meta-title').value = d.meta_title || '';
                 document.getElementById('blog-meta-description').value = d.meta_description || '';
                 errorEl.classList.add('hidden');
