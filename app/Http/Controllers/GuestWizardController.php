@@ -11,6 +11,7 @@ use App\Notifications\IhaleCreatedNotification;
 use App\Notifications\NewIhaleAdminNotification;
 use App\Models\ConsentLog;
 use App\Services\AdminNotifier;
+use App\Services\SpamGuard;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -38,6 +39,12 @@ class GuestWizardController extends Controller
     {
         if ($request->user() && $request->user()->role === 'nakliyeci') {
             return redirect()->route('home')->with('info', 'Nakliye firması olarak ihale oluşturamazsınız. Sadece müşteri hesapları ihale talebi oluşturabilir.');
+        }
+        if (! SpamGuard::pass($request)) {
+            return redirect()->route('ihale.create')
+                ->withInput()
+                ->withErrors(['guest_contact_email' => 'Güvenlik doğrulaması başarısız. Lütfen sayfayı yenileyip tekrar deneyin.'])
+                ->with('wizard_open_contact', true);
         }
         $serviceType = $request->input('service_type', 'evden_eve_nakliyat');
         $validServiceTypes = [

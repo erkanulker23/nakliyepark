@@ -33,6 +33,11 @@
 
         <form id="wizard-form" action="{{ route('ihale.store') }}" method="POST" enctype="multipart/form-data" class="relative px-4 sm:px-6 pb-6">
             @csrf
+            {{-- Honeypot: botlar doldurur, gerçek kullanıcılar görmez --}}
+            <div class="absolute -left-[9999px] opacity-0 h-0 overflow-hidden" aria-hidden="true">
+                <label for="wizard_company_website">Web siteniz</label>
+                <input type="text" name="{{ \App\Services\SpamGuard::HONEYPOT_FIELD }}" id="wizard_company_website" tabindex="-1" autocomplete="off">
+            </div>
             <input type="hidden" name="service_type" id="service_type" value="">
 
             @if(session('success'))
@@ -399,6 +404,9 @@
                         </div>
                     </div>
                 @endif
+                @if(config('services.turnstile.site_key'))
+                    <div class="mt-3 cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}"></div>
+                @endif
                 {{-- KVKK: Açık rıza ve aydınlatma --}}
                 <div class="mt-4 p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700">
                     <label class="flex items-start gap-3 cursor-pointer">
@@ -424,6 +432,9 @@
 </div>
 
 @push('scripts')
+@if(config('services.turnstile.site_key'))
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+@endif
 <script>
 (function() {
     const form = document.getElementById('wizard-form');

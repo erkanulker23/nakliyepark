@@ -8,6 +8,7 @@ use App\Models\BlockedIp;
 use App\Models\BlockedPhone;
 use App\Models\User;
 use App\Services\AdminNotifier;
+use App\Services\SpamGuard;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,6 +25,12 @@ class RegisterController extends Controller
 
     public function register(Request $request)
     {
+        if (! SpamGuard::pass($request)) {
+            throw ValidationException::withMessages([
+                'email' => ['Güvenlik doğrulaması başarısız. Lütfen sayfayı yenileyip tekrar deneyin.'],
+            ]);
+        }
+
         // Form first_name + last_name ile geliyorsa name oluştur (JS kapalıyken de çalışsın)
         if (! $request->filled('name') && ($request->filled('first_name') || $request->filled('last_name'))) {
             $request->merge(['name' => trim($request->input('first_name', '') . ' ' . $request->input('last_name', ''))]);

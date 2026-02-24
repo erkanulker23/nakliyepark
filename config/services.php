@@ -43,4 +43,14 @@ return [
         'places_api_key' => env('GOOGLE_PLACES_API_KEY', ''),
     ],
 
+    /*
+    | Cloudflare Turnstile (spam koruması: kayıt, iletişim, misafir ihale)
+    | https://dash.cloudflare.com/?to=/:account/turnstile
+    | Site key public, secret key sadece sunucuda kullanılır.
+    */
+    'turnstile' => [
+        'site_key' => env('TURNSTILE_SITE_KEY', ''),
+        'secret_key' => env('TURNSTILE_SECRET_KEY', ''),
+    ],
+
 ];

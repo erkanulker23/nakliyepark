@@ -23,6 +23,11 @@
     {{-- Step 1: Sadece rol seçimi (tek sayfa: form aşağıda) --}}
         <form method="POST" action="{{ route('register') }}" id="register-form" class="space-y-4">
             @csrf
+            {{-- Honeypot: botlar doldurur, gerçek kullanıcılar görmez --}}
+            <div class="absolute -left-[9999px] opacity-0 h-0 overflow-hidden" aria-hidden="true">
+                <label for="register_company_website">Web siteniz</label>
+                <input type="text" name="{{ \App\Services\SpamGuard::HONEYPOT_FIELD }}" id="register_company_website" tabindex="-1" autocomplete="off">
+            </div>
             <input type="hidden" name="role" id="form-role" value="{{ $defaultRole }}">
 
             @php
@@ -94,6 +99,9 @@
                 </div>
             </div>
 
+            @if(config('services.turnstile.site_key'))
+                <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}"></div>
+            @endif
             <button type="submit" class="btn-primary w-full gap-2">
                 Kayıt ol
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7-7 7"/></svg>
@@ -107,6 +115,9 @@
 </div>
 
 @push('scripts')
+@if(config('services.turnstile.site_key'))
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+@endif
 <script>
 (function() {
     var formRole = document.getElementById('form-role');

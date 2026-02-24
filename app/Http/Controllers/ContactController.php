@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\ConsentLog;
 use App\Models\SiteContactMessage;
 use App\Services\AdminNotifier;
+use App\Services\SpamGuard;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class ContactController extends Controller
 {
@@ -16,6 +18,12 @@ class ContactController extends Controller
 
     public function store(Request $request)
     {
+        if (! SpamGuard::pass($request)) {
+            throw ValidationException::withMessages([
+                'message' => ['Güvenlik doğrulaması başarısız. Lütfen sayfayı yenileyip tekrar deneyin.'],
+            ]);
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email',

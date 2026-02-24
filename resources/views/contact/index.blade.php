@@ -90,6 +90,11 @@
             @endif
             <form method="POST" action="{{ route('contact.store') }}" class="space-y-4">
                 @csrf
+                {{-- Honeypot: botlar doldurur, gerçek kullanıcılar görmez --}}
+                <div class="absolute -left-[9999px] opacity-0 h-0 overflow-hidden" aria-hidden="true">
+                    <label for="contact_company_website">Web siteniz</label>
+                    <input type="text" name="{{ \App\Services\SpamGuard::HONEYPOT_FIELD }}" id="contact_company_website" tabindex="-1" autocomplete="off">
+                </div>
                 <div>
                     <label for="name" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Adınız soyadınız *</label>
                     <input type="text" name="name" id="name" value="{{ old('name') }}" required class="input-touch w-full rounded-xl" placeholder="Adınız soyadınız">
@@ -115,9 +120,17 @@
                     <label for="kvkk_consent" class="text-sm text-zinc-600 dark:text-zinc-400">Kişisel verilerimin <a href="{{ route('kvkk.aydinlatma') }}" target="_blank" rel="noopener noreferrer" class="underline hover:text-emerald-600">KVKK Aydınlatma Metni</a> kapsamında işlenmesini kabul ediyorum. *</label>
                 </div>
                 @error('kvkk_consent')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                @if(config('services.turnstile.site_key'))
+                    <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}"></div>
+                @endif
                 <button type="submit" class="btn-primary w-full sm:w-auto">Gönder</button>
             </form>
         </div>
     </div>
 </div>
+@push('scripts')
+@if(config('services.turnstile.site_key'))
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+@endif
+@endpush
 @endsection

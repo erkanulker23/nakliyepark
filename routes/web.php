@@ -87,7 +87,7 @@ Route::get('/pazaryeri', [PazaryeriController::class, 'index'])->name('pazaryeri
 Route::get('/pazaryeri/ilan/{listing}/{slug?}', [PazaryeriController::class, 'show'])->name('pazaryeri.show');
 
 Route::get('/ihale/olustur', [GuestWizardController::class, 'index'])->middleware('not.nakliyeci')->name('ihale.create');
-Route::post('/ihale/olustur', [GuestWizardController::class, 'store'])->middleware(['not.nakliyeci', 'throttle:10,1'])->name('ihale.store');
+Route::post('/ihale/olustur', [GuestWizardController::class, 'store'])->middleware(['not.nakliyeci', 'throttle:6,1'])->name('ihale.store');
 
 Route::get('/araclar/hacim', [ToolController::class, 'volume'])->name('tools.volume');
 Route::get('/araclar/hacim/embed', [ToolController::class, 'volumeEmbed'])->name('tools.volume.embed');
@@ -103,7 +103,7 @@ Route::get('/firma-sorgula', [ToolController::class, 'companyLookup'])->name('to
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/iletisim', [ContactController::class, 'index'])->name('contact.index');
-Route::post('/iletisim', [ContactController::class, 'store'])->name('contact.store')->middleware('throttle:5,1');
+Route::post('/iletisim', [ContactController::class, 'store'])->name('contact.store')->middleware('throttle:3,1');
 Route::get('/sss', [FaqController::class, 'index'])->name('faq.index');
 Route::get('/kvkk-aydinlatma', [KvkkController::class, 'aydinlatma'])->name('kvkk.aydinlatma');
 Route::get('/mesafeli-satis-sozlesmesi', [LegalController::class, 'mesafeliSatis'])->name('legal.mesafeli-satis');
@@ -116,12 +116,12 @@ Route::middleware(['throttle:20,1'])->group(function () {
     Route::post('/yonetici/admin', [LoginController::class, 'loginAdmin'])->name('admin.login.submit');
 });
 
-// Login, kayıt, şifremi unuttum: dakikada 10 istek (429 önlemek için 6'dan artırıldı)
+// Login, kayıt, şifremi unuttum: kayıt spam için 5/dk, diğer 10/dk
 Route::middleware(['guest', 'throttle:10,1'])->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-    Route::post('/register', [RegisterController::class, 'register']);
+    Route::post('/register', [RegisterController::class, 'register'])->middleware('throttle:5,1');
     // Şifremi unuttum (müşteri ve nakliyeci aynı giriş, aynı şifre sıfırlama)
     Route::get('/sifremi-unuttum', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
     Route::post('/sifremi-unuttum', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
@@ -142,7 +142,7 @@ Route::get('/logout', [LoginController::class, 'logout'])->name('logout.get')->m
 
 Route::middleware(['auth', 'verified.panel'])->group(function () {
     Route::get('/wizard', fn () => redirect()->route('ihale.create'))->middleware('not.nakliyeci');
-    Route::post('/wizard', [GuestWizardController::class, 'store'])->middleware(['not.nakliyeci', 'throttle:10,1'])->name('wizard.store');
+    Route::post('/wizard', [GuestWizardController::class, 'store'])->middleware(['not.nakliyeci', 'throttle:6,1'])->name('wizard.store');
 });
 
 Route::middleware(['auth', 'verified.panel', 'role:musteri'])->prefix('musteri')->name('musteri.')->group(function () {

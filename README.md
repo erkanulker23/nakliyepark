@@ -94,6 +94,16 @@ php artisan serve  # başka terminalde
 - **Sihirbaz:** Tek sayfa, JS ile adım geçişi; gönderimde tüm veri POST ile `wizard.store`.
 - **Nakliyat Defteri:** `yuk_ilanlari` tablosu; nakliyeci panelde listelenir (kaydırılabilir kartlar).
 
+## Spam koruması
+
+Spam kayıt, iletişim formu ve misafir ihale taleplerini azaltmak için:
+
+- **Honeypot:** Gizli alan (`company_website`); botlar doldurursa gönderim reddedilir.
+- **Rate limit:** Kayıt 5/dk, iletişim 3/dk, misafir ihale 6/dk (IP bazlı).
+- **Cloudflare Turnstile (isteğe bağlı):** `.env` içinde `TURNSTILE_SITE_KEY` ve `TURNSTILE_SECRET_KEY` tanımlarsanız kayıt, iletişim ve ihale sihirbazında CAPTCHA widget’ı gösterilir. [Cloudflare Turnstile](https://dash.cloudflare.com/?to=/:account/turnstile) ücretsiz kullanılabilir. Anahtarlar boşsa sadece honeypot ve rate limit uygulanır.
+
+Mevcut **BlockedEmail**, **BlockedPhone**, **BlockedIp** (admin blocklist) ve e-posta doğrulama (MustVerifyEmail) ile birlikte kullanılır.
+
 ## License
 
 MIT.
