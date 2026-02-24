@@ -1,6 +1,6 @@
 {{-- Beta geri bildirim: sabit buton + sağdan açılan panel (sadece beta modunda gösterilir) --}}
 @if(config('app.beta', true))
-<div id="feedback-widget" class="fixed bottom-20 sm:bottom-8 right-4 z-40 flex flex-col items-end gap-0">
+<div id="feedback-widget" class="fixed bottom-24 sm:bottom-8 right-4 z-40 flex flex-col items-end gap-0">
     {{-- Panel: sağdan slide-in --}}
     <div id="feedback-panel" class="hidden w-full max-w-md sm:max-w-sm bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-2xl shadow-2xl overflow-hidden transition-transform duration-300 ease-out translate-x-full mb-3" aria-hidden="true">
         <div class="p-4 sm:p-5 border-b border-zinc-200 dark:border-zinc-700 flex items-center justify-between">
@@ -45,10 +45,10 @@
         </div>
     </div>
 
-    {{-- Açılır buton --}}
-    <button type="button" id="feedback-toggle" class="flex items-center gap-2 px-4 py-3 rounded-full bg-amber-600 hover:bg-amber-500 text-white text-sm font-medium shadow-lg hover:shadow-xl transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900" aria-label="Geri bildirim gönder">
-        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg>
-        <span>Geri bildirim</span>
+    {{-- Açılır buton: mobilde sadece ikon, masaüstünde ikon + metin --}}
+    <button type="button" id="feedback-toggle" class="flex items-center justify-center gap-2 w-12 h-12 sm:w-auto sm:h-auto sm:px-4 sm:py-3 rounded-full bg-amber-700 hover:bg-amber-600 text-white text-sm font-medium shadow-lg hover:shadow-xl transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900" aria-label="Geri bildirim gönder">
+        <svg class="w-5 h-5 sm:w-5 sm:h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg>
+        <span class="hidden sm:inline">Geri bildirim</span>
     </button>
 </div>
 

@@ -8,7 +8,7 @@
     $base = 'flex flex-col items-center justify-center gap-1.5 min-h-[58px] flex-1 min-w-0 px-3 py-2.5 rounded-2xl transition-all duration-200 active:scale-[0.98] ';
     $inactive = 'text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/70 dark:hover:bg-zinc-700/70';
     $active = 'text-emerald-700 dark:text-emerald-300 bg-emerald-500/15 dark:bg-emerald-500/20 font-semibold shadow-sm';
-    $cta = 'text-white bg-emerald-700 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500 font-bold shadow-lg shadow-emerald-600/35 dark:shadow-emerald-500/25';
+    $cta = 'text-white bg-emerald-800 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 font-bold shadow-lg shadow-emerald-600/35 dark:shadow-emerald-500/25';
 @endphp
 <nav class="fixed bottom-0 left-0 right-0 z-40 lg:hidden bg-white dark:bg-zinc-900 border-t-2 border-zinc-200 dark:border-zinc-700/80 safe-area-bottom pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.08)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.35)]" aria-label="Ana navigasyon">
     <div class="max-w-lg mx-auto px-4 py-3">

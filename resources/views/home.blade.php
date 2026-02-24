@@ -20,7 +20,7 @@
                     Üye olmadan ihale başlat, firmalardan teklif al. Hızlı, güvenli, şeffaf.
                 </p>
                 <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-12">
-                    <a href="{{ route('ihale.create') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-12 px-8 bg-emerald-600 hover:bg-emerald-500 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-semibold rounded-xl transition-colors">
+                    <a href="{{ route('ihale.create') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-12 px-8 bg-emerald-800 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white font-semibold rounded-xl transition-colors">
                         İhale Başlat
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
                     </a>
@@ -43,7 +43,8 @@
                     </div>
                 </div>
             </div>
-            <div class="order-1 lg:order-2 flex justify-center lg:justify-end">
+            {{-- İllüstrasyon: sadece masaüstünde (lg+) gösterilir, mobilde gizli --}}
+            <div class="order-1 lg:order-2 hidden lg:flex justify-center lg:justify-end">
                 <img src="{{ asset('icons/hero-illustration.svg') }}" alt="İhale ve nakliye platformu" width="800" height="600" class="w-full max-w-md xl:max-w-lg h-auto opacity-95" fetchpriority="high">
             </div>
         </div>
@@ -946,7 +947,7 @@ $haritadaGoster = $firmalarHaritada->map(fn($c) => ['id' => $c->id, 'name' => $c
             <span class="inline-block w-12 h-1 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 mb-4"></span>
             <h2 class="section-head-title">Sıkça sorulan sorular</h2>
             <p class="text-zinc-500 dark:text-zinc-300 mt-2 max-w-xl mx-auto">Müşteri ve nakliyeci için nakliye ve platform hakkında merak ettikleriniz</p>
-            <a href="{{ route('faq.index') }}" class="inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white text-sm font-semibold transition-colors shadow-lg shadow-emerald-500/20 dark:shadow-emerald-500/25">
+            <a href="{{ route('faq.index') }}" class="inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white text-sm font-semibold transition-colors shadow-lg shadow-emerald-500/20 dark:shadow-emerald-500/25">
                 Tüm SSS
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </a>

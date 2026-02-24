@@ -100,7 +100,7 @@ Spam kayıt, iletişim formu ve misafir ihale taleplerini azaltmak için:
 
 - **Honeypot:** Gizli alan (`company_website`); botlar doldurursa gönderim reddedilir.
 - **Rate limit:** Kayıt 5/dk, iletişim 3/dk, misafir ihale 6/dk (IP bazlı).
-- **Cloudflare Turnstile (isteğe bağlı):** `.env` içinde `TURNSTILE_SITE_KEY` ve `TURNSTILE_SECRET_KEY` tanımlarsanız kayıt, iletişim ve ihale sihirbazında CAPTCHA widget’ı gösterilir. [Cloudflare Turnstile](https://dash.cloudflare.com/?to=/:account/turnstile) ücretsiz kullanılabilir. Anahtarlar boşsa sadece honeypot ve rate limit uygulanır.
+- **Cloudflare Turnstile (isteğe bağlı):** `.env` içinde `TURNSTILE_SITE_KEY` ve `TURNSTILE_SECRET_KEY` tanımlarsanız kayıt, iletişim ve ihale sihirbazında CAPTCHA widget’ı gösterilir. [Cloudflare Turnstile](https://dash.cloudflare.com/?to=/:account/turnstile) ücretsiz kullanılabilir. Anahtarlar boşsa sadece honeypot ve rate limit uygulanır. Turnstile kullanıldığında Cloudflare _cfuvid çerezi (üçüncü taraf) set edilir; Chrome Issues panelinde çerez uyarısı görünebilir — bu beklenendir. Uyarıyı kaldırmak için Turnstile'ı kapatın (anahtarları boş bırakın).
 
 Mevcut **BlockedEmail**, **BlockedPhone**, **BlockedIp** (admin blocklist) ve e-posta doğrulama (MustVerifyEmail) ile birlikte kullanılır.
 
