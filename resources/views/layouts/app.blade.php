@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="tr">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5, user-scalable=yes">
@@ -91,6 +91,7 @@
     </main>
     @include('layouts.partials.footer')
     @include('layouts.partials.bottom-nav')
+    @include('partials.feedback-widget')
     @if(!empty($custom_footer_html ?? null)){!! $custom_footer_html !!}@endif
     @if(!empty($custom_scripts ?? null)){!! $custom_scripts !!}@endif
     @stack('scripts')

@@ -31,9 +31,25 @@
 @include('partials.structured-data-breadcrumb')
 
 @push('structured_data')
-<script type="application/ld+json">
-{"@@context":"https://schema.org","@@type":"Article","headline":"{{ addslashes($post->title) }}","description":"{{ addslashes($metaDesc) }}","image":"{{ $imageUrl }}","datePublished":"{{ $post->published_at?->toIso8601String() }}","dateModified":"{{ $post->updated_at->toIso8601String() }}","author":{"@@type":"Organization","name":"NakliyePark"},"publisher":{"@@type":"Organization","name":"NakliyePark","logo":{"@@type":"ImageObject","url":"{{ asset('icons/icon-192.png') }}"}},"mainEntityOfPage":{"@@type":"WebPage","@@id":"{{ $canonicalUrl }}"}}}
-</script>
+@php
+    $articleSchema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'Article',
+        'headline' => $post->title,
+        'description' => $metaDesc,
+        'image' => $imageUrl,
+        'datePublished' => $post->published_at?->toIso8601String(),
+        'dateModified' => $post->updated_at->toIso8601String(),
+        'author' => ['@type' => 'Organization', 'name' => 'NakliyePark'],
+        'publisher' => [
+            '@type' => 'Organization',
+            'name' => 'NakliyePark',
+            'logo' => ['@type' => 'ImageObject', 'url' => asset('icons/icon-192.png')],
+        ],
+        'mainEntityOfPage' => ['@type' => 'WebPage', '@id' => $canonicalUrl],
+    ];
+@endphp
+<script type="application/ld+json">{!! json_encode($articleSchema, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
 @endpush
 
 @push('styles')

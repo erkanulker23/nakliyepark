@@ -14,6 +14,12 @@ class SecurityHeaders
 
         $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
         $response->headers->set('X-Content-Type-Options', 'nosniff');
+
+        // Türkçe karakterlerin doğru görünmesi için HTML yanıtlarında charset zorunlu
+        $contentType = $response->headers->get('Content-Type');
+        if ($contentType === null || str_starts_with($contentType, 'text/html')) {
+            $response->headers->set('Content-Type', 'text/html; charset=UTF-8');
+        }
         $response->headers->set('X-XSS-Protection', '1; mode=block');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->headers->set('Permissions-Policy', 'geolocation=(self), microphone=(), camera=()');

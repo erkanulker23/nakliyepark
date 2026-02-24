@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="tr">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5, user-scalable=yes">
@@ -60,6 +60,7 @@
         </a>
         @yield('content')
     </main>
+    @include('partials.feedback-widget')
     @stack('scripts')
     <script>(function(){var t=document.getElementById('theme-toggle'),il=document.getElementById('theme-icon-light'),id=document.getElementById('theme-icon-dark');function isD(){return document.documentElement.classList.contains('dark');}function setD(e){if(e){document.documentElement.classList.add('dark');if(il)il.classList.remove('hidden');if(id)id.classList.add('hidden');localStorage.setItem('site-theme','dark');}else{document.documentElement.classList.remove('dark');if(il)il.classList.add('hidden');if(id)id.classList.remove('hidden');localStorage.setItem('site-theme','light');}}var s=localStorage.getItem('site-theme');if(s==='dark')setD(true);else if(s==='light')setD(false);else setD(true);t&&t.addEventListener('click',function(){setD(!isD());});})();</script>
 </body>
