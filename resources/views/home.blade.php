@@ -4,16 +4,12 @@
 @section('meta_description', 'Nakliye ihtiyacınızı ihale ile çözün. Üye olmadan nakliye ihalesi başlatın, onaylı nakliye firmalarından teklif alın. Evden eve nakliyat, yük taşıma. Hızlı ve güvenli.')
 
 @section('content')
-{{-- Hero: Modern gradient mesh + glassmorphism + floating shapes --}}
+{{-- Hero: Gradient mesh + sağda ihale illüstrasyonu --}}
 <section class="relative min-h-[75vh] sm:min-h-[80vh] flex items-center overflow-hidden">
-    {{-- Background image with subtle zoom --}}
-    <div class="absolute inset-0">
-        <img src="https://images.unsplash.com/photo-1628481103102-01de5ffe556b?w=1920&q=80" alt="" width="1920" height="1080" class="absolute inset-0 w-full h-full object-cover scale-105 animate-hero-zoom" fetchpriority="high">
-    </div>
     {{-- Gradient mesh overlay — her modda okunaklı kontrast için güçlü katman --}}
-    <div class="absolute inset-0 z-10 bg-gradient-to-br from-zinc-950/90 via-zinc-900/85 to-emerald-950/70"></div>
+    <div class="absolute inset-0 z-10 bg-gradient-to-br from-zinc-950/92 via-zinc-900/88 to-emerald-950/75"></div>
     <div class="absolute inset-0 z-10 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(16,185,129,0.2),transparent_50%)]"></div>
-    <div class="absolute inset-0 z-10 bg-[radial-gradient(ellipse_60%_80%_at_80%_50%,rgba(20,184,166,0.08),transparent)]"></div>
+    <div class="absolute inset-0 z-10 bg-[radial-gradient(ellipse_70%_70%_at_85%_50%,rgba(20,184,166,0.12),transparent_45%)]"></div>
     {{-- Subtle grid pattern --}}
     <div class="absolute inset-0 z-10 opacity-[0.04]" style="background-image: linear-gradient(rgba(255,255,255,.12) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.12) 1px, transparent 1px); background-size: 60px 60px;"></div>
     {{-- Floating decorative shapes --}}
@@ -25,58 +21,74 @@
         <div class="absolute top-[60%] left-[12%] w-1.5 h-1.5 rounded-full bg-white/40"></div>
     </div>
 
-    <div class="relative z-20 page-container py-24 lg:py-32 text-center">
-        {{-- Badge --}}
-        <div class="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 text-white/95 text-sm font-semibold mb-8 animate-fade-up shadow-lg shadow-black/10">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse ring-2 ring-emerald-400/30"></span>
-            Akıllı nakliye platformu
-        </div>
-
-        <h1 class="text-4xl sm:text-5xl lg:text-7xl font-bold text-white mb-6 tracking-tight max-w-5xl mx-auto leading-[1.1] animate-fade-up" style="animation-delay: 0.1s;">
-            Nakliye ihtiyacın,<br>
-            <span class="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">tek tıkla ihale</span>
-        </h1>
-        <p class="text-lg sm:text-xl text-white/80 max-w-2xl mx-auto mb-12 leading-relaxed animate-fade-up" style="animation-delay: 0.2s;">
-            Üye olmadan ihale başlat, firmalardan teklif al. Hızlı, güvenli, şeffaf.
-        </p>
-
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-up" style="animation-delay: 0.3s;">
-            <a href="{{ route('ihale.create') }}" class="group inline-flex items-center gap-3 min-h-[58px] px-10 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-bold rounded-2xl shadow-xl shadow-emerald-500/30 transition-all duration-300 hover:scale-[1.04] hover:shadow-2xl hover:shadow-emerald-500/35 ring-2 ring-white/20">
-                İhale Başlat
-                <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
-            </a>
-            <a href="{{ route('ihaleler.index') }}" class="inline-flex items-center gap-2 min-h-[58px] px-10 py-4 bg-white/20 backdrop-blur-xl hover:bg-white/35 text-white font-semibold rounded-2xl border-2 border-white/40 transition-all duration-300 shadow-lg">
-                İhalelere göz at
-            </a>
-        </div>
-
-        {{-- Glassmorphism stats --}}
-        <div class="mt-20 flex flex-wrap justify-center gap-6 animate-fade-up" style="animation-delay: 0.4s;">
-            <div class="flex items-center gap-4 px-8 py-6 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl shadow-black/10 hover:bg-white/15 transition-colors duration-300">
-                <div class="w-14 h-14 rounded-2xl bg-emerald-500/25 flex items-center justify-center ring-2 ring-emerald-400/20">
-                    <svg class="w-7 h-7 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+    <div class="relative z-20 page-container py-24 lg:py-32 w-full">
+        <div class="grid grid-cols-1 lg:grid-cols-12 lg:gap-12 xl:gap-16 items-center">
+            {{-- Sol: Metin + CTA + istatistikler --}}
+            <div class="lg:col-span-6 text-center lg:text-left order-2 lg:order-1">
+                {{-- Badge --}}
+                <div class="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 text-white/95 text-sm font-semibold mb-8 animate-fade-up shadow-lg shadow-black/10">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse ring-2 ring-emerald-400/30"></span>
+                    Akıllı nakliye platformu
                 </div>
-                <div class="text-left">
-                    <p class="text-3xl sm:text-4xl font-bold text-white tabular-nums">{{ $stats['ihale_count'] }}</p>
-                    <p class="text-sm font-medium text-white/80">Açık ihale</p>
+
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-6 tracking-tight max-w-xl mx-auto lg:mx-0 leading-[1.1] animate-fade-up" style="animation-delay: 0.1s;">
+                    Nakliye ihtiyacın,<br>
+                    <span class="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">tek tıkla ihale</span>
+                </h1>
+                <p class="text-lg sm:text-xl text-white/80 max-w-2xl mx-auto lg:mx-0 mb-12 leading-relaxed animate-fade-up" style="animation-delay: 0.2s;">
+                    Üye olmadan ihale başlat, firmalardan teklif al. Hızlı, güvenli, şeffaf.
+                </p>
+
+                <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 animate-fade-up" style="animation-delay: 0.3s;">
+                    <a href="{{ route('ihale.create') }}" class="group inline-flex items-center gap-3 min-h-[58px] px-10 py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-bold rounded-2xl shadow-xl shadow-emerald-500/30 transition-all duration-300 hover:scale-[1.04] hover:shadow-2xl hover:shadow-emerald-500/35 ring-2 ring-white/20">
+                        İhale Başlat
+                        <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                    </a>
+                    <a href="{{ route('ihaleler.index') }}" class="inline-flex items-center gap-2 min-h-[58px] px-10 py-4 bg-white/20 backdrop-blur-xl hover:bg-white/35 text-white font-semibold rounded-2xl border-2 border-white/40 transition-all duration-300 shadow-lg">
+                        İhalelere göz at
+                    </a>
+                </div>
+
+                {{-- Glassmorphism stats --}}
+                <div class="mt-16 lg:mt-20 flex flex-wrap justify-center lg:justify-start gap-4 sm:gap-6 animate-fade-up" style="animation-delay: 0.4s;">
+                    <div class="flex items-center gap-4 px-6 sm:px-8 py-5 sm:py-6 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl shadow-black/10 hover:bg-white/15 transition-colors duration-300">
+                        <div class="w-12 sm:w-14 h-12 sm:h-14 rounded-2xl bg-emerald-500/25 flex items-center justify-center ring-2 ring-emerald-400/20">
+                            <svg class="w-6 sm:w-7 h-6 sm:h-7 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tabular-nums">{{ $stats['ihale_count'] }}</p>
+                            <p class="text-xs sm:text-sm font-medium text-white/80">Açık ihale</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 px-6 sm:px-8 py-5 sm:py-6 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl shadow-black/10 hover:bg-white/15 transition-colors duration-300">
+                        <div class="w-12 sm:w-14 h-12 sm:h-14 rounded-2xl bg-emerald-500/25 flex items-center justify-center ring-2 ring-emerald-400/20">
+                            <svg class="w-6 sm:w-7 h-6 sm:h-7 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tabular-nums">{{ $stats['firma_count'] }}</p>
+                            <p class="text-xs sm:text-sm font-medium text-white/80">Firma</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 px-6 sm:px-8 py-5 sm:py-6 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl shadow-black/10 hover:bg-white/15 transition-colors duration-300">
+                        <div class="w-12 sm:w-14 h-12 sm:h-14 rounded-2xl bg-emerald-500/25 flex items-center justify-center ring-2 ring-emerald-400/20">
+                            <svg class="w-6 sm:w-7 h-6 sm:h-7 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8 4-8-4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10l8 4"/></svg>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tabular-nums">{{ $stats['defter_count'] }}</p>
+                            <p class="text-xs sm:text-sm font-medium text-white/80">Yük ilanı</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="flex items-center gap-4 px-8 py-6 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl shadow-black/10 hover:bg-white/15 transition-colors duration-300">
-                <div class="w-14 h-14 rounded-2xl bg-emerald-500/25 flex items-center justify-center ring-2 ring-emerald-400/20">
-                    <svg class="w-7 h-7 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                </div>
-                <div class="text-left">
-                    <p class="text-3xl sm:text-4xl font-bold text-white tabular-nums">{{ $stats['firma_count'] }}</p>
-                    <p class="text-sm font-medium text-white/80">Firma</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-4 px-8 py-6 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl shadow-black/10 hover:bg-white/15 transition-colors duration-300">
-                <div class="w-14 h-14 rounded-2xl bg-emerald-500/25 flex items-center justify-center ring-2 ring-emerald-400/20">
-                    <svg class="w-7 h-7 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8 4-8-4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10l8 4"/></svg>
-                </div>
-                <div class="text-left">
-                    <p class="text-3xl sm:text-4xl font-bold text-white tabular-nums">{{ $stats['defter_count'] }}</p>
-                    <p class="text-sm font-medium text-white/80">Yük ilanı</p>
+
+            {{-- Sağ: İhale illüstrasyonu --}}
+            <div class="lg:col-span-6 flex justify-center lg:justify-end items-center order-1 lg:order-2 mb-10 lg:mb-0">
+                <div class="relative w-full max-w-md xl:max-w-lg animate-fade-up" style="animation-delay: 0.15s;">
+                    <div class="relative rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 p-4 sm:p-6 shadow-2xl shadow-black/20">
+                        <img src="{{ asset('icons/hero-illustration.svg') }}" alt="İhale ve nakliye yönetimi ekranı" width="800" height="600" class="w-full h-auto rounded-xl" fetchpriority="high">
+                    </div>
+                    {{-- Hafif glow --}}
+                    <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-3xl blur-xl -z-10 pointer-events-none" aria-hidden="true"></div>
                 </div>
             </div>
         </div>
