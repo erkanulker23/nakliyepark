@@ -8,7 +8,7 @@
 <section class="relative min-h-[75vh] sm:min-h-[80vh] flex items-center overflow-hidden">
     {{-- Background image with subtle zoom --}}
     <div class="absolute inset-0">
-        <img src="https://images.unsplash.com/photo-1601579532067-92d5b0b2a2c0?w=1920" alt="" class="absolute inset-0 w-full h-full object-cover scale-105 animate-hero-zoom">
+        <img src="https://images.unsplash.com/photo-1628481103102-01de5ffe556b?w=1920&q=80" alt="" width="1920" height="1080" class="absolute inset-0 w-full h-full object-cover scale-105 animate-hero-zoom" fetchpriority="high">
     </div>
     {{-- Gradient mesh overlay — her modda okunaklı kontrast için güçlü katman --}}
     <div class="absolute inset-0 z-10 bg-gradient-to-br from-zinc-950/90 via-zinc-900/85 to-emerald-950/70"></div>
@@ -888,11 +888,11 @@ $haritadaGoster = $firmalarHaritada->map(fn($c) => ['id' => $c->id, 'name' => $c
                                     </div>
                                 @else
                                     <div class="aspect-[16/10] bg-gradient-to-br from-emerald-500/15 to-zinc-100 dark:to-zinc-800 flex items-center justify-center">
-                                        <img src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=600" alt="" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500">
+                                        <img src="https://images.unsplash.com/photo-1553413077-190dd305871c?w=600&q=75" alt="" width="600" height="375" loading="lazy" class="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-500">
                                     </div>
                                 @endif
                                 <div class="p-5 sm:p-6">
-                                    <span class="text-xs font-medium text-zinc-400 dark:text-zinc-500">{{ $post->published_at?->format('d M Y') }}</span>
+                                    <span class="text-xs font-medium text-zinc-600 dark:text-zinc-400">{{ $post->published_at?->format('d M Y') }}</span>
                                     <h3 class="font-bold text-lg text-zinc-900 dark:text-white mt-2 group-hover:text-emerald-600 transition-colors line-clamp-2">{{ $post->title }}</h3>
                                     @if($post->excerpt)
                                         <p class="text-sm text-zinc-600 dark:text-zinc-400 mt-2 line-clamp-2">{{ $post->excerpt }}</p>
@@ -915,9 +915,25 @@ $haritadaGoster = $firmalarHaritada->map(fn($c) => ['id' => $c->id, 'name' => $c
         var prev = document.getElementById('blog-slider-prev');
         var next = document.getElementById('blog-slider-next');
         if (!track || !prev || !next) return;
-        var step = 340;
-        prev.addEventListener('click', function() { track.scrollBy({ left: -step, behavior: 'smooth' }); });
-        next.addEventListener('click', function() { track.scrollBy({ left: step, behavior: 'smooth' }); });
+
+        function getStep() {
+            var item = track.querySelector('.slider-item');
+            if (!item) return 380;
+            var gap = 20;
+            return item.getBoundingClientRect().width + gap;
+        }
+
+        function scrollPrev() {
+            var step = getStep();
+            track.scrollBy({ left: -step, behavior: 'smooth' });
+        }
+        function scrollNext() {
+            var step = getStep();
+            track.scrollBy({ left: step, behavior: 'smooth' });
+        }
+
+        prev.addEventListener('click', scrollPrev);
+        next.addEventListener('click', scrollNext);
     }
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initBlogSlider);
@@ -963,7 +979,7 @@ $haritadaGoster = $firmalarHaritada->map(fn($c) => ['id' => $c->id, 'name' => $c
             <span class="inline-block w-12 h-1 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 mb-4"></span>
             <h2 class="section-head-title">Sıkça sorulan sorular</h2>
             <p class="text-zinc-500 dark:text-zinc-300 mt-2 max-w-xl mx-auto">Müşteri ve nakliyeci için nakliye ve platform hakkında merak ettikleriniz</p>
-            <a href="{{ route('faq.index') }}" class="inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white text-sm font-semibold transition-colors shadow-lg shadow-emerald-500/20 dark:shadow-emerald-500/25">
+            <a href="{{ route('faq.index') }}" class="inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white text-sm font-semibold transition-colors shadow-lg shadow-emerald-500/20 dark:shadow-emerald-500/25">
                 Tüm SSS
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </a>

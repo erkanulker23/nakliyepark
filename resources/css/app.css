@@ -232,6 +232,9 @@ body {
   @apply flex gap-5 overflow-x-auto overflow-y-hidden pb-4 scroll-smooth snap-x snap-mandatory;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  /* Masaüstünde scroll için: track genişliği sınırlanmalı, yoksa flex içerik genişler scroll oluşmaz */
+  width: 100%;
+  min-width: 0;
 }
 .slider-track::-webkit-scrollbar {
   display: none;

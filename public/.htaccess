@@ -5,6 +5,13 @@
 
     RewriteEngine On
 
+    # Uzun önbellek: Vite build (hash’li dosyalar) ve storage görselleri
+    <IfModule mod_headers.c>
+        <FilesMatch "\.(ico|css|js|woff2?|ttf|eot|png|jpe?g|gif|webp|avif|svg)$">
+            Header set Cache-Control "public, max-age=31536000, immutable"
+        </FilesMatch>
+    </IfModule>
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

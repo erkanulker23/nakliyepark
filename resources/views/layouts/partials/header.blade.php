@@ -4,12 +4,12 @@
             <a href="{{ url('/') }}" class="site-brand flex items-center gap-2.5 shrink-0">
                 @if(!empty($site_logo_url) || !empty($site_logo_dark_url ?? null))
                     @if(!empty($site_logo_url))
-                        <img src="{{ $site_logo_url }}" alt="{{ $site_meta_title ?? 'NakliyePark' }}" class="site-brand-logo h-11 w-auto max-w-[200px] object-contain dark:hidden">
+                        <img src="{{ $site_logo_url }}" alt="{{ $site_meta_title ?? 'NakliyePark' }}" class="site-brand-logo h-11 w-auto max-w-[200px] object-contain dark:hidden" fetchpriority="high" width="200" height="44">
                     @endif
                     @if(!empty($site_logo_dark_url ?? null))
-                        <img src="{{ $site_logo_dark_url }}" alt="{{ $site_meta_title ?? 'NakliyePark' }}" class="site-brand-logo h-11 w-auto max-w-[200px] object-contain hidden dark:block">
+                        <img src="{{ $site_logo_dark_url }}" alt="{{ $site_meta_title ?? 'NakliyePark' }}" class="site-brand-logo h-11 w-auto max-w-[200px] object-contain hidden dark:block" fetchpriority="high" width="200" height="44">
                     @elseif(!empty($site_logo_url))
-                        <img src="{{ $site_logo_url }}" alt="{{ $site_meta_title ?? 'NakliyePark' }}" class="site-brand-logo h-11 w-auto max-w-[200px] object-contain hidden dark:block">
+                        <img src="{{ $site_logo_url }}" alt="{{ $site_meta_title ?? 'NakliyePark' }}" class="site-brand-logo h-11 w-auto max-w-[200px] object-contain hidden dark:block" width="200" height="44">
                     @endif
                 @else
                     <span class="site-brand-fallback flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-600 text-white font-bold text-base shadow-sm">N</span>
