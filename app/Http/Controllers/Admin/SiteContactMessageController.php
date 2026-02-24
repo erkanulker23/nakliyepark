@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SiteContactMessage;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class SiteContactMessageController extends Controller
@@ -29,5 +30,17 @@ class SiteContactMessageController extends Controller
         $siteContactMessage->delete();
 
         return redirect()->route('admin.site-contact-messages.index')->with('success', 'Mesaj silindi.');
+    }
+
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:site_contact_messages,id',
+        ]);
+
+        $deleted = SiteContactMessage::whereIn('id', $request->ids)->delete();
+
+        return redirect()->route('admin.site-contact-messages.index')->with('success', $deleted . ' mesaj silindi.');
     }
 }

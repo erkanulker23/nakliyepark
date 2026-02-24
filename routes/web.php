@@ -67,6 +67,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
+Route::get('/ads.txt', function () {
+    $content = \App\Models\Setting::get('ads_txt_content', '');
+    return response($content ?: "# Ads.txt boş veya henüz ayarlanmadı\n", 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
+})->name('ads.txt');
 
 // Türkiye il, ilçe, mahalle API (api.turkiyeapi.dev proxy)
 Route::get('/api/turkey/provinces', [TurkeyLocationController::class, 'provinces'])->name('api.turkey.provinces');
@@ -226,6 +230,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/users/{user}/create-company', [AdminUserController::class, 'createCompany'])->name('users.create-company');
     Route::post('/users/{user}/send-company-reminder', [AdminUserController::class, 'sendCompanyReminder'])->name('users.send-company-reminder');
     Route::get('/musteriler', [AdminMusteriController::class, 'index'])->name('musteriler.index');
+    Route::post('/musteriler/bulk-destroy', [AdminMusteriController::class, 'bulkDestroy'])->name('musteriler.bulk-destroy');
     Route::get('/musteriler/{user}', [AdminMusteriController::class, 'show'])->name('musteriler.show');
     Route::get('/consent-logs', [AdminConsentLogController::class, 'index'])->name('consent-logs.index');
     Route::get('/blocklist', [AdminBlocklistController::class, 'index'])->name('blocklist.index');
@@ -277,6 +282,7 @@ Route::delete('/companies/{company}/galeri/{id}', [AdminCompanyController::class
     Route::post('/teklifler/{teklif}/reddet-bekleyen', [AdminTeklifController::class, 'rejectPendingUpdate'])->name('teklifler.reject-pending');
     Route::delete('/teklifler/{teklif}', [AdminTeklifController::class, 'destroy'])->name('teklifler.destroy');
     Route::resource('yuk-ilanlari', AdminYukIlaniController::class);
+    Route::post('/reklam-alanlari/adsense-settings', [AdminAdZoneController::class, 'updateAdsenseSettings'])->name('reklam-alanlari.adsense-update');
     Route::resource('reklam-alanlari', AdminAdZoneController::class)->except(['show']);
     Route::get('/reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
     Route::get('/reviews/{review}/edit', [AdminReviewController::class, 'edit'])->name('reviews.edit');
@@ -308,6 +314,7 @@ Route::delete('/companies/{company}/galeri/{id}', [AdminCompanyController::class
     Route::delete('/notifications/{id}', [AdminNotificationController::class, 'destroy'])->name('notifications.destroy');
     Route::get('/sitemap', [\App\Http\Controllers\Admin\SitemapController::class, 'index'])->name('sitemap.index');
     Route::get('/site-contact-messages', [\App\Http\Controllers\Admin\SiteContactMessageController::class, 'index'])->name('site-contact-messages.index');
+    Route::post('/site-contact-messages/bulk-destroy', [\App\Http\Controllers\Admin\SiteContactMessageController::class, 'bulkDestroy'])->name('site-contact-messages.bulk-destroy');
     Route::get('/site-contact-messages/{siteContactMessage}', [\App\Http\Controllers\Admin\SiteContactMessageController::class, 'show'])->name('site-contact-messages.show');
     Route::delete('/site-contact-messages/{siteContactMessage}', [\App\Http\Controllers\Admin\SiteContactMessageController::class, 'destroy'])->name('site-contact-messages.destroy');
 });

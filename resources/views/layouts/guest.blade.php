@@ -28,6 +28,8 @@
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet"></noscript>
     @include('layouts.partials.structured-data')
+    @if(!empty($adsense_meta_tag ?? null)){!! $adsense_meta_tag !!}@endif
+    @if(!empty($adsense_code_snippet ?? null)){!! $adsense_code_snippet !!}@endif
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
     <script>(function(){var s=localStorage.getItem('site-theme');if(s==='dark')document.documentElement.classList.add('dark');else if(s==='light')document.documentElement.classList.remove('dark');else document.documentElement.classList.add('dark');})();</script>

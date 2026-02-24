@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class MusteriController extends Controller
@@ -46,5 +47,20 @@ class MusteriController extends Controller
         ]);
 
         return view('admin.musteriler.show', compact('user'));
+    }
+
+    public function bulkDestroy(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:users,id',
+        ]);
+
+        $deleted = User::where('role', 'musteri')->whereIn('id', $request->ids)->delete();
+        $message = $deleted > 0
+            ? $deleted . ' müşteri silindi.'
+            : 'Seçilen kayıtlar müşteri olmadığı için silinemedi.';
+
+        return redirect()->route('admin.musteriler.index')->with('success', $message);
     }
 }

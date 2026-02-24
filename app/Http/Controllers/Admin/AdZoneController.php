@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdZone;
+use App\Models\Setting;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class AdZoneController extends Controller
@@ -23,7 +25,29 @@ class AdZoneController extends Controller
         }
 
         $reklamlar = $query->paginate(20)->withQueryString();
-        return view('admin.reklam-alanlari.index', compact('reklamlar'));
+
+        $adsense = [
+            'adsense_code_snippet' => Setting::get('adsense_code_snippet', ''),
+            'ads_txt_content' => Setting::get('ads_txt_content', ''),
+            'adsense_meta_tag' => Setting::get('adsense_meta_tag', ''),
+        ];
+
+        return view('admin.reklam-alanlari.index', compact('reklamlar', 'adsense'));
+    }
+
+    public function updateAdsenseSettings(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'adsense_code_snippet' => 'nullable|string|max:65535',
+            'ads_txt_content' => 'nullable|string|max:65535',
+            'adsense_meta_tag' => 'nullable|string|max:2000',
+        ]);
+
+        Setting::set('adsense_code_snippet', $request->input('adsense_code_snippet') ?? '', 'ads');
+        Setting::set('ads_txt_content', $request->input('ads_txt_content') ?? '', 'ads');
+        Setting::set('adsense_meta_tag', $request->input('adsense_meta_tag') ?? '', 'ads');
+
+        return redirect()->route('admin.reklam-alanlari.index')->with('success', 'Google AdSense ayarları kaydedildi.');
     }
 
     public function create()

@@ -161,7 +161,7 @@
                             <div class="flex flex-wrap items-center gap-4 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700">
                                 @if($listing->company->logo && $listing->company->logo_approved_at)
                                     <div class="w-20 h-20 rounded-2xl shrink-0 overflow-hidden flex items-center justify-center bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-600 shadow-sm">
-                                        <img src="{{ asset('storage/'.$listing->company->logo) }}" alt="{{ $listing->company->name }}" class="w-full h-full object-contain p-1">
+                                        <img src="{{ asset('storage/'.$listing->company->logo) }}" alt="{{ $listing->company->name }}" class="w-full h-full object-contain p-1" width="96" height="96" loading="lazy">
                                     </div>
                                 @else
                                     <div class="w-20 h-20 rounded-2xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-2xl font-bold text-emerald-700 dark:text-emerald-300 shadow-sm">

@@ -79,7 +79,7 @@
                                 <div class="flex gap-4">
                                     @if($firma->logo && $firma->logo_approved_at && trim($firma->logo) !== '')
                                         <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl shrink-0 overflow-hidden flex items-center justify-center bg-white dark:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-700/60 ring-1 ring-zinc-100 dark:ring-zinc-800">
-                                            <img src="{{ asset('storage/'.$firma->logo) }}" alt="{{ $firma->name }}" class="w-full h-full object-contain p-0.5">
+                                            <img src="{{ asset('storage/'.$firma->logo) }}" alt="{{ $firma->name }}" class="w-full h-full object-contain p-0.5" width="80" height="80" loading="lazy">
                                         </div>
                                     @else
                                         <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-emerald-500 flex items-center justify-center text-2xl font-bold text-white shrink-0" aria-hidden="true">

@@ -44,6 +44,8 @@
     </script>
     @stack('styles')
     @if(!empty($seo_head_codes ?? null)){!! $seo_head_codes !!}@endif
+    @if(!empty($adsense_meta_tag ?? null)){!! $adsense_meta_tag !!}@endif
+    @if(!empty($adsense_code_snippet ?? null)){!! $adsense_code_snippet !!}@endif
     @if(!empty($custom_header_html ?? null)){!! $custom_header_html !!}@endif
 </head>
 <body class="site-selection min-h-screen font-sans safe-top safe-bottom">

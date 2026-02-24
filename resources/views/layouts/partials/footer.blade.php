@@ -5,12 +5,12 @@
                 @if(!empty($site_logo_url ?? null) || !empty($site_logo_dark_url ?? null))
                     <a href="{{ url('/') }}" class="inline-block mb-4">
                         @if(!empty($site_logo_url))
-                            <img src="{{ $site_logo_url }}" alt="{{ $site_meta_title ?? 'NakliyePark' }}" class="h-10 w-auto max-w-[160px] object-contain dark:hidden">
+                            <img src="{{ $site_logo_url }}" alt="{{ $site_meta_title ?? 'NakliyePark' }}" class="h-10 w-auto max-w-[160px] object-contain dark:hidden" width="160" height="40">
                         @endif
                         @if(!empty($site_logo_dark_url ?? null))
-                            <img src="{{ $site_logo_dark_url }}" alt="{{ $site_meta_title ?? 'NakliyePark' }}" class="h-10 w-auto max-w-[160px] object-contain hidden dark:block">
+                            <img src="{{ $site_logo_dark_url }}" alt="{{ $site_meta_title ?? 'NakliyePark' }}" class="h-10 w-auto max-w-[160px] object-contain hidden dark:block" width="160" height="40">
                         @elseif(!empty($site_logo_url))
-                            <img src="{{ $site_logo_url }}" alt="{{ $site_meta_title ?? 'NakliyePark' }}" class="h-10 w-auto max-w-[160px] object-contain hidden dark:block">
+                            <img src="{{ $site_logo_url }}" alt="{{ $site_meta_title ?? 'NakliyePark' }}" class="h-10 w-auto max-w-[160px] object-contain hidden dark:block" width="160" height="40">
                         @endif
                     </a>
                 @endif

@@ -20,7 +20,7 @@
                     Üye olmadan ihale başlat, firmalardan teklif al. Hızlı, güvenli, şeffaf.
                 </p>
                 <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-12">
-                    <a href="{{ route('ihale.create') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-12 px-8 bg-emerald-500 hover:bg-emerald-400 text-white font-semibold rounded-xl transition-colors">
+                    <a href="{{ route('ihale.create') }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-12 px-8 bg-emerald-600 hover:bg-emerald-500 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-semibold rounded-xl transition-colors">
                         İhale Başlat
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
                     </a>
@@ -677,7 +677,7 @@ $haritadaGoster = $firmalarHaritada->map(fn($c) => ['id' => $c->id, 'name' => $c
                 <a href="{{ route('firmalar.show', $firma) }}" class="group flex items-center gap-4 p-5 sm:p-6 rounded-2xl border-2 border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/80 shadow-sm hover:shadow-lg hover:border-emerald-300 dark:hover:border-emerald-700/50 hover:bg-emerald-50/30 dark:hover:bg-zinc-800/80 transition-all duration-300">
                     @if($firma->logo && $firma->logo_approved_at)
                         <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl shrink-0 overflow-hidden flex items-center justify-center bg-white dark:bg-zinc-800 border border-zinc-200/60 dark:border-zinc-700 shadow-sm">
-                            <img src="{{ asset('storage/'.$firma->logo) }}" alt="{{ $firma->name }}" class="w-full h-full object-contain p-1">
+                            <img src="{{ asset('storage/'.$firma->logo) }}" alt="{{ $firma->name }}" class="w-full h-full object-contain p-1" width="96" height="96" loading="lazy">
                         </div>
                     @else
                         <span class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-emerald-500 flex items-center justify-center text-2xl font-bold text-white shrink-0 shadow-sm">{{ mb_substr($firma->name, 0, 1) }}</span>
@@ -946,7 +946,7 @@ $haritadaGoster = $firmalarHaritada->map(fn($c) => ['id' => $c->id, 'name' => $c
             <span class="inline-block w-12 h-1 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 mb-4"></span>
             <h2 class="section-head-title">Sıkça sorulan sorular</h2>
             <p class="text-zinc-500 dark:text-zinc-300 mt-2 max-w-xl mx-auto">Müşteri ve nakliyeci için nakliye ve platform hakkında merak ettikleriniz</p>
-            <a href="{{ route('faq.index') }}" class="inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white text-sm font-semibold transition-colors shadow-lg shadow-emerald-500/20 dark:shadow-emerald-500/25">
+            <a href="{{ route('faq.index') }}" class="inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-xl bg-emerald-800 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white text-sm font-semibold transition-colors shadow-lg shadow-emerald-500/20 dark:shadow-emerald-500/25">
                 Tüm SSS
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </a>

@@ -138,6 +138,8 @@ class AppServiceProvider extends ServiceProvider
             'show_pazaryeri_page' => $showPazaryeriPage,
             'show_defter_page' => $showDefterPage,
             'show_blog_page' => $showBlogPage,
+            'adsense_code_snippet' => \App\Models\Setting::get('adsense_code_snippet', '') ?: null,
+            'adsense_meta_tag' => \App\Models\Setting::get('adsense_meta_tag', '') ?: null,
         ]);
     }
 

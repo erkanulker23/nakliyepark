@@ -5,6 +5,33 @@
 @section('page_subtitle', 'Sayfalardaki reklam slotları: Google AdSense kodu, kendi görsel reklamlarınız. Blog, ihale, defter ve anasayfa için konum seçin.')
 
 @section('content')
+{{-- Google AdSense genel ayarları --}}
+<div class="mb-8 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+    <div class="px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50">
+        <h2 class="text-base font-semibold text-slate-800 dark:text-slate-200">Google AdSense bilgileri</h2>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Site genelinde kullanılacak AdSense kod snippet'i, ads.txt içeriği ve meta etiket. Kaydettiğinizde tüm sayfalarda etkin olur.</p>
+    </div>
+    <form method="POST" action="{{ route('admin.reklam-alanlari.adsense-update') }}" class="p-4 sm:p-5 space-y-4">
+        @csrf
+        <div>
+            <label for="adsense_code_snippet" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">AdSense kod snippet'i</label>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-1">Google AdSense’den aldığınız &lt;script&gt;...&lt;/script&gt; kodunu buraya yapıştırın. &lt;head&gt; içine eklenir.</p>
+            <textarea name="adsense_code_snippet" id="adsense_code_snippet" rows="6" class="admin-input w-full font-mono text-sm" placeholder="<script async src=\"https://pagead2.googlesyndication.com/...\"></script>">{{ old('adsense_code_snippet', $adsense['adsense_code_snippet'] ?? '') }}</textarea>
+        </div>
+        <div>
+            <label for="ads_txt_content" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Ads.txt snippet'i</label>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-1">Google’dan aldığınız ads.txt satırlarını yapıştırın. Site kökünde <code class="px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-xs">{{ url('/ads.txt') }}</code> adresinden yayınlanır.</p>
+            <textarea name="ads_txt_content" id="ads_txt_content" rows="5" class="admin-input w-full font-mono text-sm" placeholder="google.com, pub-XXXXXXXXXX, DIRECT, XXXXXXX">{{ old('ads_txt_content', $adsense['ads_txt_content'] ?? '') }}</textarea>
+        </div>
+        <div>
+            <label for="adsense_meta_tag" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Meta etiket</label>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-1">AdSense doğrulama veya ek meta etiket (tam satır, örn. <code class="px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-700 text-xs">&lt;meta name="google-site-verification" content="..."&gt;</code>). &lt;head&gt; içine eklenir.</p>
+            <textarea name="adsense_meta_tag" id="adsense_meta_tag" rows="2" class="admin-input w-full font-mono text-sm" placeholder='<meta name="google-site-verification" content="...">'>{{ old('adsense_meta_tag', $adsense['adsense_meta_tag'] ?? '') }}</textarea>
+        </div>
+        <button type="submit" class="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 font-medium text-sm">AdSense ayarlarını kaydet</button>
+    </form>
+</div>
+
 <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
     <div class="flex flex-wrap items-center gap-3">
         <form method="get" action="{{ route('admin.reklam-alanlari.index') }}" class="flex flex-wrap items-center gap-2">
