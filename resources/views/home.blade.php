@@ -91,6 +91,26 @@
     </div>
 </section>
 
+@php $homeReklamUst = \App\Models\AdZone::getForPagePosition('home', 'ust', 2); @endphp
+@if($homeReklamUst->isNotEmpty())
+<section class="border-b border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
+    <div class="page-container py-4 sm:py-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-4xl mx-auto">
+            @foreach($homeReklamUst as $reklam)
+                <div class="rounded-2xl border border-zinc-200 dark:border-zinc-700 overflow-hidden bg-white dark:bg-zinc-800 p-4 min-h-[100px] flex items-center justify-center">
+                    @if($reklam->isCode()){!! $reklam->kod !!}@else
+                        @if($reklam->link)<a href="{{ $reklam->link }}" target="_blank" rel="noopener noreferrer nofollow" class="block w-full">@endif
+                        @if($reklam->resim)<img src="{{ $reklam->resim }}" alt="{{ $reklam->baslik ?? 'Reklam' }}" class="w-full h-24 object-cover rounded-lg mb-2" loading="lazy">@endif
+                        @if($reklam->baslik)<p class="font-medium text-zinc-900 dark:text-white">{{ $reklam->baslik }}</p>@endif
+                        @if($reklam->link)</a>@endif
+                    @endif
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
+
 @push('styles')
 <style>
 @keyframes hero-zoom {
@@ -162,6 +182,26 @@
     </div>
 </section>
 </div>
+@endif
+
+@php $homeReklamAlt = \App\Models\AdZone::getForPagePosition('home', 'alt', 2); @endphp
+@if($homeReklamAlt->isNotEmpty())
+<section class="border-t border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
+    <div class="page-container py-4 sm:py-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-4xl mx-auto">
+            @foreach($homeReklamAlt as $reklam)
+                <div class="rounded-2xl border border-zinc-200 dark:border-zinc-700 overflow-hidden bg-white dark:bg-zinc-800 p-4 min-h-[100px] flex items-center justify-center">
+                    @if($reklam->isCode()){!! $reklam->kod !!}@else
+                        @if($reklam->link)<a href="{{ $reklam->link }}" target="_blank" rel="noopener noreferrer nofollow" class="block w-full">@endif
+                        @if($reklam->resim)<img src="{{ $reklam->resim }}" alt="{{ $reklam->baslik ?? 'Reklam' }}" class="w-full h-24 object-cover rounded-lg mb-2" loading="lazy">@endif
+                        @if($reklam->baslik)<p class="font-medium text-zinc-900 dark:text-white">{{ $reklam->baslik }}</p>@endif
+                        @if($reklam->link)</a>@endif
+                    @endif
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
 @endif
 
 {{-- Müşteri yorumları — sade, okunaklı tasarım --}}

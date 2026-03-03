@@ -185,6 +185,11 @@
                 <span id="price-display">0</span> ₺
             </p>
             <div id="price-details" class="mt-2 text-xs text-zinc-500 dark:text-zinc-400 space-y-0.5"></div>
+            @if($priceHistoryLast10->isNotEmpty())
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-2" id="price-last-at">En son hesaplama: {{ $priceHistoryLast10->first()->created_at->format('d.m.Y H:i') }}</p>
+            @else
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-2 hidden" id="price-last-at"></p>
+            @endif
             @if($showEmbedLink)
             <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-2">Bu tahmin referans amaçlıdır. Kesin fiyat için <a href="{{ $ihaleCreateUrl }}" class="text-emerald-600 dark:text-emerald-400 hover:underline">ihale açın</a> ve firmalardan teklif alın.</p>
             @endif
@@ -207,6 +212,9 @@
                             </div>
                             @if($item->km || $item->room_label || $item->service_type)
                                 <div class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">{{ implode(' · ', array_filter([$item->km ? $item->km . ' km' : null, $item->room_label, $item->service_type])) }}</div>
+                            @endif
+                            @if($item->created_at)
+                                <div class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{{ $item->created_at->format('d.m.Y H:i') }}</div>
                             @endif
                         </div>
                 @endforeach
@@ -367,30 +375,51 @@
             .catch(function() { renderPriceHistory([]); });
     }
 
+    function formatPriceDateTime(isoStr) {
+        if (!isoStr) return '';
+        try {
+            var d = new Date(isoStr);
+            if (isNaN(d.getTime())) return '';
+            var day = String(d.getDate()).padStart(2, '0');
+            var month = String(d.getMonth() + 1).padStart(2, '0');
+            var year = d.getFullYear();
+            var h = String(d.getHours()).padStart(2, '0');
+            var m = String(d.getMinutes()).padStart(2, '0');
+            return day + '.' + month + '.' + year + ' ' + h + ':' + m;
+        } catch (e) { return ''; }
+    }
+
     function renderPriceHistory(list) {
         var container = document.getElementById('price-history-list');
         var emptyEl = document.getElementById('price-history-empty');
+        var lastAtEl = document.getElementById('price-last-at');
         if (!container) return;
         if (!list || list.length === 0) {
             var existingItems = container.querySelectorAll('.price-history-item').length;
             if (existingItems > 0) return;
             if (emptyEl) emptyEl.classList.remove('hidden');
+            if (lastAtEl) { lastAtEl.textContent = ''; lastAtEl.classList.add('hidden'); }
             container.querySelectorAll('.price-history-item').forEach(function(el) { el.remove(); });
             return;
         }
         if (emptyEl) emptyEl.classList.add('hidden');
+        if (lastAtEl && list[0] && list[0].created_at) {
+            lastAtEl.textContent = 'En son hesaplama: ' + formatPriceDateTime(list[0].created_at);
+            lastAtEl.classList.remove('hidden');
+        }
         container.querySelectorAll('.price-history-item').forEach(function(el) { el.remove(); });
         list.forEach(function(item) {
             var div = document.createElement('div');
             div.className = 'price-history-item px-4 py-3 text-sm';
-            var route = item.route || (item.from && item.to ? item.from + ' → ' + item.to : '') || '—';
+            var route = (item.route || (item.from && item.to ? item.from + ' → ' + item.to : '') || '—').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             var priceStr = (item.price != null) ? Number(item.price).toLocaleString('tr-TR') + ' ₺' : '';
             var detay = [];
             if (item.km) detay.push(item.km + ' km');
             if (item.room) detay.push(item.room);
             if (item.service_type) detay.push(item.service_type);
             var detayStr = detay.length ? detay.join(' · ') : '';
-            div.innerHTML = '<div class="flex items-center justify-between gap-3 flex-wrap"><span class="text-zinc-600 dark:text-zinc-300 truncate">' + route + '</span><span class="font-semibold text-emerald-600 dark:text-emerald-400 shrink-0">' + priceStr + '</span></div>' + (detayStr ? '<div class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">' + detayStr + '</div>' : '');
+            var dateStr = item.created_at ? '<div class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">' + formatPriceDateTime(item.created_at) + '</div>' : '';
+            div.innerHTML = '<div class="flex items-center justify-between gap-3 flex-wrap"><span class="text-zinc-600 dark:text-zinc-300 truncate">' + route + '</span><span class="font-semibold text-emerald-600 dark:text-emerald-400 shrink-0">' + priceStr + '</span></div>' + (detayStr ? '<div class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">' + detayStr + '</div>' : '') + dateStr;
             container.appendChild(div);
         });
     }

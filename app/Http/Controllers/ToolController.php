@@ -225,6 +225,7 @@ class ToolController extends Controller
             'to' => $r->to_label,
             'km' => $r->km,
             'route' => $r->route_label ?: $r->from_label . ' → ' . $r->to_label,
+            'created_at' => $r->created_at?->format('Y-m-d\TH:i:s'),
         ]);
 
         return response()->json(['data' => $items->values()->all()]);
@@ -260,6 +261,7 @@ class ToolController extends Controller
             'room' => $r->room_label,
             'service_type' => $r->service_type,
             'route' => $r->route_label ?: ($r->from_label && $r->to_label ? $r->from_label . ' → ' . $r->to_label : ''),
+            'created_at' => $r->created_at?->format('Y-m-d\TH:i:s'),
         ]);
 
         return response()->json(['data' => $items->values()->all()]);

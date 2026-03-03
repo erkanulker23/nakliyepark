@@ -61,6 +61,15 @@
             </form>
         </div>
 
+        {{-- CTA: Siz de burada yer almak ister misiniz? — Firma üyeliğine yönlendir --}}
+        <div class="mb-8 sm:mb-10 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-950/40 dark:to-zinc-900 p-6 sm:p-8 text-center shadow-sm">
+            <h2 class="text-xl font-bold text-zinc-900 dark:text-white">Siz de burada yer almak ister misiniz?</h2>
+            <p class="text-zinc-600 dark:text-zinc-400 mt-2 text-sm sm:text-base max-w-lg mx-auto">Firmanızı onaylı nakliye firmaları listesine ekleyin, müşterilerle buluşun.</p>
+            <a href="{{ route('register', ['role' => 'nakliyeci']) }}" class="mt-5 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500 text-white font-semibold text-sm shadow-lg shadow-emerald-500/25 transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900">
+                Hemen üye ol
+            </a>
+        </div>
+
         @if($firmalar->count() > 0)
             <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">{{ $firmalar->total() }} firma listeleniyor</p>
             <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6">

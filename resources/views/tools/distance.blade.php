@@ -74,6 +74,7 @@
             <p class="text-sm text-zinc-600 dark:text-zinc-400" id="result-label">Tahmini karayolu mesafesi</p>
             <p class="text-2xl sm:text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-1"><span id="result-km">0</span> km</p>
             <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1" id="result-route"></p>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-2" id="result-last-at" aria-hidden="true"></p>
         </div>
 
         <section class="mt-8 pt-6 border-t border-zinc-200 dark:border-zinc-800" aria-labelledby="son-mesafe-baslik">
@@ -251,10 +252,42 @@
         }).then(function() { loadDistanceHistory(); }).catch(function() {});
     }
 
+    function formatDateTime(isoStr) {
+        if (!isoStr) return '';
+        try {
+            const d = new Date(isoStr);
+            if (isNaN(d.getTime())) return '';
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            const h = String(d.getHours()).padStart(2, '0');
+            const m = String(d.getMinutes()).padStart(2, '0');
+            return day + '.' + month + '.' + year + ' ' + h + ':' + m;
+        } catch (e) { return ''; }
+    }
+
+    function showLastResultInBox(item) {
+        if (!item || !resultBox) return;
+        resultKm.textContent = item.km || 0;
+        if (resultRoute) resultRoute.textContent = item.route || (item.from && item.to ? item.from + ' → ' + item.to : '');
+        if (resultLabel) resultLabel.textContent = 'Tahmini karayolu mesafesi';
+        const lastAtEl = document.getElementById('result-last-at');
+        if (lastAtEl) {
+            lastAtEl.textContent = item.created_at ? 'En son ölçüm: ' + formatDateTime(item.created_at) : '';
+            lastAtEl.classList.toggle('hidden', !item.created_at);
+        }
+        mapWrapper.classList.add('hidden');
+        resultBox.classList.remove('hidden');
+    }
+
     function loadDistanceHistory() {
         fetch(distanceHistoryApiUrl, { headers: { 'Accept': 'application/json' } })
             .then(function(r) { return r.json(); })
-            .then(function(res) { renderDistanceHistory(res.data || []); })
+            .then(function(res) {
+                const data = res.data || [];
+                renderDistanceHistory(data);
+                if (data.length && data[0]) showLastResultInBox(data[0]);
+            })
             .catch(function() { renderDistanceHistory([]); });
     }
 
@@ -272,7 +305,9 @@
         list.forEach(function(item) {
             const div = document.createElement('div');
             div.className = 'distance-history-item px-4 py-3 flex items-center justify-between gap-3 text-sm';
-            div.innerHTML = '<span class="text-zinc-600 dark:text-zinc-300 truncate">' + (item.route || item.from + ' → ' + item.to) + '</span><span class="font-semibold text-emerald-600 dark:text-emerald-400 shrink-0">' + (item.km || 0) + ' km</span>';
+            const routeStr = (item.route || item.from + ' → ' + item.to).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const dateStr = item.created_at ? '<span class="text-xs text-zinc-500 dark:text-zinc-400 shrink-0">' + formatDateTime(item.created_at) + '</span>' : '';
+            div.innerHTML = '<span class="text-zinc-600 dark:text-zinc-300 truncate">' + routeStr + '</span><span class="flex items-center gap-2 shrink-0">' + dateStr + '<span class="font-semibold text-emerald-600 dark:text-emerald-400">' + (item.km || 0) + ' km</span></span>';
             container.appendChild(div);
         });
     }
@@ -288,7 +323,11 @@
                     const route = data.routes[0];
                     const roadKm = route.distance != null ? Math.round(route.distance / 1000) : null;
                     if (roadKm != null && resultKm) resultKm.textContent = roadKm;
-                    if (roadKm != null) saveDistanceHistory(from.name, to.name, roadKm);
+                    if (roadKm != null) {
+                        saveDistanceHistory(from.name, to.name, roadKm);
+                        var lastAtEl = document.getElementById('result-last-at');
+                        if (lastAtEl) { lastAtEl.textContent = 'En son ölçüm: ' + formatDateTime(new Date().toISOString()); lastAtEl.classList.remove('hidden'); }
+                    }
                     if (route.geometry && route.geometry.coordinates && route.geometry.coordinates.length) {
                         const coords = route.geometry.coordinates.map(c => [c[1], c[0]]);
                         onSuccess(coords);
@@ -342,6 +381,8 @@
                     var fallbackKm = Math.round(Math.sqrt(Math.pow((to.lat - from.lat) * 111, 2) + Math.pow((to.lng - from.lng) * 85, 2)));
                     if (resultKm) resultKm.textContent = fallbackKm;
                     saveDistanceHistory(from.name, to.name, fallbackKm);
+                    var lastAtEl = document.getElementById('result-last-at');
+                    if (lastAtEl) { lastAtEl.textContent = 'En son ölçüm: ' + formatDateTime(new Date().toISOString()); lastAtEl.classList.remove('hidden'); }
                     line = L.polyline([[from.lat, from.lng], [to.lat, to.lng]], { color: '#059669', weight: 4, opacity: 0.9 }).addTo(map);
                     map.fitBounds(bounds, { padding: [40, 40], maxZoom: 12 });
                 }
