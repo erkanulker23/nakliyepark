@@ -353,110 +353,131 @@
 @push('scripts')
 <script>
 (function() {
-    var track = document.getElementById('video-slider-track');
-    var dots = document.getElementById('video-slider-dots');
-    if (!track || !dots) return;
-    var slides = track.querySelectorAll('.video-slide');
-    var dotBtns = dots.querySelectorAll('.video-slider-dot');
-    var total = slides.length;
-    if (total === 0) return;
+    function initVideoSlider() {
+        var track = document.getElementById('video-slider-track');
+        var dots = document.getElementById('video-slider-dots');
+        var btnPrev = document.getElementById('video-slider-prev');
+        var btnNext = document.getElementById('video-slider-next');
+        if (!track || !dots) return;
+        var slides = track.querySelectorAll('.video-slide');
+        var dotBtns = dots.querySelectorAll('.video-slider-dot');
+        var total = slides.length;
+        if (total === 0) return;
 
-    function setActive(index) {
-        index = Math.max(0, Math.min(index, total - 1));
-        slides.forEach(function(s, i) {
-            s.classList.remove('active', 'is-prev', 'is-next', 'is-far-prev', 'is-far-next');
+        function setActive(index) {
+            index = Math.max(0, Math.min(index, total - 1));
+            slides.forEach(function(s, i) {
+                s.classList.remove('active', 'is-prev', 'is-next', 'is-far-prev', 'is-far-next');
 
-            if (i === index) {
-                s.classList.add('active');
-            } else if (i === index - 1) {
-                s.classList.add('is-prev');
-            } else if (i === index + 1) {
-                s.classList.add('is-next');
-            } else if (i < index - 1) {
-                s.classList.add('is-far-prev');
-            } else if (i > index + 1) {
-                s.classList.add('is-far-next');
-            }
+                if (i === index) {
+                    s.classList.add('active');
+                } else if (i === index - 1) {
+                    s.classList.add('is-prev');
+                } else if (i === index + 1) {
+                    s.classList.add('is-next');
+                } else if (i < index - 1) {
+                    s.classList.add('is-far-prev');
+                } else if (i > index + 1) {
+                    s.classList.add('is-far-next');
+                }
 
-            var ctr = s.querySelector('.video-slide-container');
-            var vid = s.querySelector('.video-el');
-            if (vid && i !== index) {
-                vid.pause();
-                if (ctr) ctr.classList.remove('playing');
-            }
-        });
-        dotBtns.forEach(function(d, i) {
-            d.classList.toggle('active', i === index);
-        });
-    }
-
-    function initVideoSlides() {
-        slides.forEach(function(slide) {
-            var ctr = slide.querySelector('.video-slide-container');
-            var vid = slide.querySelector('.video-el');
-            var overlay = slide.querySelector('.video-play-overlay');
-            if (!vid || !overlay || !ctr) return;
-            overlay.addEventListener('click', function() {
-                if (!slide.classList.contains('active')) return;
-                vid.play();
-                ctr.classList.add('playing');
+                var ctr = s.querySelector('.video-slide-container');
+                var vid = s.querySelector('.video-el');
+                if (vid && i !== index) {
+                    vid.pause();
+                    if (ctr) ctr.classList.remove('playing');
+                }
             });
-            vid.addEventListener('play', function() { ctr.classList.add('playing'); });
-            vid.addEventListener('pause', function() { ctr.classList.remove('playing'); });
-            vid.addEventListener('ended', function() { ctr.classList.remove('playing'); });
-        });
-    }
-
-    function scrollToIndex(index) {
-        index = Math.max(0, Math.min(index, total - 1));
-        var slide = slides[index];
-        if (slide) {
-            var left = slide.offsetLeft - (track.offsetWidth / 2) + (slide.offsetWidth / 2);
-            track.scrollTo({ left: left, behavior: 'smooth' });
-        }
-        setActive(index);
-    }
-
-    function updateActiveFromScroll() {
-        var trackRect = track.getBoundingClientRect();
-        var center = trackRect.left + trackRect.width / 2;
-        var best = 0, bestDist = Infinity;
-        slides.forEach(function(s, i) {
-            var r = s.getBoundingClientRect();
-            var slideCenter = r.left + r.width / 2;
-            var d = Math.abs(slideCenter - center);
-            if (d < bestDist) { bestDist = d; best = i; }
-        });
-        setActive(best);
-    }
-
-    var scrollTicking = false;
-    track.addEventListener('scroll', function() {
-        if (!scrollTicking) {
-            requestAnimationFrame(function() {
-                updateActiveFromScroll();
-                scrollTicking = false;
+            dotBtns.forEach(function(d, i) {
+                d.classList.toggle('active', i === index);
             });
-            scrollTicking = true;
         }
-    });
 
-    document.getElementById('video-slider-prev').addEventListener('click', function() {
-        var current = Array.from(slides).findIndex(function(s) { return s.classList.contains('active'); });
-        scrollToIndex(current <= 0 ? total - 1 : current - 1);
-    });
-    document.getElementById('video-slider-next').addEventListener('click', function() {
-        var current = Array.from(slides).findIndex(function(s) { return s.classList.contains('active'); });
-        scrollToIndex(current < 0 ? 0 : (current + 1) % total);
-    });
+        function initVideoSlides() {
+            slides.forEach(function(slide) {
+                var ctr = slide.querySelector('.video-slide-container');
+                var vid = slide.querySelector('.video-el');
+                var overlay = slide.querySelector('.video-play-overlay');
+                if (!vid || !overlay || !ctr) return;
+                overlay.addEventListener('click', function() {
+                    if (!slide.classList.contains('active')) return;
+                    vid.play();
+                    ctr.classList.add('playing');
+                });
+                vid.addEventListener('play', function() { ctr.classList.add('playing'); });
+                vid.addEventListener('pause', function() { ctr.classList.remove('playing'); });
+                vid.addEventListener('ended', function() { ctr.classList.remove('playing'); });
+            });
+        }
 
-    dotBtns.forEach(function(btn, i) {
-        btn.addEventListener('click', function() { scrollToIndex(i); });
-    });
+        function scrollToIndex(index) {
+            index = Math.max(0, Math.min(index, total - 1));
+            var slide = slides[index];
+            if (slide) {
+                var trackWidth = track.clientWidth || track.offsetWidth;
+                var slideWidth = slide.offsetWidth;
+                var left = slide.offsetLeft - (trackWidth / 2) + (slideWidth / 2);
+                left = Math.max(0, Math.min(left, track.scrollWidth - trackWidth));
+                track.scrollTo({ left: left, behavior: 'smooth' });
+            }
+            setActive(index);
+        }
 
-    initVideoSlides();
-    setActive(0);
-    setTimeout(function() { scrollToIndex(0); }, 100);
+        function updateActiveFromScroll() {
+            var trackRect = track.getBoundingClientRect();
+            var center = trackRect.left + trackRect.width / 2;
+            var best = 0, bestDist = Infinity;
+            slides.forEach(function(s, i) {
+                var r = s.getBoundingClientRect();
+                var slideCenter = r.left + r.width / 2;
+                var d = Math.abs(slideCenter - center);
+                if (d < bestDist) { bestDist = d; best = i; }
+            });
+            setActive(best);
+        }
+
+        var scrollTicking = false;
+        track.addEventListener('scroll', function() {
+            if (!scrollTicking) {
+                requestAnimationFrame(function() {
+                    updateActiveFromScroll();
+                    scrollTicking = false;
+                });
+                scrollTicking = true;
+            }
+        });
+
+        if (btnPrev) {
+            btnPrev.addEventListener('click', function(e) {
+                e.preventDefault();
+                var current = Array.from(slides).findIndex(function(s) { return s.classList.contains('active'); });
+                scrollToIndex(current <= 0 ? total - 1 : current - 1);
+            });
+        }
+        if (btnNext) {
+            btnNext.addEventListener('click', function(e) {
+                e.preventDefault();
+                var current = Array.from(slides).findIndex(function(s) { return s.classList.contains('active'); });
+                scrollToIndex(current < 0 ? 0 : (current + 1) % total);
+            });
+        }
+
+        dotBtns.forEach(function(btn, i) {
+            btn.addEventListener('click', function() { scrollToIndex(i); });
+        });
+
+        initVideoSlides();
+        setActive(0);
+        requestAnimationFrame(function() {
+            scrollToIndex(0);
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initVideoSlider);
+    } else {
+        initVideoSlider();
+    }
 })();
 </script>
 @endpush
@@ -799,12 +820,25 @@ $haritadaGoster = $firmalarHaritada->map(fn($c) => ['id' => $c->id, 'name' => $c
 @push('scripts')
 <script>
 (function() {
-    var track = document.getElementById('sponsor-slider-track');
-    var prev = document.getElementById('sponsor-slider-prev');
-    var next = document.getElementById('sponsor-slider-next');
-    if (!track || !prev || !next) return;
-    prev.addEventListener('click', function() { track.scrollBy({ left: -track.offsetWidth, behavior: 'smooth' }); });
-    next.addEventListener('click', function() { track.scrollBy({ left: track.offsetWidth, behavior: 'smooth' }); });
+    function initSponsorSlider() {
+        var track = document.getElementById('sponsor-slider-track');
+        var prev = document.getElementById('sponsor-slider-prev');
+        var next = document.getElementById('sponsor-slider-next');
+        if (!track || !prev || !next) return;
+        prev.addEventListener('click', function(e) {
+            e.preventDefault();
+            track.scrollBy({ left: -track.offsetWidth, behavior: 'smooth' });
+        });
+        next.addEventListener('click', function(e) {
+            e.preventDefault();
+            track.scrollBy({ left: track.offsetWidth, behavior: 'smooth' });
+        });
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSponsorSlider);
+    } else {
+        initSponsorSlider();
+    }
 })();
 </script>
 @endpush
@@ -940,8 +974,8 @@ $haritadaGoster = $firmalarHaritada->map(fn($c) => ['id' => $c->id, 'name' => $c
             track.scrollBy({ left: step, behavior: 'smooth' });
         }
 
-        prev.addEventListener('click', scrollPrev);
-        next.addEventListener('click', scrollNext);
+        prev.addEventListener('click', function(e) { e.preventDefault(); scrollPrev(); });
+        next.addEventListener('click', function(e) { e.preventDefault(); scrollNext(); });
     }
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initBlogSlider);
